@@ -68,7 +68,7 @@ fn main() -> Result<(), Error> {
             }
 
             // Update internal state and request a redraw
-            console.call_handle_input();
+            console.call_input();
             console.call_update();
             window.request_redraw();
         }

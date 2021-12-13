@@ -8,7 +8,7 @@ use crate::core::Rom;
 use self::draw_context::DrawContext;
 
 pub trait Console {
-    fn call_handle_input(&self);
+    fn call_input(&self);
     fn call_update(&self);
     fn call_draw(&self);
 

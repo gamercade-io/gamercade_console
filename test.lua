@@ -1,7 +1,7 @@
-count = 0
+COUNT = 0
 
-function handle_input()
-    print("Handle input - from LUA")
+function input()
+    print("Input - from LUA")
 end
 
 function update()
