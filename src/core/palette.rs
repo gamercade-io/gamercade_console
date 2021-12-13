@@ -6,11 +6,17 @@ pub const PALETTE_COLORS: usize = 16;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Palette {
-    colors: [Color; PALETTE_COLORS],
-    transparent: [bool; PALETTE_COLORS],
+    pub colors: [Color; PALETTE_COLORS],
+    pub transparent: [bool; PALETTE_COLORS],
 }
 
 impl Palette {
+    pub fn color_index_into_rgba(&self, index: usize) -> [u8; 4] {
+        let color = self.colors[index];
+        let transparent = if self.transparent[index] { 0xff } else { 0 };
+        [color.r, color.g, color.b, transparent]
+    }
+
     pub fn sweetie16() -> Self {
         Self {
             colors: [

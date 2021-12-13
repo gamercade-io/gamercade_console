@@ -8,3 +8,7 @@ edition = "2021"
 [dependencies]
 serde = { version = "1.0.131", features = ["derive"] }
 bincode = "1.3.3"
+winit = "0.26.0"
+pixels = "0.8.0"
+winit_input_helper = "0.11.0"
+rlua = "0.18.0"

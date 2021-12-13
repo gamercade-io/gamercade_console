@@ -1,9 +1,13 @@
 mod color;
 mod palette;
+mod resolution;
+mod rom;
 mod sprite;
 
 pub use color::*;
 pub use palette::*;
+pub use resolution::*;
+pub use rom::*;
 pub use sprite::*;
 
 use serde::{Deserialize, Serialize};
