@@ -379,6 +379,7 @@ name = "gamercade_console"
 version = "0.1.0"
 dependencies = [
  "bincode",
+ "parking_lot",
  "pixels",
  "rlua",
  "serde",

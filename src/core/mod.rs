@@ -1,10 +1,12 @@
 mod color;
+mod input_state;
 mod palette;
 mod resolution;
 mod rom;
 mod sprite;
 
 pub use color::*;
+pub use input_state::*;
 pub use palette::*;
 pub use resolution::*;
 pub use rom::*;

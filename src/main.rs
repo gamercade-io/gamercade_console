@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use console::{Console, LuaConsole};
 use pixels::{Error, Pixels, SurfaceTexture};
 use winit::{
@@ -16,7 +18,7 @@ fn main() -> Result<(), Error> {
     let event_loop = EventLoop::new();
     let mut input = WinitInputHelper::new();
     let window = {
-        let size = LogicalSize::new(640 as f64, 360 as f64);
+        let size = LogicalSize::new(320_f64, 180_f64);
         WindowBuilder::new()
             .with_title("Hello Pixels")
             .with_inner_size(size)
@@ -38,12 +40,16 @@ fn main() -> Result<(), Error> {
 
     let code = std::fs::read_to_string("test.lua").unwrap();
 
-    let mut console = LuaConsole::new(rom, 1, &code);
+    let rom = Arc::new(rom);
+
+    let console = LuaConsole::new(rom, 1, &code);
+    let mut button_pressed = false;
 
     event_loop.run(move |event, _, control_flow| {
         // Draw the current frame
         if let Event::RedrawRequested(_) = event {
             console.call_draw();
+            console.blit(pixels.get_frame());
             if pixels
                 .render()
                 .map_err(|e| println!("pixels.render() failed: {}", e))
@@ -62,13 +68,19 @@ fn main() -> Result<(), Error> {
                 return;
             }
 
+            if input.key_pressed(VirtualKeyCode::Space) {
+                button_pressed = true;
+            } else {
+                button_pressed = false;
+            }
+
             // Resize the window
             if let Some(size) = input.window_resized() {
                 pixels.resize_surface(size.width, size.height);
             }
 
             // Update internal state and request a redraw
-            console.call_input();
+            console.call_input(button_pressed);
             console.call_update();
             window.request_redraw();
         }
