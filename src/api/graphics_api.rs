@@ -16,6 +16,7 @@ pub trait GraphicsApi {
     fn height(&self) -> u32;
     fn width(&self) -> u32;
 
+    //TODO
     // fn circle(&self, x: u32, y: u32, color_index: Option<usize>, palette_index: Option<usize>);
     // fn circle_filled(&self, x: u32, y: u32, color_index: Option<usize>, palette_index: Option<usize>);
 
@@ -31,4 +32,10 @@ derive_bind_graphics_api! {
     bind_set_pixel,
     bind_height,
     bind_width,
+    //bind_circle
+    //bind_circle_filled
+    //bind_rect
+    //bind_rect_filled
+    //bind_line
+    //bind_sprite
 }
