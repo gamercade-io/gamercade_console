@@ -4,6 +4,8 @@ TODO:
 1. Write "Pong" in test.lua
 1. Finish "Graphcis" outlined functions
     1. Add "Draw Square" filled?
+    1. Add "Draw Circle"
+    1. Add "Draw Circle" filled?
 
 If WGPU errors occur, set WGPU_BACKEND=gl via
 

@@ -17,10 +17,16 @@ mod core;
 fn main() -> Result<(), Error> {
     let event_loop = EventLoop::new();
     let mut input = WinitInputHelper::new();
+
+    let code_filename = "test.lua";
+
     let window = {
         let size = LogicalSize::new(320_f64, 180_f64);
         WindowBuilder::new()
-            .with_title("Hello Pixels")
+            .with_title(format!(
+                "Gamercade Console - {} - {}x{}",
+                code_filename, size.width, size.height
+            ))
             .with_inner_size(size)
             .with_min_inner_size(size)
             .build(&event_loop)
@@ -38,7 +44,8 @@ fn main() -> Result<(), Error> {
         Pixels::new(width, height, surface_texture)?
     };
 
-    let code = std::fs::read_to_string("test.lua").unwrap();
+    //TODO: Load a passed in file or from the rom
+    let code = std::fs::read_to_string(code_filename).unwrap();
 
     let rom = Arc::new(rom);
 
