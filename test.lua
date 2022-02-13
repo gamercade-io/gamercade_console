@@ -9,20 +9,23 @@ function input(id, pressed)
 end
 
 function update()
-    COUNT = COUNT + 0.005
+    COUNT = COUNT + 0.0025
 end
 
 function draw()
-    local x = width() / 2
-    local y = height() / 2
-    local scale = 75
+    local x_mid = width() / 2
+    local y_mid = height() / 2
+    local scale = 80
     clear_screen()
-    local new_x = x + math.sin(COUNT) * scale
-    local new_y = y + math.cos(COUNT) * scale
-    local half_scale = scale / 2;
-    -- set_pixel(x + math.sin(COUNT) * scale, y + math.cos(COUNT) * scale, PRESSES % 16)
-    line(x, y, new_x, new_y, PRESSES % 16)
 
-    rect(x - half_scale, y - half_scale, scale, scale, PRESSES % 16)
+    -- set_pixel(x + math.sin(COUNT) * scale, y + math.cos(COUNT) * scale, PRESSES % 16)
+
+    for i = 1, 15, 1 do
+        local new_x = x_mid + math.sin(COUNT * i) * scale
+        local new_y = y_mid + math.cos(COUNT * i) * scale
+        line(x_mid, y_mid, new_x, new_y, (PRESSES + i) % 16)
+    end
+
+    rect(x_mid - scale, y_mid - scale, scale * 2, scale * 2, (PRESSES + 5) % 16)
 end
 

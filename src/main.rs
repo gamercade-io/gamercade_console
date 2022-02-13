@@ -43,13 +43,14 @@ fn main() -> Result<(), Error> {
     let rom = Arc::new(rom);
 
     let console = LuaConsole::new(rom, 1, &code);
-    let mut button_pressed = false;
 
+    //TODO: Incorporate Network stuff GGRS
     event_loop.run(move |event, _, control_flow| {
         // Draw the current frame
         if let Event::RedrawRequested(_) = event {
             console.call_draw();
             console.blit(pixels.get_frame());
+
             if pixels
                 .render()
                 .map_err(|e| println!("pixels.render() failed: {}", e))
@@ -68,11 +69,7 @@ fn main() -> Result<(), Error> {
                 return;
             }
 
-            if input.key_pressed(VirtualKeyCode::Space) {
-                button_pressed = true;
-            } else {
-                button_pressed = false;
-            }
+            let button_pressed = input.key_pressed(VirtualKeyCode::Space);
 
             // Resize the window
             if let Some(size) = input.window_resized() {

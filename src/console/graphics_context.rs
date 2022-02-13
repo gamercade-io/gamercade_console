@@ -177,6 +177,8 @@ impl GraphicsContext {
         })
     }
 
+    // TODO: Can optimize this further with direct access into
+    // the pixel buffers?
     fn draw_line_vertical(
         &self,
         x: u32,
@@ -192,6 +194,8 @@ impl GraphicsContext {
         });
     }
 
+    // TODO: Can optimize this further with linear access into
+    // the pixel buffers?
     fn draw_line_horizontal(
         &self,
         x0: u32,
