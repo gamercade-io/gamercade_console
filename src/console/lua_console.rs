@@ -152,6 +152,23 @@ impl GraphicsApiBinding for LuaConsole {
                 .unwrap()
         })
     }
+
+    fn bind_line(&mut self) {
+        self.lua.context(|ctx| {
+            ctx.globals()
+                .set(
+                    "line",
+                    ctx.create_function(
+                        |inner_ctx, args: (u32, u32, u32, u32, Option<usize>, Option<usize>)| {
+                            Ok(get_graphics_context(&inner_ctx)
+                                .line(args.0, args.1, args.2, args.3, args.4, args.5))
+                        },
+                    )
+                    .unwrap(),
+                )
+                .unwrap()
+        })
+    }
 }
 
 fn get_graphics_context(context: &Context) -> GraphicsContext {

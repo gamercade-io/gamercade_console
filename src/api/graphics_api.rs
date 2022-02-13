@@ -22,7 +22,15 @@ pub trait GraphicsApi {
 
     // fn rect(&self, x: u32, y: u32, width: u32, height: u32, color_index: Option<usize>, palette_index: Option<usize>)
     // fn rect_filled(&self, x: u32, y: u32, width: u32, height: u32, color_index: Option<usize>, palette_index: Option<usize>)
-    // fn line(&self, x1: u32, y1: u32, x2: u32, y2: u32, color_index: Option<usize>, palette_index: Option<usize>)
+    fn line(
+        &self,
+        x0: u32,
+        y0: u32,
+        x1: u32,
+        y1: u32,
+        color_index: Option<usize>,
+        palette_index: Option<usize>,
+    );
 
     // fn sprite(&self, sprite_index: usize, x: u32, y: u32, palette_index: Option<usize>)
 }
@@ -36,6 +44,6 @@ derive_bind_graphics_api! {
     //bind_circle_filled
     //bind_rect
     //bind_rect_filled
-    //bind_line
+    bind_line,
     //bind_sprite
 }

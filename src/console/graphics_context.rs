@@ -39,6 +39,44 @@ impl GraphicsApi for GraphicsContext {
     fn width(&self) -> u32 {
         self.rom.resolution.width()
     }
+
+    fn line(
+        &self,
+        x0: u32,
+        y0: u32,
+        x1: u32,
+        y1: u32,
+        color_index: Option<usize>,
+        palette_index: Option<usize>,
+    ) {
+        // Optimized horizontal or veritcal lines
+        if x0 == x1 {
+            self.draw_line_vertical(x0, y0, y1, color_index, palette_index);
+            return;
+        } else if y0 == y1 {
+            self.draw_line_horizontal(x0, x1, y0, color_index, palette_index);
+            return;
+        }
+
+        let x0 = x0 as i32;
+        let x1 = x1 as i32;
+        let y0 = y0 as i32;
+        let y1 = y1 as i32;
+
+        if (y1 - y0).abs() < (x1 - x0).abs() {
+            if x0 > x1 {
+                self.draw_line_low(x1, y1, x0, y0, color_index, palette_index)
+            } else {
+                self.draw_line_low(x0, y0, x1, y1, color_index, palette_index)
+            }
+        } else {
+            if y0 > y1 {
+                self.draw_line_high(x1, y1, x0, y0, color_index, palette_index)
+            } else {
+                self.draw_line_high(x0, y0, x1, y1, color_index, palette_index)
+            }
+        }
+    }
 }
 
 impl GraphicsContext {
@@ -49,5 +87,101 @@ impl GraphicsContext {
     fn get_color_as_pixel_data(&self, color_index: usize, palette_index: usize) -> [u8; 4] {
         let color = self.rom.palettes[palette_index].colors[color_index];
         [color.r, color.g, color.b, 0xff]
+    }
+
+    fn draw_line_low(
+        &self,
+        x0: i32,
+        y0: i32,
+        x1: i32,
+        y1: i32,
+        color_index: Option<usize>,
+        palette_index: Option<usize>,
+    ) {
+        let dx = x1 - x0;
+        let mut dy = y1 - y0;
+
+        let y_adjust = if dy < 0 {
+            dy = -dy;
+            -1
+        } else {
+            1
+        };
+
+        let mut d = (2 * dy) - dx;
+        let mut y = y0;
+
+        (x0..x1).for_each(|x| {
+            self.set_pixel(x as u32, y as u32, color_index, palette_index);
+            if d > 0 {
+                y = y + y_adjust;
+                d = d + (2 * (dy - dx));
+            } else {
+                d = d + 2 * dy;
+            }
+        })
+    }
+
+    fn draw_line_high(
+        &self,
+        x0: i32,
+        y0: i32,
+        x1: i32,
+        y1: i32,
+        color_index: Option<usize>,
+        palette_index: Option<usize>,
+    ) {
+        let mut dx = x1 - x0;
+        let dy = y1 - y0;
+
+        let x_adjust = if dx < 0 {
+            dx = -dx;
+            -1
+        } else {
+            1
+        };
+
+        let mut d = (2 * dx) - dy;
+        let mut x = x0;
+
+        (y0..y1).for_each(|y| {
+            self.set_pixel(x as u32, y as u32, color_index, palette_index);
+            if d > 0 {
+                x = x + x_adjust;
+                d = d + (2 * (dx - dy));
+            } else {
+                d = d + 2 * dx;
+            }
+        })
+    }
+
+    fn draw_line_vertical(
+        &self,
+        x: u32,
+        y0: u32,
+        y1: u32,
+        color_index: Option<usize>,
+        palette_index: Option<usize>,
+    ) {
+        let (start, end) = if y0 < y1 { (y0, y1) } else { (y1, y0) };
+
+        (start..end).for_each(|y| {
+            self.set_pixel(x, y, color_index, palette_index);
+        });
+    }
+
+    fn draw_line_horizontal(
+        &self,
+        x0: u32,
+        x1: u32,
+        y: u32,
+        color_index: Option<usize>,
+        palette_index: Option<usize>,
+    ) {
+        let (start, end) = if x0 < x1 { (x0, x1) } else { (x1, x0) };
+
+        (start..end).for_each(|x| {
+            self.set_pixel(x, y, color_index, palette_index);
+        });
     }
 }
