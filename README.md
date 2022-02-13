@@ -8,3 +8,7 @@ TODO:
 If WGPU errors occur, set WGPU_BACKEND=gl via
 
 > export WGPU_BACKEND=gl
+
+Useful Links:
+Circle Drawing Algorithm
+http://rosettacode.org/wiki/Bitmap/Midpoint_circle_algorithm
