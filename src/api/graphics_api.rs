@@ -20,7 +20,16 @@ pub trait GraphicsApi {
     // fn circle(&self, x: u32, y: u32, color_index: Option<usize>, palette_index: Option<usize>);
     // fn circle_filled(&self, x: u32, y: u32, color_index: Option<usize>, palette_index: Option<usize>);
 
-    // fn rect(&self, x: u32, y: u32, width: u32, height: u32, color_index: Option<usize>, palette_index: Option<usize>)
+    fn rect(
+        &self,
+        x: u32,
+        y: u32,
+        width: u32,
+        height: u32,
+        color_index: Option<usize>,
+        palette_index: Option<usize>,
+    );
+
     // fn rect_filled(&self, x: u32, y: u32, width: u32, height: u32, color_index: Option<usize>, palette_index: Option<usize>)
     fn line(
         &self,
@@ -40,10 +49,10 @@ derive_bind_graphics_api! {
     bind_set_pixel,
     bind_height,
     bind_width,
-    //bind_circle
-    //bind_circle_filled
-    //bind_rect
-    //bind_rect_filled
+    //bind_circle,
+    //bind_circle_filled,
+    bind_rect,
+    //bind_rect_filled,
     bind_line,
-    //bind_sprite
+    //bind_sprite,
 }

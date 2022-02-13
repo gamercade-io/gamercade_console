@@ -19,7 +19,10 @@ function draw()
     clear_screen()
     local new_x = x + math.sin(COUNT) * scale
     local new_y = y + math.cos(COUNT) * scale
+    local half_scale = scale / 2;
     -- set_pixel(x + math.sin(COUNT) * scale, y + math.cos(COUNT) * scale, PRESSES % 16)
     line(x, y, new_x, new_y, PRESSES % 16)
+
+    rect(x - half_scale, y - half_scale, scale, scale, PRESSES % 16)
 end
 

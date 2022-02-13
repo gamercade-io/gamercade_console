@@ -77,6 +77,28 @@ impl GraphicsApi for GraphicsContext {
             }
         }
     }
+
+    fn rect(
+        &self,
+        x: u32,
+        y: u32,
+        width: u32,
+        height: u32,
+        color_index: Option<usize>,
+        palette_index: Option<usize>,
+    ) {
+        // Top
+        self.draw_line_horizontal(x, x + width, y, color_index, palette_index);
+
+        // Bottom
+        self.draw_line_horizontal(x, x + width, y + height, color_index, palette_index);
+
+        // Left
+        self.draw_line_vertical(x, y, y + height, color_index, palette_index);
+
+        // Right
+        self.draw_line_vertical(x + width, y, y + height, color_index, palette_index);
+    }
 }
 
 impl GraphicsContext {
@@ -111,7 +133,7 @@ impl GraphicsContext {
         let mut d = (2 * dy) - dx;
         let mut y = y0;
 
-        (x0..x1).for_each(|x| {
+        (x0..=x1).for_each(|x| {
             self.set_pixel(x as u32, y as u32, color_index, palette_index);
             if d > 0 {
                 y = y + y_adjust;
@@ -144,7 +166,7 @@ impl GraphicsContext {
         let mut d = (2 * dx) - dy;
         let mut x = x0;
 
-        (y0..y1).for_each(|y| {
+        (y0..=y1).for_each(|y| {
             self.set_pixel(x as u32, y as u32, color_index, palette_index);
             if d > 0 {
                 x = x + x_adjust;
@@ -165,7 +187,7 @@ impl GraphicsContext {
     ) {
         let (start, end) = if y0 < y1 { (y0, y1) } else { (y1, y0) };
 
-        (start..end).for_each(|y| {
+        (start..=end).for_each(|y| {
             self.set_pixel(x, y, color_index, palette_index);
         });
     }
@@ -180,7 +202,7 @@ impl GraphicsContext {
     ) {
         let (start, end) = if x0 < x1 { (x0, x1) } else { (x1, x0) };
 
-        (start..end).for_each(|x| {
+        (start..=end).for_each(|x| {
             self.set_pixel(x, y, color_index, palette_index);
         });
     }
