@@ -35,7 +35,7 @@ impl Console for LuaConsole {
 
             (0..self.player_count).for_each(|player_id| {
                 input_array
-                    .set(player_id + 1, input_states[player_id].into_lua_table(&ctx))
+                    .set(player_id + 1, input_states[player_id].to_lua_table(&ctx))
                     .unwrap();
             });
 
@@ -164,8 +164,9 @@ impl GraphicsApiBinding for LuaConsole {
                     "line",
                     ctx.create_function(
                         |inner_ctx, args: (u32, u32, u32, u32, Option<usize>, Option<usize>)| {
-                            Ok(get_graphics_context(&inner_ctx)
-                                .line(args.0, args.1, args.2, args.3, args.4, args.5))
+                            get_graphics_context(&inner_ctx)
+                                .line(args.0, args.1, args.2, args.3, args.4, args.5);
+                            Ok(())
                         },
                     )
                     .unwrap(),
@@ -181,8 +182,9 @@ impl GraphicsApiBinding for LuaConsole {
                     "rect",
                     ctx.create_function(
                         |inner_ctx, args: (u32, u32, u32, u32, Option<usize>, Option<usize>)| {
-                            Ok(get_graphics_context(&inner_ctx)
-                                .rect(args.0, args.1, args.2, args.3, args.4, args.5))
+                            get_graphics_context(&inner_ctx)
+                                .rect(args.0, args.1, args.2, args.3, args.4, args.5);
+                            Ok(())
                         },
                     )
                     .unwrap(),
@@ -200,30 +202,30 @@ fn get_graphics_context(context: &Context) -> GraphicsContext {
 
 impl UserData for GraphicsContext {}
 
-trait IntoLuaTable {
-    fn into_lua_table<'lua>(&self, ctx: &Context<'lua>) -> Table<'lua>;
+trait ToLuaTable {
+    fn to_lua_table<'lua>(&self, ctx: &Context<'lua>) -> Table<'lua>;
 }
 
-impl IntoLuaTable for InputState {
-    fn into_lua_table<'lua>(&self, ctx: &Context<'lua>) -> Table<'lua> {
+impl ToLuaTable for InputState {
+    fn to_lua_table<'lua>(&self, ctx: &Context<'lua>) -> Table<'lua> {
         let output = ctx.create_table().unwrap();
 
         //TODO: Add stuff like .analogs, .triggers etc
         output
-            .set("buttons", self.buttons.into_lua_table(ctx))
+            .set("buttons", self.buttons.to_lua_table(ctx))
             .unwrap();
 
         output
     }
 }
 
-impl IntoLuaTable for Buttons {
-    fn into_lua_table<'lua>(&self, ctx: &Context<'lua>) -> Table<'lua> {
+impl ToLuaTable for Buttons {
+    fn to_lua_table<'lua>(&self, ctx: &Context<'lua>) -> Table<'lua> {
         let output = ctx.create_table().unwrap();
 
         ButtonCode::iter().for_each(|button| {
             output
-                .set(button.into_lua_code(), self.get_button_state(button))
+                .set(button.to_lua_code(), self.get_button_state(button))
                 .unwrap();
         });
 
@@ -251,7 +253,7 @@ impl ButtonCode {
 }
 
 impl LuaCode for ButtonCode {
-    fn into_lua_code(&self) -> &str {
+    fn to_lua_code(&self) -> &str {
         match self {
             Self::Up => Self::S_UP,
             Self::Down => Self::S_DOWN,
@@ -271,31 +273,8 @@ impl LuaCode for ButtonCode {
             Self::RightTrigger => Self::S_RIGHT_TRIGGER,
         }
     }
-
-    fn from_lua_code(str: &str) -> Option<Self> {
-        match str.to_lowercase().as_str() {
-            Self::S_UP => Some(Self::Up),
-            Self::S_DOWN => Some(Self::Down),
-            Self::S_LEFT => Some(Self::Left),
-            Self::S_RIGHT => Some(Self::Right),
-            Self::S_A => Some(Self::A),
-            Self::S_B => Some(Self::B),
-            Self::S_C => Some(Self::C),
-            Self::S_D => Some(Self::D),
-            Self::S_START => Some(Self::Start),
-            Self::S_SELECT => Some(Self::Select),
-            Self::S_LEFT_SHOULDER => Some(Self::LeftShoulder),
-            Self::S_RIGHT_SHOULDER => Some(Self::RightShoulder),
-            Self::S_LEFT_STICK => Some(Self::LeftStick),
-            Self::S_RIGHT_STICK => Some(Self::RightStick),
-            Self::S_LEFT_TRIGGER => Some(Self::LeftTrigger),
-            Self::S_RIGHT_TRIGGER => Some(Self::RightTrigger),
-            _ => None,
-        }
-    }
 }
 
 pub trait LuaCode: Sized {
-    fn into_lua_code(&self) -> &str;
-    fn from_lua_code(str: &str) -> Option<Self>;
+    fn to_lua_code(&self) -> &str;
 }

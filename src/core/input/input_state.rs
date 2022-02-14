@@ -42,11 +42,11 @@ pub struct Buttons {
 
 impl Buttons {
     pub fn enable_button(&mut self, code: ButtonCode) {
-        self.state |= code.into_bit_mask();
+        self.state |= code.to_bit_mask();
     }
 
     pub fn get_button_state(&self, code: ButtonCode) -> bool {
-        self.state & code.into_bit_mask() != 0
+        self.state & code.to_bit_mask() != 0
     }
 
     pub fn generate_new(

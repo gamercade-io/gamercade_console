@@ -69,12 +69,10 @@ impl GraphicsApi for GraphicsContext {
             } else {
                 self.draw_line_low(x0, y0, x1, y1, color_index, palette_index)
             }
+        } else if y0 > y1 {
+            self.draw_line_high(x1, y1, x0, y0, color_index, palette_index)
         } else {
-            if y0 > y1 {
-                self.draw_line_high(x1, y1, x0, y0, color_index, palette_index)
-            } else {
-                self.draw_line_high(x0, y0, x1, y1, color_index, palette_index)
-            }
+            self.draw_line_high(x0, y0, x1, y1, color_index, palette_index)
         }
     }
 
@@ -136,10 +134,10 @@ impl GraphicsContext {
         (x0..=x1).for_each(|x| {
             self.set_pixel(x as u32, y as u32, color_index, palette_index);
             if d > 0 {
-                y = y + y_adjust;
-                d = d + (2 * (dy - dx));
+                y += y_adjust;
+                d += 2 * (dy - dx);
             } else {
-                d = d + 2 * dy;
+                d += 2 * dy;
             }
         })
     }
@@ -169,10 +167,10 @@ impl GraphicsContext {
         (y0..=y1).for_each(|y| {
             self.set_pixel(x as u32, y as u32, color_index, palette_index);
             if d > 0 {
-                x = x + x_adjust;
-                d = d + (2 * (dx - dy));
+                x += x_adjust;
+                d += 2 * (dx - dy);
             } else {
-                d = d + 2 * dx;
+                d += 2 * dx;
             }
         })
     }

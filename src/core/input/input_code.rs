@@ -47,8 +47,8 @@ pub enum ButtonCode {
     RightTrigger,
 }
 
-impl IntoBitMask<u16> for ButtonCode {
-    fn into_bit_mask(&self) -> u16 {
+impl ToBitMask<u16> for ButtonCode {
+    fn to_bit_mask(&self) -> u16 {
         match self {
             Self::Up => 0b100_0000,
             Self::Down => 0b1000_0000,
@@ -70,6 +70,6 @@ impl IntoBitMask<u16> for ButtonCode {
     }
 }
 
-pub trait IntoBitMask<T> {
-    fn into_bit_mask(&self) -> T;
+pub trait ToBitMask<T> {
+    fn to_bit_mask(&self) -> T;
 }
