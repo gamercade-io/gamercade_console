@@ -1,11 +1,12 @@
 use parking_lot::Mutex;
 use std::sync::Arc;
+use strum::IntoEnumIterator;
 
 use crate::{
     api::{GraphicsApi, GraphicsApiBinding},
-    core::Rom,
+    core::{ButtonCode, InputState, Rom},
 };
-use rlua::{Context, Function, Lua, UserData};
+use rlua::{Context, Function, Lua, Table, UserData};
 
 use super::{graphics_context::GraphicsContext, Console};
 
@@ -19,23 +20,26 @@ pub struct LuaConsole {
 }
 
 impl Console for LuaConsole {
-    fn call_input(&self, button_pressed: bool) {
-        // Call the roms handle_input function for each player
+    fn call_init(&self) {
         self.lua.context(|ctx| {
-            let input: Function = ctx.globals().get("input").unwrap();
-            (0..self.player_count).for_each(|player_id| {
-                input
-                    .call::<(usize, bool), ()>((player_id + 1, button_pressed))
-                    .unwrap()
-            });
+            let init: Function = ctx.globals().get("init").unwrap();
+            init.call::<_, ()>(()).unwrap();
         });
     }
-
-    fn call_update(&self) {
+    fn call_update(&self, input_states: &[InputState]) {
         // Call the rom's update function
         self.lua.context(|ctx| {
             let update: Function = ctx.globals().get("update").unwrap();
-            update.call::<_, ()>(()).unwrap();
+
+            let input_array = ctx.create_table().unwrap();
+
+            (0..self.player_count).for_each(|player_id| {
+                input_array
+                    .set(player_id + 1, input_states[player_id].into_lua_table(&ctx))
+                    .unwrap();
+            });
+
+            update.call::<Table, ()>(input_array).unwrap();
         });
     }
 
@@ -195,3 +199,91 @@ fn get_graphics_context(context: &Context) -> GraphicsContext {
 }
 
 impl UserData for GraphicsContext {}
+
+impl InputState {
+    fn into_lua_table<'a, 'lua>(&'a self, ctx: &'a Context<'lua>) -> Table<'lua> {
+        let output = ctx.create_table().unwrap();
+
+        //TODO: Add stuff like .buttons, .analogs, etc
+
+        ButtonCode::iter().for_each(|button| {
+            output
+                .set(
+                    button.into_lua_code(),
+                    self.buttons.get_button_state(button),
+                )
+                .unwrap();
+        });
+
+        output
+    }
+}
+
+impl ButtonCode {
+    const S_UP: &'static str = "up";
+    const S_DOWN: &'static str = "down";
+    const S_LEFT: &'static str = "left";
+    const S_RIGHT: &'static str = "right";
+    const S_A: &'static str = "a";
+    const S_B: &'static str = "b";
+    const S_C: &'static str = "c";
+    const S_D: &'static str = "d";
+    const S_START: &'static str = "start";
+    const S_SELECT: &'static str = "select";
+    const S_LEFT_SHOULDER: &'static str = "lshoulder";
+    const S_RIGHT_SHOULDER: &'static str = "rshoulder";
+    const S_LEFT_STICK: &'static str = "rstick";
+    const S_RIGHT_STICK: &'static str = "lstick";
+    const S_LEFT_TRIGGER: &'static str = "ltrigger";
+    const S_RIGHT_TRIGGER: &'static str = "rtrigger";
+}
+
+impl LuaCode for ButtonCode {
+    fn into_lua_code(&self) -> &str {
+        match self {
+            Self::Up => Self::S_UP,
+            Self::Down => Self::S_DOWN,
+            Self::Left => Self::S_LEFT,
+            Self::Right => Self::S_RIGHT,
+            Self::A => Self::S_A,
+            Self::B => Self::S_B,
+            Self::C => Self::S_C,
+            Self::D => Self::S_D,
+            Self::Start => Self::S_START,
+            Self::Select => Self::S_SELECT,
+            Self::LeftShoulder => Self::S_LEFT_SHOULDER,
+            Self::RightShoulder => Self::S_RIGHT_SHOULDER,
+            Self::LeftStick => Self::S_LEFT_STICK,
+            Self::RightStick => Self::S_RIGHT_STICK,
+            Self::LeftTrigger => Self::S_LEFT_TRIGGER,
+            Self::RightTrigger => Self::S_RIGHT_TRIGGER,
+        }
+    }
+
+    fn from_lua_code(str: &str) -> Option<Self> {
+        match str.to_lowercase().as_str() {
+            Self::S_UP => Some(Self::Up),
+            Self::S_DOWN => Some(Self::Down),
+            Self::S_LEFT => Some(Self::Left),
+            Self::S_RIGHT => Some(Self::Right),
+            Self::S_A => Some(Self::A),
+            Self::S_B => Some(Self::B),
+            Self::S_C => Some(Self::C),
+            Self::S_D => Some(Self::D),
+            Self::S_START => Some(Self::Start),
+            Self::S_SELECT => Some(Self::Select),
+            Self::S_LEFT_SHOULDER => Some(Self::LeftShoulder),
+            Self::S_RIGHT_SHOULDER => Some(Self::RightShoulder),
+            Self::S_LEFT_STICK => Some(Self::LeftStick),
+            Self::S_RIGHT_STICK => Some(Self::RightStick),
+            Self::S_LEFT_TRIGGER => Some(Self::LeftTrigger),
+            Self::S_RIGHT_TRIGGER => Some(Self::RightTrigger),
+            _ => None,
+        }
+    }
+}
+
+pub trait LuaCode: Sized {
+    fn into_lua_code(&self) -> &str;
+    fn from_lua_code(str: &str) -> Option<Self>;
+}

@@ -4,6 +4,7 @@ mod key_bindings;
 mod local_input_manager;
 mod player_input_entry;
 
+pub use input_code::*;
 pub use input_state::*;
 pub use key_bindings::*;
 pub use local_input_manager::*;

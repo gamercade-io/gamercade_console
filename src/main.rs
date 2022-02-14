@@ -34,7 +34,7 @@ fn main() -> Result<(), Error> {
     };
 
     let rom = core::Rom::default();
-    let mut input_manager = core::LocalInputManager::default();
+    let input_manager = core::LocalInputManager::default();
 
     let mut pixels = {
         let window_size = window.inner_size();
@@ -51,6 +51,8 @@ fn main() -> Result<(), Error> {
     let rom = Arc::new(rom);
 
     let console = LuaConsole::new(rom, 1, &code);
+
+    console.call_init();
 
     //TODO: Incorporate Network stuff GGRS
     event_loop.run(move |event, _, control_flow| {
@@ -79,16 +81,13 @@ fn main() -> Result<(), Error> {
 
             let next_input_state = input_manager.generate_input_state(&input);
 
-            let button_pressed = input.key_pressed(VirtualKeyCode::Space);
-
             // Resize the window
             if let Some(size) = input.window_resized() {
                 pixels.resize_surface(size.width, size.height);
             }
 
             // Update internal state and request a redraw
-            console.call_input(button_pressed);
-            console.call_update();
+            console.call_update(&[next_input_state]);
             window.request_redraw();
         }
     });
