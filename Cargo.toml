@@ -15,3 +15,4 @@ winit_input_helper = "0.11.0"
 rlua = { version = "0.19.1", features = ["builtin-lua54"] }
 parking_lot = "0.12.0"
 strum = { version = "0.23.0", features = ["derive"] }
+paste = "1.0.6"

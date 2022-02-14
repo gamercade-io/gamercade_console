@@ -1,4 +1,3 @@
-//TODO: This
 use super::{input_code::*, KeyBindings};
 
 #[derive(Clone, Debug, Default)]
@@ -18,6 +17,28 @@ pub struct AnalogStick {
     y_axis: i8,
 }
 
+impl AnalogStick {
+    pub fn set_x_axis(&mut self, value: f32) {
+        assert!(value <= 1.0);
+        assert!(value >= -1.0);
+        self.x_axis = (value * i8::MAX as f32) as i8;
+    }
+
+    pub fn set_y_axis(&mut self, value: f32) {
+        assert!(value <= 1.0);
+        assert!(value >= -1.0);
+        self.y_axis = (value * i8::MAX as f32) as i8;
+    }
+
+    pub fn get_x_axis(&self) -> f32 {
+        (self.x_axis / i8::MAX) as f32
+    }
+
+    pub fn get_y_axis(&self) -> f32 {
+        (self.y_axis / i8::MAX) as f32
+    }
+}
+
 #[derive(Clone, Debug, Default)]
 // 7 bits
 // Sign bit will be dropped
@@ -28,7 +49,7 @@ pub struct AnalogTrigger {
 impl AnalogTrigger {
     const MASK: u8 = 0b0111_1111;
 
-    pub fn to_f32(&self) -> f32 {
+    pub fn get_value(&self) -> f32 {
         (self.state & Self::MASK) as f32 / Self::MASK as f32
     }
 }

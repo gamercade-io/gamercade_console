@@ -5,8 +5,8 @@ use crate::{api::GraphicsApi, core::Rom};
 
 #[derive(Clone)]
 pub struct GraphicsContext {
-    pub frame_buffer: Arc<Mutex<Box<[u8]>>>,
-    pub rom: Arc<Rom>,
+    pub(crate) frame_buffer: Arc<Mutex<Box<[u8]>>>,
+    pub(crate) rom: Arc<Rom>,
 }
 
 impl GraphicsApi for GraphicsContext {

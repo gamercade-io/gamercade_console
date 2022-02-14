@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use console::{Console, LuaConsole};
+use parking_lot::Mutex;
 use pixels::{Error, Pixels, SurfaceTexture};
 use winit::{
     dpi::LogicalSize,
@@ -48,9 +49,21 @@ fn main() -> Result<(), Error> {
     //TODO: Load a passed in file or from the rom
     let code = std::fs::read_to_string(code_filename).unwrap();
 
+    // Prepare a frame buffer
+    let frame_buffer = (0..rom.resolution.total_pixels() * 4)
+        .map(|_| 0)
+        .collect::<Vec<u8>>()
+        .into_boxed_slice();
+    let frame_buffer = Arc::new(Mutex::new(frame_buffer));
+
     let rom = Arc::new(rom);
 
-    let console = LuaConsole::new(rom, 1, &code);
+    //TODO: For more players add stuff here
+    let player_inputs = Arc::new(Mutex::new(
+        vec![core::PlayerInputEntry::default()].into_boxed_slice(),
+    ));
+
+    let console = LuaConsole::new(rom, &code, frame_buffer, player_inputs.clone());
 
     console.call_init();
 
@@ -79,15 +92,15 @@ fn main() -> Result<(), Error> {
                 return;
             }
 
-            let next_input_state = input_manager.generate_input_state(&input);
-
             // Resize the window
             if let Some(size) = input.window_resized() {
                 pixels.resize_surface(size.width, size.height);
             }
 
             // Update internal state and request a redraw
-            console.call_update(&[next_input_state]);
+            let next_input_state = input_manager.generate_input_state(&input);
+            player_inputs.lock()[0].push_input_state(next_input_state);
+            console.call_update();
             window.request_redraw();
         }
     });

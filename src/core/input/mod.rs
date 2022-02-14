@@ -21,3 +21,8 @@ impl Default for InputMode {
         Self::Emulated
     }
 }
+
+pub trait AsApiCode: Sized {
+    fn to_api_code(&self) -> u8;
+    fn from_api_code(code: u8) -> Option<Self>;
+}

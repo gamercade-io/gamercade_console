@@ -9,29 +9,27 @@ function init()
     Y_POS = Y_MID
 end
 
-function update(inputs)
+function update()
     COUNT = COUNT + 0.0025
 
-    for index, input in ipairs(inputs) do
-        if (input.buttons.a) then
-            PRESSES = PRESSES + 1
-        end
-    
-        if (input.buttons.up) then
-            Y_POS = Y_POS - 1
-        end
-    
-        if (input.buttons.down) then
-            Y_POS = Y_POS + 1
-        end
-    
-        if (input.buttons.left) then
-            X_POS = X_POS - 1
-        end
-    
-        if (input.buttons.right) then
-            X_POS = X_POS + 1
-        end
+    if (button_a_held(1)) then
+        PRESSES = PRESSES + 1
+    end
+
+    if (button_up_held(1)) then
+        Y_POS = Y_POS - 1
+    end
+
+    if (button_down_held(1)) then
+        Y_POS = Y_POS + 1
+    end
+
+    if (button_left_held(1)) then
+        X_POS = X_POS - 1
+    end
+
+    if (button_right_held(1)) then
+        X_POS = X_POS + 1
     end
 end
 

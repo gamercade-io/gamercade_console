@@ -1,16 +1,14 @@
-use super::InputState;
+use super::{Buttons, InputState};
 
 #[derive(Debug, Default)]
 pub struct PlayerInputEntry {
-    previous: InputState,
-    current: InputState,
+    pub(crate) previous: Buttons,
+    pub(crate) current: InputState,
 }
 
 impl PlayerInputEntry {
     pub fn push_input_state(&mut self, next_state: InputState) {
-        drop(std::mem::replace(
-            &mut self.previous,
-            std::mem::replace(&mut self.current, next_state),
-        ));
+        self.previous = self.current.buttons.clone();
+        self.current = next_state;
     }
 }

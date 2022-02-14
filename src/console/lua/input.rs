@@ -1,75 +1,155 @@
-use rlua::{Context, Table};
-use strum::IntoEnumIterator;
+use paste::paste;
+use rlua::{Context, UserData};
 
-use crate::core::{ButtonCode, Buttons, InputState};
+use super::{LuaConsole, LUA_INPUT_CONTEXT};
+use crate::{
+    api::{InputApi, InputApiBinding},
+    console::InputContext,
+};
 
-use super::{ToLuaString, ToLuaTable};
-
-impl ToLuaTable for InputState {
-    fn to_lua_table<'lua>(&self, ctx: &Context<'lua>) -> Table<'lua> {
-        let output = ctx.create_table().unwrap();
-
-        //TODO: Add stuff like .analogs, .triggers etc
-        output
-            .set("buttons", self.buttons.to_lua_table(ctx))
-            .unwrap();
-
-        output
-    }
+fn get_input_context(context: &Context) -> InputContext {
+    context
+        .named_registry_value::<_, InputContext>(LUA_INPUT_CONTEXT)
+        .unwrap()
 }
 
-impl ToLuaTable for Buttons {
-    fn to_lua_table<'lua>(&self, ctx: &Context<'lua>) -> Table<'lua> {
-        let output = ctx.create_table().unwrap();
+impl UserData for InputContext {}
 
-        ButtonCode::iter().for_each(|button| {
-            output
-                .set(button.to_lua_string(), self.get_button_state(button))
-                .unwrap();
-        });
+macro_rules! derive_bind_lua_input_api {
+    (
+        Buttons { $($btn_name:ident,)* },
+        Analogs { $($anlg_name:ident,)* },
+        Triggers { $($trg_name:ident,)* },
+    ) => {
+        paste! {
+            impl InputApiBinding for LuaConsole {
+                // BUTTON MACRO
+                $(
+                    fn [<bind_button_ $btn_name _pressed>](&mut self) {
+                        self.lua.context(|ctx| {
+                            ctx.globals()
+                                .set(
+                                    stringify!([<button_ $btn_name _pressed>]),
+                                    ctx.create_function(|inner_ctx, player_id: u8| {
+                                        Ok(get_input_context(&inner_ctx).[<button_ $btn_name _pressed>](player_id - 1))
+                                    })
+                                    .unwrap(),
+                                )
+                                .unwrap();
+                        });
+                    }
 
-        output
-    }
-}
+                    fn [<bind_button_ $btn_name _released>](&mut self) {
+                        self.lua.context(|ctx| {
+                            ctx.globals()
+                                .set(
+                                    stringify!([<button_ $btn_name _released>]),
+                                    ctx.create_function(|inner_ctx, player_id: u8| {
+                                        Ok(get_input_context(&inner_ctx).[<button_ $btn_name _held>](player_id - 1))
+                                    })
+                                    .unwrap(),
+                                )
+                                .unwrap();
+                        });
+                    }
 
-impl ButtonCode {
-    const S_UP: &'static str = "up";
-    const S_DOWN: &'static str = "down";
-    const S_LEFT: &'static str = "left";
-    const S_RIGHT: &'static str = "right";
-    const S_A: &'static str = "a";
-    const S_B: &'static str = "b";
-    const S_C: &'static str = "c";
-    const S_D: &'static str = "d";
-    const S_START: &'static str = "start";
-    const S_SELECT: &'static str = "select";
-    const S_LEFT_SHOULDER: &'static str = "lshoulder";
-    const S_RIGHT_SHOULDER: &'static str = "rshoulder";
-    const S_LEFT_STICK: &'static str = "rstick";
-    const S_RIGHT_STICK: &'static str = "lstick";
-    const S_LEFT_TRIGGER: &'static str = "ltrigger";
-    const S_RIGHT_TRIGGER: &'static str = "rtrigger";
-}
+                    fn [<bind_button_ $btn_name _held>](&mut self) {
+                        self.lua.context(|ctx| {
+                            ctx.globals()
+                                .set(
+                                    stringify!([<button_ $btn_name _held>]),
+                                    ctx.create_function(|inner_ctx, player_id: u8| {
+                                        Ok(get_input_context(&inner_ctx).[<button_ $btn_name _held>](player_id - 1))
+                                    })
+                                    .unwrap(),
+                                )
+                                .unwrap();
+                        });
+                    }
+                )*
+                // END BUTTON MACRO
 
-impl ToLuaString for ButtonCode {
-    fn to_lua_string(&self) -> &str {
-        match self {
-            Self::Up => Self::S_UP,
-            Self::Down => Self::S_DOWN,
-            Self::Left => Self::S_LEFT,
-            Self::Right => Self::S_RIGHT,
-            Self::A => Self::S_A,
-            Self::B => Self::S_B,
-            Self::C => Self::S_C,
-            Self::D => Self::S_D,
-            Self::Start => Self::S_START,
-            Self::Select => Self::S_SELECT,
-            Self::LeftShoulder => Self::S_LEFT_SHOULDER,
-            Self::RightShoulder => Self::S_RIGHT_SHOULDER,
-            Self::LeftStick => Self::S_LEFT_STICK,
-            Self::RightStick => Self::S_RIGHT_STICK,
-            Self::LeftTrigger => Self::S_LEFT_TRIGGER,
-            Self::RightTrigger => Self::S_RIGHT_TRIGGER,
+                // ANALOG MACRO
+                $(
+                    fn [<bind_analog_ $anlg_name _x>](&mut self) {
+                        self.lua.context(|ctx| {
+                            ctx.globals()
+                                .set(
+                                    stringify!([<analog_ $anlg_name _x>]),
+                                    ctx.create_function(|inner_ctx, player_id: u8| {
+                                        Ok(get_input_context(&inner_ctx).[<analog_ $anlg_name _x>](player_id - 1))
+                                    })
+                                    .unwrap(),
+                                )
+                                .unwrap();
+                        });
+                    }
+
+                    fn [<bind_analog_ $anlg_name _y>](&mut self) {
+                        self.lua.context(|ctx| {
+                            ctx.globals()
+                                .set(
+                                    stringify!([<analog_ $anlg_name _y>]),
+                                    ctx.create_function(|inner_ctx, player_id: u8| {
+                                        Ok(get_input_context(&inner_ctx).[<analog_ $anlg_name _y>](player_id - 1))
+                                    })
+                                    .unwrap(),
+                                )
+                                .unwrap();
+                        });
+                    }
+                )*
+                // END ANALOG MACRO
+
+
+                // TRIGGER MACRO
+                $(
+                    fn [<bind_trigger_ $trg_name>](&mut self) {
+                        self.lua.context(|ctx| {
+                            ctx.globals()
+                                .set(
+                                    stringify!([<trigger_ $trg_name>]),
+                                    ctx.create_function(|inner_ctx, player_id: u8| {
+                                        get_input_context(&inner_ctx).[<trigger_ $trg_name>](player_id - 1);
+                                        Ok(())
+                                    })
+                                    .unwrap(),
+                                )
+                                .unwrap();
+                        });
+                    }
+                )*
+                // END TRIGGER MACRO
+            }
         }
-    }
+    };
+}
+
+derive_bind_lua_input_api! {
+    Buttons {
+        a,
+        b,
+        c,
+        d,
+        up,
+        down,
+        left,
+        right,
+        start,
+        select,
+        left_shoulder,
+        right_shoulder,
+        left_stick,
+        right_stick,
+        left_trigger,
+        right_trigger,
+    },
+    Analogs {
+        left,
+        right,
+    },
+    Triggers {
+        left,
+        right,
+    },
 }

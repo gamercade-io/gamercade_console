@@ -1,19 +1,18 @@
 use std::sync::Arc;
 
 use parking_lot::Mutex;
-use rlua::{Function, Lua, Table};
+use rlua::{Function, Lua};
 
-use super::{Console, ToLuaTable, LUA_RENDER_CONTEXT};
+use super::{Console, LUA_INPUT_CONTEXT, LUA_RENDER_CONTEXT};
 use crate::{
-    api::GraphicsApiBinding,
-    console::GraphicsContext,
-    core::{InputState, Rom},
+    api::{GraphicsApiBinding, InputApiBinding},
+    console::{GraphicsContext, InputContext},
+    core::{PlayerInputEntry, Rom},
 };
 
 pub struct LuaConsole {
     rom: Arc<Rom>,
     pub(crate) lua: Lua,
-    player_count: usize,
     frame_buffer: Arc<Mutex<Box<[u8]>>>,
 }
 
@@ -25,20 +24,11 @@ impl Console for LuaConsole {
         });
     }
 
-    fn call_update(&self, input_states: &[InputState]) {
+    fn call_update(&self) {
         // Call the rom's update function
         self.lua.context(|ctx| {
             let update: Function = ctx.globals().get("update").unwrap();
-
-            let input_array = ctx.create_table().unwrap();
-
-            (0..self.player_count).for_each(|player_id| {
-                input_array
-                    .set(player_id + 1, input_states[player_id].to_lua_table(&ctx))
-                    .unwrap();
-            });
-
-            update.call::<Table, ()>(input_array).unwrap();
+            update.call::<(), ()>(()).unwrap();
         });
     }
 
@@ -60,13 +50,12 @@ impl Console for LuaConsole {
 }
 
 impl LuaConsole {
-    pub fn new(rom: Arc<Rom>, player_count: usize, code: &str) -> Self {
-        let frame_buffer = (0..rom.resolution.total_pixels() * 4)
-            .map(|_| 0)
-            .collect::<Vec<u8>>()
-            .into_boxed_slice();
-        let frame_buffer = Arc::new(Mutex::new(frame_buffer));
-
+    pub fn new(
+        rom: Arc<Rom>,
+        code: &str,
+        frame_buffer: Arc<Mutex<Box<[u8]>>>,
+        input_entries: Arc<Mutex<Box<[PlayerInputEntry]>>>,
+    ) -> Self {
         let lua = Lua::new();
 
         lua.context(|ctx| {
@@ -80,16 +69,19 @@ impl LuaConsole {
                 },
             )
             .unwrap();
+
+            ctx.set_named_registry_value(LUA_INPUT_CONTEXT, InputContext { input_entries })
+                .unwrap();
         });
 
         let mut output = Self {
             rom,
             lua,
-            player_count,
             frame_buffer,
         };
 
         output.bind_graphics_api();
+        output.bind_input_api();
         output
     }
 }
