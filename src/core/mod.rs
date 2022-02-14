@@ -1,5 +1,5 @@
-mod input;
 mod graphics;
+mod input;
 mod rom;
 
 pub use input::*;

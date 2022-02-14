@@ -1,4 +1,4 @@
-use crate::core::graphics::{Sprite, Resolution, Palette};
+use crate::core::graphics::{Palette, Resolution, Sprite};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
