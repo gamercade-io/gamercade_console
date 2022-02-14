@@ -33,12 +33,6 @@ C Button: J
 D Button: K
 Start: 5
 Select: 6
-
-Debug Buttons:
-Debug Button 1: 1
-Debug Button 2: 2
-Debug Button 3: 3
-Debug Button 4: 4
 ```
 
 TODO:

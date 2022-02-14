@@ -1,5 +1,6 @@
 use super::InputState;
 
+#[derive(Debug, Default)]
 pub struct PlayerInputEntry {
     previous: InputState,
     current: InputState,

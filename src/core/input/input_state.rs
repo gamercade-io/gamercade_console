@@ -1,24 +1,24 @@
 //TODO: This
+use super::{input_code::*, KeyBindings};
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 // 60-64 bits aka 8 bytes when compressed
 pub struct InputState {
-    left_stick: AnalogStick,
-    right_stick: AnalogStick,
-    left_trigger: AnalogTrigger,
-    right_trigger: AnalogTrigger,
-    buttons: Buttons,
-    debug_buttons: DebugButtons,
+    pub left_stick: AnalogStick,
+    pub right_stick: AnalogStick,
+    pub left_trigger: AnalogTrigger,
+    pub right_trigger: AnalogTrigger,
+    pub buttons: Buttons,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 // 16 bits
 pub struct AnalogStick {
     x_axis: i8,
     y_axis: i8,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 // 7 bits
 // Sign bit will be dropped
 pub struct AnalogTrigger {
@@ -33,7 +33,7 @@ impl AnalogTrigger {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 // 14 bits for with Analog Triggers
 // 16 bits for binary triggers
 pub struct Buttons {
@@ -41,94 +41,26 @@ pub struct Buttons {
 }
 
 impl Buttons {
-    pub fn get_button_a(&self) -> bool {
-        self.state & 0b1 != 0
+    pub fn enable_button(&mut self, code: ButtonCode) {
+        self.state |= code.into_bit_mask();
     }
 
-    pub fn get_button_b(&self) -> bool {
-        self.state & 0b10 != 0
+    pub fn get_button_state(&self, code: ButtonCode) -> bool {
+        self.state & code.into_bit_mask() != 0
     }
 
-    pub fn get_button_c(&self) -> bool {
-        self.state & 0b100 != 0
-    }
+    pub fn generate_new(
+        binds: &KeyBindings,
+        input_helper: &winit_input_helper::WinitInputHelper,
+    ) -> Self {
+        let mut output = Buttons::default();
 
-    pub fn get_button_d(&self) -> bool {
-        self.state & 0b1000 != 0
-    }
+        binds.buttons.iter().for_each(|(code, input)| {
+            if input_helper.key_held(*code) {
+                output.enable_button(*input)
+            }
+        });
 
-    pub fn get_button_start(&self) -> bool {
-        self.state & 0b1_0000 != 0
-    }
-
-    pub fn get_button_select(&self) -> bool {
-        self.state & 0b10_0000 != 0
-    }
-
-    pub fn get_direction_up(&self) -> bool {
-        self.state & 0b100_0000 != 0
-    }
-
-    pub fn get_direction_down(&self) -> bool {
-        self.state & 0b1000_0000 != 0
-    }
-
-    pub fn get_direction_left(&self) -> bool {
-        self.state & 0b1_0000_0000 != 0
-    }
-
-    pub fn get_direction_right(&self) -> bool {
-        self.state & 0b10_0000_0000 != 0
-    }
-
-    pub fn get_button_left_shoulder(&self) -> bool {
-        self.state & 0b100_0000_0000 != 0
-    }
-
-    pub fn get_button_right_shoulder(&self) -> bool {
-        self.state & 0b1000_0000_0000 != 0
-    }
-
-    pub fn get_button_left_stick(&self) -> bool {
-        self.state & 0b1_0000_0000_0000 != 0
-    }
-
-    pub fn get_button_right_stick(&self) -> bool {
-        self.state & 0b10_0000_0000_0000 != 0
-    }
-
-    pub fn get_button_left_trigger(&self) -> bool {
-        self.state & 0b100_0000_0000_0000 != 0
-    }
-
-    pub fn get_button_right_trigger(&self) -> bool {
-        self.state & 0b1000_0000_0000_0000 != 0
-    }
-}
-
-#[derive(Clone, Debug)]
-// 4 bits
-// Can be enabled/disabled for testing
-pub struct DebugButtons {
-    state: u8,
-}
-
-impl DebugButtons {
-    const MASK: u8 = 0b1111;
-
-    pub fn get_debug_button_1(&self) -> bool {
-        self.state & 0b1 != 0
-    }
-
-    pub fn get_debug_button_2(&self) -> bool {
-        self.state & 0b10 != 0
-    }
-
-    pub fn get_debug_button_3(&self) -> bool {
-        self.state & 0b100 != 0
-    }
-
-    pub fn get_debug_button_4(&self) -> bool {
-        self.state & 0b1000 != 0
+        output
     }
 }

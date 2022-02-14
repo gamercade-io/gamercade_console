@@ -34,6 +34,7 @@ fn main() -> Result<(), Error> {
     };
 
     let rom = core::Rom::default();
+    let mut input_manager = core::LocalInputManager::default();
 
     let mut pixels = {
         let window_size = window.inner_size();
@@ -75,6 +76,8 @@ fn main() -> Result<(), Error> {
                 *control_flow = ControlFlow::Exit;
                 return;
             }
+
+            let next_input_state = input_manager.generate_input_state(&input);
 
             let button_pressed = input.key_pressed(VirtualKeyCode::Space);
 
