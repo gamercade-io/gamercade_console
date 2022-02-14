@@ -1,7 +1,7 @@
 COUNT = 0
 PRESSES = 0
 
-function init() 
+function init()
     X_MID = width() / 2
     Y_MID = height() / 2
     SCALE = 80

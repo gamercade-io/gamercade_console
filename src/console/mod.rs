@@ -1,7 +1,8 @@
 mod graphics_context;
-mod lua_console;
+mod lua;
 
-pub use lua_console::LuaConsole;
+pub use graphics_context::GraphicsContext;
+pub use lua::LuaConsole;
 
 use crate::core::{InputState, Rom};
 

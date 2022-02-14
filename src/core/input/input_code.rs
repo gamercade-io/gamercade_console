@@ -1,27 +1,5 @@
 use strum::EnumIter;
 
-//TODO: Analog sticks, analog triggers, etc
-#[derive(Debug, Copy, Clone)]
-pub enum InputCode {
-    AnalogStick(AnalogSideCode, AxisCode),
-    AnalogTrigger(AnalogSideCode),
-    Button(ButtonCode),
-}
-
-// For AnalogSticks
-#[derive(Debug, Copy, Clone)]
-pub enum AxisCode {
-    X,
-    Y,
-}
-
-// For Left/Right Sticks/Triggers
-#[derive(Debug, Copy, Clone)]
-pub enum AnalogSideCode {
-    Left,
-    Right,
-}
-
 #[derive(Debug, Copy, Clone, EnumIter)]
 pub enum ButtonCode {
     // DPad
