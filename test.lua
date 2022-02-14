@@ -13,23 +13,23 @@ function update(inputs)
     COUNT = COUNT + 0.0025
 
     for index, input in ipairs(inputs) do
-        if (input.a) then
+        if (input.buttons.a) then
             PRESSES = PRESSES + 1
         end
     
-        if (input.up) then
+        if (input.buttons.up) then
             Y_POS = Y_POS - 1
         end
     
-        if (input.down) then
+        if (input.buttons.down) then
             Y_POS = Y_POS + 1
         end
     
-        if (input.left) then
+        if (input.buttons.left) then
             X_POS = X_POS - 1
         end
     
-        if (input.right) then
+        if (input.buttons.right) then
             X_POS = X_POS + 1
         end
     end

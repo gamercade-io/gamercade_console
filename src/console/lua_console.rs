@@ -4,7 +4,7 @@ use strum::IntoEnumIterator;
 
 use crate::{
     api::{GraphicsApi, GraphicsApiBinding},
-    core::{ButtonCode, InputState, Rom},
+    core::{ButtonCode, Buttons, InputState, Rom},
 };
 use rlua::{Context, Function, Lua, Table, UserData};
 
@@ -200,18 +200,30 @@ fn get_graphics_context(context: &Context) -> GraphicsContext {
 
 impl UserData for GraphicsContext {}
 
-impl InputState {
-    fn into_lua_table<'a, 'lua>(&'a self, ctx: &'a Context<'lua>) -> Table<'lua> {
+trait IntoLuaTable {
+    fn into_lua_table<'lua>(&self, ctx: &Context<'lua>) -> Table<'lua>;
+}
+
+impl IntoLuaTable for InputState {
+    fn into_lua_table<'lua>(&self, ctx: &Context<'lua>) -> Table<'lua> {
         let output = ctx.create_table().unwrap();
 
-        //TODO: Add stuff like .buttons, .analogs, etc
+        //TODO: Add stuff like .analogs, .triggers etc
+        output
+            .set("buttons", self.buttons.into_lua_table(ctx))
+            .unwrap();
+
+        output
+    }
+}
+
+impl IntoLuaTable for Buttons {
+    fn into_lua_table<'lua>(&self, ctx: &Context<'lua>) -> Table<'lua> {
+        let output = ctx.create_table().unwrap();
 
         ButtonCode::iter().for_each(|button| {
             output
-                .set(
-                    button.into_lua_code(),
-                    self.buttons.get_button_state(button),
-                )
+                .set(button.into_lua_code(), self.get_button_state(button))
                 .unwrap();
         });
 
