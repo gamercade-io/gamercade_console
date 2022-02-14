@@ -35,7 +35,6 @@ Start: 5
 Select: 6
 ```
 
-
 ## Quick Start:
 ```
 Required Functions:
@@ -72,6 +71,7 @@ right_stick
 left_trigger
 right_trigger
 
+NOT YET IMPLEMENTED:
 Analogs: have an x and y axis. values returned will be from 0 (center) to 1 (max movement)
 get_left_analog_x(1) - returns a value from 0 to 1 for player 1's left analog x-axis.
 get_left_analog_y(2) - returns a value from 0 to 1 for player 2's left analog y-axis.
@@ -91,6 +91,13 @@ width()
 rect(x, y, width, height, optional color_index, optional palette_index)
 line(x0, y0, x1, y1, optional color_index, optional palette_index)
 
+NOT YET IMPLEMENTED:
+color(color_index)
+palette(palette_index)
+circle(x, y, radius, optional color_index, optional palette_index)
+circle_filled(x, y, radius, optional color_index, optional palette_index)
+rect_filled(x, y, width, height, optional color_index, optional palette_index)
+sprite(x, y, optional palette_index)
 ```
 
 

@@ -1,5 +1,6 @@
 COUNT = 0
 PRESSES = 0
+SPEED = 0.25
 
 function init()
     X_MID = width() / 2
@@ -17,19 +18,19 @@ function update()
     end
 
     if (button_up_held(1)) then
-        Y_POS = Y_POS - 1
+        Y_POS = Y_POS - SPEED
     end
 
     if (button_down_held(1)) then
-        Y_POS = Y_POS + 1
+        Y_POS = Y_POS + SPEED
     end
 
     if (button_left_held(1)) then
-        X_POS = X_POS - 1
+        X_POS = X_POS - SPEED
     end
 
     if (button_right_held(1)) then
-        X_POS = X_POS + 1
+        X_POS = X_POS + SPEED
     end
 end
 
