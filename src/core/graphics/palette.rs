@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::core::Color;
+use super::Color;
 
 pub const PALETTE_COLORS: usize = 16;
 
@@ -11,12 +11,13 @@ pub struct Palette {
 }
 
 impl Palette {
-    pub fn color_index_into_rgba(&self, index: usize) -> Option<[u8; 4]> {
-        match (self.colors.get(index), self.transparent.get(index)) {
-            (Some(color), Some(true)) => Some([color.r, color.g, color.b, 0xff]),
-            _ => None,
-        }
-    }
+    // TODO: Use this for drawing sprites later
+    // pub fn color_index_into_rgba(&self, index: usize) -> Option<[u8; 4]> {
+    //     match (self.colors.get(index), self.transparent.get(index)) {
+    //         (Some(color), Some(true)) => Some([color.r, color.g, color.b, 0xff]),
+    //         _ => None,
+    //     }
+    // }
 
     pub fn bubblegum16() -> Self {
         Self {

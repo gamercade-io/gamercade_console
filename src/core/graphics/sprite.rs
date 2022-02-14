@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use super::{ColorIndex, PaletteIndex};
+use crate::core::{ColorIndex, PaletteIndex};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Sprite {
