@@ -105,6 +105,7 @@ TODO:
 1. Do "Input State" and reading / gamepads
     1. Do "Emulated gamepad" for keyboard input, include analogs etc
 1. Incorporate networking functionality
+    1. Figure out how to save/load lua state
 1. Fix issues when trying to draw out of bounds
 1. Write "Pong" in test.lua
 1. Finish "Graphcis" outlined functions

@@ -1,6 +1,6 @@
 COUNT = 0
 PRESSES = 0
-SPEED = 0.25
+SPEED = 0.5
 
 function init()
     X_MID = width() / 2

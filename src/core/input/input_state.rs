@@ -1,6 +1,8 @@
 use super::{input_code::*, KeyBindings};
+use bytemuck::{Pod, Zeroable};
 
-#[derive(Clone, Debug, Default)]
+#[repr(C)]
+#[derive(Clone, Copy, PartialEq, Debug, Default, Pod, Zeroable)]
 // 60-64 bits aka 8 bytes when compressed
 pub struct InputState {
     pub left_stick: AnalogStick,
@@ -10,7 +12,8 @@ pub struct InputState {
     pub buttons: Buttons,
 }
 
-#[derive(Clone, Debug, Default)]
+#[repr(C)]
+#[derive(Clone, Copy, PartialEq, Debug, Default, Pod, Zeroable)]
 // 16 bits
 pub struct AnalogStick {
     x_axis: i8,
@@ -39,7 +42,8 @@ impl AnalogStick {
     }
 }
 
-#[derive(Clone, Debug, Default)]
+#[repr(transparent)]
+#[derive(Clone, Copy, PartialEq, Debug, Default, Pod, Zeroable)]
 // 7 bits
 // Sign bit will be dropped
 pub struct AnalogTrigger {
@@ -54,7 +58,8 @@ impl AnalogTrigger {
     }
 }
 
-#[derive(Clone, Debug, Default)]
+#[repr(transparent)]
+#[derive(Clone, Copy, PartialEq, Debug, Default, Pod, Zeroable)]
 // 14 bits for with Analog Triggers
 // 16 bits for binary triggers
 pub struct Buttons {

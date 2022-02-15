@@ -2,12 +2,14 @@ mod api;
 mod console;
 mod core;
 
-use crate::core::{LocalInputManager, PlayerInputEntry, Rom};
-use std::sync::Arc;
+use crate::core::{InputState, LocalInputManager, PlayerInputEntry, Rom};
+use std::{net::SocketAddr, sync::Arc};
 
 use console::{Console, LuaConsole};
+use ggrs::{Config, P2PSession, PlayerType, SessionBuilder, UdpNonBlockingSocket};
 use parking_lot::Mutex;
 use pixels::{Error, Pixels, SurfaceTexture};
+use rlua::Table;
 use winit::{
     dpi::LogicalSize,
     event::VirtualKeyCode,
@@ -22,6 +24,7 @@ fn main() -> Result<(), Error> {
     let window = init_window(&event_loop, code_filename);
 
     let rom = Rom::default();
+    let session = init_session(&rom);
 
     let mut pixels = init_pixels(&window, &rom);
 
@@ -107,4 +110,58 @@ fn init_frame_buffer(rom: &Rom) -> Box<[u8]> {
         .map(|_| 0)
         .collect::<Vec<u8>>()
         .into_boxed_slice()
+}
+
+// TODO: Finish this GGRS Related things:
+fn init_session(rom: &Rom) -> P2PSession<GGRSConfig> {
+    use text_io::read;
+
+    println!("Enter port number:");
+    let port: u16 = read!();
+
+    println!("Enter number of players (1-4): ");
+    let num_players: usize = read!();
+
+    assert!(num_players > 0);
+    assert!(num_players <= 4);
+
+    let player_ips = if num_players == 1 {
+        vec![PlayerType::<SocketAddr>::Local]
+    } else {
+        (0..num_players)
+            .map(|_| {
+                println!("Enter ip-address (or nothing if local):");
+
+                let address: String = read!();
+
+                if address.is_empty() {
+                    PlayerType::Local
+                } else {
+                    PlayerType::Remote(address.parse().unwrap())
+                }
+            })
+            .collect()
+    };
+
+    let mut sess_builder = SessionBuilder::<GGRSConfig>::new()
+        .with_num_players(num_players)
+        .with_fps(rom.frame_rate.frames_per_second())
+        .unwrap();
+
+    for (id, address) in player_ips.into_iter().enumerate() {
+        sess_builder = sess_builder.add_player(address, id).unwrap();
+    }
+
+    let socket = UdpNonBlockingSocket::bind_to_port(port).unwrap();
+    sess_builder.start_p2p_session(socket).unwrap()
+}
+
+#[derive(Debug)]
+pub struct GGRSConfig;
+
+impl Config for GGRSConfig {
+    type Input = InputState;
+    //type State = Option<()>;
+    type State = Table<'static>;
+    type Address = SocketAddr;
 }
