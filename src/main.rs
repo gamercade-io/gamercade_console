@@ -1,3 +1,8 @@
+mod api;
+mod console;
+mod core;
+
+use crate::core::Rom;
 use std::sync::Arc;
 
 use console::{Console, LuaConsole};
@@ -5,56 +10,26 @@ use parking_lot::Mutex;
 use pixels::{Error, Pixels, SurfaceTexture};
 use winit::{
     dpi::LogicalSize,
-    event::{Event, VirtualKeyCode},
+    event::VirtualKeyCode,
     event_loop::{ControlFlow, EventLoop},
-    window::WindowBuilder,
+    window::{Window, WindowBuilder},
 };
 use winit_input_helper::WinitInputHelper;
 
-mod api;
-mod console;
-mod core;
-
 fn main() -> Result<(), Error> {
     let event_loop = EventLoop::new();
-    let mut input = WinitInputHelper::new();
-
     let code_filename = "test.lua";
-
-    let window = {
-        let size = LogicalSize::new(320_f64, 180_f64);
-        WindowBuilder::new()
-            .with_title(format!(
-                "Gamercade Console - {} - {}x{}",
-                code_filename, size.width, size.height
-            ))
-            .with_inner_size(size)
-            .with_min_inner_size(size)
-            .build(&event_loop)
-            .unwrap()
-    };
+    let window = init_window(&event_loop, code_filename);
 
     let rom = core::Rom::default();
-    let input_manager = core::LocalInputManager::default();
 
-    let mut pixels = {
-        let window_size = window.inner_size();
-        let surface_texture = SurfaceTexture::new(window_size.width, window_size.height, &window);
-
-        let (width, height) = (rom.resolution.width(), rom.resolution.height());
-
-        Pixels::new(width, height, surface_texture)?
-    };
+    let mut pixels = init_pixels(&window, &rom);
 
     //TODO: Load a passed in file or from the rom
     let code = std::fs::read_to_string(code_filename).unwrap();
 
     // Prepare a frame buffer
-    let frame_buffer = (0..rom.resolution.total_pixels() * 4)
-        .map(|_| 0)
-        .collect::<Vec<u8>>()
-        .into_boxed_slice();
-    let frame_buffer = Arc::new(Mutex::new(frame_buffer));
+    let frame_buffer = Arc::new(Mutex::new(init_frame_buffer(&rom)));
 
     let rom = Arc::new(rom);
 
@@ -64,10 +39,11 @@ fn main() -> Result<(), Error> {
     ));
 
     let console = LuaConsole::new(rom, &code, frame_buffer, player_inputs.clone());
-
     console.call_init();
 
     //TODO: Incorporate Network stuff GGRS
+    let mut input = WinitInputHelper::new();
+    let input_manager = core::LocalInputManager::default();
     event_loop.run(move |event, _, control_flow| {
         // Handle input events
         if input.update(&event) {
@@ -102,4 +78,33 @@ fn main() -> Result<(), Error> {
             window.request_redraw();
         }
     });
+}
+
+fn init_window(event_loop: &EventLoop<()>, code_filename: &str) -> Window {
+    let size = LogicalSize::new(320_f64, 180_f64);
+    WindowBuilder::new()
+        .with_title(format!(
+            "Gamercade Console - {} - {}x{}",
+            code_filename, size.width, size.height
+        ))
+        .with_inner_size(size)
+        .with_min_inner_size(size)
+        .build(&event_loop)
+        .unwrap()
+}
+
+fn init_pixels(window: &Window, rom: &Rom) -> Pixels {
+    let window_size = window.inner_size();
+    let surface_texture = SurfaceTexture::new(window_size.width, window_size.height, &window);
+
+    let (width, height) = (rom.resolution.width(), rom.resolution.height());
+
+    Pixels::new(width, height, surface_texture).unwrap()
+}
+
+fn init_frame_buffer(rom: &Rom) -> Box<[u8]> {
+    (0..rom.resolution.total_pixels() * 4)
+        .map(|_| 0)
+        .collect::<Vec<u8>>()
+        .into_boxed_slice()
 }
