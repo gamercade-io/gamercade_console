@@ -2,7 +2,7 @@ mod api;
 mod console;
 mod core;
 
-use crate::core::Rom;
+use crate::core::{LocalInputManager, PlayerInputEntry, Rom};
 use std::sync::Arc;
 
 use console::{Console, LuaConsole};
@@ -21,7 +21,7 @@ fn main() -> Result<(), Error> {
     let code_filename = "test.lua";
     let window = init_window(&event_loop, code_filename);
 
-    let rom = core::Rom::default();
+    let rom = Rom::default();
 
     let mut pixels = init_pixels(&window, &rom);
 
@@ -35,7 +35,7 @@ fn main() -> Result<(), Error> {
 
     //TODO: For more players add stuff here
     let player_inputs = Arc::new(Mutex::new(
-        vec![core::PlayerInputEntry::default()].into_boxed_slice(),
+        vec![PlayerInputEntry::default()].into_boxed_slice(),
     ));
 
     let console = LuaConsole::new(rom, &code, frame_buffer, player_inputs.clone());
@@ -43,7 +43,7 @@ fn main() -> Result<(), Error> {
 
     //TODO: Incorporate Network stuff GGRS
     let mut input = WinitInputHelper::new();
-    let input_manager = core::LocalInputManager::default();
+    let input_manager = LocalInputManager::default();
     event_loop.run(move |event, _, control_flow| {
         // Handle input events
         if input.update(&event) {
