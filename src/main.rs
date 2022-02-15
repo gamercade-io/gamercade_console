@@ -69,21 +69,6 @@ fn main() -> Result<(), Error> {
 
     //TODO: Incorporate Network stuff GGRS
     event_loop.run(move |event, _, control_flow| {
-        // Draw the current frame
-        if let Event::RedrawRequested(_) = event {
-            console.call_draw();
-            console.blit(pixels.get_frame());
-
-            if pixels
-                .render()
-                .map_err(|e| println!("pixels.render() failed: {}", e))
-                .is_err()
-            {
-                *control_flow = ControlFlow::Exit;
-                return;
-            }
-        }
-
         // Handle input events
         if input.update(&event) {
             // Close events
@@ -97,10 +82,23 @@ fn main() -> Result<(), Error> {
                 pixels.resize_surface(size.width, size.height);
             }
 
-            // Update internal state and request a redraw
+            // Update internal state
             let next_input_state = input_manager.generate_input_state(&input);
             player_inputs.lock()[0].push_input_state(next_input_state);
             console.call_update();
+
+            // Render the game
+            console.call_draw();
+            console.blit(pixels.get_frame());
+            if pixels
+                .render()
+                .map_err(|e| println!("pixels.render() failed: {}", e))
+                .is_err()
+            {
+                *control_flow = ControlFlow::Exit;
+                return;
+            }
+
             window.request_redraw();
         }
     });
