@@ -1,17 +1,11 @@
 use paste::paste;
-use rlua::{Context, UserData};
+use rlua::UserData;
 
-use super::{LuaConsole, LUA_INPUT_CONTEXT};
+use super::LuaConsole;
 use crate::{
     api::{InputApi, InputApiBinding},
     console::InputContext,
 };
-
-fn get_input_context(context: &Context) -> InputContext {
-    context
-        .named_registry_value::<_, InputContext>(LUA_INPUT_CONTEXT)
-        .unwrap()
-}
 
 impl UserData for InputContext {}
 
@@ -27,11 +21,12 @@ macro_rules! derive_bind_lua_input_api {
                 $(
                     fn [<bind_button_ $btn_name _pressed>](&mut self) {
                         self.lua.context(|ctx| {
+                            let inp = ctx.registry_value::<InputContext>(&self.inp).unwrap();
                             ctx.globals()
                                 .set(
                                     stringify!([<button_ $btn_name _pressed>]),
-                                    ctx.create_function(|inner_ctx, player_id: u8| {
-                                        Ok(get_input_context(&inner_ctx).[<button_ $btn_name _pressed>](player_id - 1))
+                                    ctx.create_function(move |_, player_id: u8| {
+                                        Ok(inp.[<button_ $btn_name _pressed>](player_id - 1))
                                     })
                                     .unwrap(),
                                 )
@@ -41,11 +36,12 @@ macro_rules! derive_bind_lua_input_api {
 
                     fn [<bind_button_ $btn_name _released>](&mut self) {
                         self.lua.context(|ctx| {
+                            let inp = ctx.registry_value::<InputContext>(&self.inp).unwrap();
                             ctx.globals()
                                 .set(
                                     stringify!([<button_ $btn_name _released>]),
-                                    ctx.create_function(|inner_ctx, player_id: u8| {
-                                        Ok(get_input_context(&inner_ctx).[<button_ $btn_name _held>](player_id - 1))
+                                    ctx.create_function(move |_, player_id: u8| {
+                                        Ok(inp.[<button_ $btn_name _held>](player_id - 1))
                                     })
                                     .unwrap(),
                                 )
@@ -55,11 +51,12 @@ macro_rules! derive_bind_lua_input_api {
 
                     fn [<bind_button_ $btn_name _held>](&mut self) {
                         self.lua.context(|ctx| {
+                            let inp = ctx.registry_value::<InputContext>(&self.inp).unwrap();
                             ctx.globals()
                                 .set(
                                     stringify!([<button_ $btn_name _held>]),
-                                    ctx.create_function(|inner_ctx, player_id: u8| {
-                                        Ok(get_input_context(&inner_ctx).[<button_ $btn_name _held>](player_id - 1))
+                                    ctx.create_function(move |_, player_id: u8| {
+                                        Ok(inp.[<button_ $btn_name _held>](player_id - 1))
                                     })
                                     .unwrap(),
                                 )
@@ -73,11 +70,12 @@ macro_rules! derive_bind_lua_input_api {
                 $(
                     fn [<bind_analog_ $anlg_name _x>](&mut self) {
                         self.lua.context(|ctx| {
+                            let inp = ctx.registry_value::<InputContext>(&self.inp).unwrap();
                             ctx.globals()
                                 .set(
                                     stringify!([<analog_ $anlg_name _x>]),
-                                    ctx.create_function(|inner_ctx, player_id: u8| {
-                                        Ok(get_input_context(&inner_ctx).[<analog_ $anlg_name _x>](player_id - 1))
+                                    ctx.create_function(move |_, player_id: u8| {
+                                        Ok(inp.[<analog_ $anlg_name _x>](player_id - 1))
                                     })
                                     .unwrap(),
                                 )
@@ -87,11 +85,12 @@ macro_rules! derive_bind_lua_input_api {
 
                     fn [<bind_analog_ $anlg_name _y>](&mut self) {
                         self.lua.context(|ctx| {
+                            let inp = ctx.registry_value::<InputContext>(&self.inp).unwrap();
                             ctx.globals()
                                 .set(
                                     stringify!([<analog_ $anlg_name _y>]),
-                                    ctx.create_function(|inner_ctx, player_id: u8| {
-                                        Ok(get_input_context(&inner_ctx).[<analog_ $anlg_name _y>](player_id - 1))
+                                    ctx.create_function(move |_, player_id: u8| {
+                                        Ok(inp.[<analog_ $anlg_name _y>](player_id - 1))
                                     })
                                     .unwrap(),
                                 )
@@ -106,12 +105,12 @@ macro_rules! derive_bind_lua_input_api {
                 $(
                     fn [<bind_trigger_ $trg_name>](&mut self) {
                         self.lua.context(|ctx| {
+                            let inp = ctx.registry_value::<InputContext>(&self.inp).unwrap();
                             ctx.globals()
                                 .set(
                                     stringify!([<trigger_ $trg_name>]),
-                                    ctx.create_function(|inner_ctx, player_id: u8| {
-                                        get_input_context(&inner_ctx).[<trigger_ $trg_name>](player_id - 1);
-                                        Ok(())
+                                    ctx.create_function(move |_, player_id: u8| {
+                                        Ok(inp.[<trigger_ $trg_name>](player_id - 1))
                                     })
                                     .unwrap(),
                                 )

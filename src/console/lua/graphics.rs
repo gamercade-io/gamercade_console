@@ -1,6 +1,6 @@
-use rlua::{Context, UserData};
+use rlua::UserData;
 
-use super::{LuaConsole, LUA_RENDER_CONTEXT};
+use super::LuaConsole;
 use crate::{
     api::{GraphicsApi, GraphicsApiBinding},
     console::GraphicsContext,
@@ -9,11 +9,12 @@ use crate::{
 impl GraphicsApiBinding for LuaConsole {
     fn bind_clear_screen(&mut self) {
         self.lua.context(|ctx| {
+            let gfx = ctx.registry_value::<GraphicsContext>(&self.gfx).unwrap();
             ctx.globals()
                 .set(
                     "clear_screen",
-                    ctx.create_function(|inner_ctx, args: (Option<usize>, Option<usize>)| {
-                        get_graphics_context(&inner_ctx).clear_screen(args.0, args.1);
+                    ctx.create_function(move |_, args: (Option<usize>, Option<usize>)| {
+                        gfx.clear_screen(args.0, args.1);
                         Ok(())
                     })
                     .unwrap(),
@@ -24,13 +25,13 @@ impl GraphicsApiBinding for LuaConsole {
 
     fn bind_set_pixel(&mut self) {
         self.lua.context(|ctx| {
+            let gfx = ctx.registry_value::<GraphicsContext>(&self.gfx).unwrap();
             ctx.globals()
                 .set(
                     "set_pixel",
                     ctx.create_function(
-                        |inner_ctx, args: (u32, u32, Option<usize>, Option<usize>)| {
-                            get_graphics_context(&inner_ctx)
-                                .set_pixel(args.0, args.1, args.2, args.3);
+                        move |_, args: (u32, u32, Option<usize>, Option<usize>)| {
+                            gfx.set_pixel(args.0, args.1, args.2, args.3);
                             Ok(())
                         },
                     )
@@ -42,13 +43,11 @@ impl GraphicsApiBinding for LuaConsole {
 
     fn bind_height(&mut self) {
         self.lua.context(|ctx| {
+            let gfx = ctx.registry_value::<GraphicsContext>(&self.gfx).unwrap();
             ctx.globals()
                 .set(
                     "height",
-                    ctx.create_function(|inner_ctx, ()| {
-                        Ok(get_graphics_context(&inner_ctx).height())
-                    })
-                    .unwrap(),
+                    ctx.create_function(move |_, ()| Ok(gfx.height())).unwrap(),
                 )
                 .unwrap()
         })
@@ -56,13 +55,11 @@ impl GraphicsApiBinding for LuaConsole {
 
     fn bind_width(&mut self) {
         self.lua.context(|ctx| {
+            let gfx = ctx.registry_value::<GraphicsContext>(&self.gfx).unwrap();
             ctx.globals()
                 .set(
                     "width",
-                    ctx.create_function(|inner_ctx, ()| {
-                        Ok(get_graphics_context(&inner_ctx).width())
-                    })
-                    .unwrap(),
+                    ctx.create_function(move |_, ()| Ok(gfx.width())).unwrap(),
                 )
                 .unwrap()
         })
@@ -70,13 +67,13 @@ impl GraphicsApiBinding for LuaConsole {
 
     fn bind_line(&mut self) {
         self.lua.context(|ctx| {
+            let gfx = ctx.registry_value::<GraphicsContext>(&self.gfx).unwrap();
             ctx.globals()
                 .set(
                     "line",
                     ctx.create_function(
-                        |inner_ctx, args: (u32, u32, u32, u32, Option<usize>, Option<usize>)| {
-                            get_graphics_context(&inner_ctx)
-                                .line(args.0, args.1, args.2, args.3, args.4, args.5);
+                        move |_, args: (u32, u32, u32, u32, Option<usize>, Option<usize>)| {
+                            gfx.line(args.0, args.1, args.2, args.3, args.4, args.5);
                             Ok(())
                         },
                     )
@@ -88,13 +85,13 @@ impl GraphicsApiBinding for LuaConsole {
 
     fn bind_rect(&mut self) {
         self.lua.context(|ctx| {
+            let gfx = ctx.registry_value::<GraphicsContext>(&self.gfx).unwrap();
             ctx.globals()
                 .set(
                     "rect",
                     ctx.create_function(
-                        |inner_ctx, args: (u32, u32, u32, u32, Option<usize>, Option<usize>)| {
-                            get_graphics_context(&inner_ctx)
-                                .rect(args.0, args.1, args.2, args.3, args.4, args.5);
+                        move |_, args: (u32, u32, u32, u32, Option<usize>, Option<usize>)| {
+                            gfx.rect(args.0, args.1, args.2, args.3, args.4, args.5);
                             Ok(())
                         },
                     )
@@ -103,12 +100,6 @@ impl GraphicsApiBinding for LuaConsole {
                 .unwrap()
         })
     }
-}
-
-fn get_graphics_context(context: &Context) -> GraphicsContext {
-    context
-        .named_registry_value::<_, GraphicsContext>(LUA_RENDER_CONTEXT)
-        .unwrap()
 }
 
 impl UserData for GraphicsContext {}

@@ -26,7 +26,7 @@ use winit_input_helper::WinitInputHelper;
 
 fn main() -> Result<(), Error> {
     let event_loop = EventLoop::new();
-    let code_filename = "test2.lua";
+    let code_filename = "test.lua";
     let window = init_window(&event_loop, code_filename);
 
     let mut rom = Rom::default();

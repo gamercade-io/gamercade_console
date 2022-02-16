@@ -2,13 +2,14 @@ use std::sync::Arc;
 
 use ggrs::GGRSRequest;
 use parking_lot::Mutex;
-use rlua::{Function, Lua};
+use rlua::{Function, Lua, RegistryKey, Table};
 
-use super::{Console, LUA_INPUT_CONTEXT, LUA_RENDER_CONTEXT};
+use super::Console;
 use crate::{
     api::{GraphicsApiBinding, InputApiBinding},
     console::{GraphicsContext, InputContext},
     core::{PlayerInputEntry, Rom},
+    GGRSConfig,
 };
 
 pub struct LuaConsole {
@@ -16,6 +17,8 @@ pub struct LuaConsole {
     pub(crate) lua: Lua,
     frame_buffer: Arc<Mutex<Box<[u8]>>>,
     input_entries: Arc<Mutex<Box<[PlayerInputEntry]>>>,
+    pub(crate) gfx: RegistryKey,
+    pub(crate) inp: RegistryKey,
 }
 
 impl Console for LuaConsole {
@@ -24,6 +27,17 @@ impl Console for LuaConsole {
         self.lua.context(|ctx| {
             let init: Function = ctx.globals().get("init").unwrap();
             init.call::<_, ()>(()).unwrap();
+
+            // ctx.load(DEEP_COPY).exec().unwrap();
+            // println!("loaded deepcopy");
+
+            // let snapshot_table = ctx.create_registry_value(ctx.create_table().unwrap()).unwrap()
+
+            // let new_env: Table = ctx.load(r#"
+            // __SNAPS__ = {}
+            // new_env = deepcopy(_ENV)
+            // _ENV = new_env
+            // "#).eval().unwrap();
         });
     }
 
@@ -51,7 +65,7 @@ impl Console for LuaConsole {
         buffer.copy_from_slice(&self.frame_buffer.lock());
     }
 
-    fn handle_requests(&mut self, requests: Vec<GGRSRequest<crate::GGRSConfig>>) {
+    fn handle_requests(&mut self, requests: Vec<GGRSRequest<GGRSConfig>>) {
         for request in requests {
             match request {
                 GGRSRequest::SaveGameState { cell, frame } => {
@@ -91,20 +105,22 @@ impl LuaConsole {
             input_entries: input_entries.clone(),
         };
 
-        lua.context(|ctx| {
+        let (gfx, inp) = lua.context(|ctx| {
             // Load the user lua scripts
             ctx.load(code).exec().unwrap();
-            ctx.set_named_registry_value(
-                LUA_RENDER_CONTEXT,
-                GraphicsContext {
+
+            // Set the graphics context pointer
+            let gfx = ctx
+                .create_registry_value(GraphicsContext {
                     frame_buffer: frame_buffer.clone(),
                     rom: rom.clone(),
-                },
-            )
-            .unwrap();
-
-            ctx.set_named_registry_value(LUA_INPUT_CONTEXT, input_context)
+                })
                 .unwrap();
+
+            // Set the input context pointer
+            let inp = ctx.create_registry_value(input_context).unwrap();
+
+            (gfx, inp)
         });
 
         let mut output = Self {
@@ -112,6 +128,8 @@ impl LuaConsole {
             lua,
             frame_buffer,
             input_entries,
+            gfx,
+            inp,
         };
 
         output.bind_graphics_api();
@@ -119,3 +137,25 @@ impl LuaConsole {
         output
     }
 }
+
+const DEEP_COPY: &str = r#"
+function deepcopy(orig, copies)
+    copies = copies or {}
+    local orig_type = type(orig)
+    local copy
+    if orig_type == 'table' then
+        if copies[orig] then
+            copy = copies[orig]
+        else
+            copy = {}
+            copies[orig] = copy
+            for orig_key, orig_value in next, orig, nil do
+                copy[deepcopy(orig_key, copies)] = deepcopy(orig_value, copies)
+            end
+            setmetatable(copy, deepcopy(getmetatable(orig), copies))
+        end
+    else -- number, string, boolean, etc
+        copy = orig
+    end
+    return copy
+end"#;
