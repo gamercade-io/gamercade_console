@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use ggrs::GGRSRequest;
 use parking_lot::Mutex;
-use rlua::{Function, Lua, RegistryKey, Table, Number, Value};
+use rlua::{Function, Lua, Number, RegistryKey, Table, Value};
 
 use super::Console;
 use crate::{
@@ -29,13 +29,6 @@ impl Console for LuaConsole {
         self.lua.context(|ctx| {
             let init: Function = ctx.globals().get("init").unwrap();
             init.call::<_, ()>(()).unwrap();
-
-            let env: Table = ctx.load("_ENV").eval().unwrap();
-            for pair in env.pairs::<Value, Value>() {
-                if let Ok((key, value)) = pair {
-                    println!("{:#?}: {:#?}", key, value);
-                }
-            }
         });
     }
 
@@ -101,13 +94,16 @@ impl Console for LuaConsole {
                         let deep_copy: Function = ctx.globals().get("__deepcopy__").unwrap();
 
                         let rollback: Table = states_table.get(frame).unwrap();
-                        let copied = deep_copy.bind(rollback).unwrap().call::<(), Table>(()).unwrap();
+                        let copied = deep_copy
+                            .bind(rollback)
+                            .unwrap()
+                            .call::<(), Table>(())
+                            .unwrap();
                         ctx.load(SET_ENV).call::<Table, ()>(copied).unwrap();
 
                         let new_x: Number = ctx.globals().get("X_POS").unwrap();
                         let new_y: Number = ctx.globals().get("Y_POS").unwrap();
                         println!("after: {}, {}", new_x, new_y);
-
                     })
                 }
                 GGRSRequest::AdvanceFrame { inputs } => {

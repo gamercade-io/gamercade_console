@@ -169,14 +169,26 @@ fn init_session_fast(rom: &Rom) -> (usize, P2PSession<GGRSConfig>) {
     let player_id: usize = read!();
 
     let mut sess_builder = SessionBuilder::<GGRSConfig>::new()
-    .with_num_players(2)
-    .with_fps(rom.frame_rate.frames_per_second())
-    .unwrap();
+        .with_num_players(2)
+        .with_fps(rom.frame_rate.frames_per_second())
+        .unwrap();
 
     let (player_ips, port) = match player_id {
-        1 => (vec![PlayerType::Local, PlayerType::Remote("127.0.0.1:222".parse().unwrap())], 111),
-        2 => (vec![PlayerType::Remote("127.0.0.1:111".parse().unwrap()), PlayerType::Local], 222),
-        _ => panic!()
+        1 => (
+            vec![
+                PlayerType::Local,
+                PlayerType::Remote("127.0.0.1:222".parse().unwrap()),
+            ],
+            111,
+        ),
+        2 => (
+            vec![
+                PlayerType::Remote("127.0.0.1:111".parse().unwrap()),
+                PlayerType::Local,
+            ],
+            222,
+        ),
+        _ => panic!(),
     };
 
     for (id, address) in player_ips.into_iter().enumerate() {
