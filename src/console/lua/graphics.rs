@@ -9,7 +9,7 @@ use crate::{
 impl GraphicsApiBinding for LuaConsole {
     fn bind_clear_screen(&mut self) {
         self.lua.context(|ctx| {
-            let gfx = ctx.registry_value::<GraphicsContext>(&self.gfx).unwrap();
+            let gfx = self.registers.get_graphics_context(&ctx);
             ctx.globals()
                 .set(
                     "clear_screen",
@@ -25,7 +25,7 @@ impl GraphicsApiBinding for LuaConsole {
 
     fn bind_set_pixel(&mut self) {
         self.lua.context(|ctx| {
-            let gfx = ctx.registry_value::<GraphicsContext>(&self.gfx).unwrap();
+            let gfx = self.registers.get_graphics_context(&ctx);
             ctx.globals()
                 .set(
                     "set_pixel",
@@ -43,7 +43,7 @@ impl GraphicsApiBinding for LuaConsole {
 
     fn bind_height(&mut self) {
         self.lua.context(|ctx| {
-            let gfx = ctx.registry_value::<GraphicsContext>(&self.gfx).unwrap();
+            let gfx = self.registers.get_graphics_context(&ctx);
             ctx.globals()
                 .set(
                     "height",
@@ -55,7 +55,7 @@ impl GraphicsApiBinding for LuaConsole {
 
     fn bind_width(&mut self) {
         self.lua.context(|ctx| {
-            let gfx = ctx.registry_value::<GraphicsContext>(&self.gfx).unwrap();
+            let gfx = self.registers.get_graphics_context(&ctx);
             ctx.globals()
                 .set(
                     "width",
@@ -67,7 +67,7 @@ impl GraphicsApiBinding for LuaConsole {
 
     fn bind_line(&mut self) {
         self.lua.context(|ctx| {
-            let gfx = ctx.registry_value::<GraphicsContext>(&self.gfx).unwrap();
+            let gfx = self.registers.get_graphics_context(&ctx);
             ctx.globals()
                 .set(
                     "line",
@@ -85,7 +85,7 @@ impl GraphicsApiBinding for LuaConsole {
 
     fn bind_rect(&mut self) {
         self.lua.context(|ctx| {
-            let gfx = ctx.registry_value::<GraphicsContext>(&self.gfx).unwrap();
+            let gfx = self.registers.get_graphics_context(&ctx);
             ctx.globals()
                 .set(
                     "rect",

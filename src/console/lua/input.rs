@@ -21,7 +21,7 @@ macro_rules! derive_bind_lua_input_api {
                 $(
                     fn [<bind_button_ $btn_name _pressed>](&mut self) {
                         self.lua.context(|ctx| {
-                            let inp = ctx.registry_value::<InputContext>(&self.inp).unwrap();
+                            let inp = self.registers.get_input_context(&ctx);
                             ctx.globals()
                                 .set(
                                     stringify!([<button_ $btn_name _pressed>]),
@@ -36,7 +36,7 @@ macro_rules! derive_bind_lua_input_api {
 
                     fn [<bind_button_ $btn_name _released>](&mut self) {
                         self.lua.context(|ctx| {
-                            let inp = ctx.registry_value::<InputContext>(&self.inp).unwrap();
+                            let inp = self.registers.get_input_context(&ctx);
                             ctx.globals()
                                 .set(
                                     stringify!([<button_ $btn_name _released>]),
@@ -51,7 +51,7 @@ macro_rules! derive_bind_lua_input_api {
 
                     fn [<bind_button_ $btn_name _held>](&mut self) {
                         self.lua.context(|ctx| {
-                            let inp = ctx.registry_value::<InputContext>(&self.inp).unwrap();
+                            let inp = self.registers.get_input_context(&ctx);
                             ctx.globals()
                                 .set(
                                     stringify!([<button_ $btn_name _held>]),
@@ -70,7 +70,7 @@ macro_rules! derive_bind_lua_input_api {
                 $(
                     fn [<bind_analog_ $anlg_name _x>](&mut self) {
                         self.lua.context(|ctx| {
-                            let inp = ctx.registry_value::<InputContext>(&self.inp).unwrap();
+                            let inp = self.registers.get_input_context(&ctx);
                             ctx.globals()
                                 .set(
                                     stringify!([<analog_ $anlg_name _x>]),
@@ -85,7 +85,7 @@ macro_rules! derive_bind_lua_input_api {
 
                     fn [<bind_analog_ $anlg_name _y>](&mut self) {
                         self.lua.context(|ctx| {
-                            let inp = ctx.registry_value::<InputContext>(&self.inp).unwrap();
+                            let inp = self.registers.get_input_context(&ctx);
                             ctx.globals()
                                 .set(
                                     stringify!([<analog_ $anlg_name _y>]),
@@ -105,7 +105,7 @@ macro_rules! derive_bind_lua_input_api {
                 $(
                     fn [<bind_trigger_ $trg_name>](&mut self) {
                         self.lua.context(|ctx| {
-                            let inp = ctx.registry_value::<InputContext>(&self.inp).unwrap();
+                            let inp = self.registers.get_input_context(&ctx);
                             ctx.globals()
                                 .set(
                                     stringify!([<trigger_ $trg_name>]),
