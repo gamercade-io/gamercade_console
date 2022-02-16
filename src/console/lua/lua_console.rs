@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use ggrs::GGRSRequest;
 use parking_lot::Mutex;
 use rlua::{Function, Lua};
 
@@ -14,10 +15,12 @@ pub struct LuaConsole {
     rom: Arc<Rom>,
     pub(crate) lua: Lua,
     frame_buffer: Arc<Mutex<Box<[u8]>>>,
+    input_entries: Arc<Mutex<Box<[PlayerInputEntry]>>>,
 }
 
 impl Console for LuaConsole {
     fn call_init(&self) {
+        // Call the rom's init function
         self.lua.context(|ctx| {
             let init: Function = ctx.globals().get("init").unwrap();
             init.call::<_, ()>(()).unwrap();
@@ -47,6 +50,32 @@ impl Console for LuaConsole {
     fn blit(&self, buffer: &mut [u8]) {
         buffer.copy_from_slice(&self.frame_buffer.lock());
     }
+
+    fn handle_requests(&mut self, requests: Vec<GGRSRequest<crate::GGRSConfig>>) {
+        for request in requests {
+            match request {
+                GGRSRequest::SaveGameState { cell, frame } => {
+                    //TODO: Actually save the game state for rollbacks
+                    cell.save(frame, Some(self.input_entries.lock().clone()), None);
+                }
+                GGRSRequest::LoadGameState { cell, frame: _ } => {
+                    //TODO: Actually load the game state for rollbacks
+                    let mut lock = self.input_entries.lock();
+                    *lock = cell.load().unwrap();
+                }
+                GGRSRequest::AdvanceFrame { inputs } => {
+                    let mut lock = self.input_entries.lock();
+
+                    for (index, (next_state, _status)) in inputs.iter().enumerate() {
+                        lock[index].push_input_state(*next_state);
+                    }
+                    drop(lock);
+
+                    self.call_update()
+                }
+            }
+        }
+    }
 }
 
 impl LuaConsole {
@@ -57,6 +86,10 @@ impl LuaConsole {
         input_entries: Arc<Mutex<Box<[PlayerInputEntry]>>>,
     ) -> Self {
         let lua = Lua::new();
+
+        let input_context = InputContext {
+            input_entries: input_entries.clone(),
+        };
 
         lua.context(|ctx| {
             // Load the user lua scripts
@@ -70,7 +103,7 @@ impl LuaConsole {
             )
             .unwrap();
 
-            ctx.set_named_registry_value(LUA_INPUT_CONTEXT, InputContext { input_entries })
+            ctx.set_named_registry_value(LUA_INPUT_CONTEXT, input_context)
                 .unwrap();
         });
 
@@ -78,6 +111,7 @@ impl LuaConsole {
             rom,
             lua,
             frame_buffer,
+            input_entries,
         };
 
         output.bind_graphics_api();

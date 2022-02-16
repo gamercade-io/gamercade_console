@@ -1,6 +1,6 @@
 use super::{Buttons, InputState};
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct PlayerInputEntry {
     pub(crate) previous: Buttons,
     pub(crate) current: InputState,

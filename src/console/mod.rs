@@ -2,11 +2,12 @@ mod graphics_context;
 mod input_context;
 mod lua;
 
+use ggrs::GGRSRequest;
 pub use graphics_context::GraphicsContext;
 pub use input_context::InputContext;
 pub use lua::LuaConsole;
 
-use crate::core::Rom;
+use crate::{core::Rom, GGRSConfig};
 
 pub trait Console {
     fn call_init(&self);
@@ -16,4 +17,6 @@ pub trait Console {
     fn rom(&self) -> &Rom;
 
     fn blit(&self, buffer: &mut [u8]);
+
+    fn handle_requests(&mut self, requests: Vec<GGRSRequest<GGRSConfig>>);
 }

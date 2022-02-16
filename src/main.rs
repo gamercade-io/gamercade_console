@@ -2,11 +2,17 @@ mod api;
 mod console;
 mod core;
 
-use crate::core::{InputState, LocalInputManager, PlayerInputEntry, Rom};
-use std::{net::SocketAddr, sync::Arc};
+use crate::core::{FrameRate, InputState, LocalInputManager, PlayerInputEntry, Rom};
+use std::{
+    net::SocketAddr,
+    sync::Arc,
+    time::{Duration, Instant},
+};
 
 use console::{Console, LuaConsole};
-use ggrs::{Config, P2PSession, PlayerType, SessionBuilder, UdpNonBlockingSocket};
+use ggrs::{
+    Config, GGRSError, P2PSession, PlayerType, SessionBuilder, SessionState, UdpNonBlockingSocket,
+};
 use parking_lot::Mutex;
 use pixels::{Error, Pixels, SurfaceTexture};
 use rlua::Table;
@@ -20,11 +26,12 @@ use winit_input_helper::WinitInputHelper;
 
 fn main() -> Result<(), Error> {
     let event_loop = EventLoop::new();
-    let code_filename = "test.lua";
+    let code_filename = "test2.lua";
     let window = init_window(&event_loop, code_filename);
 
-    let rom = Rom::default();
-    let session = init_session(&rom);
+    let mut rom = Rom::default();
+    rom.frame_rate = FrameRate::Fast;
+    let (num_players, mut session) = init_session(&rom);
 
     let mut pixels = init_pixels(&window, &rom);
 
@@ -38,15 +45,20 @@ fn main() -> Result<(), Error> {
 
     //TODO: For more players add stuff here
     let player_inputs = Arc::new(Mutex::new(
-        vec![PlayerInputEntry::default()].into_boxed_slice(),
+        (0..num_players)
+            .map(|_| PlayerInputEntry::default())
+            .collect(),
     ));
 
-    let console = LuaConsole::new(rom, &code, frame_buffer, player_inputs.clone());
+    let mut console = LuaConsole::new(rom.clone(), &code, frame_buffer, player_inputs.clone());
     console.call_init();
 
     //TODO: Incorporate Network stuff GGRS
     let mut input = WinitInputHelper::new();
     let input_manager = LocalInputManager::default();
+    let mut last_update = Instant::now();
+    let mut accumulator = Duration::ZERO;
+
     event_loop.run(move |event, _, control_flow| {
         // Handle input events
         if input.update(&event) {
@@ -61,24 +73,60 @@ fn main() -> Result<(), Error> {
                 pixels.resize_surface(size.width, size.height);
             }
 
-            // Update internal state
-            let next_input_state = input_manager.generate_input_state(&input);
-            player_inputs.lock()[0].push_input_state(next_input_state);
-            console.call_update();
+            // Handle GGRS packets
+            session.poll_remote_clients();
 
-            // Render the game
-            console.call_draw();
-            console.blit(pixels.get_frame());
-            if pixels
-                .render()
-                .map_err(|e| println!("pixels.render() failed: {}", e))
-                .is_err()
-            {
-                *control_flow = ControlFlow::Exit;
-                return;
+            if session.current_state() == SessionState::Running {
+                // this is to keep ticks between clients synchronized.
+                // if a client is ahead, it will run frames slightly slower to allow catching up
+                let mut fps_delta = 1. / rom.frame_rate.frames_per_second() as f64;
+                if session.frames_ahead() > 0 {
+                    fps_delta *= 1.1;
+                }
+
+                // get delta time from last iteration and accumulate it
+                let delta = Instant::now().duration_since(last_update);
+                accumulator = accumulator.saturating_add(delta);
+                last_update = Instant::now();
+
+                while accumulator.as_secs_f64() > fps_delta {
+                    accumulator = accumulator.saturating_sub(Duration::from_secs_f64(fps_delta));
+
+                    // Generate all local inputs
+                    // TODO: Refactor this to handle multiple local players
+                    for handle in session.local_player_handles() {
+                        session
+                            .add_local_input(handle, input_manager.generate_input_state(&input))
+                            .unwrap();
+                    }
+
+                    //TODO: What to do with this??
+                    //player_inputs.lock()[0].push_input_state(next_input_state);
+
+                    // Update internal state
+                    match session.advance_frame() {
+                        Ok(requests) => {
+                            console.handle_requests(requests);
+                        }
+                        Err(GGRSError::PredictionThreshold) => (),
+                        Err(e) => panic!("{}", e),
+                    }
+                }
+
+                // Render the game
+                console.call_draw();
+                console.blit(pixels.get_frame());
+                if pixels
+                    .render()
+                    .map_err(|e| println!("pixels.render() failed: {}", e))
+                    .is_err()
+                {
+                    *control_flow = ControlFlow::Exit;
+                    return;
+                }
+
+                window.request_redraw();
             }
-
-            window.request_redraw();
         }
     });
 }
@@ -113,7 +161,7 @@ fn init_frame_buffer(rom: &Rom) -> Box<[u8]> {
 }
 
 // TODO: Finish this GGRS Related things:
-fn init_session(rom: &Rom) -> P2PSession<GGRSConfig> {
+fn init_session(rom: &Rom) -> (usize, P2PSession<GGRSConfig>) {
     use text_io::read;
 
     println!("Enter port number:");
@@ -130,11 +178,11 @@ fn init_session(rom: &Rom) -> P2PSession<GGRSConfig> {
     } else {
         (0..num_players)
             .map(|_| {
-                println!("Enter ip-address (or nothing if local):");
+                println!("Enter ip-address (or 'local' for local):");
 
                 let address: String = read!();
 
-                if address.is_empty() {
+                if address == "local" {
                     PlayerType::Local
                 } else {
                     PlayerType::Remote(address.parse().unwrap())
@@ -153,7 +201,7 @@ fn init_session(rom: &Rom) -> P2PSession<GGRSConfig> {
     }
 
     let socket = UdpNonBlockingSocket::bind_to_port(port).unwrap();
-    sess_builder.start_p2p_session(socket).unwrap()
+    (num_players, sess_builder.start_p2p_session(socket).unwrap())
 }
 
 #[derive(Debug)]
@@ -161,7 +209,6 @@ pub struct GGRSConfig;
 
 impl Config for GGRSConfig {
     type Input = InputState;
-    //type State = Option<()>;
-    type State = Table<'static>;
+    type State = Box<[PlayerInputEntry]>;
     type Address = SocketAddr;
 }
