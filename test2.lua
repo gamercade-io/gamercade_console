@@ -1,6 +1,6 @@
 COUNT = 0
 PRESSES = 0
-SPEED = 0.5
+SPEED = 0.75
 
 function init()
     X_MID = width() / 2
@@ -38,9 +38,9 @@ function draw()
 
     clear_screen()
 
-    for i = 1, 15, 1 do
-        local new_x = X_MID + math.sin(COUNT * i) * SCALE
-        local new_y = Y_MID + math.cos(COUNT * i) * SCALE
+    for i = 1, 4, 1 do
+        local new_x = X_MID + math.sin(COUNT * i * 3) * SCALE
+        local new_y = Y_MID + math.cos(COUNT * i * 3) * SCALE
         line(X_POS, Y_POS, new_x, new_y, (PRESSES + i) % 16)
     end
 

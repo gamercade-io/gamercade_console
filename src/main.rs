@@ -26,12 +26,13 @@ use winit_input_helper::WinitInputHelper;
 
 fn main() -> Result<(), Error> {
     let event_loop = EventLoop::new();
-    let code_filename = "test.lua";
+    let code_filename = "test2.lua";
     let window = init_window(&event_loop, code_filename);
 
     let mut rom = Rom::default();
-    rom.frame_rate = FrameRate::Fast;
-    let (num_players, mut session) = init_session(&rom);
+    rom.frame_rate = FrameRate::Slow;
+    let (num_players, mut session) = init_session_fast(&rom);
+    //let (num_players, mut session) = init_session(&rom);
 
     let mut pixels = init_pixels(&window, &rom);
 
@@ -49,7 +50,13 @@ fn main() -> Result<(), Error> {
             .collect(),
     ));
 
-    let mut console = LuaConsole::new(rom.clone(), &code, frame_buffer, player_inputs.clone());
+    let mut console = LuaConsole::new(
+        rom.clone(),
+        &code,
+        frame_buffer,
+        player_inputs.clone(),
+        session.max_prediction(),
+    );
     console.call_init();
 
     let mut input = WinitInputHelper::new();
@@ -153,6 +160,31 @@ fn init_frame_buffer(rom: &Rom) -> Box<[u8]> {
         .map(|_| 0)
         .collect::<Vec<u8>>()
         .into_boxed_slice()
+}
+
+fn init_session_fast(rom: &Rom) -> (usize, P2PSession<GGRSConfig>) {
+    use text_io::read;
+    println!("Enter player number:");
+
+    let player_id: usize = read!();
+
+    let mut sess_builder = SessionBuilder::<GGRSConfig>::new()
+    .with_num_players(2)
+    .with_fps(rom.frame_rate.frames_per_second())
+    .unwrap();
+
+    let (player_ips, port) = match player_id {
+        1 => (vec![PlayerType::Local, PlayerType::Remote("127.0.0.1:222".parse().unwrap())], 111),
+        2 => (vec![PlayerType::Remote("127.0.0.1:111".parse().unwrap()), PlayerType::Local], 222),
+        _ => panic!()
+    };
+
+    for (id, address) in player_ips.into_iter().enumerate() {
+        sess_builder = sess_builder.add_player(address, id).unwrap();
+    }
+
+    let socket = UdpNonBlockingSocket::bind_to_port(port).unwrap();
+    (2, sess_builder.start_p2p_session(socket).unwrap())
 }
 
 // TODO: Finish this GGRS Related things:
