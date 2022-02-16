@@ -43,7 +43,6 @@ fn main() -> Result<(), Error> {
 
     let rom = Arc::new(rom);
 
-    //TODO: For more players add stuff here
     let player_inputs = Arc::new(Mutex::new(
         (0..num_players)
             .map(|_| PlayerInputEntry::default())
@@ -53,7 +52,6 @@ fn main() -> Result<(), Error> {
     let mut console = LuaConsole::new(rom.clone(), &code, frame_buffer, player_inputs.clone());
     console.call_init();
 
-    //TODO: Incorporate Network stuff GGRS
     let mut input = WinitInputHelper::new();
     let input_manager = LocalInputManager::default();
     let mut last_update = Instant::now();
@@ -93,15 +91,12 @@ fn main() -> Result<(), Error> {
                     accumulator = accumulator.saturating_sub(Duration::from_secs_f64(fps_delta));
 
                     // Generate all local inputs
-                    // TODO: Refactor this to handle multiple local players
+                    // TODO: Refactor this to handle multiple local players correctly
                     for handle in session.local_player_handles() {
                         session
                             .add_local_input(handle, input_manager.generate_input_state(&input))
                             .unwrap();
                     }
-
-                    //TODO: What to do with this??
-                    //player_inputs.lock()[0].push_input_state(next_input_state);
 
                     // Update internal state
                     match session.advance_frame() {

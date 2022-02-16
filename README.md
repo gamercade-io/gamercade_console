@@ -102,19 +102,21 @@ sprite(x, y, optional palette_index)
 
 
 TODO:
-1. Do "Input State" and reading / gamepads
+1. Networking Functionality:
+    1. Figure out how to save/load/rollback lua state
+1. Input handling
     1. Do "Emulated gamepad" for keyboard input, include analogs etc
-1. Incorporate networking functionality
-    1. Figure out how to save/load lua state
+    1. Gamepad support
+    1. Support multiple local players
 1. Fix issues when trying to draw out of bounds
-1. Write "Pong" in test.lua
+1. Build showcase projects
 1. Finish "Graphcis" outlined functions
     1. Add "Draw Square" filled?
     1. Add "Draw Circle"
     1. Add "Draw Circle" filled?
     1. Add Write Text function
 1. Brainstorm "UserApi" for stuff like player names, avatar, meta-data outside the game
-1. Set the user count accessable as a global somewhere
+1. Set the user count accessable as a global somewhere within lua
 
 If WGPU errors occur, set WGPU_BACKEND=gl via
 
