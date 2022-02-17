@@ -102,6 +102,7 @@ sprite(x, y, optional palette_index)
 
 
 TODO:
+1. Integrate WASM as Lua alternative
 1. Networking Functionality:
     1. Figure out how to save/load/rollback lua state
 1. Input handling

@@ -90,16 +90,42 @@ impl Console for LuaConsole {
     fn call_update(&self) {
         // Call the rom's update function
         self.lua.context(|ctx| {
+            let count: f64 = ctx.globals().get("COUNT").unwrap();
+            let x_pos: usize = ctx.globals().get("X_POS").unwrap();
+            let y_pos: usize = ctx.globals().get("Y_POS").unwrap();
+            println!(
+                "UPDATE BEFORE: count: {}, x: {}, y: {}",
+                count, x_pos, y_pos
+            );
+
             let update = self.registers.get_update_fn(&ctx);
+            //let update: Function = ctx.globals().get("update").unwrap();
             update.call::<(), ()>(()).unwrap();
+
+            let count: f64 = ctx.globals().get("COUNT").unwrap();
+            let x_pos: usize = ctx.globals().get("X_POS").unwrap();
+            let y_pos: usize = ctx.globals().get("Y_POS").unwrap();
+            println!("UPDATE AFTER: count: {}, x: {}, y: {}", count, x_pos, y_pos);
         });
     }
 
     fn call_draw(&self) {
         // Call the rom's draw function
         self.lua.context(|ctx| {
-            let draw: Function = self.registers.get_draw_fn(&ctx);
+            let draw = self.registers.get_draw_fn(&ctx);
+
+            let count: f64 = ctx.globals().get("COUNT").unwrap();
+            let x_pos: usize = ctx.globals().get("X_POS").unwrap();
+            let y_pos: usize = ctx.globals().get("Y_POS").unwrap();
+            println!("DRAW BEFORE: count: {}, x: {}, y: {}", count, x_pos, y_pos);
+
+            //let draw: Function = ctx.globals().get("draw").unwrap();
             draw.call::<_, ()>(()).unwrap();
+
+            let count: f64 = ctx.globals().get("COUNT").unwrap();
+            let x_pos: usize = ctx.globals().get("X_POS").unwrap();
+            let y_pos: usize = ctx.globals().get("Y_POS").unwrap();
+            println!("DRAW AFTER: count: {}, x: {}, y: {}", count, x_pos, y_pos);
         });
     }
 
@@ -122,15 +148,23 @@ impl Console for LuaConsole {
                     let frame = frame % self.max_rollback_frames;
                     self.lua.context(|ctx| {
                         let states_table: Table = self.registers.get_states(&ctx);
-                        //let deep_copy: Function = ctx.load(DEEP_COPY).eval().unwrap();
                         let cloned_state: Table = ctx.load(CLONE_STATE).eval().unwrap();
-                        //let env = ctx.load("_ENV").eval().unwrap();
-                        //let new_entry = deep_copy.call::<(), Table>().unwrap();
+
+                        println!("SAVE:");
+                        let count: f64 = ctx.globals().get("COUNT").unwrap();
+                        let x_pos: usize = ctx.globals().get("X_POS").unwrap();
+                        let y_pos: usize = ctx.globals().get("Y_POS").unwrap();
+                        println!("globals: count: {}, x: {}, y: {}", count, x_pos, y_pos);
+
+                        let count: f64 = cloned_state.get("COUNT").unwrap();
+                        let x_pos: usize = cloned_state.get("X_POS").unwrap();
+                        let y_pos: usize = cloned_state.get("Y_POS").unwrap();
+                        println!("cloned count: {}, x: {}, y: {}", count, x_pos, y_pos);
+
                         states_table.set(frame, cloned_state).unwrap();
                     })
                 }
                 GGRSRequest::LoadGameState { cell, frame } => {
-                    //TODO: Actually load the game state for rollbacks
                     let frame = frame % self.max_rollback_frames;
 
                     // Rollback the input states
@@ -142,6 +176,14 @@ impl Console for LuaConsole {
                         // Get the rollback state
                         let states_table: Table = self.registers.get_states(&ctx);
                         let rollback: Table = states_table.get(frame).unwrap();
+
+                        //let copy_fn: Function = ctx
+                        // .load(DEEP_COPY)
+                        // .set_environment(rollback.clone())
+                        // .unwrap()
+                        // .eval()
+                        // .unwrap();
+                        //let rollback: Table = copy_fn.call(rollback).unwrap();
 
                         // Get the blobs
                         let update_blob: Vec<u8> = self.registers.get_update_blob(&ctx);
@@ -219,7 +261,6 @@ impl LuaConsole {
 
             // Load the user lua scripts
             ctx.load(code).exec().unwrap();
-            //let deep_copy_fn: Function = ctx.load(DEEP_COPY).;
 
             let update_fn: Function = ctx.globals().get("update").unwrap();
             let update_blob = update_fn.dump().unwrap();
@@ -259,6 +300,32 @@ impl LuaConsole {
     }
 }
 
+// const GRAPH_COPY: &str = r#"
+// local function GraphCopy(x, seen)
+//     seen = seen or {}
+
+//     if seen[x] then
+//         return seen[x]
+//     end
+
+//     if type(x) == 'table' then
+//         local copy = {}
+//         seen[x] = copy -- mark as seen BEFORE recursing deeper
+//         for k, v in pairs(x) do
+//             copy[GraphCopy(k, seen)] = GraphCopy(v, seen)
+//         end
+//         setmetatable(copy, GraphCopy(getmetatable(x), seen))
+//         return copy
+//     end
+
+//     if type(x) == 'function' then
+//         -- clone the function and GraphCopy each of its upvalues
+//     end
+
+//     return x
+// end
+// "#;
+
 const CLONE_STATE: &str = r#"
 function __DEEP_COPY__(orig, copies)
     copies = copies or {}
@@ -280,11 +347,10 @@ function __DEEP_COPY__(orig, copies)
     end
     return copy
 end
-
-print('cloning _ENV')
 return __DEEP_COPY__(_ENV)"#;
 
 // const DEEP_COPY: &str = r#"
+// print('constructing __DEEP_COPY__')
 // function __DEEP_COPY__(orig, copies)
 //     copies = copies or {}
 //     local orig_type = type(orig)
@@ -305,5 +371,4 @@ return __DEEP_COPY__(_ENV)"#;
 //     end
 //     return copy
 // end
-// print("CONSTRUCTED __DEEP_COPY__")
 // return __DEEP_COPY__"#;

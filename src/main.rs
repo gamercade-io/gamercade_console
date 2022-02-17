@@ -30,7 +30,7 @@ fn main() -> Result<(), Error> {
     let window = init_window(&event_loop, code_filename);
 
     let mut rom = Rom::default();
-    rom.frame_rate = FrameRate::Slow;
+    rom.frame_rate = FrameRate::SuperSlow;
     let (num_players, mut session) = init_session_fast(&rom);
     //let (num_players, mut session) = init_session(&rom);
 

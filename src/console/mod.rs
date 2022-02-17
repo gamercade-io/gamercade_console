@@ -1,6 +1,7 @@
 mod graphics_context;
 mod input_context;
 mod lua;
+mod wasm;
 
 use ggrs::GGRSRequest;
 pub use graphics_context::GraphicsContext;
