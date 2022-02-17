@@ -8,7 +8,7 @@ pub enum Resolution {
 }
 
 impl Resolution {
-    pub fn width(&self) -> u32 {
+    pub fn width(&self) -> i32 {
         match self {
             Resolution::Low => 320,
             Resolution::Medium => 640,
@@ -16,7 +16,7 @@ impl Resolution {
         }
     }
 
-    pub fn height(&self) -> u32 {
+    pub fn height(&self) -> i32 {
         match self {
             Resolution::Low => 180,
             Resolution::Medium => 320,
@@ -24,7 +24,7 @@ impl Resolution {
         }
     }
 
-    pub fn total_pixels(&self) -> u32 {
+    pub fn total_pixels(&self) -> i32 {
         self.width() * self.height()
     }
 }

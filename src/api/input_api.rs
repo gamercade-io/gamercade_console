@@ -9,18 +9,18 @@ macro_rules! derive_bind_input_api {
         paste! {
             pub trait InputApi {
                 $(
-                    fn [<button_ $btn_name _pressed>](&self, player_id: u8) -> bool;
-                    fn [<button_ $btn_name _released>](&self, player_id: u8) -> bool;
-                    fn [<button_ $btn_name _held>](&self, player_id: u8) -> bool;
+                    fn [<button_ $btn_name _pressed>](&self, player_id: i32) -> i32;
+                    fn [<button_ $btn_name _released>](&self, player_id: i32) -> i32;
+                    fn [<button_ $btn_name _held>](&self, player_id: i32) -> i32;
                 )*
 
                 $(
-                    fn [<analog_ $anlg_name _x>](&self, player_id: u8) -> f32;
-                    fn [<analog_ $anlg_name _y>](&self, player_id: u8) -> f32;
+                    fn [<analog_ $anlg_name _x>](&self, player_id: i32) -> f32;
+                    fn [<analog_ $anlg_name _y>](&self, player_id: i32) -> f32;
                 )*
 
                 $(
-                    fn [<trigger_ $trg_name>](&self, player_id: u8) -> f32;
+                    fn [<trigger_ $trg_name>](&self, player_id: i32) -> f32;
                 )*
             }
 

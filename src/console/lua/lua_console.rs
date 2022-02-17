@@ -9,7 +9,6 @@ use crate::{
     api::{GraphicsApiBinding, InputApiBinding},
     console::{GraphicsContext, InputContext},
     core::{PlayerInputEntry, Rom},
-    GGRSConfig,
 };
 
 pub struct Registers {
@@ -137,7 +136,7 @@ impl Console for LuaConsole {
         buffer.copy_from_slice(&self.frame_buffer.lock());
     }
 
-    fn handle_requests(&mut self, requests: Vec<GGRSRequest<GGRSConfig>>) {
+    fn handle_requests(&mut self, requests: Vec<GGRSRequest<Self>>) {
         for request in requests {
             match request {
                 GGRSRequest::SaveGameState { cell, frame } => {

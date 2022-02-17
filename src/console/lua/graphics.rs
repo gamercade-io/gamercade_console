@@ -13,7 +13,7 @@ impl GraphicsApiBinding for LuaConsole {
             ctx.globals()
                 .set(
                     "clear_screen",
-                    ctx.create_function(move |_, args: (Option<usize>, Option<usize>)| {
+                    ctx.create_function(move |_, args: (i32, i32)| {
                         gfx.clear_screen(args.0, args.1);
                         Ok(())
                     })
@@ -29,12 +29,10 @@ impl GraphicsApiBinding for LuaConsole {
             ctx.globals()
                 .set(
                     "set_pixel",
-                    ctx.create_function(
-                        move |_, args: (u32, u32, Option<usize>, Option<usize>)| {
-                            gfx.set_pixel(args.0, args.1, args.2, args.3);
-                            Ok(())
-                        },
-                    )
+                    ctx.create_function(move |_, args: (i32, i32, i32, i32)| {
+                        gfx.set_pixel(args.0, args.1, args.2, args.3);
+                        Ok(())
+                    })
                     .unwrap(),
                 )
                 .unwrap();
@@ -71,12 +69,10 @@ impl GraphicsApiBinding for LuaConsole {
             ctx.globals()
                 .set(
                     "line",
-                    ctx.create_function(
-                        move |_, args: (u32, u32, u32, u32, Option<usize>, Option<usize>)| {
-                            gfx.line(args.0, args.1, args.2, args.3, args.4, args.5);
-                            Ok(())
-                        },
-                    )
+                    ctx.create_function(move |_, args: (i32, i32, i32, i32, i32, i32)| {
+                        gfx.line(args.0, args.1, args.2, args.3, args.4, args.5);
+                        Ok(())
+                    })
                     .unwrap(),
                 )
                 .unwrap()
@@ -89,12 +85,10 @@ impl GraphicsApiBinding for LuaConsole {
             ctx.globals()
                 .set(
                     "rect",
-                    ctx.create_function(
-                        move |_, args: (u32, u32, u32, u32, Option<usize>, Option<usize>)| {
-                            gfx.rect(args.0, args.1, args.2, args.3, args.4, args.5);
-                            Ok(())
-                        },
-                    )
+                    ctx.create_function(move |_, args: (i32, i32, i32, i32, i32, i32)| {
+                        gfx.rect(args.0, args.1, args.2, args.3, args.4, args.5);
+                        Ok(())
+                    })
                     .unwrap(),
                 )
                 .unwrap()

@@ -8,7 +8,7 @@ pub struct PlayerInputEntry {
 
 impl PlayerInputEntry {
     pub fn push_input_state(&mut self, next_state: InputState) {
-        self.previous = self.current.buttons.clone();
+        self.previous = self.current.buttons;
         self.current = next_state;
     }
 }

@@ -16,7 +16,7 @@ impl Default for Rom {
     fn default() -> Self {
         Self {
             resolution: Resolution::Low,
-            frame_rate: FrameRate::Normal,
+            frame_rate: FrameRate::Fast,
             sprites: vec![].into_boxed_slice(),
             palettes: vec![Palette::bubblegum16()].into_boxed_slice(),
             sounds: Sounds {},

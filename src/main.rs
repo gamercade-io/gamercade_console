@@ -2,20 +2,17 @@ mod api;
 mod console;
 mod core;
 
-use crate::core::{FrameRate, InputState, LocalInputManager, PlayerInputEntry, Rom};
 use std::{
     net::SocketAddr,
     sync::Arc,
     time::{Duration, Instant},
 };
 
-use console::{Console, LuaConsole};
 use ggrs::{
     Config, GGRSError, P2PSession, PlayerType, SessionBuilder, SessionState, UdpNonBlockingSocket,
 };
 use parking_lot::Mutex;
 use pixels::{Error, Pixels, SurfaceTexture};
-use rlua::Table;
 use winit::{
     dpi::LogicalSize,
     event::VirtualKeyCode,
@@ -24,20 +21,19 @@ use winit::{
 };
 use winit_input_helper::WinitInputHelper;
 
+use crate::core::{LocalInputManager, PlayerInputEntry, Rom};
+use console::{Console, WasmConsole};
+
 fn main() -> Result<(), Error> {
     let event_loop = EventLoop::new();
-    let code_filename = "test2.lua";
+    let code_filename = "wasm_test.wasm";
     let window = init_window(&event_loop, code_filename);
 
-    let mut rom = Rom::default();
-    rom.frame_rate = FrameRate::SuperSlow;
-    let (num_players, mut session) = init_session_fast(&rom);
-    //let (num_players, mut session) = init_session(&rom);
+    let rom = Rom::default();
+    //let (num_players, mut session) = init_session_fast(&rom);
+    let (num_players, mut session) = init_session(&rom);
 
     let mut pixels = init_pixels(&window, &rom);
-
-    //TODO: Load a passed in file or from the rom
-    let code = std::fs::read_to_string(code_filename).unwrap();
 
     // Prepare a frame buffer
     let frame_buffer = Arc::new(Mutex::new(init_frame_buffer(&rom)));
@@ -50,13 +46,22 @@ fn main() -> Result<(), Error> {
             .collect(),
     ));
 
-    let mut console = LuaConsole::new(
-        rom.clone(),
-        &code,
-        frame_buffer,
-        player_inputs.clone(),
-        session.max_prediction(),
-    );
+    let mut console = if code_filename.ends_with(".wasm") {
+        let code = std::fs::read(code_filename).unwrap();
+        WasmConsole::new(rom.clone(), player_inputs, &code, frame_buffer)
+    // } else if code_filename.ends_with(".lua") {
+    //     let code = std::fs::read_to_string(code_filename).unwrap();
+    //     LuaConsole::new(
+    //     rom.clone(),
+    //     &code,
+    //     frame_buffer,
+    //     player_inputs,
+    //     session.max_prediction(),
+    //     )
+    } else {
+        panic!("Unknown file type");
+    };
+
     console.call_init();
 
     let mut input = WinitInputHelper::new();
@@ -142,7 +147,7 @@ fn init_window(event_loop: &EventLoop<()>, code_filename: &str) -> Window {
         ))
         .with_inner_size(size)
         .with_min_inner_size(size)
-        .build(&event_loop)
+        .build(event_loop)
         .unwrap()
 }
 
@@ -152,7 +157,7 @@ fn init_pixels(window: &Window, rom: &Rom) -> Pixels {
 
     let (width, height) = (rom.resolution.width(), rom.resolution.height());
 
-    Pixels::new(width, height, surface_texture).unwrap()
+    Pixels::new(width as u32, height as u32, surface_texture).unwrap()
 }
 
 fn init_frame_buffer(rom: &Rom) -> Box<[u8]> {
@@ -162,13 +167,19 @@ fn init_frame_buffer(rom: &Rom) -> Box<[u8]> {
         .into_boxed_slice()
 }
 
-fn init_session_fast(rom: &Rom) -> (usize, P2PSession<GGRSConfig>) {
+fn init_session_fast<T>(rom: &Rom) -> (usize, P2PSession<T>)
+where
+    T: Config,
+    <T as Config>::Address: std::str::FromStr,
+    UdpNonBlockingSocket: ggrs::NonBlockingSocket<<T as Config>::Address>,
+    <<T as Config>::Address as std::str::FromStr>::Err: std::fmt::Debug,
+{
     use text_io::read;
     println!("Enter player number:");
 
     let player_id: usize = read!();
 
-    let mut sess_builder = SessionBuilder::<GGRSConfig>::new()
+    let mut sess_builder = SessionBuilder::<T>::new()
         .with_num_players(2)
         .with_fps(rom.frame_rate.frames_per_second())
         .unwrap();
@@ -200,7 +211,11 @@ fn init_session_fast(rom: &Rom) -> (usize, P2PSession<GGRSConfig>) {
 }
 
 // TODO: Finish this GGRS Related things:
-fn init_session(rom: &Rom) -> (usize, P2PSession<GGRSConfig>) {
+fn init_session<T>(rom: &Rom) -> (usize, P2PSession<T>)
+where
+    T: Config<Address = SocketAddr>,
+    UdpNonBlockingSocket: ggrs::NonBlockingSocket<<T as Config>::Address>,
+{
     use text_io::read;
 
     println!("Enter port number:");
@@ -230,7 +245,7 @@ fn init_session(rom: &Rom) -> (usize, P2PSession<GGRSConfig>) {
             .collect()
     };
 
-    let mut sess_builder = SessionBuilder::<GGRSConfig>::new()
+    let mut sess_builder = SessionBuilder::<T>::new()
         .with_num_players(num_players)
         .with_fps(rom.frame_rate.frames_per_second())
         .unwrap();
@@ -241,13 +256,4 @@ fn init_session(rom: &Rom) -> (usize, P2PSession<GGRSConfig>) {
 
     let socket = UdpNonBlockingSocket::bind_to_port(port).unwrap();
     (num_players, sess_builder.start_p2p_session(socket).unwrap())
-}
-
-#[derive(Debug)]
-pub struct GGRSConfig;
-
-impl Config for GGRSConfig {
-    type Input = InputState;
-    type State = Box<[PlayerInputEntry]>;
-    type Address = SocketAddr;
 }

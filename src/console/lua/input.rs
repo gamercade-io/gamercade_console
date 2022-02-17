@@ -25,7 +25,7 @@ macro_rules! derive_bind_lua_input_api {
                             ctx.globals()
                                 .set(
                                     stringify!([<button_ $btn_name _pressed>]),
-                                    ctx.create_function(move |_, player_id: u8| {
+                                    ctx.create_function(move |_, player_id: i32| {
                                         Ok(inp.[<button_ $btn_name _pressed>](player_id - 1))
                                     })
                                     .unwrap(),
@@ -40,7 +40,7 @@ macro_rules! derive_bind_lua_input_api {
                             ctx.globals()
                                 .set(
                                     stringify!([<button_ $btn_name _released>]),
-                                    ctx.create_function(move |_, player_id: u8| {
+                                    ctx.create_function(move |_, player_id: i32| {
                                         Ok(inp.[<button_ $btn_name _held>](player_id - 1))
                                     })
                                     .unwrap(),
@@ -55,7 +55,7 @@ macro_rules! derive_bind_lua_input_api {
                             ctx.globals()
                                 .set(
                                     stringify!([<button_ $btn_name _held>]),
-                                    ctx.create_function(move |_, player_id: u8| {
+                                    ctx.create_function(move |_, player_id: i32| {
                                         Ok(inp.[<button_ $btn_name _held>](player_id - 1))
                                     })
                                     .unwrap(),
@@ -74,7 +74,7 @@ macro_rules! derive_bind_lua_input_api {
                             ctx.globals()
                                 .set(
                                     stringify!([<analog_ $anlg_name _x>]),
-                                    ctx.create_function(move |_, player_id: u8| {
+                                    ctx.create_function(move |_, player_id: i32| {
                                         Ok(inp.[<analog_ $anlg_name _x>](player_id - 1))
                                     })
                                     .unwrap(),
@@ -89,7 +89,7 @@ macro_rules! derive_bind_lua_input_api {
                             ctx.globals()
                                 .set(
                                     stringify!([<analog_ $anlg_name _y>]),
-                                    ctx.create_function(move |_, player_id: u8| {
+                                    ctx.create_function(move |_, player_id: i32| {
                                         Ok(inp.[<analog_ $anlg_name _y>](player_id - 1))
                                     })
                                     .unwrap(),
@@ -109,7 +109,7 @@ macro_rules! derive_bind_lua_input_api {
                             ctx.globals()
                                 .set(
                                     stringify!([<trigger_ $trg_name>]),
-                                    ctx.create_function(move |_, player_id: u8| {
+                                    ctx.create_function(move |_, player_id: i32| {
                                         Ok(inp.[<trigger_ $trg_name>](player_id - 1))
                                     })
                                     .unwrap(),

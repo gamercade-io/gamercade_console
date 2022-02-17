@@ -11,35 +11,19 @@ macro_rules! derive_bind_graphics_api {
 }
 
 pub trait GraphicsApi {
-    fn clear_screen(&self, color_index: Option<usize>, palette_index: Option<usize>);
-    fn set_pixel(&self, x: u32, y: u32, color_index: Option<usize>, palette_index: Option<usize>);
-    fn height(&self) -> u32;
-    fn width(&self) -> u32;
+    fn clear_screen(&self, color_index: i32, palette_index: i32);
+    fn set_pixel(&self, x: i32, y: i32, color_index: i32, palette_index: i32);
+    fn height(&self) -> i32;
+    fn width(&self) -> i32;
 
     //TODO
     // fn circle(&self, x: u32, y: u32, color_index: Option<usize>, palette_index: Option<usize>);
     // fn circle_filled(&self, x: u32, y: u32, color_index: Option<usize>, palette_index: Option<usize>);
 
-    fn rect(
-        &self,
-        x: u32,
-        y: u32,
-        width: u32,
-        height: u32,
-        color_index: Option<usize>,
-        palette_index: Option<usize>,
-    );
+    fn rect(&self, x: i32, y: i32, width: i32, height: i32, color_index: i32, palette_index: i32);
 
     // fn rect_filled(&self, x: u32, y: u32, width: u32, height: u32, color_index: Option<usize>, palette_index: Option<usize>)
-    fn line(
-        &self,
-        x0: u32,
-        y0: u32,
-        x1: u32,
-        y1: u32,
-        color_index: Option<usize>,
-        palette_index: Option<usize>,
-    );
+    fn line(&self, x0: i32, y0: i32, x1: i32, y1: i32, color_index: i32, palette_index: i32);
 
     // fn sprite(&self, sprite_index: usize, x: u32, y: u32, palette_index: Option<usize>)
 }

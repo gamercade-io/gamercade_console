@@ -1,5 +1,6 @@
 use paste::paste;
 use std::sync::Arc;
+use wasmer::WasmerEnv;
 
 use parking_lot::Mutex;
 
@@ -8,7 +9,7 @@ use crate::{
     core::{ButtonCode, PlayerInputEntry},
 };
 
-#[derive(Clone)]
+#[derive(WasmerEnv, Clone)]
 pub struct InputContext {
     pub(crate) input_entries: Arc<Mutex<Box<[PlayerInputEntry]>>>,
 }
@@ -22,40 +23,40 @@ macro_rules! derive_generate_input_api {
         paste! {
             impl InputApi for InputContext {
                 $(
-                    fn [<button_ $btn_name _pressed>](&self, player_id:u8) -> bool {
+                    fn [<button_ $btn_name _pressed>](&self, player_id: i32) -> i32 {
                         let player_input = &self.input_entries.lock()[player_id as usize];
                         let prev = player_input.previous.get_button_state(ButtonCode::$btn_code);
                         let curr = player_input.current.buttons.get_button_state(ButtonCode::$btn_code);
-                        prev == false && curr == true
+                        (prev == false && curr == true) as i32
                     }
 
-                    fn [<button_ $btn_name _released>](&self, player_id:u8) -> bool {
+                    fn [<button_ $btn_name _released>](&self, player_id: i32) -> i32 {
                         let player_input = &self.input_entries.lock()[player_id as usize];
                         let prev = player_input.previous.get_button_state(ButtonCode::$btn_code);
                         let curr = player_input.current.buttons.get_button_state(ButtonCode::$btn_code);
-                        prev == true && curr == false
+                        (prev == true && curr == false) as i32
                     }
 
-                    fn [<button_ $btn_name _held>](&self, player_id:u8) -> bool {
+                    fn [<button_ $btn_name _held>](&self, player_id: i32) -> i32 {
                         let player_input = &self.input_entries.lock()[player_id as usize];
-                        player_input.current.buttons.get_button_state(ButtonCode::$btn_code)
+                        player_input.current.buttons.get_button_state(ButtonCode::$btn_code) as i32
                     }
                 )*
 
                 $(
-                    fn [<analog_ $anlg_name _x>](&self, player_id:u8) -> f32 {
+                    fn [<analog_ $anlg_name _x>](&self, player_id: i32) -> f32 {
                         let player_input = &self.input_entries.lock()[player_id as usize];
                         player_input.current.[<$anlg_name _stick>].get_x_axis()
                     }
 
-                    fn [<analog_ $anlg_name _y>](&self, player_id:u8) -> f32 {
+                    fn [<analog_ $anlg_name _y>](&self, player_id: i32) -> f32 {
                         let player_input = &self.input_entries.lock()[player_id as usize];
                         player_input.current.[<$anlg_name _stick>].get_y_axis()
                     }
                 )*
 
                 $(
-                    fn [<trigger_ $trg_name>](&self, player_id:u8) -> f32 {
+                    fn [<trigger_ $trg_name>](&self, player_id: i32) -> f32 {
                         let player_input = &self.input_entries.lock()[player_id as usize];
                         player_input.current.[<$trg_name _trigger>].get_value()
                     }
