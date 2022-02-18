@@ -21,7 +21,8 @@ pub struct WasmConsole {
     pub(crate) input_context: InputContext,
 }
 
-struct Functions {
+#[derive(Clone)]
+pub(crate) struct Functions {
     init_fn: NativeFunc,
     update_fn: NativeFunc,
     draw_fn: NativeFunc,
@@ -155,7 +156,12 @@ impl Console for WasmConsole {
                     //TODO: This
                 }
                 GGRSRequest::AdvanceFrame { inputs } => {
-                    //TODO: This
+                    let mut lock = self.input_entries.lock();
+
+                    for (index, (next_state, _status)) in inputs.iter().enumerate() {
+                        lock[index].push_input_state(*next_state);
+                    }
+                    drop(lock);
 
                     self.call_update()
                 }

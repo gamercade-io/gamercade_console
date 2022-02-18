@@ -1,8 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use super::Color;
-
-pub const PALETTE_COLORS: usize = 16;
+use super::{Color, PALETTE_COLORS};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Palette {
@@ -12,7 +10,7 @@ pub struct Palette {
 
 impl Palette {
     // TODO: Use this for drawing sprites later
-    // pub fn color_index_into_rgba(&self, index: usize) -> Option<[u8; 4]> {
+    // pub fn color_index_into_rgba(&self, index: usize) -> Option<[u8; BYTES_PER_PIXEL]> {
     //     match (self.colors.get(index), self.transparent.get(index)) {
     //         (Some(color), Some(true)) => Some([color.r, color.g, color.b, 0xff]),
     //         _ => None,
@@ -47,7 +45,7 @@ impl Palette {
 impl Default for Palette {
     fn default() -> Self {
         Self {
-            colors: [Color::new(0, 0, 0); 16],
+            colors: [Color::new(0, 0, 0); PALETTE_COLORS],
             transparent: [false; PALETTE_COLORS],
         }
     }

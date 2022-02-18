@@ -24,6 +24,8 @@ use winit_input_helper::WinitInputHelper;
 use crate::core::{LocalInputManager, PlayerInputEntry, Rom};
 use console::{Console, WasmConsole};
 
+pub const BYTES_PER_PIXEL: usize = 4;
+
 fn main() -> Result<(), Error> {
     let event_loop = EventLoop::new();
     let code_filename = "wasm_test.wasm";
@@ -161,7 +163,7 @@ fn init_pixels(window: &Window, rom: &Rom) -> Pixels {
 }
 
 fn init_frame_buffer(rom: &Rom) -> Box<[u8]> {
-    (0..rom.resolution.total_pixels() * 4)
+    (0..rom.resolution.total_pixels() * BYTES_PER_PIXEL as i32)
         .map(|_| 0)
         .collect::<Vec<u8>>()
         .into_boxed_slice()
