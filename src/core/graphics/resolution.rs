@@ -2,25 +2,37 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum Resolution {
+    UltraLow,
+    VeryLow,
     Low,
     Medium,
     High,
+    VeryHigh,
+    UltraHigh,
 }
 
 impl Resolution {
     pub fn width(&self) -> i32 {
         match self {
-            Resolution::Low => 320,
-            Resolution::Medium => 640,
-            Resolution::High => 1280,
+            Self::UltraLow => 128,
+            Self::VeryLow => 160,
+            Self::Low => 320,
+            Self::Medium => 480,
+            Self::High => 640,
+            Self::VeryHigh => 1280,
+            Self::UltraHigh => 1920,
         }
     }
 
     pub fn height(&self) -> i32 {
         match self {
-            Resolution::Low => 180,
-            Resolution::Medium => 320,
-            Resolution::High => 720,
+            Self::UltraLow => 72,
+            Self::VeryLow => 90,
+            Self::Low => 180,
+            Self::Medium => 270,
+            Self::High => 320,
+            Self::VeryHigh => 720,
+            Self::UltraHigh => 1080,
         }
     }
 

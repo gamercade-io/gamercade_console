@@ -108,19 +108,27 @@ TODO (In order of priority):
     1. Do "Emulated gamepad" for keyboard input, include analogs etc
     1. Gamepad support
     1. Support multiple local players
-1. Fix issues when trying to draw out of bounds
+1. Fix "out of bounds" issues with color, palette, pixel location etc
 1. Finish "Graphcis" outlined functions
     1. Add "Draw Square" filled?
     1. Add "Draw Circle"
     1. Add "Draw Circle" filled?
     1. Add Write Text function (need a font??)
     1. Minor graphics optimizations for draw line
+1. Add deterministic random number generation function
 1. Build showcase projects
 1. Start adding "Sprites" and Sprite Drawing
-1. Investigate how to play sounds
-1. Brainstorm "UserApi" for stuff like player names, avatar, meta-data outside the game
 1. Set the user count accessable as a global somewhere within lua
 1. Figure out how to save/load/rollback lua state?
+
+Research/Thinking Tasks:
+1. Investigate how to play sounds
+1. Mouse/Cursor API? for UI, stick emulation etc? How to handle networking here?
+1. Brainstorm "UserApi" for stuff like player names, avatar, meta-data outside the game
+1. Cloud "Save/Load" Api - for game saves? Pulling session/game data?
+1. Full screen shaders: Bloom, scanlines, etc
+
+
 
 How to build WASM Projects:
 cargo build --target wasm32-unknown-unknown
