@@ -4,10 +4,11 @@ use ggrs::GGRSRequest;
 use parking_lot::Mutex;
 use wasmer::{Exports, Function, ImportObject, Instance, Module, NativeFunc, Store};
 
+use super::network::WasmConsoleState;
 use crate::{
     api::{GraphicsApiBinding, InputApiBinding},
     console::{GraphicsContext, InputContext},
-    core::{InputState, PlayerInputEntry, Rom},
+    core::{Buttons, InputState, PlayerInputEntry, Rom},
     Console,
 };
 
@@ -15,8 +16,7 @@ pub struct WasmConsole {
     rom: Arc<Rom>,
     input_entries: Arc<Mutex<Box<[PlayerInputEntry]>>>,
     frame_buffer: Arc<Mutex<Box<[u8]>>>,
-    functions: Functions,
-    pub(crate) store: Store,
+    active_state: WasmConsoleState,
     pub(crate) graphics_context: GraphicsContext,
     pub(crate) input_context: InputContext,
 }
@@ -29,7 +29,7 @@ pub(crate) struct Functions {
 }
 
 impl Functions {
-    fn find_functions(instance: &Instance) -> Self {
+    pub(crate) fn find_functions(instance: &Instance) -> Self {
         let init_fn = instance
             .exports
             .get_function("init")
@@ -112,13 +112,19 @@ impl WasmConsole {
 
         let instance = Instance::new(&module, &import_object).unwrap();
         let functions = Functions::find_functions(&instance);
+        let input_state = input_entries.lock().clone();
+
+        let active_state = WasmConsoleState {
+            input_state,
+            instance,
+            functions,
+        };
 
         Self {
-            store,
             rom,
             input_entries,
             frame_buffer,
-            functions,
+            active_state,
             graphics_context,
             input_context,
         }
@@ -127,15 +133,15 @@ impl WasmConsole {
 
 impl Console for WasmConsole {
     fn call_init(&self) {
-        self.functions.init_fn.call().unwrap();
+        self.active_state.functions.init_fn.call().unwrap();
     }
 
     fn call_update(&self) {
-        self.functions.update_fn.call().unwrap();
+        self.active_state.functions.update_fn.call().unwrap();
     }
 
     fn call_draw(&self) {
-        self.functions.draw_fn.call().unwrap();
+        self.active_state.functions.draw_fn.call().unwrap();
     }
 
     fn rom(&self) -> &Rom {
@@ -150,10 +156,11 @@ impl Console for WasmConsole {
         for request in requests {
             match request {
                 GGRSRequest::SaveGameState { cell, frame } => {
-                    // TODO: This
+                    //let lock = self.input_entries.lock();
+                    cell.save(frame, Some(self.active_state.clone()), None);
                 }
-                GGRSRequest::LoadGameState { cell, frame } => {
-                    //TODO: This
+                GGRSRequest::LoadGameState { cell, .. } => {
+                    self.active_state = cell.load().expect("failed to load game state");
                 }
                 GGRSRequest::AdvanceFrame { inputs } => {
                     let mut lock = self.input_entries.lock();
@@ -161,8 +168,8 @@ impl Console for WasmConsole {
                     for (index, (next_state, _status)) in inputs.iter().enumerate() {
                         lock[index].push_input_state(*next_state);
                     }
-                    drop(lock);
 
+                    drop(lock);
                     self.call_update()
                 }
             }

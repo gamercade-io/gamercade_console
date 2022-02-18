@@ -32,8 +32,8 @@ fn main() -> Result<(), Error> {
     let window = init_window(&event_loop, code_filename);
 
     let rom = Rom::default();
-    //let (num_players, mut session) = init_session_fast(&rom);
-    let (num_players, mut session) = init_session(&rom);
+    let (num_players, mut session) = init_session_fast(&rom);
+    //let (num_players, mut session) = init_session(&rom);
 
     let mut pixels = init_pixels(&window, &rom);
 

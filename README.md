@@ -48,7 +48,7 @@ draw() - Called once every frame, after update.
 
 TODO (In order of priority):
 1. Networking Functionality:
-    1. Networking functionality for WASM
+    1. Fix state sync issue
 1. Input handling
     1. Do "Emulated gamepad" for keyboard input, include analogs etc
     1. Gamepad support
