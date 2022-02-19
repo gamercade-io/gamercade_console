@@ -8,14 +8,12 @@ use super::network::WasmConsoleState;
 use crate::{
     api::{GraphicsApiBinding, InputApiBinding},
     console::{GraphicsContext, InputContext},
-    core::{Buttons, InputState, PlayerInputEntry, Rom},
+    core::{PlayerInputEntry, Rom},
     Console,
 };
 
 pub struct WasmConsole {
     rom: Arc<Rom>,
-    input_entries: Arc<Mutex<Box<[PlayerInputEntry]>>>,
-    frame_buffer: Arc<Mutex<Box<[u8]>>>,
     active_state: WasmConsoleState,
     pub(crate) graphics_context: GraphicsContext,
     pub(crate) input_context: InputContext,
@@ -112,18 +110,16 @@ impl WasmConsole {
 
         let instance = Instance::new(&module, &import_object).unwrap();
         let functions = Functions::find_functions(&instance);
-        let input_state = input_entries.lock().clone();
+        let input_state = input_entries.lock();
 
         let active_state = WasmConsoleState {
-            input_state,
+            input_state: input_state.clone(),
             instance,
             functions,
         };
 
         Self {
             rom,
-            input_entries,
-            frame_buffer,
             active_state,
             graphics_context,
             input_context,
@@ -149,27 +145,33 @@ impl Console for WasmConsole {
     }
 
     fn blit(&self, buffer: &mut [u8]) {
-        buffer.copy_from_slice(&self.frame_buffer.lock());
+        buffer.copy_from_slice(&self.graphics_context.frame_buffer.lock());
     }
 
     fn handle_requests(&mut self, requests: Vec<GGRSRequest<Self>>) {
         for request in requests {
             match request {
                 GGRSRequest::SaveGameState { cell, frame } => {
-                    //let lock = self.input_entries.lock();
+                    self.active_state.input_state = self.input_context.input_entries.lock().clone();
                     cell.save(frame, Some(self.active_state.clone()), None);
                 }
                 GGRSRequest::LoadGameState { cell, .. } => {
                     self.active_state = cell.load().expect("failed to load game state");
+                    *self.input_context.input_entries.lock() =
+                        self.active_state.input_state.clone();
                 }
                 GGRSRequest::AdvanceFrame { inputs } => {
-                    let mut lock = self.input_entries.lock();
+                    self.active_state
+                        .input_state
+                        .iter_mut()
+                        .enumerate()
+                        .for_each(|(index, input)| {
+                            input.push_input_state(inputs[index].0);
+                        });
 
-                    for (index, (next_state, _status)) in inputs.iter().enumerate() {
-                        lock[index].push_input_state(*next_state);
-                    }
+                    *self.input_context.input_entries.lock() =
+                        self.active_state.input_state.clone();
 
-                    drop(lock);
                     self.call_update()
                 }
             }
