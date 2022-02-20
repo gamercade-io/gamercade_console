@@ -47,12 +47,14 @@ draw() - Called once every frame, after update.
 ```
 
 TODO (In order of priority):
-1. Networking Functionality:
-    1. Fix state sync issue
+1. Networking Functionality (WASM):
+    1. Test if input for prev and "was pressed" is actually correct handling is actually correct
+    1. Check how increasing/decreasing heap mem works
 1. Input handling
     1. Do "Emulated gamepad" for keyboard input, include analogs etc
     1. Gamepad support
     1. Support multiple local players
+    1. Use SoAs instead of AoS for better perf?
 1. Finish "Graphcis" outlined functions
     1. Add "Draw Square" filled?
     1. Add "Draw Circle"
@@ -64,6 +66,8 @@ TODO (In order of priority):
 1. Start adding "Sprites" and Sprite Drawing
 1. Set the user count accessable as a global somewhere within lua
 1. Figure out how to save/load/rollback lua state?
+    1. See the rlua comment about globals() vs _env
+    1. https://github.com/amethyst/rlua/issues/247
 
 Research/Thinking Tasks:
 1. Investigate how to play sounds

@@ -2,9 +2,11 @@ use std::sync::Arc;
 
 use ggrs::GGRSRequest;
 use parking_lot::Mutex;
-use wasmer::{Exports, Function, ImportObject, Instance, Module, NativeFunc, Store};
+use wasmer::{
+    Exports, Extern, Function, ImportObject, Instance, Module, Mutability, NativeFunc, Store,
+};
 
-use super::network::WasmConsoleState;
+use super::network::{SaveStateDefinition, WasmConsoleState};
 use crate::{
     api::{GraphicsApiBinding, InputApiBinding},
     console::{GraphicsContext, InputContext},
@@ -14,9 +16,11 @@ use crate::{
 
 pub struct WasmConsole {
     rom: Arc<Rom>,
-    active_state: WasmConsoleState,
+    functions: Functions,
+    instance: Instance,
     pub(crate) graphics_context: GraphicsContext,
     pub(crate) input_context: InputContext,
+    state_definition: SaveStateDefinition,
 }
 
 #[derive(Clone)]
@@ -91,12 +95,10 @@ impl WasmConsole {
     ) -> Self {
         // Initialize the contexts
         let graphics_context = GraphicsContext {
-            frame_buffer: frame_buffer.clone(),
+            frame_buffer,
             rom: rom.clone(),
         };
-        let input_context = InputContext {
-            input_entries: input_entries.clone(),
-        };
+        let input_context = InputContext { input_entries };
         let store = Store::default();
         let module = Module::new(&store, code).unwrap();
 
@@ -110,34 +112,131 @@ impl WasmConsole {
 
         let instance = Instance::new(&module, &import_object).unwrap();
         let functions = Functions::find_functions(&instance);
-        let input_state = input_entries.lock();
 
-        let active_state = WasmConsoleState {
-            input_state: input_state.clone(),
-            instance,
-            functions,
+        let mut memories = Vec::new();
+        let mut mutable_globals = Vec::new();
+
+        instance
+            .exports
+            .iter()
+            .for_each(|(name, export)| match export {
+                Extern::Global(global) => {
+                    if global.ty().mutability == Mutability::Var {
+                        mutable_globals.push(name.clone())
+                    }
+                }
+                Extern::Memory(_) => memories.push(name.clone()),
+                Extern::Function(_) => (),
+                Extern::Table(_) => (),
+            });
+
+        let state_definition = SaveStateDefinition {
+            memories,
+            mutable_globals,
         };
 
         Self {
             rom,
-            active_state,
             graphics_context,
             input_context,
+            functions,
+            instance,
+            state_definition,
         }
+    }
+
+    fn generate_save_state(&self) -> WasmConsoleState {
+        let previous_buttons = self
+            .input_context
+            .input_entries
+            .lock()
+            .iter()
+            .map(|input| input.previous)
+            .collect::<Vec<_>>()
+            .into_boxed_slice();
+
+        let memories = self
+            .state_definition
+            .memories
+            .iter()
+            .map(|name| unsafe {
+                self.instance
+                    .exports
+                    .get_memory(name)
+                    .unwrap()
+                    .data_unchecked()
+                    .to_vec()
+            })
+            .collect();
+
+        let mutable_globals = self
+            .state_definition
+            .mutable_globals
+            .iter()
+            .map(|name| self.instance.exports.get_global(name).unwrap().get())
+            .collect();
+
+        WasmConsoleState {
+            previous_buttons,
+            memories,
+            mutable_globals,
+        }
+    }
+
+    fn load_save_state(&mut self, state: WasmConsoleState) {
+        let WasmConsoleState {
+            previous_buttons,
+            memories,
+            mutable_globals,
+        } = state;
+
+        let mut lock = self.input_context.input_entries.lock();
+        previous_buttons
+            .iter()
+            .enumerate()
+            .for_each(|(index, prev)| {
+                lock[index].previous = *prev;
+            });
+        drop(lock);
+
+        self.state_definition
+            .memories
+            .iter()
+            .enumerate()
+            .for_each(|(index, name)| unsafe {
+                let source = &memories[index];
+                let destination = self.instance.exports.get_memory(name).unwrap();
+                let destination = &mut destination.data_unchecked_mut()[..source.len()];
+                destination.copy_from_slice(source)
+            });
+
+        self.state_definition
+            .mutable_globals
+            .iter()
+            .enumerate()
+            .for_each(|(index, name)| {
+                let source = mutable_globals[index].clone();
+                self.instance
+                    .exports
+                    .get_global(name)
+                    .unwrap()
+                    .set(source)
+                    .unwrap()
+            })
     }
 }
 
 impl Console for WasmConsole {
     fn call_init(&self) {
-        self.active_state.functions.init_fn.call().unwrap();
+        self.functions.init_fn.call().unwrap();
     }
 
     fn call_update(&self) {
-        self.active_state.functions.update_fn.call().unwrap();
+        self.functions.update_fn.call().unwrap();
     }
 
     fn call_draw(&self) {
-        self.active_state.functions.draw_fn.call().unwrap();
+        self.functions.draw_fn.call().unwrap();
     }
 
     fn rom(&self) -> &Rom {
@@ -152,27 +251,31 @@ impl Console for WasmConsole {
         for request in requests {
             match request {
                 GGRSRequest::SaveGameState { cell, frame } => {
-                    self.active_state.input_state = self.input_context.input_entries.lock().clone();
-                    cell.save(frame, Some(self.active_state.clone()), None);
+                    let state = self.generate_save_state();
+                    cell.save(frame, Some(state), None);
                 }
                 GGRSRequest::LoadGameState { cell, .. } => {
-                    self.active_state = cell.load().expect("failed to load game state");
-                    *self.input_context.input_entries.lock() =
-                        self.active_state.input_state.clone();
+                    let state = cell.load().expect("Failed to load game state");
+                    self.load_save_state(state);
                 }
                 GGRSRequest::AdvanceFrame { inputs } => {
-                    self.active_state
-                        .input_state
-                        .iter_mut()
-                        .enumerate()
-                        .for_each(|(index, input)| {
-                            input.push_input_state(inputs[index].0);
+                    // Copy new inputs into the state
+                    let mut lock = self.input_context.input_entries.lock();
+                    lock.iter_mut()
+                        .zip(inputs.iter())
+                        .for_each(|(current, new)| {
+                            current.current = new.0;
                         });
+                    drop(lock);
 
-                    *self.input_context.input_entries.lock() =
-                        self.active_state.input_state.clone();
+                    // Call update
+                    self.call_update();
 
-                    self.call_update()
+                    // Advance the input data
+                    let mut lock = self.input_context.input_entries.lock();
+                    lock.iter_mut().for_each(|inputs| {
+                        inputs.previous = inputs.current.buttons;
+                    });
                 }
             }
         }

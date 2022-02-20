@@ -2,6 +2,8 @@ mod api;
 mod console;
 mod core;
 
+pub use crate::core::{PALETTE_COLORS, PALETTE_MAX_COUNT};
+
 use std::{
     net::SocketAddr,
     sync::Arc,

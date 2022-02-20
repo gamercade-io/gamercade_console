@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use super::{PALETTE_COLORS, PALETTE_COUNT};
+use super::PALETTE_COLORS;
 
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 pub struct PaletteIndex(pub usize);

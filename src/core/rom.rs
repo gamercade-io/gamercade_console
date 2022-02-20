@@ -18,7 +18,7 @@ impl Default for Rom {
             resolution: Resolution::Low,
             frame_rate: FrameRate::Fast,
             sprites: vec![].into_boxed_slice(),
-            palettes: vec![Palette::bubblegum16()].into_boxed_slice(),
+            palettes: Palette::default_palette_collection().into_boxed_slice(),
             sounds: Sounds {},
         }
     }

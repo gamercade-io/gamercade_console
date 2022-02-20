@@ -1,27 +1,21 @@
 use std::net::SocketAddr;
 
 use ggrs::Config;
-use wasmer::Instance;
+use wasmer::Value;
 
-use super::{Functions, WasmConsole};
-use crate::core::{InputState, PlayerInputEntry};
+use super::WasmConsole;
+use crate::core::{Buttons, InputState};
 
+#[derive(Clone)]
 pub struct WasmConsoleState {
-    pub(crate) input_state: Box<[PlayerInputEntry]>,
-    pub(crate) instance: Instance,
-    pub(crate) functions: Functions,
+    pub(crate) previous_buttons: Box<[Buttons]>,
+    pub(crate) memories: Vec<Vec<u8>>,
+    pub(crate) mutable_globals: Vec<Value>,
 }
 
-impl Clone for WasmConsoleState {
-    fn clone(&self) -> Self {
-        let new_instance = self.instance.clone();
-        let functions = Functions::find_functions(&new_instance);
-        Self {
-            input_state: self.input_state.clone(),
-            instance: new_instance,
-            functions,
-        }
-    }
+pub struct SaveStateDefinition {
+    pub(crate) memories: Vec<String>,
+    pub(crate) mutable_globals: Vec<String>,
 }
 
 impl Config for WasmConsole {

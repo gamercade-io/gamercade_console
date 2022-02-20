@@ -185,17 +185,18 @@ impl GraphicsContext {
         (x.0 + (y.0 * self.width() as usize)) * BYTES_PER_PIXEL
     }
 
-    fn x_y_to_pixel_buffer_index(&self, x: i32, y: i32) -> Option<usize> {
-        let width = self.width();
-        let height = self.height();
-        let index = (x + (y * width)) * BYTES_PER_PIXEL as i32;
+    // TODO: Is this needed?
+    // fn x_y_to_pixel_buffer_index(&self, x: i32, y: i32) -> Option<usize> {
+    //     let width = self.width();
+    //     let height = self.height();
+    //     let index = (x + (y * width)) * BYTES_PER_PIXEL as i32;
 
-        if index < (width * height * BYTES_PER_PIXEL as i32) {
-            Some(index as usize)
-        } else {
-            None
-        }
-    }
+    //     if index < (width * height * BYTES_PER_PIXEL as i32) {
+    //         Some(index as usize)
+    //     } else {
+    //         None
+    //     }
+    // }
 
     fn get_color_as_pixel_data(
         &self,

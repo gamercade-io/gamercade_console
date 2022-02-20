@@ -13,4 +13,4 @@ pub use resolution::*;
 pub use sprite::*;
 
 pub const PALETTE_COLORS: usize = 16;
-pub const PALETTE_COUNT: usize = 256;
+pub const PALETTE_MAX_COUNT: usize = 256;

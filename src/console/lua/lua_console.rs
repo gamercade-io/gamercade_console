@@ -213,14 +213,23 @@ impl Console for LuaConsole {
                     })
                 }
                 GGRSRequest::AdvanceFrame { inputs } => {
+                    // Copy new inputs into the state
                     let mut lock = self.input_entries.lock();
-
-                    for (index, (next_state, _status)) in inputs.iter().enumerate() {
-                        lock[index].push_input_state(*next_state);
-                    }
+                    lock.iter_mut()
+                        .zip(inputs.iter())
+                        .for_each(|(current, new)| {
+                            current.current = new.0;
+                        });
                     drop(lock);
 
-                    self.call_update()
+                    // Call update
+                    self.call_update();
+
+                    // Advance the input data
+                    let mut lock = self.input_entries.lock();
+                    lock.iter_mut().for_each(|inputs| {
+                        inputs.previous = inputs.current.buttons;
+                    });
                 }
             }
         }
