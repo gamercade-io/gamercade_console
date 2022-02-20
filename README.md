@@ -49,7 +49,9 @@ draw() - Called once every frame, after update.
 TODO (In order of priority):
 1. Networking Functionality (WASM):
     1. Test if input for prev and "was pressed" is actually correct handling is actually correct
-    1. Check how increasing/decreasing heap mem works
+    1. Check how increasing/decreasing heap mem works (will need another test suite)
+1. Example games/wasm folder?
+    1. Helper script / build script to automatically place into correct directory
 1. Input handling
     1. Do "Emulated gamepad" for keyboard input, include analogs etc
     1. Gamepad support
@@ -68,6 +70,8 @@ TODO (In order of priority):
 1. Figure out how to save/load/rollback lua state?
     1. See the rlua comment about globals() vs _env
     1. https://github.com/amethyst/rlua/issues/247
+1. Lua Refactoring
+    1. Remove the inner arcs, use input/graphics context instead?
 
 Research/Thinking Tasks:
 1. Investigate how to play sounds
