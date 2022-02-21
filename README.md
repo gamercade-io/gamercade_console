@@ -75,6 +75,16 @@ TODO (In order of priority):
 
 Research/Thinking Tasks:
 1. Investigate how to play sounds
+    1. Support wave forms: 
+        1. Sin
+        1. Sharktooth
+        1. Sawtooth
+        1. Square
+        1. Pulse
+        1. Triangle
+        1. Double Triangle
+        1. Noise
+    1. Samples? .wav or .mp3?
 1. Mouse/Cursor API? for UI, stick emulation etc? How to handle networking here?
 1. Brainstorm "UserApi" for stuff like player names, avatar, meta-data outside the game
 1. Cloud "Save/Load" Api - for game saves? Pulling session/game data?
