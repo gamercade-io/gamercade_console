@@ -64,10 +64,11 @@ TODO (In order of priority):
     1. Add Write Text function (need a font??)
     1. How to handle lines/rects drawn out of bounds?
 1. Add deterministic random number generation function
+    1. Use fastrand or nanorand crates
 1. Build showcase projects
 1. Start adding "Sprites" and Sprite Drawing
     1. Bit blit algorithm
-1. Set the user count accessable as a global somewhere within lua
+1. Set the user count accessable as a global somewhere
 1. Figure out how to save/load/rollback lua state?
     1. See the rlua comment about globals() vs _env
     1. https://github.com/amethyst/rlua/issues/247
@@ -77,22 +78,28 @@ TODO (In order of priority):
 Research/Thinking Tasks:
 1. Investigate how to play sounds
     1. Sound engine limitations, how many channels (16?), samples etc
+    1. 44.1 khz sample rate, 16bit depth
+    1. Support Sound Limits:
+        1. 16 FM channels, 16 sample channels for music
+        1. 16 FM channels, 16 sample channels for "game sounds"
     1. Support wave forms:
-        1. Sin
+        1. Simple Sin (opl)
+        1. Half Sine (opl)
+        1. Absolute Sine (opl)
+        1. Quarter Sine (opl)
+        1. Alternating Sine (opl)
+        1. Camel Sine (opl)
         1. Sharktooth
         1. Sawtooth
-        1. Square
+        1. Logarithmic Sawtooth (opl)
+        1. Square (opl)
         1. Pulse
         1. Triangle
         1. Double Triangle
         1. Noise
-    1. Samples? .wav or .mp3?
     1. Support stereo sounds?
-    1. Support a specific sound chip?
-        1. Yamaha OPL3 YMF262 - Soundblaster cards ~1988
-        1. Yamaha OPL4 YMF278 - newer series ~1995
-            1. 18 FM channels, 24 samples
-        1. Something else?
+    1. Samples should be built in to the engine
+    1. Select up to 512 possible samples
 1. Mouse/Cursor API? for UI + (mouse = right stick) emulation? How to handle networking here?
 1. Brainstorm "UserApi" for stuff like player names, avatar, meta-data outside the game
 1. Cloud "Save/Load" Api - for game saves? Pulling session/game data?
