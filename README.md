@@ -118,6 +118,11 @@ Useful Links:
 Circle Drawing Algorithm
 http://rosettacode.org/wiki/Bitmap/Midpoint_circle_algorithm
 
+OPL Programming:
+http://map.grauw.nl/resources/sound/yamaha_opl4.pdf
+https://www.fit.vutbr.cz/~arnost/opl/opl3.html
+http://jp.oplx.com/opl2.htm
+
 Showcase Projects TODO:
 Pong 1p - Simple showcase
 Pong 2p - Showcase networking multiplayer
