@@ -83,20 +83,20 @@ Research/Thinking Tasks:
         1. 16 FM channels, 16 sample channels for music
         1. 16 FM channels, 16 sample channels for "game sounds"
     1. Support wave forms:
-        1. Simple Sin (opl)
-        1. Half Sine (opl)
-        1. Absolute Sine (opl)
-        1. Quarter Sine (opl)
-        1. Alternating Sine (opl)
-        1. Camel Sine (opl)
-        1. Sharktooth
-        1. Sawtooth
-        1. Logarithmic Sawtooth (opl)
-        1. Square (opl)
-        1. Pulse
-        1. Triangle
-        1. Double Triangle
-        1. Noise
+        1. Simple Sin (opl0) Done
+        1. Half Sine (opl1) Done
+        1. Absolute Sine (opl2) Done
+        1. Quarter Sine (opl3) Done
+        1. Alternating Sine (opl4) Done
+        1. Camel Sine (opl5)
+        1. Sharktooth ?? What is this ??
+        1. Sawtooth Done
+        1. Logarithmic Sawtooth (opl7) Done
+        1. Square (opl6) Done
+        1. Pulse Done
+        1. Triangle Done
+        1. Double Triangle ?? What is this ??
+        1. Noise Done
     1. Support stereo sounds?
     1. Samples should be built in to the engine
     1. Select up to 512 possible samples
@@ -122,6 +122,7 @@ OPL Programming:
 http://map.grauw.nl/resources/sound/yamaha_opl4.pdf
 https://www.fit.vutbr.cz/~arnost/opl/opl3.html
 http://jp.oplx.com/opl2.htm
+https://doomwiki.org/wiki/OPL_emulation
 
 Showcase Projects TODO:
 Pong 1p - Simple showcase
