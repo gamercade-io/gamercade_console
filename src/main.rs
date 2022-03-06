@@ -192,16 +192,16 @@ where
         1 => (
             vec![
                 PlayerType::Local,
-                PlayerType::Remote("127.0.0.1:222".parse().unwrap()),
+                PlayerType::Remote("127.0.0.1:8001".parse().unwrap()),
             ],
-            111,
+            8000,
         ),
         2 => (
             vec![
-                PlayerType::Remote("127.0.0.1:111".parse().unwrap()),
+                PlayerType::Remote("127.0.0.1:8000".parse().unwrap()),
                 PlayerType::Local,
             ],
-            222,
+            8001,
         ),
         _ => panic!(),
     };
