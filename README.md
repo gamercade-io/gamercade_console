@@ -58,17 +58,18 @@ TODO (In order of priority):
     1. Add "Draw Circle" filled?
     1. Add Write Text function (need a font??)
     1. How to handle lines/rects drawn out of bounds?
-1. Input handling
-    1. Do "Emulated gamepad" for keyboard input, include analogs etc
-    1. Gamepad support
-    1. Support multiple local players
-    1. Use SoAs instead of AoS for better perf?
 1. Add deterministic random number generation function
-    1. Use fastrand or nanorand crates
+    1. Use fastrand or nanorand crates?
+    1. Add "shared" and "client" random?
 1. Include the audio stuff from audio-test
-1. Build showcase projects
+1. Build showcase projects (see below)
 1. Start adding "Sprites" and Sprite Drawing
     1. Bit blit algorithm
+1. Input handling
+    1. Do "Emulated gamepad" for keyboard input, include analogs etc
+    1. Gamepad support (GILRS?)
+    1. Support multiple local players
+    1. Use SoAs instead of AoS for better perf?
 1. Set the user count accessable as a global somewhere
 
 LUA Stuff:
@@ -95,6 +96,9 @@ If WGPU errors occur, set WGPU_BACKEND=gl via
 Useful Links:
 Circle Drawing Algorithm
 http://rosettacode.org/wiki/Bitmap/Midpoint_circle_algorithm
+
+Gilrs:
+https://crates.io/crates/gilrs
 
 OPL Programming:
 http://map.grauw.nl/resources/sound/yamaha_opl4.pdf
