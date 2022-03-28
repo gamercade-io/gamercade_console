@@ -30,8 +30,7 @@ rlua = { version = "0.19.1", features = ["builtin-lua54"] }
 wasmer = "2.1.1"
 
 # Audio
-rodio = "0.15.0"
-fundsp = "0.3.1"
+
 
 # Networking
 ggrs = "0.9.0"
