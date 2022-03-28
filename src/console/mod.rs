@@ -1,12 +1,14 @@
 mod graphics_context;
 mod input_context;
 mod lua;
+mod random_context;
 mod wasm;
 
 use ggrs::{Config, GGRSRequest};
 pub use graphics_context::GraphicsContext;
 pub use input_context::InputContext;
 pub use lua::LuaConsole;
+pub use random_context::RandomContext;
 pub use wasm::WasmConsole;
 
 use crate::core::Rom;

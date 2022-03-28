@@ -73,6 +73,8 @@ fn main() -> Result<(), Error> {
     let mut last_update = Instant::now();
     let mut accumulator = Duration::ZERO;
 
+    println!("Everything loaded, awaiting remote players.");
+
     event_loop.run(move |event, _, control_flow| {
         // Handle input events
         if input.update(&event) {

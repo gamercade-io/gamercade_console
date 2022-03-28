@@ -14,6 +14,10 @@ pub struct InputContext {
     pub(crate) input_entries: Arc<Mutex<Box<[PlayerInputEntry]>>>,
 }
 
+/// This file automatically derives the various "get input" or "check input"
+/// types of functions based on the macro at the bottom. This would otherwise be a
+/// long and error prone process.
+
 macro_rules! derive_generate_input_api {
     (
         Buttons { $($btn_name:ident: $btn_code:ident,)* },

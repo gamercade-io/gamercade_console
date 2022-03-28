@@ -6,7 +6,16 @@ extern "C" {
     pub fn set_pixel(x: i32, y: i32, color_index: i32, palette_index: i32);
     pub fn height() -> i32;
     pub fn width() -> i32;
+    pub fn circle(x: i32, y: i32, radius: i32, color_index: i32, palette_index: i32);
     pub fn rect(x: i32, y: i32, width: i32, height: i32, color_index: i32, palette_index: i32);
+    pub fn rect_filled(
+        x: i32,
+        y: i32,
+        width: i32,
+        height: i32,
+        color_index: i32,
+        palette_index: i32,
+    );
     pub fn line(x0: i32, y0: i32, x1: i32, y1: i32, color_index: i32, palette_index: i32);
 }
 

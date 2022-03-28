@@ -8,8 +8,8 @@ use wasmer::{
 
 use super::network::{SaveStateDefinition, WasmConsoleState};
 use crate::{
-    api::{GraphicsApiBinding, InputApiBinding},
-    console::{GraphicsContext, InputContext},
+    api::{GraphicsApiBinding, InputApiBinding, RandomApiBinding},
+    console::{GraphicsContext, InputContext, RandomContext},
     core::{PlayerInputEntry, Rom},
     Console,
 };
@@ -64,6 +64,7 @@ impl Functions {
 pub(crate) struct WasmConsoleBuilder<'a> {
     pub(crate) graphics_context: GraphicsContext,
     pub(crate) input_context: InputContext,
+    pub(crate) random_context: RandomContext,
     pub(crate) store: &'a Store,
     pub(crate) imports: Vec<(&'static str, Function)>,
 }
@@ -72,6 +73,7 @@ impl WasmConsoleBuilder<'_> {
     fn build_import_object(mut self) -> ImportObject {
         self.bind_graphics_api();
         self.bind_input_api();
+        self.bind_random_api();
 
         let mut output = ImportObject::new();
         let mut namespace = Exports::new();
@@ -99,12 +101,14 @@ impl WasmConsole {
             rom: rom.clone(),
         };
         let input_context = InputContext { input_entries };
+        let random_context = RandomContext {};
         let store = Store::default();
         let module = Module::new(&store, code).unwrap();
 
         let import_object = WasmConsoleBuilder {
             graphics_context: graphics_context.clone(),
             input_context: input_context.clone(),
+            random_context,
             store: &store,
             imports: Vec::new(),
         }

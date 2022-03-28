@@ -94,6 +94,38 @@ impl GraphicsApiBinding for LuaConsole {
                 .unwrap()
         })
     }
+
+    fn bind_rect_filled(&mut self) {
+        self.lua.context(|ctx| {
+            let gfx = self.registers.get_graphics_context(&ctx);
+            ctx.globals()
+                .set(
+                    "rect_filled",
+                    ctx.create_function(move |_, args: (i32, i32, i32, i32, i32, i32)| {
+                        gfx.rect_filled(args.0, args.1, args.2, args.3, args.4, args.5);
+                        Ok(())
+                    })
+                    .unwrap(),
+                )
+                .unwrap()
+        })
+    }
+
+    fn bind_circle(&mut self) {
+        self.lua.context(|ctx| {
+            let gfx = self.registers.get_graphics_context(&ctx);
+            ctx.globals()
+                .set(
+                    "circle",
+                    ctx.create_function(move |_, args: (i32, i32, i32, i32, i32)| {
+                        gfx.circle(args.0, args.1, args.2, args.3, args.4);
+                        Ok(())
+                    })
+                    .unwrap(),
+                )
+                .unwrap()
+        })
+    }
 }
 
 impl UserData for GraphicsContext {}

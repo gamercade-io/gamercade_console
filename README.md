@@ -46,21 +46,23 @@ draw() - Called once every frame, after update.
 
 ```
 
-TODO (In order of priority):
+Needs Testing:
 1. Networking Functionality (WASM):
     1. Test if input for prev and "was pressed" is actually correct handling is actually correct
     1. Check how increasing/decreasing heap mem works (will need another test suite)
-1. Example games/wasm folder?
-    1. Helper script / build script to automatically place into correct directory
-1. Finish "Graphcis" outlined functions
-    1. Add "Draw Square" filled?
-    1. Add "Draw Circle"
-    1. Add "Draw Circle" filled?
-    1. Add Write Text function (need a font??)
-    1. How to handle lines/rects drawn out of bounds?
+
+In Progress:
 1. Add deterministic random number generation function
     1. Use fastrand or nanorand crates?
     1. Add "shared" and "client" random?
+
+TODO (In order of priority):
+1. Example games/wasm folder?
+    1. Helper script / build script to automatically place into correct directory
+1. Finish "Graphcis" outlined functions
+    1. Add "Draw Circle" filled?
+    1. Add Write Text function (need a font??)
+    1. How to handle lines/rects drawn out of bounds?
 1. Include the audio stuff from audio-test
 1. Build showcase projects (see below)
 1. Start adding "Sprites" and Sprite Drawing
@@ -80,9 +82,9 @@ LUA Stuff:
     1. Remove the inner arcs, use input/graphics context instead?
 
 Research/Thinking Tasks:
+1. Consider a graphics api without palette calls?
 1. Mouse/Cursor API? for UI + (mouse = right stick) emulation? How to handle networking here?
 1. Brainstorm "UserApi" for stuff like player names, avatar, meta-data outside the game
-1. Cloud "Save/Load" Api - for game saves? Pulling session/game data?
 1. Full screen shaders: Bloom, scanlines, etc
 
 

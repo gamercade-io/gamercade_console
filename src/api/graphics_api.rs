@@ -17,15 +17,23 @@ pub trait GraphicsApi {
     fn width(&self) -> i32;
 
     //TODO
-    // fn circle(&self, x: u32, y: u32, color_index: Option<usize>, palette_index: Option<usize>);
-    // fn circle_filled(&self, x: u32, y: u32, color_index: Option<usize>, palette_index: Option<usize>);
+    fn circle(&self, x: i32, y: i32, radius: i32, color_index: i32, palette_index: i32);
+    // fn circle_filled(&self, x: i32, y: i32, color_index: i32, palette_index: i32);
 
     fn rect(&self, x: i32, y: i32, width: i32, height: i32, color_index: i32, palette_index: i32);
 
-    // fn rect_filled(&self, x: u32, y: u32, width: u32, height: u32, color_index: Option<usize>, palette_index: Option<usize>)
+    fn rect_filled(
+        &self,
+        x: i32,
+        y: i32,
+        width: i32,
+        height: i32,
+        color_index: i32,
+        palette_index: i32,
+    );
     fn line(&self, x0: i32, y0: i32, x1: i32, y1: i32, color_index: i32, palette_index: i32);
 
-    // fn sprite(&self, sprite_index: usize, x: u32, y: u32, palette_index: Option<usize>)
+    // fn sprite(&self, sprite_index: i32, x: i32, y: i32, palette_index: i32)
 }
 
 derive_bind_graphics_api! {
@@ -33,10 +41,10 @@ derive_bind_graphics_api! {
     bind_set_pixel,
     bind_height,
     bind_width,
-    //bind_circle,
+    bind_circle,
     //bind_circle_filled,
     bind_rect,
-    //bind_rect_filled,
+    bind_rect_filled,
     bind_line,
     //bind_sprite,
 }

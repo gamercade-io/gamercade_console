@@ -136,6 +136,160 @@ impl GraphicsApi for GraphicsContext {
         // Right
         self.draw_line_vertical(x1, y, y1, color_index, palette_index);
     }
+
+    fn rect_filled(
+        &self,
+        x: i32,
+        y: i32,
+        width: i32,
+        height: i32,
+        color_index: i32,
+        palette_index: i32,
+    ) {
+        let x1 = self.validate_x(x + width);
+        let y1 = self.validate_y(y + height);
+        let x = self.validate_x(x);
+        let y = self.validate_y(y);
+        let color_index = color_index.try_into();
+        let palette_index = self.validate_palette(palette_index);
+
+        if x1.is_err()
+            || y1.is_err()
+            || x.is_err()
+            || y.is_err()
+            || color_index.is_err()
+            || palette_index.is_err()
+        {
+            return;
+        };
+
+        let x1 = x1.unwrap();
+        let y1 = y1.unwrap();
+        let x = x.unwrap();
+        let y = y.unwrap();
+        let color_index = color_index.unwrap();
+        let palette_index = palette_index.unwrap();
+
+        (y.0..y1.0).for_each(|y| {
+            self.draw_line_horizontal(x, x1, YCord(y), color_index, palette_index);
+        })
+    }
+
+    fn circle(&self, x: i32, y: i32, radius: i32, color_index: i32, palette_index: i32) {
+        let top = self.validate_y(y - radius);
+        let bottom = self.validate_y(y + radius);
+        let left = self.validate_x(x - radius);
+        let right = self.validate_x(x + radius);
+        let color_index = color_index.try_into();
+        let palette_index = self.validate_palette(palette_index);
+
+        if top.is_err()
+            || bottom.is_err()
+            || left.is_err()
+            || right.is_err()
+            || color_index.is_err()
+            || palette_index.is_err()
+        {
+            return;
+        }
+
+        let x0 = x as usize;
+        let y0 = y as usize;
+
+        let mut f = 1 - radius;
+        let mut ddf_x = 0;
+        let mut ddf_y = -2 * radius;
+        let mut x = 0;
+        let mut y = radius;
+
+        let color_index = color_index.unwrap();
+        let palette_index = palette_index.unwrap();
+
+        self.set_pixel_safe(
+            XCord(x0),
+            YCord(y0 + radius as usize),
+            color_index,
+            palette_index,
+        );
+        self.set_pixel_safe(
+            XCord(x0),
+            YCord(y0 - radius as usize),
+            color_index,
+            palette_index,
+        );
+        self.set_pixel_safe(
+            XCord(x0 + radius as usize),
+            YCord(y0 as usize),
+            color_index,
+            palette_index,
+        );
+        self.set_pixel_safe(
+            XCord(x0 - radius as usize),
+            YCord(y0 as usize),
+            color_index,
+            palette_index,
+        );
+
+        while x < y {
+            if f >= 0 {
+                y -= 1;
+                ddf_y += 2;
+                f += ddf_y;
+            };
+
+            x += 1;
+            ddf_x += 2;
+            f += ddf_x + 1;
+            self.set_pixel_safe(
+                XCord(x0 + x as usize),
+                YCord(y0 + y as usize),
+                color_index,
+                palette_index,
+            );
+            self.set_pixel_safe(
+                XCord(x0 - x as usize),
+                YCord(y0 + y as usize),
+                color_index,
+                palette_index,
+            );
+            self.set_pixel_safe(
+                XCord(x0 + x as usize),
+                YCord(y0 - y as usize),
+                color_index,
+                palette_index,
+            );
+            self.set_pixel_safe(
+                XCord(x0 - x as usize),
+                YCord(y0 - y as usize),
+                color_index,
+                palette_index,
+            );
+            self.set_pixel_safe(
+                XCord(x0 + y as usize),
+                YCord(y0 + x as usize),
+                color_index,
+                palette_index,
+            );
+            self.set_pixel_safe(
+                XCord(x0 - y as usize),
+                YCord(y0 + x as usize),
+                color_index,
+                palette_index,
+            );
+            self.set_pixel_safe(
+                XCord(x0 + y as usize),
+                YCord(y0 - x as usize),
+                color_index,
+                palette_index,
+            );
+            self.set_pixel_safe(
+                XCord(x0 - y as usize),
+                YCord(y0 - x as usize),
+                color_index,
+                palette_index,
+            );
+        }
+    }
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
@@ -145,7 +299,7 @@ struct YCord(usize);
 
 impl GraphicsContext {
     fn validate_palette(&self, index: i32) -> Result<PaletteIndex, &'static str> {
-        if index >= 0 && index < self.rom.palettes.len() as i32 {
+        if index >= 0 && index < self.rom.graphics.palettes.len() as i32 {
             Ok(PaletteIndex(index as usize))
         } else {
             Err("invalid palette index")
@@ -203,7 +357,7 @@ impl GraphicsContext {
         color_index: ColorIndex,
         palette_index: PaletteIndex,
     ) -> [u8; BYTES_PER_PIXEL] {
-        let color = self.rom.palettes[palette_index.0].colors[color_index.0];
+        let color = self.rom.graphics.palettes[palette_index.0].colors[color_index.0];
         [color.r, color.g, color.b, 0xff]
     }
 

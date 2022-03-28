@@ -1,24 +1,24 @@
 use crate::{
-    api::{GraphicsApi, GraphicsApiBinding},
-    console::GraphicsContext,
+    api::{RandomApi, RandomApiBinding},
+    console::RandomContext,
 };
 use paste::paste;
 use wasmer::Function;
 
 use super::WasmConsoleBuilder;
 
-macro_rules! derive_graphics_api_binding {
+macro_rules! derive_random_api_binding {
     ($($ident:ident,)*) => {
         paste! {
-            impl GraphicsApiBinding for WasmConsoleBuilder<'_> {
+            impl RandomApiBinding for WasmConsoleBuilder<'_> {
                 $(
                     fn [<bind_ $ident>](&mut self) {
                         self.imports.push((
                             stringify!($ident),
                             Function::new_native_with_env(
                                 self.store,
-                                self.graphics_context.clone(),
-                                GraphicsContext::$ident)
+                                self.random_context.clone(),
+                                RandomContext::$ident)
                             ));
                     }
                 )*
@@ -27,15 +27,13 @@ macro_rules! derive_graphics_api_binding {
     }
 }
 
-derive_graphics_api_binding! {
-    clear_screen,
-    set_pixel,
-    height,
-    width,
-    circle,
-    //circle_filled,
-    rect,
-    rect_filled,
-    line,
-    //sprite,
+derive_random_api_binding! {
+    set_seed,
+    get_seed,
+    random_int,
+    random_float,
+    random_float_range,
+    local_random_int,
+    local_random_float_range,
+    local_random_float,
 }

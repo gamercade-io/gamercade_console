@@ -304,6 +304,7 @@ impl LuaConsole {
 
         output.bind_graphics_api();
         output.bind_input_api();
+        output.bind_random_api();
         output
     }
 }
