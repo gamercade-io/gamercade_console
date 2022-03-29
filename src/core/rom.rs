@@ -40,4 +40,8 @@ impl Default for GraphicsData {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct SoundsData {
     //TODO: This
+//patches: Box<[Patch]>,
+//sequences: Box<[Sequence]>
+
+// How to handle samples?
 }

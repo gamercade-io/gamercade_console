@@ -74,19 +74,11 @@ TODO (In order of priority):
     1. Use SoAs instead of AoS for better perf?
 1. Set the user count accessable as a global somewhere
 
-LUA Stuff:
-1. Figure out how to save/load/rollback lua state?
-    1. See the rlua comment about globals() vs _env
-    1. https://github.com/amethyst/rlua/issues/247
-1. Lua Refactoring
-    1. Remove the inner arcs, use input/graphics context instead?
-
 Research/Thinking Tasks:
 1. Consider a graphics api without palette calls?
 1. Mouse/Cursor API? for UI + (mouse = right stick) emulation? How to handle networking here?
 1. Brainstorm "UserApi" for stuff like player names, avatar, meta-data outside the game
 1. Full screen shaders: Bloom, scanlines, etc
-
 
 How to build WASM Projects:
 cargo build --target wasm32-unknown-unknown
