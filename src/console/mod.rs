@@ -1,13 +1,11 @@
-mod graphics_context;
-mod input_context;
-mod random_context;
-mod wasm;
+mod bindings;
+mod contexts;
+mod network;
+mod wasm_console;
 
+pub use contexts::Contexts;
 use ggrs::{Config, GGRSRequest};
-pub use graphics_context::GraphicsContext;
-pub use input_context::InputContext;
-pub use random_context::RandomContext;
-pub use wasm::WasmConsole;
+pub use wasm_console::WasmConsole;
 
 use crate::core::Rom;
 

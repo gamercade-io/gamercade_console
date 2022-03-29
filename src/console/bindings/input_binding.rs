@@ -1,5 +1,5 @@
-use super::Contexts;
 use crate::api::{InputApi, InputApiBinding};
+use crate::console::Contexts;
 use paste::paste;
 use wasmtime::{Caller, Linker};
 

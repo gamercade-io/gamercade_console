@@ -1,8 +1,7 @@
 use crate::api::{GraphicsApi, GraphicsApiBinding};
+use crate::console::Contexts;
 use paste::paste;
 use wasmtime::{Caller, Linker};
-
-use super::Contexts;
 
 macro_rules! derive_graphics_api_binding {
     ($($ident:ident ($($name:ident:$args:ty $(,)? )*) $(,)?)*) => {

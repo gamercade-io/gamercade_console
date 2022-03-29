@@ -2,7 +2,7 @@ use crate::api::{RandomApi, RandomApiBinding};
 use paste::paste;
 use wasmtime::{Caller, Linker};
 
-use super::Contexts;
+use crate::console::Contexts;
 
 macro_rules! derive_random_api_binding {
     ($($ident:ident ($($name:ident:$args:ty $(,)? )*) $(,)?)*) => {

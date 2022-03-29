@@ -5,13 +5,12 @@ use wasmtime::{Engine, ExternType, Instance, Linker, Module, Mutability, Store, 
 
 type GameFunc = TypedFunc<(), ()>;
 
-use super::network::{SaveStateDefinition, WasmConsoleState};
-use crate::{
-    api::{GraphicsApiBinding, InputApiBinding, RandomApiBinding},
-    console::{GraphicsContext, InputContext, RandomContext},
-    core::Rom,
-    Console,
+use super::{
+    bindings,
+    network::{SaveStateDefinition, WasmConsoleState},
+    Contexts,
 };
+use crate::{core::Rom, Console};
 
 pub struct WasmConsole {
     pub(crate) rom: Arc<Rom>,
@@ -19,12 +18,6 @@ pub struct WasmConsole {
     pub(crate) functions: Functions,
     pub(crate) instance: Instance,
     pub(crate) state_definition: SaveStateDefinition,
-}
-
-pub struct Contexts {
-    pub(crate) graphics_context: GraphicsContext,
-    pub(crate) input_context: InputContext,
-    pub(crate) random_context: RandomContext,
 }
 
 #[derive(Clone)]
@@ -51,23 +44,13 @@ impl Functions {
 impl WasmConsole {
     pub fn new(rom: Arc<Rom>, num_players: usize, code: &[u8]) -> Self {
         // Initialize the contexts
-        let graphics_context = GraphicsContext::new(rom.clone());
-        let input_context = InputContext::new(num_players);
-        let random_context = RandomContext {};
+        let contexts = Contexts::new(rom.clone(), num_players);
         let engine = Engine::default();
         let module = Module::new(&engine, code).unwrap();
         let mut linker = Linker::new(&engine);
 
-        let contexts = Contexts {
-            graphics_context,
-            input_context,
-            random_context,
-        };
-
         // TODO: Make this static?
-        linker.bind_random_api();
-        linker.bind_graphics_api();
-        linker.bind_input_api();
+        bindings::bind_all_apis(&mut linker);
 
         let mut store = Store::new(&engine, contexts);
         let instance = linker.instantiate(&mut store, &module).unwrap();
@@ -173,7 +156,7 @@ impl WasmConsole {
             .iter()
             .enumerate()
             .for_each(|(index, name)| {
-                let source = mutable_globals[index].clone();
+                let source = mutable_globals[index];
                 let val = source.get(&mut self.store);
                 self.instance
                     .get_global(&mut self.store, name)
