@@ -13,7 +13,6 @@ use std::{
 use ggrs::{
     Config, GGRSError, P2PSession, PlayerType, SessionBuilder, SessionState, UdpNonBlockingSocket,
 };
-use parking_lot::Mutex;
 use pixels::{Error, Pixels, SurfaceTexture};
 use winit::{
     dpi::LogicalSize,
@@ -23,7 +22,7 @@ use winit::{
 };
 use winit_input_helper::WinitInputHelper;
 
-use crate::core::{LocalInputManager, PlayerInputEntry, Rom};
+use crate::core::{LocalInputManager, Rom};
 use console::{Console, WasmConsole};
 
 pub const BYTES_PER_PIXEL: usize = 4;
@@ -39,29 +38,13 @@ fn main() -> Result<(), Error> {
 
     let mut pixels = init_pixels(&window, &rom);
 
-    // Prepare a frame buffer
-    let frame_buffer = Arc::new(Mutex::new(init_frame_buffer(&rom)));
-
     let rom = Arc::new(rom);
 
-    let player_inputs = Arc::new(Mutex::new(
-        (0..num_players)
-            .map(|_| PlayerInputEntry::default())
-            .collect(),
-    ));
+    //let player_inputs = InputContext::new(num_players);
 
     let mut console = if code_filename.ends_with(".wasm") {
         let code = std::fs::read(code_filename).unwrap();
-        WasmConsole::new(rom.clone(), player_inputs, &code, frame_buffer)
-    // } else if code_filename.ends_with(".lua") {
-    //     let code = std::fs::read_to_string(code_filename).unwrap();
-    //     LuaConsole::new(
-    //     rom.clone(),
-    //     &code,
-    //     frame_buffer,
-    //     player_inputs,
-    //     session.max_prediction(),
-    //     )
+        WasmConsole::new(rom.clone(), num_players, &code)
     } else {
         panic!("Unknown file type");
     };
@@ -164,13 +147,6 @@ fn init_pixels(window: &Window, rom: &Rom) -> Pixels {
     let (width, height) = (rom.resolution.width(), rom.resolution.height());
 
     Pixels::new(width as u32, height as u32, surface_texture).unwrap()
-}
-
-fn init_frame_buffer(rom: &Rom) -> Box<[u8]> {
-    (0..rom.resolution.total_pixels() * BYTES_PER_PIXEL as i32)
-        .map(|_| 0)
-        .collect::<Vec<u8>>()
-        .into_boxed_slice()
 }
 
 fn init_session_fast<T>(rom: &Rom) -> (usize, P2PSession<T>)

@@ -1,39 +1,35 @@
-use crate::{
-    api::{RandomApi, RandomApiBinding},
-    console::RandomContext,
-};
+use crate::api::{RandomApi, RandomApiBinding};
 use paste::paste;
-use wasmer::Function;
+use wasmtime::{Caller, Linker};
 
-use super::WasmConsoleBuilder;
+use super::Contexts;
 
 macro_rules! derive_random_api_binding {
-    ($($ident:ident,)*) => {
+    ($($ident:ident ($($name:ident:$args:ty $(,)? )*) $(,)?)*) => {
         paste! {
-            impl RandomApiBinding for WasmConsoleBuilder<'_> {
+            impl RandomApiBinding for Linker<Contexts> {
                 $(
                     fn [<bind_ $ident>](&mut self) {
-                        self.imports.push((
+                        self.func_wrap(
+                            "env",
                             stringify!($ident),
-                            Function::new_native_with_env(
-                                self.store,
-                                self.random_context.clone(),
-                                RandomContext::$ident)
-                            ));
+                            |mut caller: Caller<'_, Contexts>, $($name: $args,)*| {
+                                caller.data_mut().random_context.$ident($($name as $args,)*)
+                        }).unwrap();
                     }
                 )*
             }
         }
-    }
+    };
 }
 
 derive_random_api_binding! {
-    set_seed,
-    get_seed,
-    random_int,
-    random_float,
-    random_float_range,
-    local_random_int,
-    local_random_float_range,
-    local_random_float,
+    set_seed(seed: i32),
+    get_seed(),
+    random_int(min: i32, max: i32),
+    random_float(),
+    random_float_range(min: f32, max: f32),
+    local_random_int(min: i32, max: i32),
+    local_random_float_range(min: f32, max: f32),
+    local_random_float()
 }

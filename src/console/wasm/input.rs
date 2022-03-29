@@ -1,11 +1,7 @@
+use super::Contexts;
+use crate::api::{InputApi, InputApiBinding};
 use paste::paste;
-use wasmer::Function;
-
-use super::WasmConsoleBuilder;
-use crate::{
-    api::{InputApi, InputApiBinding},
-    console::InputContext,
-};
+use wasmtime::{Caller, Linker};
 
 macro_rules! derive_bind_wasm_input_api {
     (
@@ -14,37 +10,34 @@ macro_rules! derive_bind_wasm_input_api {
         Triggers { $($trg_name:ident,)* },
     ) => {
         paste! {
-            impl InputApiBinding for WasmConsoleBuilder<'_> {
+            impl InputApiBinding for Linker<Contexts> {
                 // BUTTON MACRO
                 $(
                     fn [<bind_button_ $btn_name _pressed>](&mut self) {
-                        self.imports.push((
+                        self.func_wrap(
+                            "env",
                             stringify!([<button_ $btn_name _pressed>]),
-                            Function::new_native_with_env(
-                                self.store,
-                                self.input_context.clone(),
-                                InputContext::[<button_ $btn_name _pressed>])
-                            ));
+                            |caller: Caller<'_, Contexts>, id: i32| {
+                                caller.data().input_context.[<button_ $btn_name _pressed>](id)
+                        }).unwrap();
                     }
 
                     fn [<bind_button_ $btn_name _released>](&mut self) {
-                        self.imports.push((
+                        self.func_wrap(
+                            "env",
                             stringify!([<button_ $btn_name _released>]),
-                            Function::new_native_with_env(
-                                self.store,
-                                self.input_context.clone(),
-                                InputContext::[<button_ $btn_name _released>])
-                            ));
+                            |caller: Caller<'_, Contexts>, id: i32| {
+                                caller.data().input_context.[<button_ $btn_name _released>](id)
+                        }).unwrap();
                     }
 
                     fn [<bind_button_ $btn_name _held>](&mut self) {
-                        self.imports.push((
+                        self.func_wrap(
+                            "env",
                             stringify!([<button_ $btn_name _held>]),
-                            Function::new_native_with_env(
-                                self.store,
-                                self.input_context.clone(),
-                                InputContext::[<button_ $btn_name _held>])
-                            ));
+                            |caller: Caller<'_, Contexts>, id: i32| {
+                                caller.data().input_context.[<button_ $btn_name _held>](id)
+                        }).unwrap();
                     }
                 )*
                 // END BUTTON MACRO
@@ -52,38 +45,34 @@ macro_rules! derive_bind_wasm_input_api {
                 // ANALOG MACRO
                 $(
                     fn [<bind_analog_ $anlg_name _x>](&mut self) {
-                        self.imports.push((
+                        self.func_wrap(
+                            "env",
                             stringify!([<analog_ $anlg_name _x>]),
-                            Function::new_native_with_env(
-                                self.store,
-                                self.input_context.clone(),
-                                InputContext::[<analog_ $anlg_name _x>])
-                            ));
+                            |caller: Caller<'_, Contexts>, id: i32| {
+                                caller.data().input_context.[<analog_ $anlg_name _x>](id)
+                        }).unwrap();
                     }
 
                     fn [<bind_analog_ $anlg_name _y>](&mut self) {
-                        self.imports.push((
+                        self.func_wrap(
+                            "env",
                             stringify!([<analog_ $anlg_name _y>]),
-                            Function::new_native_with_env(
-                                self.store,
-                                self.input_context.clone(),
-                                InputContext::[<analog_ $anlg_name _y>])
-                            ));
+                            |caller: Caller<'_, Contexts>, id: i32| {
+                                caller.data().input_context.[<analog_ $anlg_name _y>](id)
+                        }).unwrap();
                     }
                 )*
                 // END ANALOG MACRO
 
-
                 // TRIGGER MACRO
                 $(
                     fn [<bind_trigger_ $trg_name>](&mut self) {
-                        self.imports.push((
+                        self.func_wrap(
+                            "env",
                             stringify!([<trigger_ $trg_name>]),
-                            Function::new_native_with_env(
-                                self.store,
-                                self.input_context.clone(),
-                                InputContext::[<trigger_ $trg_name>])
-                            ));
+                            |caller: Caller<'_, Contexts>, id: i32| {
+                                caller.data().input_context.[<trigger_ $trg_name>](id)
+                        }).unwrap();
                     }
                 )*
                 // END TRIGGER MACRO

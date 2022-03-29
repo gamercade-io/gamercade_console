@@ -1,13 +1,11 @@
-use wasmer::WasmerEnv;
-
 use crate::api::RandomApi;
 
 // TODO: This
-#[derive(WasmerEnv, Clone)]
+#[derive(Clone)]
 pub struct RandomContext {}
 
 impl RandomApi for RandomContext {
-    fn set_seed(&self) {
+    fn set_seed(&self, seed: i32) {
         todo!()
     }
 

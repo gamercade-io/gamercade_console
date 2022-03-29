@@ -1,7 +1,7 @@
 // TODO: Write this
 
 pub trait RandomApi {
-    fn set_seed(&self);
+    fn set_seed(&self, seed: i32);
     fn get_seed(&self) -> i32;
 
     fn random_int(&self, min: i32, max: i32) -> i32;

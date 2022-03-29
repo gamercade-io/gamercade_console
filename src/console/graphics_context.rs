@@ -1,6 +1,4 @@
-use parking_lot::Mutex;
 use std::sync::Arc;
-use wasmer::WasmerEnv;
 
 use crate::{
     api::GraphicsApi,
@@ -8,27 +6,42 @@ use crate::{
     BYTES_PER_PIXEL,
 };
 
-#[derive(WasmerEnv, Clone)]
+#[derive(Clone)]
 pub struct GraphicsContext {
-    pub(crate) frame_buffer: Arc<Mutex<Box<[u8]>>>,
+    pub(crate) frame_buffer: Box<[u8]>,
     pub(crate) rom: Arc<Rom>,
 }
 
+impl GraphicsContext {
+    pub fn new(rom: Arc<Rom>) -> Self {
+        Self {
+            frame_buffer: init_frame_buffer(&rom),
+            rom,
+        }
+    }
+}
+
+fn init_frame_buffer(rom: &Rom) -> Box<[u8]> {
+    (0..rom.resolution.total_pixels() * BYTES_PER_PIXEL as i32)
+        .map(|_| 0)
+        .collect::<Vec<u8>>()
+        .into_boxed_slice()
+}
+
 impl GraphicsApi for GraphicsContext {
-    fn clear_screen(&self, color_index: i32, palette_index: i32) {
+    fn clear_screen(&mut self, color_index: i32, palette_index: i32) {
         if let (Ok(color_index), Ok(palette_index)) =
             (color_index.try_into(), self.validate_palette(palette_index))
         {
             let color = self.get_color_as_pixel_data(color_index, palette_index);
 
             self.frame_buffer
-                .lock()
                 .chunks_exact_mut(BYTES_PER_PIXEL)
                 .for_each(|pixel| pixel.copy_from_slice(&color));
         }
     }
 
-    fn set_pixel(&self, x: i32, y: i32, color_index: i32, palette_index: i32) {
+    fn set_pixel(&mut self, x: i32, y: i32, color_index: i32, palette_index: i32) {
         if let (Ok(x), Ok(y), Ok(color_index), Ok(palette_index)) = (
             self.validate_x(x),
             self.validate_y(y),
@@ -47,7 +60,7 @@ impl GraphicsApi for GraphicsContext {
         self.rom.resolution.width()
     }
 
-    fn line(&self, x0: i32, y0: i32, x1: i32, y1: i32, color_index: i32, palette_index: i32) {
+    fn line(&mut self, x0: i32, y0: i32, x1: i32, y1: i32, color_index: i32, palette_index: i32) {
         let x0 = self.validate_x(x0);
         let y0 = self.validate_y(y0);
         let x1 = self.validate_x(x1);
@@ -99,7 +112,15 @@ impl GraphicsApi for GraphicsContext {
         }
     }
 
-    fn rect(&self, x: i32, y: i32, width: i32, height: i32, color_index: i32, palette_index: i32) {
+    fn rect(
+        &mut self,
+        x: i32,
+        y: i32,
+        width: i32,
+        height: i32,
+        color_index: i32,
+        palette_index: i32,
+    ) {
         let x1 = self.validate_x(x + width);
         let y1 = self.validate_y(y + height);
         let x = self.validate_x(x);
@@ -138,7 +159,7 @@ impl GraphicsApi for GraphicsContext {
     }
 
     fn rect_filled(
-        &self,
+        &mut self,
         x: i32,
         y: i32,
         width: i32,
@@ -175,7 +196,7 @@ impl GraphicsApi for GraphicsContext {
         })
     }
 
-    fn circle(&self, x: i32, y: i32, radius: i32, color_index: i32, palette_index: i32) {
+    fn circle(&mut self, x: i32, y: i32, radius: i32, color_index: i32, palette_index: i32) {
         let top = self.validate_y(y - radius);
         let bottom = self.validate_y(y + radius);
         let left = self.validate_x(x - radius);
@@ -323,7 +344,7 @@ impl GraphicsContext {
     }
 
     fn set_pixel_safe(
-        &self,
+        &mut self,
         x: XCord,
         y: YCord,
         color_index: ColorIndex,
@@ -331,8 +352,7 @@ impl GraphicsContext {
     ) {
         let pixel_index = self.x_y_cord_to_pixel_buffer_index(x, y);
         let color = self.get_color_as_pixel_data(color_index, palette_index);
-        self.frame_buffer.lock()[pixel_index..pixel_index + BYTES_PER_PIXEL]
-            .copy_from_slice(&color);
+        self.frame_buffer[pixel_index..pixel_index + BYTES_PER_PIXEL].copy_from_slice(&color);
     }
 
     fn x_y_cord_to_pixel_buffer_index(&self, x: XCord, y: YCord) -> usize {
@@ -362,7 +382,7 @@ impl GraphicsContext {
     }
 
     fn draw_line_low(
-        &self,
+        &mut self,
         x0: i32,
         y0: i32,
         x1: i32,
@@ -399,7 +419,7 @@ impl GraphicsContext {
     }
 
     fn draw_line_high(
-        &self,
+        &mut self,
         x0: i32,
         y0: i32,
         x1: i32,
@@ -438,7 +458,7 @@ impl GraphicsContext {
     // TODO: Can optimize this further with direct access into
     // the pixel buffers?
     fn draw_line_vertical(
-        &self,
+        &mut self,
         x: XCord,
         y0: YCord,
         y1: YCord,
@@ -453,7 +473,6 @@ impl GraphicsContext {
         let color = self.get_color_as_pixel_data(color_index, palette_index);
 
         self.frame_buffer
-            .lock()
             .chunks_exact_mut(BYTES_PER_PIXEL)
             .skip(start_index)
             .step_by(width)
@@ -462,7 +481,7 @@ impl GraphicsContext {
     }
 
     fn draw_line_horizontal(
-        &self,
+        &mut self,
         x0: XCord,
         x1: XCord,
         y: YCord,
@@ -476,7 +495,6 @@ impl GraphicsContext {
         let color = self.get_color_as_pixel_data(color_index, palette_index);
 
         self.frame_buffer
-            .lock()
             .chunks_exact_mut(BYTES_PER_PIXEL)
             .skip(start_index)
             .take(pixel_count)

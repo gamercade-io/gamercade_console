@@ -1,7 +1,7 @@
 use std::net::SocketAddr;
 
 use ggrs::Config;
-use wasmer::Value;
+use wasmtime::Global;
 
 use super::WasmConsole;
 use crate::core::{Buttons, InputState};
@@ -10,7 +10,7 @@ use crate::core::{Buttons, InputState};
 pub struct WasmConsoleState {
     pub(crate) previous_buttons: Box<[Buttons]>,
     pub(crate) memories: Vec<Vec<u8>>,
-    pub(crate) mutable_globals: Vec<Value>,
+    pub(crate) mutable_globals: Vec<Global>,
 }
 
 pub struct SaveStateDefinition {
