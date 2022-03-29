@@ -50,11 +50,11 @@ Needs Testing:
 1. Networking Functionality (WASM):
     1. Test if input for prev and "was pressed" is actually correct handling is actually correct
     1. Check how increasing/decreasing heap mem works (will need another test suite)
+1. Float random generation
+    1. Does float range work correctly?
 
 In Progress:
-1. Add deterministic random number generation function
-    1. Use fastrand or nanorand crates?
-    1. Add "shared" and "client" random?
+
 
 TODO (In order of priority):
 1. Example games/wasm folder?
@@ -73,6 +73,7 @@ TODO (In order of priority):
     1. Support multiple local players
     1. Use SoAs instead of AoS for better perf?
 1. Set the user count accessable as a global somewhere
+1. Add "shared" or "client" random for doing local effects?
 
 Research/Thinking Tasks:
 1. Consider a graphics api without palette calls?

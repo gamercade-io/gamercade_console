@@ -21,7 +21,7 @@ impl Contexts {
         Self {
             graphics_context: GraphicsContext::new(rom),
             input_context: InputContext::new(num_players),
-            random_context: RandomContext {},
+            random_context: RandomContext::new(156263),
         }
     }
 }

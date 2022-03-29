@@ -25,11 +25,7 @@ macro_rules! derive_random_api_binding {
 
 derive_random_api_binding! {
     set_seed(seed: i32),
-    get_seed(),
-    random_int(min: i32, max: i32),
+    random_int_range(min: i32, max: i32),
     random_float(),
     random_float_range(min: f32, max: f32),
-    local_random_int(min: i32, max: i32),
-    local_random_float_range(min: f32, max: f32),
-    local_random_float()
 }
