@@ -18,8 +18,7 @@ impl RandomContext {
 
 impl RandomApi for RandomContext {
     fn set_seed(&mut self, seed: i32) {
-        self.shared_rng
-            .reseed(unsafe { std::mem::transmute(seed as u64) });
+        self.shared_rng.reseed((seed as u64).to_ne_bytes());
     }
 
     fn random_int_range(&mut self, min: i32, max: i32) -> i32 {
