@@ -70,7 +70,6 @@ impl WasmConsole {
                 ExternType::Memory(_) => memories.push(name.to_string()),
                 ExternType::Func(_) => (),
                 ExternType::Table(_) => (),
-                _ => panic!("unknown export type!"),
             }
         });
 
