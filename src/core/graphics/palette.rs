@@ -10,7 +10,7 @@ pub struct PaletteIndex(pub(crate) usize);
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Palette {
     colors: [Color; PALETTE_COLORS],
-    pub transparent: [bool; PALETTE_COLORS],
+    pub transparent_index: Option<ColorIndex>,
 }
 
 impl Index<ColorIndex> for Palette {
@@ -219,7 +219,7 @@ impl Default for Palette {
     fn default() -> Self {
         Self {
             colors: [Color::new(0, 0, 0); PALETTE_COLORS],
-            transparent: [false; PALETTE_COLORS],
+            transparent_index: None,
         }
     }
 }

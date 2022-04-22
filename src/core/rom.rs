@@ -1,7 +1,10 @@
 use crate::core::graphics::Resolution;
 use serde::{Deserialize, Serialize};
 
-use super::graphics::{FrameRate, GraphicsData};
+use super::{
+    graphics::{FrameRate, GraphicsData},
+    SoundsData,
+};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Rom {
@@ -18,16 +21,7 @@ impl Default for Rom {
             resolution: Resolution::Low,
             frame_rate: FrameRate::Fast,
             graphics: GraphicsData::default(),
-            sounds: SoundsData {},
+            sounds: SoundsData::default(),
         }
     }
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct SoundsData {
-    //TODO: This
-//patches: Box<[Patch]>,
-//sequences: Box<[Sequence]>
-
-// How to handle samples?
 }

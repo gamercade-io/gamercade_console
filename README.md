@@ -112,3 +112,15 @@ Pong 1p - Simple showcase
 Pong 2p - Showcase networking multiplayer
 Controller Debug - Showcase all controls for local player
 Blasters - Twin stick shooter, Showcase two analog stick usage
+
+Graphics Editor:
+https://en.wikipedia.org/wiki/Indexed_color
+Common Formats which support 4-bit indexed color:
+.gif
+.tif
+.bmp .dib .rle
+.png
+
+Others..
+.pcx
+.lbm .iff
