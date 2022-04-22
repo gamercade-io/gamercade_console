@@ -1,3 +1,5 @@
+use std::ops::Index;
+
 use serde::{Deserialize, Serialize};
 
 use super::{Color, ColorIndex, PALETTE_COLORS};
@@ -7,8 +9,16 @@ pub struct PaletteIndex(pub(crate) usize);
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Palette {
-    pub colors: [Color; PALETTE_COLORS],
+    colors: [Color; PALETTE_COLORS],
     pub transparent: [bool; PALETTE_COLORS],
+}
+
+impl Index<ColorIndex> for Palette {
+    type Output = Color;
+
+    fn index(&self, index: ColorIndex) -> &Self::Output {
+        &self.colors[index.0]
+    }
 }
 
 impl Palette {
@@ -20,8 +30,8 @@ impl Palette {
     //     }
     // }
 
-    pub fn color(&self, color_index: ColorIndex) -> &Color {
-        &self.colors[color_index.0]
+    pub fn color(&self, index: ColorIndex) -> &Color {
+        &self[index]
     }
 
     pub fn default_palette_collection() -> Vec<Palette> {

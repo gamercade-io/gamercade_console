@@ -33,6 +33,6 @@ impl Index<SpriteSheetIndex> for SpriteSheet {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Sprite {
-    data: Box<[ColorIndex]>,
-    default_palette: PaletteIndex,
+    pub data: Box<[ColorIndex]>,
+    pub default_palette: PaletteIndex,
 }
