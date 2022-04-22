@@ -1,7 +1,7 @@
-use crate::core::graphics::{Palette, Resolution, Sprite};
+use crate::core::graphics::Resolution;
 use serde::{Deserialize, Serialize};
 
-use super::graphics::FrameRate;
+use super::graphics::{FrameRate, GraphicsData};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Rom {
@@ -9,6 +9,7 @@ pub struct Rom {
     pub(crate) frame_rate: FrameRate,
     pub(crate) graphics: GraphicsData,
     pub(crate) sounds: SoundsData,
+    //pub(crate) code: Box<[u8]>,
 }
 
 impl Default for Rom {
@@ -18,21 +19,6 @@ impl Default for Rom {
             frame_rate: FrameRate::Fast,
             graphics: GraphicsData::default(),
             sounds: SoundsData {},
-        }
-    }
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct GraphicsData {
-    pub(crate) sprites: Box<[Sprite]>,
-    pub(crate) palettes: Box<[Palette]>,
-}
-
-impl Default for GraphicsData {
-    fn default() -> Self {
-        Self {
-            sprites: vec![].into_boxed_slice(),
-            palettes: Palette::default_palette_collection().into_boxed_slice(),
         }
     }
 }

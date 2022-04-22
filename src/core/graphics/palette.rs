@@ -1,6 +1,9 @@
 use serde::{Deserialize, Serialize};
 
-use super::{Color, PALETTE_COLORS};
+use super::{Color, ColorIndex, PALETTE_COLORS};
+
+#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+pub struct PaletteIndex(pub(crate) usize);
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Palette {
@@ -16,6 +19,10 @@ impl Palette {
     //         _ => None,
     //     }
     // }
+
+    pub fn color(&self, color_index: ColorIndex) -> &Color {
+        &self.colors[color_index.0]
+    }
 
     pub fn default_palette_collection() -> Vec<Palette> {
         vec![

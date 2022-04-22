@@ -320,11 +320,7 @@ struct YCord(usize);
 
 impl GraphicsContext {
     fn validate_palette(&self, index: i32) -> Result<PaletteIndex, &'static str> {
-        if index >= 0 && index < self.rom.graphics.palettes.len() as i32 {
-            Ok(PaletteIndex(index as usize))
-        } else {
-            Err("invalid palette index")
-        }
+        self.rom.graphics.validate_palette_index(index)
     }
 
     fn validate_x(&self, x: i32) -> Result<XCord, &'static str> {
@@ -377,7 +373,7 @@ impl GraphicsContext {
         color_index: ColorIndex,
         palette_index: PaletteIndex,
     ) -> [u8; BYTES_PER_PIXEL] {
-        let color = self.rom.graphics.palettes[palette_index.0].colors[color_index.0];
+        let color = self.rom.graphics.palette(palette_index).color(color_index);
         [color.r, color.g, color.b, 0xff]
     }
 

@@ -59,11 +59,17 @@ In Progress:
 TODO (In order of priority):
 1. Example games/wasm folder?
     1. Helper script / build script to automatically place into correct directory
+1. "Game Editor"
+    1. Import WASM files
+    1. Adjust settings like fps/resolution etc
+    1. Create patches, sound effects, music (sequences)
+    1. Create art assets
 1. Finish "Graphcis" outlined functions
     1. Add "Draw Circle" filled?
     1. Add Write Text function (need a font??)
     1. How to handle lines/rects drawn out of bounds?
 1. Include the audio stuff from audio-test
+1. Saving/Loading games as ROM files
 1. Build showcase projects (see below)
 1. Start adding "Sprites" and Sprite Drawing
     1. Bit blit algorithm
