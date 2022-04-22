@@ -22,16 +22,22 @@ impl Index<ColorIndex> for Palette {
 }
 
 impl Palette {
-    // TODO: Use this for drawing sprites later
-    // pub fn color_index_into_rgba(&self, index: usize) -> Option<[u8; BYTES_PER_PIXEL]> {
-    //     match (self.colors.get(index), self.transparent.get(index)) {
-    //         (Some(color), Some(true)) => Some([color.r, color.g, color.b, 0xff]),
-    //         _ => None,
-    //     }
-    // }
+    /// Returns the color in the palette, or None if its transparent
+    pub fn color(&self, color_index: ColorIndex) -> Option<Color> {
+        if let Some(transparent_index) = self.transparent_index {
+            if color_index == transparent_index {
+                return None;
+            }
+        }
 
-    pub fn color(&self, index: ColorIndex) -> &Color {
-        &self[index]
+        Some(self[color_index])
+    }
+
+    // pub fn colors_from_index_slice(&self, )
+
+    /// Gets the raw color, ignoring any kind of transparency
+    pub fn raw_color(&self, color_index: ColorIndex) -> Color {
+        self[color_index]
     }
 
     pub fn default_palette_collection() -> Vec<Palette> {

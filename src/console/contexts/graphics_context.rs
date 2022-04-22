@@ -373,7 +373,11 @@ impl GraphicsContext {
         color_index: ColorIndex,
         palette_index: PaletteIndex,
     ) -> [u8; BYTES_PER_PIXEL] {
-        let color = self.rom.graphics.palette(palette_index).color(color_index);
+        let color = self
+            .rom
+            .graphics
+            .palette(palette_index)
+            .raw_color(color_index);
         [color.r, color.g, color.b, 0xff]
     }
 

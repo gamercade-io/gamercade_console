@@ -2,13 +2,13 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum Resolution {
-    UltraLow,
-    VeryLow,
-    Low,
-    Medium,
-    High,
-    VeryHigh,
-    UltraHigh,
+    UltraLow,  // 128 x 72
+    VeryLow,   // 160 x 90
+    Low,       // 320 x 180
+    Medium,    // 480 x 270
+    High,      // 640 x 320
+    VeryHigh,  // 1280 x 720
+    UltraHigh, // 1920 x 1080
 }
 
 impl Resolution {
