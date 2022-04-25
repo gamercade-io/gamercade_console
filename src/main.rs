@@ -1,8 +1,7 @@
 mod api;
 mod console;
-mod core;
 
-pub use crate::core::{PALETTE_COLORS, PALETTE_MAX_COUNT};
+use gamercade_core::Rom;
 
 use std::{
     net::SocketAddr,
@@ -22,7 +21,7 @@ use winit::{
 };
 use winit_input_helper::WinitInputHelper;
 
-use crate::core::{LocalInputManager, Rom};
+use crate::console::LocalInputManager;
 use console::{Console, WasmConsole};
 
 pub const BYTES_PER_PIXEL: usize = 4;

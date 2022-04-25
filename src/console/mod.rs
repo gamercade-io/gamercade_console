@@ -1,13 +1,15 @@
 mod bindings;
 mod contexts;
+mod input;
 mod network;
 mod wasm_console;
 
 pub use contexts::Contexts;
 use ggrs::{Config, GGRSRequest};
+pub use input::*;
 pub use wasm_console::WasmConsole;
 
-use crate::core::Rom;
+use gamercade_core::Rom;
 
 pub trait Console: Sized + Config {
     fn call_init(&mut self);

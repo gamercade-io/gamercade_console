@@ -3,8 +3,8 @@ use std::net::SocketAddr;
 use ggrs::Config;
 use wasmtime::Global;
 
+use super::input::{Buttons, InputState};
 use super::WasmConsole;
-use crate::core::{Buttons, InputState};
 
 #[derive(Clone)]
 pub struct WasmConsoleState {

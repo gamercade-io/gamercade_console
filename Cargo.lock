@@ -748,6 +748,7 @@ version = "0.1.0"
 dependencies = [
  "bincode",
  "bytemuck",
+ "gamercade_core",
  "ggrs",
  "hashbrown 0.12.0",
  "nanorand",
@@ -760,6 +761,13 @@ dependencies = [
  "wasmtime",
  "winit",
  "winit_input_helper",
+]
+
+[[package]]
+name = "gamercade_core"
+version = "0.1.0"
+dependencies = [
+ "serde",
 ]
 
 [[package]]

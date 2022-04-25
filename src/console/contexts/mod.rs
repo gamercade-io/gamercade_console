@@ -8,7 +8,7 @@ use graphics_context::GraphicsContext;
 use input_context::InputContext;
 use random_context::RandomContext;
 
-use crate::core::Rom;
+use gamercade_core::Rom;
 
 pub struct Contexts {
     pub(crate) graphics_context: GraphicsContext,

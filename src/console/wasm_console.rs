@@ -10,7 +10,8 @@ use super::{
     network::{SaveStateDefinition, WasmConsoleState},
     Contexts,
 };
-use crate::{core::Rom, Console};
+use crate::Console;
+use gamercade_core::Rom;
 
 pub struct WasmConsole {
     pub(crate) rom: Arc<Rom>,

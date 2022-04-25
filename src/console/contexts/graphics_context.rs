@@ -1,10 +1,7 @@
 use std::sync::Arc;
 
-use crate::{
-    api::GraphicsApi,
-    core::{ColorIndex, PaletteIndex, Rom},
-    BYTES_PER_PIXEL,
-};
+use crate::{api::GraphicsApi, BYTES_PER_PIXEL};
+use gamercade_core::{ColorIndex, PaletteIndex, Rom};
 
 #[derive(Clone)]
 pub struct GraphicsContext {

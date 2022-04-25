@@ -1,9 +1,7 @@
 use paste::paste;
 
-use crate::{
-    api::InputApi,
-    core::{ButtonCode, PlayerInputEntry},
-};
+use crate::api::InputApi;
+use crate::console::{ButtonCode, PlayerInputEntry};
 
 #[derive(Clone)]
 pub struct InputContext {

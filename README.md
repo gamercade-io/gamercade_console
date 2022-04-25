@@ -68,6 +68,9 @@ TODO (In order of priority):
     1. Add "Draw Circle" filled?
     1. Add Write Text function (need a font??)
     1. How to handle lines/rects drawn out of bounds?
+1. Add "Data" functions for grabbing data from the ROM
+    1. How many sprites or sprite sheets there are
+    1. Sprite sheet width/height
 1. Include the audio stuff from audio-test
 1. Saving/Loading games as ROM files
 1. Build showcase projects (see below)
@@ -124,3 +127,6 @@ Common Formats which support 4-bit indexed color:
 Others..
 .pcx
 .lbm .iff
+
+Pixel Scaling/Rotation Stuff:
+https://en.wikipedia.org/wiki/Pixel-art_scaling_algorithms
