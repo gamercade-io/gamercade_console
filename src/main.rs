@@ -11,30 +11,37 @@ impl epi::App for editor_state::EditorState {
     fn update(&mut self, ctx: &egui::Context, frame: &epi::Frame) {
         // TODO:
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
-            ui.menu_button("File", |ui| {
-                if ui.button("New").clicked() {
-                    println!("TODO: new file!");
-                    ui.close_menu();
-                }
+            ui.horizontal(|ui| {
+                ui.menu_button("File", |ui| {
+                    if ui.button("New").clicked() {
+                        println!("TODO: new file!");
+                        ui.close_menu();
+                    }
 
-                if ui.button("Open").clicked() {
-                    println!("TODO: Open file!");
-                    ui.close_menu();
-                }
+                    if ui.button("Open").clicked() {
+                        println!("TODO: Open file!");
+                        ui.close_menu();
+                    }
 
-                if ui.button("Save").clicked() {
-                    println!("TODO: Save file!");
-                    ui.close_menu();
-                }
+                    if ui.button("Save").clicked() {
+                        println!("TODO: Save file!");
+                        ui.close_menu();
+                    }
+                });
 
-                if ui.button("Export Game").clicked() {
-                    println!("TODO: Export game!");
-                    ui.close_menu();
-                }
+                ui.menu_button("Game", |ui| {
+                    if ui.button("Local Test Game").clicked() {
+                        println!("TODO: Test Local Game!");
+                        ui.close_menu();
+                    }
 
-                if ui.button("Close").clicked() {
-                    ui.close_menu()
-                }
+                    ui.separator();
+
+                    if ui.button("Export Game").clicked() {
+                        println!("TODO: Export game!");
+                        ui.close_menu();
+                    }
+                })
             });
         });
 
