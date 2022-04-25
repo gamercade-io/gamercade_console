@@ -1,3 +1,5 @@
+use crate::{ColorIndex, PaletteIndex, SpriteIndex, SpriteSheetIndex, BYTES_PER_PIXEL};
+
 use super::graphics::Resolution;
 use serde::{Deserialize, Serialize};
 
@@ -23,5 +25,26 @@ impl Default for Rom {
             graphics: GraphicsData::default(),
             sounds: SoundsData::default(),
         }
+    }
+}
+
+impl Rom {
+    pub fn clear_buffer(&self, color: ColorIndex, palette: PaletteIndex, target: &mut [u8]) {
+        let color = self.graphics.palette(palette)[color].into_pixel_data();
+        target
+            .chunks_exact_mut(BYTES_PER_PIXEL)
+            .for_each(|pixel| pixel.copy_from_slice(&color));
+    }
+
+    pub fn height(&self) -> i32 {
+        self.resolution.height()
+    }
+
+    pub fn width(&self) -> i32 {
+        self.resolution.width()
+    }
+
+    pub fn draw_sprite(&self, sheet: SpriteSheetIndex, sprite: SpriteIndex) {
+        todo!()
     }
 }

@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use crate::{ColorIndex, Color};
+
 use super::{Palette, PaletteIndex, SpriteSheet, SpriteSheetIndex};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -27,6 +29,10 @@ impl GraphicsData {
 
     pub fn sprite_sheet(&self, sprite_sheet_index: SpriteSheetIndex) -> &SpriteSheet {
         &self.sprite_sheets[sprite_sheet_index.0 as usize]
+    }
+
+    pub fn color(&self, palette_index: PaletteIndex, color: ColorIndex) -> &Color {
+        &self.palettes[palette_index.0 as usize][color]
     }
 }
 

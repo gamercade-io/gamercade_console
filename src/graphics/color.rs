@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::PALETTE_COLORS;
+use crate::{BYTES_PER_PIXEL, PALETTE_COLORS};
 
 #[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct ColorIndex(pub(crate) usize);
@@ -27,6 +27,10 @@ pub struct Color {
 impl Color {
     pub fn new(r: u8, g: u8, b: u8) -> Self {
         Self { r, g, b }
+    }
+
+    pub fn into_pixel_data(&self) -> [u8; BYTES_PER_PIXEL] {
+        [self.r, self.g, self.b, 0xFF]
     }
 }
 
