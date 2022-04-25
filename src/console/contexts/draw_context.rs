@@ -1,15 +1,15 @@
 use std::sync::Arc;
 
-use crate::{api::GraphicsApi, BYTES_PER_PIXEL};
-use gamercade_core::{ColorIndex, PaletteIndex, Rom};
+use crate::api::DrawApi;
+use gamercade_core::{ColorIndex, PaletteIndex, Rom, BYTES_PER_PIXEL};
 
 #[derive(Clone)]
-pub struct GraphicsContext {
+pub struct DrawContext {
     pub(crate) frame_buffer: Box<[u8]>,
     pub(crate) rom: Arc<Rom>,
 }
 
-impl GraphicsContext {
+impl DrawContext {
     pub fn new(rom: Arc<Rom>) -> Self {
         Self {
             frame_buffer: init_frame_buffer(&rom),
@@ -25,16 +25,13 @@ fn init_frame_buffer(rom: &Rom) -> Box<[u8]> {
         .into_boxed_slice()
 }
 
-impl GraphicsApi for GraphicsContext {
+impl DrawApi for DrawContext {
     fn clear_screen(&mut self, color_index: i32, palette_index: i32) {
         if let (Ok(color_index), Ok(palette_index)) =
             (color_index.try_into(), self.validate_palette(palette_index))
         {
-            let color = self.get_color_as_pixel_data(color_index, palette_index);
-
-            self.frame_buffer
-                .chunks_exact_mut(BYTES_PER_PIXEL)
-                .for_each(|pixel| pixel.copy_from_slice(&color));
+            self.rom
+                .clear_buffer(color_index, palette_index, &mut self.frame_buffer);
         }
     }
 
@@ -50,11 +47,11 @@ impl GraphicsApi for GraphicsContext {
     }
 
     fn height(&self) -> i32 {
-        self.rom.resolution.height()
+        self.rom.height()
     }
 
     fn width(&self) -> i32 {
-        self.rom.resolution.width()
+        self.rom.width()
     }
 
     fn line(&mut self, x0: i32, y0: i32, x1: i32, y1: i32, color_index: i32, palette_index: i32) {
@@ -315,7 +312,7 @@ struct XCord(usize);
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 struct YCord(usize);
 
-impl GraphicsContext {
+impl DrawContext {
     fn validate_palette(&self, index: i32) -> Result<PaletteIndex, &'static str> {
         self.rom.graphics.validate_palette_index(index)
     }
@@ -344,7 +341,11 @@ impl GraphicsContext {
         palette_index: PaletteIndex,
     ) {
         let pixel_index = self.x_y_cord_to_pixel_buffer_index(x, y);
-        let color = self.get_color_as_pixel_data(color_index, palette_index);
+        let color = self
+            .rom
+            .graphics
+            .color(palette_index, color_index)
+            .into_pixel_data();
         self.frame_buffer[pixel_index..pixel_index + BYTES_PER_PIXEL].copy_from_slice(&color);
     }
 
@@ -364,19 +365,6 @@ impl GraphicsContext {
     //         None
     //     }
     // }
-
-    fn get_color_as_pixel_data(
-        &self,
-        color_index: ColorIndex,
-        palette_index: PaletteIndex,
-    ) -> [u8; BYTES_PER_PIXEL] {
-        let color = self
-            .rom
-            .graphics
-            .palette(palette_index)
-            .raw_color(color_index);
-        [color.r, color.g, color.b, 0xff]
-    }
 
     fn draw_line_low(
         &mut self,
@@ -467,7 +455,11 @@ impl GraphicsContext {
         let width = self.width() as usize;
         let start_index = (start.0 * width) + x.0;
         let pixel_count = (end.0 - start.0) + 1;
-        let color = self.get_color_as_pixel_data(color_index, palette_index);
+        let color = self
+            .rom
+            .graphics
+            .color(palette_index, color_index)
+            .into_pixel_data();
 
         self.frame_buffer
             .chunks_exact_mut(BYTES_PER_PIXEL)
@@ -489,7 +481,11 @@ impl GraphicsContext {
 
         let start_index = (y.0 * self.width() as usize) + start.0;
         let pixel_count = (end.0 - start.0) + 1;
-        let color = self.get_color_as_pixel_data(color_index, palette_index);
+        let color = self
+            .rom
+            .graphics
+            .color(palette_index, color_index)
+            .into_pixel_data();
 
         self.frame_buffer
             .chunks_exact_mut(BYTES_PER_PIXEL)

@@ -1,19 +1,19 @@
-use crate::api::{GraphicsApi, GraphicsApiBinding};
+use crate::api::{DrawApi, DrawApiBinding};
 use crate::console::Contexts;
 use paste::paste;
 use wasmtime::{Caller, Linker};
 
-macro_rules! derive_graphics_api_binding {
+macro_rules! derive_draw_api_binding {
     ($($ident:ident ($($name:ident:$args:ty $(,)? )*) $(,)?)*) => {
         paste! {
-            impl GraphicsApiBinding for Linker<Contexts> {
+            impl DrawApiBinding for Linker<Contexts> {
                 $(
                     fn [<bind_ $ident>](&mut self) {
                         self.func_wrap(
                             "env",
                             stringify!($ident),
                             |mut caller: Caller<'_, Contexts>, $($name: $args,)*| {
-                                caller.data_mut().graphics_context.$ident($($name as $args,)*)
+                                caller.data_mut().draw_context.$ident($($name as $args,)*)
                         }).unwrap();
                     }
                 )*
@@ -22,7 +22,7 @@ macro_rules! derive_graphics_api_binding {
     };
 }
 
-derive_graphics_api_binding! {
+derive_draw_api_binding! {
     clear_screen(color_index: i32, palette_index: i32),
     set_pixel(x: i32, y: i32, color_index: i32, palette_index: i32),
     height(),

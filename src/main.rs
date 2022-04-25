@@ -24,8 +24,6 @@ use winit_input_helper::WinitInputHelper;
 use crate::console::LocalInputManager;
 use console::{Console, WasmConsole};
 
-pub const BYTES_PER_PIXEL: usize = 4;
-
 fn main() -> Result<(), Error> {
     let event_loop = EventLoop::new();
     let code_filename = "wasm_test.wasm";

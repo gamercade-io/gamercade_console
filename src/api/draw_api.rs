@@ -1,16 +1,16 @@
-macro_rules! derive_bind_graphics_api {
+macro_rules! derive_bind_draw_api {
     ($($name:ident,)*) => {
-        pub trait GraphicsApiBinding {
+        pub trait DrawApiBinding {
             $(fn $name(&mut self);)*
 
-            fn bind_graphics_api(&mut self) {
+            fn bind_draw_api(&mut self) {
                 $(self.$name();)*
             }
         }
     };
 }
 
-pub trait GraphicsApi {
+pub trait DrawApi {
     fn clear_screen(&mut self, color_index: i32, palette_index: i32);
     fn set_pixel(&mut self, x: i32, y: i32, color_index: i32, palette_index: i32);
     fn height(&self) -> i32;
@@ -44,7 +44,7 @@ pub trait GraphicsApi {
     // fn sprite(&self, sprite_index: i32, x: i32, y: i32, palette_index: i32)
 }
 
-derive_bind_graphics_api! {
+derive_bind_draw_api! {
     bind_clear_screen,
     bind_set_pixel,
     bind_height,

@@ -185,7 +185,7 @@ impl Console for WasmConsole {
     }
 
     fn blit(&self, buffer: &mut [u8]) {
-        buffer.copy_from_slice(&self.store.data().graphics_context.frame_buffer);
+        buffer.copy_from_slice(&self.store.data().draw_context.frame_buffer);
     }
 
     fn handle_requests(&mut self, requests: Vec<GGRSRequest<Self>>) {

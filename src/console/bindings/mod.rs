@@ -1,11 +1,11 @@
-use crate::api::{GraphicsApiBinding, InputApiBinding, RandomApiBinding};
+use crate::api::{DrawApiBinding, InputApiBinding, RandomApiBinding};
 
-mod graphics_binding;
+mod draw_binding;
 mod input_binding;
 mod random_binding;
 
 pub fn bind_all_apis(linker: &mut wasmtime::Linker<super::Contexts>) {
-    linker.bind_graphics_api();
+    linker.bind_draw_api();
     linker.bind_input_api();
     linker.bind_random_api();
 }
