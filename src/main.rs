@@ -1,36 +1,59 @@
+use editor_state::{EditorMode, EditorState};
 use eframe::{egui, epi};
 
-struct MyApp {
-    name: String,
-    age: u32,
-}
+mod editor_state;
 
-impl Default for MyApp {
-    fn default() -> Self {
-        Self {
-            name: "Arthur".to_owned(),
-            age: 42,
-        }
-    }
-}
-
-impl epi::App for MyApp {
+impl epi::App for editor_state::EditorState {
     fn name(&self) -> &str {
-        "My egui App"
+        "Gamercade Editor"
     }
 
     fn update(&mut self, ctx: &egui::Context, frame: &epi::Frame) {
-        egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading("My egui Application");
-            ui.horizontal(|ui| {
-                ui.label("Your name: ");
-                ui.text_edit_singleline(&mut self.name);
+        // TODO:
+        egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
+            ui.menu_button("File", |ui| {
+                if ui.button("New").clicked() {
+                    println!("TODO: new file!");
+                    ui.close_menu();
+                }
+
+                if ui.button("Open").clicked() {
+                    println!("TODO: Open file!");
+                    ui.close_menu();
+                }
+
+                if ui.button("Save").clicked() {
+                    println!("TODO: Save file!");
+                    ui.close_menu();
+                }
+
+                if ui.button("Export Game").clicked() {
+                    println!("TODO: Export game!");
+                    ui.close_menu();
+                }
+
+                if ui.button("Close").clicked() {
+                    ui.close_menu()
+                }
             });
-            ui.add(egui::Slider::new(&mut self.age, 0..=120).text("age"));
-            if ui.button("Click each year").clicked() {
-                self.age += 1;
+        });
+
+        egui::CentralPanel::default().show(ctx, |ui| {
+            ui.horizontal(|ui| {
+                ui.selectable_value(&mut self.mode, EditorMode::PaletteEditor, "Palette Editor");
+                ui.selectable_value(
+                    &mut self.mode,
+                    EditorMode::SpriteSheetEditor,
+                    "Sprite Sheet Editor",
+                );
+                ui.selectable_value(&mut self.mode, EditorMode::SpriteEditor, "Sprite Editor");
+            });
+
+            match self.mode {
+                EditorMode::PaletteEditor => self.palette_editor(ui),
+                EditorMode::SpriteSheetEditor => self.sprite_sheet_editor(ui),
+                EditorMode::SpriteEditor => self.sprite_editor(ui),
             }
-            ui.label(format!("Hello '{}', age {}", self.name, self.age));
         });
 
         // Resize the native window to be just the size we need it to be:
@@ -40,5 +63,5 @@ impl epi::App for MyApp {
 
 fn main() {
     let options = eframe::NativeOptions::default();
-    eframe::run_native(Box::new(MyApp::default()), options);
+    eframe::run_native(Box::new(EditorState::default()), options);
 }
