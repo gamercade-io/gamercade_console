@@ -1,7 +1,13 @@
 use editor_state::{EditorMode, EditorState};
-use eframe::{egui, epi};
+use eframe::{
+    egui::{self, menu},
+    epi,
+};
+
+use crate::graphics_editor::GraphicsEditorMode;
 
 mod editor_state;
+mod graphics_editor;
 
 impl epi::App for editor_state::EditorState {
     fn name(&self) -> &str {
@@ -11,7 +17,7 @@ impl epi::App for editor_state::EditorState {
     fn update(&mut self, ctx: &egui::Context, frame: &epi::Frame) {
         // TODO:
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
-            ui.horizontal(|ui| {
+            menu::bar(ui, |ui| {
                 ui.menu_button("File", |ui| {
                     if ui.button("New").clicked() {
                         println!("TODO: new file!");
@@ -46,21 +52,34 @@ impl epi::App for editor_state::EditorState {
         });
 
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.horizontal(|ui| {
-                ui.selectable_value(&mut self.mode, EditorMode::PaletteEditor, "Palette Editor");
-                ui.selectable_value(
-                    &mut self.mode,
-                    EditorMode::SpriteSheetEditor,
-                    "Sprite Sheet Editor",
-                );
-                ui.selectable_value(&mut self.mode, EditorMode::SpriteEditor, "Sprite Editor");
-            });
+            ui.horizontal(|ui| match &mut self.mode {
+                EditorMode::GraphicsMode(graphics) => {
+                    ui.selectable_value(
+                        &mut graphics.mode,
+                        GraphicsEditorMode::PaletteEditor,
+                        "Palette Editor",
+                    );
+                    ui.selectable_value(
+                        &mut graphics.mode,
+                        GraphicsEditorMode::SpriteSheetEditor,
+                        "Sprite Sheet Editor",
+                    );
+                    ui.selectable_value(
+                        &mut graphics.mode,
+                        GraphicsEditorMode::SpriteEditor,
+                        "Sprite Editor",
+                    );
 
-            match self.mode {
-                EditorMode::PaletteEditor => self.palette_editor(ui),
-                EditorMode::SpriteSheetEditor => self.sprite_sheet_editor(ui),
-                EditorMode::SpriteEditor => self.sprite_editor(ui),
-            }
+                    match graphics.mode {
+                        GraphicsEditorMode::PaletteEditor => graphics.palette_editor(ui),
+                        GraphicsEditorMode::SpriteSheetEditor => graphics.sprite_sheet_editor(ui),
+                        GraphicsEditorMode::SpriteEditor => graphics.sprite_editor(ui),
+                    };
+                }
+                EditorMode::SoundMode => {
+                    todo!()
+                }
+            });
         });
 
         // Resize the native window to be just the size we need it to be:
