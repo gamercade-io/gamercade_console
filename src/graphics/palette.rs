@@ -2,6 +2,8 @@ use std::ops::Index;
 
 use serde::{Deserialize, Serialize};
 
+use crate::BYTES_PER_PIXEL;
+
 use super::{Color, ColorIndex, PALETTE_COLORS};
 
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
@@ -36,6 +38,11 @@ impl Palette {
     /// Gets the raw color, ignoring any kind of transparency
     pub fn raw_color(&self, color_index: ColorIndex) -> Color {
         self[color_index]
+    }
+
+    // TODO: could be optimized using unint stuff?
+    pub fn as_pixel_colors(&self) -> [[u8; BYTES_PER_PIXEL]; PALETTE_COLORS] {
+        self.colors.map(|color| color.into_pixel_data())
     }
 
     pub fn default_palette_collection() -> Vec<Palette> {
