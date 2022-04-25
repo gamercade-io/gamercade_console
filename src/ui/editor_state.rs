@@ -1,6 +1,6 @@
 use gamercade_core::Rom;
 
-use crate::graphics_editor::GraphicsEditor;
+use super::GraphicsEditor;
 
 pub struct EditorState {
     pub mode: EditorMode,

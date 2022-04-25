@@ -1,15 +1,14 @@
-use editor_state::{EditorMode, EditorState};
 use eframe::{
     egui::{self, menu},
     epi,
 };
 
-use crate::graphics_editor::GraphicsEditorMode;
+mod editor_data;
+mod ui;
 
-mod editor_state;
-mod graphics_editor;
+use ui::{EditorMode, EditorState, GraphicsEditorMode};
 
-impl epi::App for editor_state::EditorState {
+impl epi::App for ui::EditorState {
     fn name(&self) -> &str {
         "Gamercade Editor"
     }
