@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::api::DrawApi;
-use gamercade_core::{ColorIndex, PaletteIndex, Rom, BYTES_PER_PIXEL};
+use gamercade_core::{ColorIndex, PaletteIndex, Rom, SpriteSheetIndex, BYTES_PER_PIXEL};
 
 #[derive(Clone)]
 pub struct DrawContext {
@@ -26,10 +26,39 @@ fn init_frame_buffer(rom: &Rom) -> Box<[u8]> {
 }
 
 impl DrawApi for DrawContext {
+    fn sprite(&mut self, sheet_index: i32, sprite_index: i32, x: i32, y: i32, palette_index: i32) {
+        let x = self.validate_x(x);
+        let y = self.validate_y(y);
+        let palette = self.rom.graphics.validate_palette_index(palette_index);
+        let result = self
+            .rom
+            .graphics
+            .validate_sheet_and_sprite(sheet_index, sprite_index);
+
+        if x.is_err() || y.is_err() || palette.is_err() || palette.is_err() || result.is_err() {
+            return;
+        }
+
+        let x = x.unwrap();
+        let y = y.unwrap();
+        let palette = palette.unwrap();
+        let (sheet, sprite) = result.unwrap();
+
+        self.rom.draw_sprite(
+            sheet,
+            sprite,
+            palette,
+            (x.0, y.0),
+            self.width() as usize,
+            &mut self.frame_buffer,
+        )
+    }
+
     fn clear_screen(&mut self, color_index: i32, palette_index: i32) {
-        if let (Ok(color_index), Ok(palette_index)) =
-            (color_index.try_into(), self.validate_palette(palette_index))
-        {
+        if let (Ok(color_index), Ok(palette_index)) = (
+            color_index.try_into(),
+            self.rom.graphics.validate_palette_index(palette_index),
+        ) {
             self.rom
                 .clear_buffer(color_index, palette_index, &mut self.frame_buffer);
         }
@@ -40,7 +69,7 @@ impl DrawApi for DrawContext {
             self.validate_x(x),
             self.validate_y(y),
             color_index.try_into(),
-            self.validate_palette(palette_index),
+            self.rom.graphics.validate_palette_index(palette_index),
         ) {
             self.set_pixel_safe(x, y, color_index, palette_index);
         }
@@ -60,7 +89,7 @@ impl DrawApi for DrawContext {
         let x1 = self.validate_x(x1);
         let y1 = self.validate_y(y1);
         let color_index = color_index.try_into();
-        let palette_index = self.validate_palette(palette_index);
+        let palette_index = self.rom.graphics.validate_palette_index(palette_index);
 
         if x0.is_err()
             || y0.is_err()
@@ -120,7 +149,7 @@ impl DrawApi for DrawContext {
         let x = self.validate_x(x);
         let y = self.validate_y(y);
         let color_index = color_index.try_into();
-        let palette_index = self.validate_palette(palette_index);
+        let palette_index = self.rom.graphics.validate_palette_index(palette_index);
 
         if x1.is_err()
             || y1.is_err()
@@ -166,7 +195,7 @@ impl DrawApi for DrawContext {
         let x = self.validate_x(x);
         let y = self.validate_y(y);
         let color_index = color_index.try_into();
-        let palette_index = self.validate_palette(palette_index);
+        let palette_index = self.rom.graphics.validate_palette_index(palette_index);
 
         if x1.is_err()
             || y1.is_err()
@@ -196,7 +225,7 @@ impl DrawApi for DrawContext {
         let left = self.validate_x(x - radius);
         let right = self.validate_x(x + radius);
         let color_index = color_index.try_into();
-        let palette_index = self.validate_palette(palette_index);
+        let palette_index = self.rom.graphics.validate_palette_index(palette_index);
 
         if top.is_err()
             || bottom.is_err()
@@ -313,10 +342,6 @@ struct XCord(usize);
 struct YCord(usize);
 
 impl DrawContext {
-    fn validate_palette(&self, index: i32) -> Result<PaletteIndex, &'static str> {
-        self.rom.graphics.validate_palette_index(index)
-    }
-
     fn validate_x(&self, x: i32) -> Result<XCord, &'static str> {
         if x >= 0 && x < self.width() {
             Ok(XCord(x as usize))

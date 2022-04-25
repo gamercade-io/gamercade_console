@@ -41,7 +41,7 @@ pub trait DrawApi {
     );
     fn line(&mut self, x0: i32, y0: i32, x1: i32, y1: i32, color_index: i32, palette_index: i32);
 
-    // fn sprite(&self, sprite_index: i32, x: i32, y: i32, palette_index: i32)
+    fn sprite(&mut self, sheet_index: i32, sprite_index: i32, x: i32, y: i32, palette_index: i32);
 }
 
 derive_bind_draw_api! {
@@ -54,5 +54,5 @@ derive_bind_draw_api! {
     bind_rect,
     bind_rect_filled,
     bind_line,
-    //bind_sprite,
+    bind_sprite,
 }
