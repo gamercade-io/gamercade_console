@@ -1,4 +1,4 @@
-use eframe::egui::Ui;
+use eframe::egui::{self, Ui};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct SoundsEditor {
@@ -20,10 +20,12 @@ impl Default for SoundsEditor {
 }
 
 impl SoundsEditor {
-    pub fn draw(&mut self, ui: &mut Ui) {
+    pub fn draw_selector(&mut self, ui: &mut Ui) {
         ui.selectable_value(&mut self.mode, SoundsEditorMode::Patches, "Patches");
         ui.selectable_value(&mut self.mode, SoundsEditorMode::Sequences, "Sequences");
+    }
 
+    pub fn draw_contents(&mut self, ui: &mut Ui) {
         match self.mode {
             SoundsEditorMode::Patches => self.patch_editor(ui),
             SoundsEditorMode::Sequences => self.sequence_editor(ui),

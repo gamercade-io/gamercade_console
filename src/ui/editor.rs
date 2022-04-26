@@ -79,10 +79,15 @@ impl Editor {
                 ui.separator();
 
                 ui.horizontal(|ui| match &mut self.mode {
-                    EditorMode::GraphicsMode => self.graphics_editor.draw(ui),
-                    EditorMode::SoundMode => self.sounds_editor.draw(ui),
+                    EditorMode::GraphicsMode => self.graphics_editor.draw_selector(ui),
+                    EditorMode::SoundMode => self.sounds_editor.draw_selector(ui),
                 });
             });
+
+            match self.mode {
+                EditorMode::GraphicsMode => self.graphics_editor.draw_contents(ui),
+                EditorMode::SoundMode => self.sounds_editor.draw_contents(ui),
+            }
         });
     }
 }

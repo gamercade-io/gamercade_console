@@ -1,6 +1,8 @@
 use eframe::egui::Ui;
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+use super::{PaletteEditor, SpriteEditor, SpriteSheetEditor};
+
+#[derive(Clone, Debug, PartialEq)]
 pub enum GraphicsEditorMode {
     PaletteEditor,
     SpriteSheetEditor,
@@ -11,16 +13,23 @@ impl Default for GraphicsEditor {
     fn default() -> Self {
         Self {
             mode: GraphicsEditorMode::PaletteEditor,
+            palette_editor: PaletteEditor::default(),
+            sprite_sheet_editor: SpriteSheetEditor::default(),
+            sprite_editor: SpriteEditor::default(),
         }
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct GraphicsEditor {
     pub mode: GraphicsEditorMode,
+    pub palette_editor: PaletteEditor,
+    pub sprite_sheet_editor: SpriteSheetEditor,
+    pub sprite_editor: SpriteEditor,
 }
 
 impl GraphicsEditor {
-    pub fn draw(&mut self, ui: &mut Ui) {
+    pub fn draw_selector(&mut self, ui: &mut Ui) {
         ui.selectable_value(
             &mut self.mode,
             GraphicsEditorMode::PaletteEditor,
@@ -36,23 +45,13 @@ impl GraphicsEditor {
             GraphicsEditorMode::SpriteEditor,
             "Sprite Editor",
         );
+    }
 
+    pub fn draw_contents(&mut self, ui: &mut Ui) {
         match self.mode {
-            GraphicsEditorMode::PaletteEditor => self.palette_editor(ui),
-            GraphicsEditorMode::SpriteSheetEditor => self.sprite_sheet_editor(ui),
-            GraphicsEditorMode::SpriteEditor => self.sprite_editor(ui),
+            GraphicsEditorMode::PaletteEditor => self.palette_editor.draw(ui),
+            GraphicsEditorMode::SpriteSheetEditor => self.sprite_sheet_editor.draw(ui),
+            GraphicsEditorMode::SpriteEditor => self.sprite_editor.draw(ui),
         };
-    }
-
-    pub fn palette_editor(&mut self, ui: &mut Ui) {
-        //TODO: render the palette editor
-    }
-
-    pub fn sprite_sheet_editor(&mut self, ui: &mut Ui) {
-        //TODO: render the sprite sheet editor
-    }
-
-    pub fn sprite_editor(&mut self, ui: &mut Ui) {
-        //TODO: render the sprite editor
     }
 }
