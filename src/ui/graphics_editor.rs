@@ -20,6 +20,30 @@ pub struct GraphicsEditor {
 }
 
 impl GraphicsEditor {
+    pub fn draw(&mut self, ui: &mut Ui) {
+        ui.selectable_value(
+            &mut self.mode,
+            GraphicsEditorMode::PaletteEditor,
+            "Palette Editor",
+        );
+        ui.selectable_value(
+            &mut self.mode,
+            GraphicsEditorMode::SpriteSheetEditor,
+            "Sprite Sheet Editor",
+        );
+        ui.selectable_value(
+            &mut self.mode,
+            GraphicsEditorMode::SpriteEditor,
+            "Sprite Editor",
+        );
+
+        match self.mode {
+            GraphicsEditorMode::PaletteEditor => self.palette_editor(ui),
+            GraphicsEditorMode::SpriteSheetEditor => self.sprite_sheet_editor(ui),
+            GraphicsEditorMode::SpriteEditor => self.sprite_editor(ui),
+        };
+    }
+
     pub fn palette_editor(&mut self, ui: &mut Ui) {
         //TODO: render the palette editor
     }

@@ -11,6 +11,12 @@ pub struct EditorRom {
     //pub sounds: SoundsData,
 }
 
+impl Default for EditorRom {
+    fn default() -> Self {
+        todo!()
+    }
+}
+
 impl EditorRom {
     pub fn export_as_rom(&self) -> Rom {
         todo!()

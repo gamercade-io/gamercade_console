@@ -1,5 +1,7 @@
-mod editor_state;
+mod editor;
 mod graphics_editor;
+mod sounds_editor;
 
-pub use editor_state::*;
+pub use editor::*;
 pub use graphics_editor::*;
+pub use sounds_editor::*;
