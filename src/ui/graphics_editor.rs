@@ -24,12 +24,12 @@ impl GraphicsEditor {
         ui.selectable_value(
             &mut self.mode,
             GraphicsEditorMode::PaletteEditor,
-            "Palette Editor",
+            "Palettes",
         );
         ui.selectable_value(
             &mut self.mode,
             GraphicsEditorMode::SpriteSheetEditor,
-            "Sprite Sheet Editor",
+            "Sprite Sheets",
         );
         ui.selectable_value(
             &mut self.mode,

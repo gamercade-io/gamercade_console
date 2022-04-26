@@ -72,14 +72,16 @@ impl Editor {
     pub fn draw_modes_buttons(&mut self, ctx: &Context) {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.horizontal(|ui| {
-                ui.selectable_value(&mut self.mode, EditorMode::GraphicsMode, "Graphics Editor");
+                ui.selectable_value(&mut self.mode, EditorMode::GraphicsMode, "Graphics Mode");
 
-                ui.selectable_value(&mut self.mode, EditorMode::SoundMode, "Sounds Editor");
-            });
+                ui.selectable_value(&mut self.mode, EditorMode::SoundMode, "Sounds Mode");
 
-            ui.horizontal(|ui| match &mut self.mode {
-                EditorMode::GraphicsMode => self.graphics_editor.draw(ui),
-                EditorMode::SoundMode => self.sounds_editor.draw(ui),
+                ui.separator();
+
+                ui.horizontal(|ui| match &mut self.mode {
+                    EditorMode::GraphicsMode => self.graphics_editor.draw(ui),
+                    EditorMode::SoundMode => self.sounds_editor.draw(ui),
+                });
             });
         });
     }
