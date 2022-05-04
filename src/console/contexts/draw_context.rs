@@ -1,57 +1,49 @@
 use std::sync::Arc;
 
 use crate::api::DrawApi;
-use gamercade_core::{ColorIndex, PaletteIndex, Rom, SpriteSheetIndex, BYTES_PER_PIXEL};
+use gamercade_core::{ColorIndex, PaletteIndex, PixelBuffer, Rom, BYTES_PER_PIXEL};
 
 #[derive(Clone)]
 pub struct DrawContext {
-    pub(crate) frame_buffer: Box<[u8]>,
+    pub(crate) frame_buffer: PixelBuffer,
     pub(crate) rom: Arc<Rom>,
 }
 
 impl DrawContext {
     pub fn new(rom: Arc<Rom>) -> Self {
         Self {
-            frame_buffer: init_frame_buffer(&rom),
+            frame_buffer: PixelBuffer::init_from_rom(&rom),
             rom,
         }
     }
 }
 
-fn init_frame_buffer(rom: &Rom) -> Box<[u8]> {
-    (0..rom.resolution.total_pixels() * BYTES_PER_PIXEL as i32)
-        .map(|_| 0)
-        .collect::<Vec<u8>>()
-        .into_boxed_slice()
-}
-
 impl DrawApi for DrawContext {
     fn sprite(&mut self, sheet_index: i32, sprite_index: i32, x: i32, y: i32, palette_index: i32) {
-        let x = self.validate_x(x);
-        let y = self.validate_y(y);
         let palette = self.rom.graphics.validate_palette_index(palette_index);
         let result = self
             .rom
             .graphics
             .validate_sheet_and_sprite(sheet_index, sprite_index);
 
-        if x.is_err() || y.is_err() || palette.is_err() || palette.is_err() || result.is_err() {
+        // if x.is_err() || y.is_err() || palette.is_err() || palette.is_err() || result.is_err() {
+        //     return;
+        // }
+
+        if palette.is_err() || result.is_err() {
             return;
         }
 
-        let x = x.unwrap();
-        let y = y.unwrap();
-        let palette = palette.unwrap();
-        let (sheet, sprite) = result.unwrap();
+        //let x = x.unwrap();
+        //let y = y.unwrap();
+        let palette_index = palette.unwrap();
+        let (sheet_index, sprite_index) = result.unwrap();
 
-        self.rom.draw_sprite(
-            sheet,
-            sprite,
-            palette,
-            (x.0, y.0),
-            self.width() as usize,
-            &mut self.frame_buffer,
-        )
+        let palette = self.rom.graphics.palette(palette_index);
+        let sheet = self.rom.graphics.sprite_sheet(sheet_index);
+
+        self.frame_buffer
+            .draw_sprite(sheet, sprite_index, palette, x, y);
     }
 
     fn clear_screen(&mut self, color_index: i32, palette_index: i32) {
@@ -487,6 +479,7 @@ impl DrawContext {
             .into_pixel_data();
 
         self.frame_buffer
+            .pixel_buffer
             .chunks_exact_mut(BYTES_PER_PIXEL)
             .skip(start_index)
             .step_by(width)
@@ -513,6 +506,7 @@ impl DrawContext {
             .into_pixel_data();
 
         self.frame_buffer
+            .pixel_buffer
             .chunks_exact_mut(BYTES_PER_PIXEL)
             .skip(start_index)
             .take(pixel_count)
