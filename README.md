@@ -54,7 +54,9 @@ Needs Testing:
     1. Does float range work correctly?
 
 In Progress:
-
+1. How to handle draw out of bounds?
+    - Handle Lines out of bounds
+    - Handle Circle out of bounds
 
 TODO (In order of priority):
 1. Example games/wasm folder?
@@ -67,7 +69,7 @@ TODO (In order of priority):
 1. Finish "Graphcis" outlined functions
     1. Add "Draw Circle" filled?
     1. Add Write Text function (need a font??)
-    1. How to handle lines/rects drawn out of bounds?
+
 1. Add "Data" functions for grabbing data from the ROM
     1. How many sprites or sprite sheets there are
     1. Sprite sheet width/height

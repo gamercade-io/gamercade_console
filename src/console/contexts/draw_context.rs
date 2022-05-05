@@ -76,27 +76,13 @@ impl DrawApi for DrawContext {
     }
 
     fn line(&mut self, x0: i32, y0: i32, x1: i32, y1: i32, color_index: i32, palette_index: i32) {
-        let x0 = self.validate_x(x0);
-        let y0 = self.validate_y(y0);
-        let x1 = self.validate_x(x1);
-        let y1 = self.validate_y(y1);
         let color_index = color_index.try_into();
         let palette_index = self.rom.graphics.validate_palette_index(palette_index);
 
-        if x0.is_err()
-            || y0.is_err()
-            || x1.is_err()
-            || y1.is_err()
-            || color_index.is_err()
-            || palette_index.is_err()
-        {
+        if color_index.is_err() || palette_index.is_err() {
             return;
         }
 
-        let x0 = x0.unwrap();
-        let y0 = y0.unwrap();
-        let x1 = x1.unwrap();
-        let y1 = y1.unwrap();
         let color_index = color_index.unwrap();
         let palette_index = palette_index.unwrap();
 
@@ -108,11 +94,6 @@ impl DrawApi for DrawContext {
             self.draw_line_horizontal(x0, x1, y0, color_index, palette_index);
             return;
         }
-
-        let x0 = x0.0 as i32;
-        let y0 = y0.0 as i32;
-        let x1 = x1.0 as i32;
-        let y1 = y1.0 as i32;
 
         if (y1 - y0).abs() < (x1 - x0).abs() {
             if x0 > x1 {
@@ -136,29 +117,18 @@ impl DrawApi for DrawContext {
         color_index: i32,
         palette_index: i32,
     ) {
-        let x1 = self.validate_x(x + width);
-        let y1 = self.validate_y(y + height);
-        let x = self.validate_x(x);
-        let y = self.validate_y(y);
         let color_index = color_index.try_into();
         let palette_index = self.rom.graphics.validate_palette_index(palette_index);
 
-        if x1.is_err()
-            || y1.is_err()
-            || x.is_err()
-            || y.is_err()
-            || color_index.is_err()
-            || palette_index.is_err()
-        {
+        if color_index.is_err() || palette_index.is_err() {
             return;
         };
 
-        let x1 = x1.unwrap();
-        let y1 = y1.unwrap();
-        let x = x.unwrap();
-        let y = y.unwrap();
         let color_index = color_index.unwrap();
         let palette_index = palette_index.unwrap();
+
+        let x1 = x + width;
+        let y1 = y + height;
 
         // Top
         self.draw_line_horizontal(x, x1, y, color_index, palette_index);
@@ -182,32 +152,21 @@ impl DrawApi for DrawContext {
         color_index: i32,
         palette_index: i32,
     ) {
-        let x1 = self.validate_x(x + width);
-        let y1 = self.validate_y(y + height);
-        let x = self.validate_x(x);
-        let y = self.validate_y(y);
         let color_index = color_index.try_into();
         let palette_index = self.rom.graphics.validate_palette_index(palette_index);
 
-        if x1.is_err()
-            || y1.is_err()
-            || x.is_err()
-            || y.is_err()
-            || color_index.is_err()
-            || palette_index.is_err()
-        {
+        if color_index.is_err() || palette_index.is_err() {
             return;
         };
 
-        let x1 = x1.unwrap();
-        let y1 = y1.unwrap();
-        let x = x.unwrap();
-        let y = y.unwrap();
         let color_index = color_index.unwrap();
         let palette_index = palette_index.unwrap();
 
-        (y.0..y1.0).for_each(|y| {
-            self.draw_line_horizontal(x, x1, YCord(y), color_index, palette_index);
+        let x1 = x + width;
+        let y1 = y + height;
+
+        (y..y1).for_each(|y| {
+            self.draw_line_horizontal(x, x1, y, color_index, palette_index);
         })
     }
 
@@ -370,19 +329,7 @@ impl DrawContext {
         (x.0 + (y.0 * self.width() as usize)) * BYTES_PER_PIXEL
     }
 
-    // TODO: Is this needed?
-    // fn x_y_to_pixel_buffer_index(&self, x: i32, y: i32) -> Option<usize> {
-    //     let width = self.width();
-    //     let height = self.height();
-    //     let index = (x + (y * width)) * BYTES_PER_PIXEL as i32;
-
-    //     if index < (width * height * BYTES_PER_PIXEL as i32) {
-    //         Some(index as usize)
-    //     } else {
-    //         None
-    //     }
-    // }
-
+    // TODO: Handle out of bounds pixels
     fn draw_line_low(
         &mut self,
         x0: i32,
@@ -420,6 +367,7 @@ impl DrawContext {
         }
     }
 
+    // TODO: Handle out of bounds pixels
     fn draw_line_high(
         &mut self,
         x0: i32,
@@ -461,17 +409,28 @@ impl DrawContext {
     // the pixel buffers?
     fn draw_line_vertical(
         &mut self,
-        x: XCord,
-        y0: YCord,
-        y1: YCord,
+        x: i32,
+        y0: i32,
+        y1: i32,
         color_index: ColorIndex,
         palette_index: PaletteIndex,
     ) {
+        if x < 0 || x > self.width() - 1 {
+            return;
+        }
+
         let (start, end) = if y0 < y1 { (y0, y1) } else { (y1, y0) };
 
+        if start > self.height() || end < 0 {
+            return;
+        }
+
+        let start = start.max(0) as usize;
+        let end = end.min(self.height() as i32) as usize;
+
         let width = self.width() as usize;
-        let start_index = (start.0 * width) + x.0;
-        let pixel_count = (end.0 - start.0) + 1;
+        let start_index = (start * width) + x as usize;
+        let pixel_count = (end - start) + 1;
         let color = self
             .rom
             .graphics
@@ -489,16 +448,28 @@ impl DrawContext {
 
     fn draw_line_horizontal(
         &mut self,
-        x0: XCord,
-        x1: XCord,
-        y: YCord,
+        x0: i32,
+        x1: i32,
+        y: i32,
         color_index: ColorIndex,
         palette_index: PaletteIndex,
     ) {
+        if y < 0 || y > self.height() {
+            return;
+        }
+
         let (start, end) = if x0 < x1 { (x0, x1) } else { (x1, x0) };
 
-        let start_index = (y.0 * self.width() as usize) + start.0;
-        let pixel_count = (end.0 - start.0) + 1;
+        if start > self.width() - 1 || end < 0 {
+            return;
+        }
+
+        let start = start.max(0) as usize;
+        let end = end.min(self.width() as i32 - 1) as usize;
+        let y = y as usize;
+
+        let start_index = (y * self.width() as usize) + start;
+        let pixel_count = (end - start) + 1;
         let color = self
             .rom
             .graphics
