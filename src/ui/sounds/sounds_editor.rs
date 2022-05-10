@@ -1,8 +1,12 @@
 use eframe::egui::Ui;
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+use super::{PatchEditor, SequenceEditor};
+
+#[derive(Clone, Debug)]
 pub struct SoundsEditor {
     pub mode: SoundsEditorMode,
+    patch_editor: PatchEditor,
+    sequence_editor: SequenceEditor,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -15,6 +19,8 @@ impl Default for SoundsEditor {
     fn default() -> Self {
         Self {
             mode: SoundsEditorMode::Patches,
+            patch_editor: Default::default(),
+            sequence_editor: Default::default(),
         }
     }
 }
@@ -27,16 +33,8 @@ impl SoundsEditor {
 
     pub fn draw_contents(&mut self, ui: &mut Ui) {
         match self.mode {
-            SoundsEditorMode::Patches => self.patch_editor(ui),
-            SoundsEditorMode::Sequences => self.sequence_editor(ui),
+            SoundsEditorMode::Patches => self.patch_editor.draw(ui),
+            SoundsEditorMode::Sequences => self.sequence_editor.draw(ui),
         };
-    }
-
-    pub fn patch_editor(&mut self, ui: &mut Ui) {
-        //TODO: render the patch editor
-    }
-
-    pub fn sequence_editor(&mut self, ui: &mut Ui) {
-        //TODO: render the sequence editor
     }
 }

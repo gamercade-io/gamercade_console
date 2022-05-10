@@ -1,7 +1,7 @@
 mod editor;
 mod graphics;
-mod sounds_editor;
+mod sounds;
 
 pub use editor::*;
 pub use graphics::*;
-pub use sounds_editor::*;
+pub use sounds::*;
