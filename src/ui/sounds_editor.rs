@@ -1,4 +1,4 @@
-use eframe::egui::{self, Ui};
+use eframe::egui::Ui;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct SoundsEditor {

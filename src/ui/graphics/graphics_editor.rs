@@ -4,15 +4,15 @@ use super::{PaletteEditor, SpriteEditor, SpriteSheetEditor};
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum GraphicsEditorMode {
-    PaletteEditor,
-    SpriteSheetEditor,
-    SpriteEditor,
+    Palette,
+    SpriteSheet,
+    Sprite,
 }
 
 impl Default for GraphicsEditor {
     fn default() -> Self {
         Self {
-            mode: GraphicsEditorMode::PaletteEditor,
+            mode: GraphicsEditorMode::Palette,
             palette_editor: PaletteEditor::default(),
             sprite_sheet_editor: SpriteSheetEditor::default(),
             sprite_editor: SpriteEditor::default(),
@@ -30,28 +30,20 @@ pub struct GraphicsEditor {
 
 impl GraphicsEditor {
     pub fn draw_selector(&mut self, ui: &mut Ui) {
+        ui.selectable_value(&mut self.mode, GraphicsEditorMode::Palette, "Palettes");
         ui.selectable_value(
             &mut self.mode,
-            GraphicsEditorMode::PaletteEditor,
-            "Palettes",
-        );
-        ui.selectable_value(
-            &mut self.mode,
-            GraphicsEditorMode::SpriteSheetEditor,
+            GraphicsEditorMode::SpriteSheet,
             "Sprite Sheets",
         );
-        ui.selectable_value(
-            &mut self.mode,
-            GraphicsEditorMode::SpriteEditor,
-            "Sprite Editor",
-        );
+        ui.selectable_value(&mut self.mode, GraphicsEditorMode::Sprite, "Sprite Editor");
     }
 
     pub fn draw_contents(&mut self, ui: &mut Ui) {
         match self.mode {
-            GraphicsEditorMode::PaletteEditor => self.palette_editor.draw(ui),
-            GraphicsEditorMode::SpriteSheetEditor => self.sprite_sheet_editor.draw(ui),
-            GraphicsEditorMode::SpriteEditor => self.sprite_editor.draw(ui),
+            GraphicsEditorMode::Palette => self.palette_editor.draw(ui),
+            GraphicsEditorMode::SpriteSheet => self.sprite_sheet_editor.draw(ui),
+            GraphicsEditorMode::Sprite => self.sprite_editor.draw(ui),
         };
     }
 }

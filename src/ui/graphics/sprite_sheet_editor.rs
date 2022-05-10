@@ -1,13 +1,7 @@
 use eframe::egui::Ui;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct SpriteSheetEditor {}
-
-impl Default for SpriteSheetEditor {
-    fn default() -> Self {
-        Self {}
-    }
-}
 
 impl SpriteSheetEditor {
     pub fn draw(&mut self, ui: &mut Ui) {}

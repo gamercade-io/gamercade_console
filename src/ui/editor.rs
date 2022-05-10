@@ -2,9 +2,7 @@ use eframe::egui;
 use eframe::egui::{menu, Context};
 use gamercade_core::Rom;
 
-use crate::editor_data::EditorRom;
-
-use super::{GraphicsEditor, GraphicsEditorMode, SoundsEditor};
+use super::{GraphicsEditor, SoundsEditor};
 
 pub struct Editor {
     pub rom: Rom,
