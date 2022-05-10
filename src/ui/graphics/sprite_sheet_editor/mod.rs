@@ -4,5 +4,7 @@ use eframe::egui::Ui;
 pub struct SpriteSheetEditor {}
 
 impl SpriteSheetEditor {
-    pub fn draw(&mut self, ui: &mut Ui) {}
+    pub fn draw(&mut self, ui: &mut Ui) {
+        // TODO:
+    }
 }
