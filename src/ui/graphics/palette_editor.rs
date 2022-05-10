@@ -1,12 +1,33 @@
-use eframe::egui::Ui;
-use gamercade_core::Palette;
+use eframe::{
+    egui::{color_picker::show_color, ImageButton, Ui},
+    epaint::{Color32, Rect, Rounding, Shape, TextureId, Vec2},
+};
+use gamercade_core::{Palette, PALETTE_COLORS};
 
 use crate::editor_data::EditorPalette;
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 pub struct PaletteEditor {
     palette_data: Vec<EditorPalette>,
     selected_palette: Option<usize>,
+    selected_color: Option<usize>,
+}
+
+impl Default for PaletteEditor {
+    fn default() -> Self {
+        Self {
+            palette_data: Palette::default_palette_collection()
+                .into_iter()
+                .enumerate()
+                .map(|(index, palette)| EditorPalette {
+                    name: format!("Palette {}", index),
+                    palette,
+                })
+                .collect(),
+            selected_palette: Default::default(),
+            selected_color: Default::default(),
+        }
+    }
 }
 
 impl PaletteEditor {
@@ -15,6 +36,14 @@ impl PaletteEditor {
             self.draw_palette_list(ui);
             self.draw_right_side(ui)
         });
+    }
+
+    pub fn get_palette(&mut self) -> Option<&mut Palette> {
+        if let Some(index) = self.selected_palette {
+            Some(&mut self.palette_data[index].palette)
+        } else {
+            None
+        }
     }
 
     // Draws the left side panel which displays the palette list widget
@@ -108,15 +137,63 @@ impl PaletteEditor {
     // Draws the right side panel which includes palette viewer, color
     // editor, and sprite preview widgets
     fn draw_right_side(&mut self, ui: &mut Ui) {
-        ui.group(|ui| {
-            ui.vertical(|ui| {
-                ui.label("Palette Viewer");
+        ui.vertical(|ui| {
+            self.draw_palette_viewer(ui);
 
-                ui.horizontal(|ui| {
-                    self.draw_color_editor(ui);
-                    self.draw_sprite_preview(ui);
-                });
+            ui.horizontal(|ui| {
+                self.draw_color_editor(ui);
+                self.draw_sprite_preview(ui);
             });
+        });
+    }
+
+    fn draw_palette_viewer(&mut self, ui: &mut Ui) {
+        ui.group(|ui| {
+            ui.label("Palette Viewer");
+
+            ui.horizontal(|ui| {
+                let palette = if let Some(index) = self.selected_palette {
+                    Some(&mut self.palette_data[index].palette)
+                } else {
+                    None
+                };
+
+                if let Some(palette) = palette {
+                    palette
+                        .colors
+                        .iter()
+                        .enumerate()
+                        .for_each(|(index, color)| {
+                            // TODO: Get this to work
+                            // let selected = if let Some(selected_color) = self.selected_color {
+                            //     index == selected_color
+                            // } else {
+                            //     false
+                            // };
+
+                            // let shape = Shape::rect_filled(
+                            //     Rect {
+                            //         min: [0.0, 0.0].into(),
+                            //         max: [32.0, 32.0].into(),
+                            //     },
+                            //     Rounding::same(0.01),
+                            //     Color32::from_rgb(color.r, color.g, color.b),
+                            // );
+
+                            // ui.image(shape.texture_id(), Vec2 { x: 32.0, y: 32.0 });
+
+                            // println!("{:?}", shape.texture_id());
+
+                            // // let image_button =
+                            // //     ImageButton::new(shape.texture_id(), Vec2 { x: 32.0, y: 32.0 })
+                            // //         .selected(selected);
+
+                            // // if ui.add(image_button).clicked() {
+                            // //     self.selected_color = Some(index)
+                            // // };
+                        });
+                }
+            })
         });
     }
 

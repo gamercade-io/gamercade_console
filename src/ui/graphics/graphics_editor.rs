@@ -1,4 +1,4 @@
-use eframe::egui::Ui;
+use eframe::{egui::Ui, epaint::TextureHandle};
 
 use super::{PaletteEditor, SpriteEditor, SpriteSheetEditor};
 
