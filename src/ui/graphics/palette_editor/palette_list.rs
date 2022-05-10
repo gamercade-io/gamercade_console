@@ -1,7 +1,10 @@
-use eframe::egui::Ui;
-use gamercade_core::Palette;
+use eframe::{
+    egui::{Image, Ui},
+    epaint::{Color32, TextureId, Vec2},
+};
 
 use crate::editor_data::EditorPalette;
+use gamercade_core::Palette;
 
 #[derive(Clone, Debug)]
 pub struct PaletteList {
@@ -28,7 +31,7 @@ impl Default for PaletteList {
 impl PaletteList {
     // Draws the left side panel which displays the palette list widget
     // and related buttons
-    pub(crate) fn draw(&mut self, ui: &mut Ui) {
+    pub(crate) fn draw(&mut self, ui: &mut Ui, texture_id: TextureId) {
         let index = self.selected_palette;
 
         ui.vertical(|ui| {
@@ -41,11 +44,21 @@ impl PaletteList {
                         .iter()
                         .enumerate()
                         .for_each(|(index, palette)| {
-                            let is_checked = self.selected_palette == index;
+                            ui.horizontal(|ui| {
+                                let is_checked = self.selected_palette == index;
 
-                            if ui.selectable_label(is_checked, &palette.name).clicked() {
-                                self.selected_palette = index
-                            };
+                                if ui.selectable_label(is_checked, &palette.name).clicked() {
+                                    self.selected_palette = index
+                                };
+
+                                ui.spacing_mut().item_spacing = Vec2 { x: 0.0, y: 0.0 };
+
+                                palette.palette.colors.iter().for_each(|color| {
+                                    let image = Image::new(texture_id, Vec2 { x: 10.0, y: 10.0 })
+                                        .tint(Color32::from_rgb(color.r, color.g, color.b));
+                                    ui.add(image);
+                                })
+                            });
                         });
                 });
 

@@ -1,32 +1,16 @@
 use eframe::{
     egui::{ImageButton, Ui},
-    epaint::{Color32, ColorImage, TextureHandle, Vec2},
+    epaint::{Color32, TextureId, Vec2},
 };
-use gamercade_core::Palette;
+use gamercade_core::{Color, Palette};
 
-#[derive(Clone, Default)]
+#[derive(Clone, Default, Debug)]
 pub struct PaletteViewer {
     pub(crate) selected_color: usize,
-    default_palette_texture: Option<TextureHandle>,
-}
-
-impl std::fmt::Debug for PaletteViewer {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("PaletteEditor")
-            .field("selected_color", &self.selected_color)
-            .finish()
-    }
 }
 
 impl PaletteViewer {
-    pub(crate) fn draw(&mut self, ui: &mut Ui, palette: &mut Palette) {
-        let default_palette_texture = self.default_palette_texture.get_or_insert_with(|| {
-            ui.ctx().load_texture(
-                "default palette texture",
-                ColorImage::from_rgba_unmultiplied([1, 1], &[255, 255, 255, 255]),
-            )
-        });
-
+    pub(crate) fn draw(&mut self, ui: &mut Ui, palette: &mut Palette, palette_texture: TextureId) {
         ui.group(|ui| {
             ui.label("Palette Viewer");
 
@@ -40,12 +24,10 @@ impl PaletteViewer {
                     .for_each(|(index, color)| {
                         let selected = index == self.selected_color;
 
-                        let image_button = ImageButton::new(
-                            default_palette_texture.id(),
-                            Vec2 { x: 32.0, y: 32.0 },
-                        )
-                        .selected(selected)
-                        .tint(Color32::from_rgb(color.r, color.g, color.b));
+                        let image_button =
+                            ImageButton::new(palette_texture, Vec2 { x: 32.0, y: 32.0 })
+                                .selected(selected)
+                                .tint(Color32::from_rgb(color.r, color.g, color.b));
 
                         if ui.add(image_button).clicked() {
                             self.selected_color = index
@@ -53,5 +35,9 @@ impl PaletteViewer {
                     });
             });
         });
+    }
+
+    pub(crate) fn get_color<'a>(&self, palette: &'a mut Palette) -> &'a mut Color {
+        &mut palette.colors[self.selected_color]
     }
 }
