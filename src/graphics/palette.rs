@@ -11,7 +11,7 @@ pub struct PaletteIndex(pub(crate) u8);
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Palette {
-    colors: [Color; PALETTE_COLORS],
+    pub colors: [Color; PALETTE_COLORS],
     pub transparent_index: Option<ColorIndex>,
 }
 
