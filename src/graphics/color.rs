@@ -17,7 +17,7 @@ impl TryFrom<i32> for ColorIndex {
     type Error = &'static str;
 }
 
-#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Serialize, Deserialize, Default)]
 pub struct Color {
     pub r: u8,
     pub g: u8,

@@ -254,7 +254,7 @@ impl Palette {
 impl Default for Palette {
     fn default() -> Self {
         Self {
-            colors: [Color::new(0, 0, 0); PALETTE_COLORS],
+            colors: [Color::default(); PALETTE_COLORS],
             transparent_index: None,
         }
     }
