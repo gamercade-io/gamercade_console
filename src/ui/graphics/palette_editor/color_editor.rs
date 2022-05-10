@@ -26,14 +26,16 @@ impl ColorEditor {
                 draw_picker(ui, texture_id, "Current", false, current_color);
                 draw_picker(ui, texture_id, "Preview", true, &mut self.preview);
 
-                if ui.button("Revert").clicked() {
-                    self.preview = *current_color;
-                }
+                ui.horizontal(|ui| {
+                    if ui.button("Revert").clicked() {
+                        self.preview = *current_color;
+                    }
 
-                if ui.button("Update").clicked() {
-                    *current_color = self.preview;
-                    self.prev_color = self.preview;
-                }
+                    if ui.button("Update").clicked() {
+                        *current_color = self.preview;
+                        self.prev_color = self.preview;
+                    }
+                })
             });
         });
     }
@@ -46,14 +48,33 @@ fn draw_picker(
     editable: bool,
     color: &mut Color,
 ) {
-    ui.label(text);
+    ui.group(|ui| {
+        ui.label(text);
 
-    ui.add_enabled(editable, Slider::new(&mut color.r, 0..=255));
-    ui.add_enabled(editable, Slider::new(&mut color.g, 0..=255));
-    ui.add_enabled(editable, Slider::new(&mut color.b, 0..=255));
+        // TODO: Add hex code for color
 
-    let image = Image::new(texture_id, Vec2 { x: 64.0, y: 64.0 })
-        .tint(Color32::from_rgb(color.r, color.g, color.b));
+        ui.horizontal(|ui| {
+            ui.vertical(|ui| {
+                ui.horizontal(|ui| {
+                    ui.label("R");
+                    ui.add_enabled(editable, Slider::new(&mut color.r, 0..=255));
+                });
 
-    ui.add(image);
+                ui.horizontal(|ui| {
+                    ui.label("G");
+                    ui.add_enabled(editable, Slider::new(&mut color.g, 0..=255));
+                });
+
+                ui.horizontal(|ui| {
+                    ui.label("B");
+                    ui.add_enabled(editable, Slider::new(&mut color.b, 0..=255));
+                });
+            });
+
+            ui.add(
+                Image::new(texture_id, Vec2 { x: 64.0, y: 64.0 })
+                    .tint(Color32::from_rgb(color.r, color.g, color.b)),
+            );
+        });
+    });
 }
