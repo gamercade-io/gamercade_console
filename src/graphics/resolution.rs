@@ -11,6 +11,12 @@ pub enum Resolution {
     UltraHigh, // 1920 x 1080
 }
 
+impl Default for Resolution {
+    fn default() -> Self {
+        Self::Low
+    }
+}
+
 impl Resolution {
     pub fn width(&self) -> i32 {
         match self {

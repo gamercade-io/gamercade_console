@@ -1,4 +1,4 @@
-use std::ops::Index;
+use std::{fmt::Display, ops::Index, str::FromStr};
 
 use serde::{Deserialize, Serialize};
 
@@ -7,8 +7,25 @@ use crate::BYTES_PER_PIXEL;
 use super::{Color, ColorIndex, PALETTE_COLORS};
 
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
-pub struct PaletteIndex(pub(crate) u8);
+pub struct PaletteIndex(pub u8);
 
+impl FromStr for PaletteIndex {
+    type Err = &'static str;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if let Ok(num) = s.parse() {
+            Ok(Self(num))
+        } else {
+            Err("couldn't parse PaletteIndex from str")
+        }
+    }
+}
+
+impl Display for PaletteIndex {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.0.fmt(f)
+    }
+}
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Palette {
     pub colors: [Color; PALETTE_COLORS],

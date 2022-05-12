@@ -9,6 +9,12 @@ pub enum FrameRate {
     SuperFast,
 }
 
+impl Default for FrameRate {
+    fn default() -> Self {
+        Self::Fast
+    }
+}
+
 impl FrameRate {
     pub fn frames_per_second(&self) -> usize {
         match self {

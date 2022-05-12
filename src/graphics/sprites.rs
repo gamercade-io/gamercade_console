@@ -15,8 +15,8 @@ pub struct SpriteIndex(pub(crate) u8);
 pub struct SpriteSheet {
     pub height: usize,
     pub width: usize,
-    sprites: Box<[Sprite]>,
-    default_palette: Option<PaletteIndex>,
+    pub sprites: Box<[Sprite]>,
+    pub default_palette: PaletteIndex,
 }
 
 impl Default for SpriteSheet {
@@ -30,7 +30,7 @@ impl Default for SpriteSheet {
             height: 4,
             width: 4,
             sprites: vec![Sprite { data }].into_boxed_slice(),
-            default_palette: None,
+            default_palette: PaletteIndex(0),
         }
     }
 }

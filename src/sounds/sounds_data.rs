@@ -1,12 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-impl Default for SoundsData {
-    fn default() -> Self {
-        Self {}
-    }
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, Default)]
 pub struct SoundsData {
     //TODO: This
 //patches: Box<[Patch]>,
