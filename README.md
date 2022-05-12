@@ -69,7 +69,6 @@ TODO (In order of priority):
 1. Finish "Graphcis" outlined functions
     1. Add "Draw Circle" filled?
     1. Add Write Text function (need a font??)
-
 1. Add "Data" functions for grabbing data from the ROM
     1. How many sprites or sprite sheets there are
     1. Sprite sheet width/height
