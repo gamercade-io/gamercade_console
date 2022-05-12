@@ -1,10 +1,10 @@
 mod graphics;
+mod pixel_buffer;
 mod rom;
 mod sounds;
-mod pixel_buffer;
 
-pub use pixel_buffer::*;
 pub use graphics::*;
+pub use pixel_buffer::*;
 pub use rom::*;
 pub use sounds::*;
 

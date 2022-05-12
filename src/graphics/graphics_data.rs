@@ -72,7 +72,7 @@ impl GraphicsData {
 impl Default for GraphicsData {
     fn default() -> Self {
         Self {
-            sprite_sheets: vec![SpriteSheet::test_palette_sprite_sheet()].into_boxed_slice(),
+            sprite_sheets: vec![SpriteSheet::default()].into_boxed_slice(),
             palettes: Palette::default_palette_collection().into_boxed_slice(),
         }
     }

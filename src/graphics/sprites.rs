@@ -19,12 +19,8 @@ pub struct SpriteSheet {
     default_palette: Option<PaletteIndex>,
 }
 
-impl SpriteSheet {
-    pub fn count(&self) -> usize {
-        self.sprites.len()
-    }
-
-    pub fn test_palette_sprite_sheet() -> Self {
+impl Default for SpriteSheet {
+    fn default() -> Self {
         let data = (0..16)
             .map(ColorIndex)
             .collect::<Vec<ColorIndex>>()
@@ -36,6 +32,12 @@ impl SpriteSheet {
             sprites: vec![Sprite { data }].into_boxed_slice(),
             default_palette: None,
         }
+    }
+}
+
+impl SpriteSheet {
+    pub fn count(&self) -> usize {
+        self.sprites.len()
     }
 }
 

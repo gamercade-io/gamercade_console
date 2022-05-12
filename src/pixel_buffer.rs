@@ -1,6 +1,6 @@
-use std::ops::{Index, Range, IndexMut};
+use std::ops::{Index, IndexMut, Range};
 
-use crate::{Palette, SpriteSheet, SpriteIndex, BYTES_PER_PIXEL, Rom};
+use crate::{Palette, Rom, SpriteIndex, SpriteSheet, BYTES_PER_PIXEL};
 
 #[derive(Clone)]
 pub struct PixelBuffer {
@@ -40,8 +40,12 @@ impl PixelBuffer {
 
         let sprite_start_x = x.min(0).unsigned_abs() as usize;
         let sprite_start_y = y.min(0).unsigned_abs() as usize;
-        let sprite_bounds_width = (self.buffer_width as i32 - x).min(sprite_width as i32).max(0) as usize;
-        let sprite_bounds_height = (self.buffer_height as i32 - y).min(sprite_height as i32).max(0) as usize;
+        let sprite_bounds_width = (self.buffer_width as i32 - x)
+            .min(sprite_width as i32)
+            .max(0) as usize;
+        let sprite_bounds_height = (self.buffer_height as i32 - y)
+            .min(sprite_height as i32)
+            .max(0) as usize;
 
         (sprite_start_y..sprite_bounds_height).for_each(|y| {
             (sprite_start_x..sprite_bounds_width).for_each(|x| {
@@ -50,7 +54,8 @@ impl PixelBuffer {
 
                 let color_index = sprite.data[x + (y * sprite_width)];
                 let color = palette[color_index.0];
-                self.pixel_buffer[target_pixel..target_pixel + BYTES_PER_PIXEL].copy_from_slice(&color);
+                self.pixel_buffer[target_pixel..target_pixel + BYTES_PER_PIXEL]
+                    .copy_from_slice(&color);
             });
         });
     }
@@ -58,7 +63,6 @@ impl PixelBuffer {
 
 impl Index<usize> for PixelBuffer {
     type Output = u8;
-
 
     fn index(&self, index: usize) -> &Self::Output {
         &self.pixel_buffer[index]
