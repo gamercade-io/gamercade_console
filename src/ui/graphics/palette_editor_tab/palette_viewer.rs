@@ -37,7 +37,7 @@ impl PaletteViewer {
         });
     }
 
-    pub(crate) fn get_color<'a>(&self, palette: &'a mut Palette) -> &'a mut Color {
+    pub(crate) fn get_color_mut<'a>(&self, palette: &'a mut Palette) -> &'a mut Color {
         &mut palette.colors[self.selected_color]
     }
 }

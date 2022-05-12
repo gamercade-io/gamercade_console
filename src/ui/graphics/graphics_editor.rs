@@ -41,8 +41,10 @@ impl GraphicsEditor {
 
     pub fn draw_contents(&mut self, ui: &mut Ui) {
         match self.mode {
-            GraphicsEditorMode::Palette => self.palette_editor.draw(ui),
-            GraphicsEditorMode::SpriteSheet => self.sprite_sheet_editor.draw(ui),
+            GraphicsEditorMode::Palette => self.palette_editor.draw(ui, &self.sprite_sheet_editor),
+            GraphicsEditorMode::SpriteSheet => {
+                self.sprite_sheet_editor.draw(ui, &self.palette_editor)
+            }
             GraphicsEditorMode::Sprite => self.sprite_editor.draw(ui),
         };
     }

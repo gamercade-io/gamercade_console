@@ -19,7 +19,7 @@ impl Default for PaletteList {
                 .into_iter()
                 .enumerate()
                 .map(|(index, palette)| EditorPalette {
-                    name: format!("Palette {}", index),
+                    name: format!("Palette {}", index + 1),
                     palette,
                 })
                 .collect(),
@@ -36,7 +36,7 @@ impl PaletteList {
 
         ui.vertical(|ui| {
             ui.group(|ui| {
-                ui.label("Palette List");
+                ui.label(format!("Palette List: {}/256", self.palette_data.len()));
 
                 // Draws the list of palettes
                 ui.group(|ui| {
@@ -51,8 +51,8 @@ impl PaletteList {
                                     self.selected_palette = index
                                 };
 
+                                // Draws the palette preview
                                 ui.spacing_mut().item_spacing = Vec2 { x: 0.0, y: 0.0 };
-
                                 palette.palette.colors.iter().for_each(|color| {
                                     let image = Image::new(texture_id, Vec2 { x: 10.0, y: 10.0 })
                                         .tint(Color32::from_rgb(color.r, color.g, color.b));
@@ -67,11 +67,16 @@ impl PaletteList {
                     ui.horizontal(|ui| {
                         ui.vertical(|ui| {
                             if ui.button("New").clicked() {
-                                let count = self.palette_data.len() + 1;
-                                self.palette_data.push(EditorPalette {
-                                    name: format!("Palette {}", count),
-                                    palette: Palette::default(),
-                                })
+                                let count = self.palette_data.len();
+
+                                if count == u8::MAX as usize + 1 {
+                                    println!("Max of 256 Palettes");
+                                } else {
+                                    self.palette_data.push(EditorPalette {
+                                        name: format!("Palette {}", count),
+                                        palette: Palette::default(),
+                                    })
+                                }
                             };
                             let btn_delete = ui.button("Delete");
 
@@ -98,11 +103,16 @@ impl PaletteList {
                             }
 
                             if btn_duplicate.clicked() {
-                                let mut cloned = self.palette_data[index].clone();
-                                cloned.name = format!("{} Copy", cloned.name);
-                                let new_index = index + 1;
-                                self.palette_data.insert(new_index, cloned);
-                                self.selected_palette = new_index;
+                                if self.palette_data.len() == u8::MAX as usize + 1 {
+                                    println!("Max of 256 Palettes");
+                                } else {
+                                    let mut cloned = self.palette_data[index].clone();
+                                    cloned.name = format!("{} Copy", cloned.name);
+
+                                    let new_index = index + 1;
+                                    self.palette_data.insert(new_index, cloned);
+                                    self.selected_palette = new_index;
+                                }
                             };
                         });
 
@@ -126,7 +136,11 @@ impl PaletteList {
         });
     }
 
-    pub fn get_palette(&mut self) -> &mut Palette {
+    pub fn get_palette_mut(&mut self) -> &mut Palette {
         &mut self.palette_data[self.selected_palette].palette
+    }
+
+    pub fn len(&self) -> u8 {
+        self.palette_data.len() as u8
     }
 }

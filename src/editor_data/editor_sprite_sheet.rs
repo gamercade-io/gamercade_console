@@ -3,6 +3,6 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct EditorSpriteSheet {
-    name: String,
-    sprite_sheet: SpriteSheet,
+    pub name: String,
+    pub sprite_sheet: SpriteSheet,
 }

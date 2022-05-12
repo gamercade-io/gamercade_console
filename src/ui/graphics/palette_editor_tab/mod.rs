@@ -4,16 +4,18 @@ mod palette_list;
 mod palette_viewer;
 mod sprite_preview;
 
-use self::color_editor::ColorEditor;
-use self::palette_list::PaletteList;
-use self::palette_viewer::PaletteViewer;
-use self::sprite_preview::SpritePreview;
+use color_editor::ColorEditor;
+use palette_list::PaletteList;
+use palette_viewer::PaletteViewer;
+use sprite_preview::SpritePreview;
 
 // Externals
 use eframe::{
     egui::{TextureHandle, Ui},
     epaint::{ColorImage, TextureId},
 };
+
+use super::SpriteSheetEditor;
 
 #[derive(Clone, Default)]
 pub struct PaletteEditor {
@@ -36,7 +38,7 @@ impl std::fmt::Debug for PaletteEditor {
 }
 
 impl PaletteEditor {
-    pub fn draw(&mut self, ui: &mut Ui) {
+    pub fn draw(&mut self, ui: &mut Ui, sprite_sheet_editor: &SpriteSheetEditor) {
         let texture_id = self
             .default_palette_texture
             .get_or_insert_with(|| {
@@ -49,23 +51,40 @@ impl PaletteEditor {
 
         ui.horizontal(|ui| {
             self.palette_list.draw(ui, texture_id);
-            self.draw_right_side(ui, texture_id)
+            self.draw_right_side(ui, texture_id, sprite_sheet_editor)
         });
     }
 
     // Draws the right side panel which includes palette viewer, color
     // editor, and sprite preview widgets
-    fn draw_right_side(&mut self, ui: &mut Ui, texture_id: TextureId) {
+    fn draw_right_side(
+        &mut self,
+        ui: &mut Ui,
+        texture_id: TextureId,
+        sprite_sheet_editor: &SpriteSheetEditor,
+    ) {
         ui.vertical(|ui| {
-            let palette = self.palette_list.get_palette();
+            let palette = self.palette_list.get_palette_mut();
             self.palette_viewer.draw(ui, palette, texture_id);
 
-            let color = self.palette_viewer.get_color(palette);
-
             ui.horizontal(|ui| {
+                let color = self.palette_viewer.get_color_mut(palette);
                 self.color_editor.draw(ui, color, texture_id);
-                self.sprite_preview.draw(ui);
+
+                let color_index = self.palette_viewer.selected_color;
+                let preview_color = self.color_editor.preview;
+                self.sprite_preview.draw(
+                    ui,
+                    palette,
+                    color_index,
+                    preview_color,
+                    sprite_sheet_editor,
+                );
             });
         });
+    }
+
+    pub fn len(&self) -> u8 {
+        self.palette_list.len()
     }
 }

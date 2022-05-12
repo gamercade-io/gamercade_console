@@ -7,7 +7,7 @@ use gamercade_core::Color;
 #[derive(Clone, Debug, Default)]
 pub struct ColorEditor {
     prev_color: Color,
-    preview: Color,
+    pub preview: Color,
 }
 
 impl ColorEditor {
