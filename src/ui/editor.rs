@@ -1,11 +1,12 @@
 use eframe::egui;
 use eframe::egui::{menu, Context};
-use gamercade_core::Rom;
+
+use crate::editor_data::EditorRom;
 
 use super::{GraphicsEditor, SoundsEditor};
 
 pub struct Editor {
-    pub rom: Rom,
+    pub rom: EditorRom,
     pub mode: EditorMode,
 
     graphics_editor: GraphicsEditor,
@@ -22,7 +23,7 @@ impl Default for Editor {
     fn default() -> Self {
         Self {
             mode: EditorMode::GraphicsMode,
-            rom: Rom::default(),
+            rom: EditorRom::default(),
             graphics_editor: GraphicsEditor::default(),
             sounds_editor: SoundsEditor::default(),
         }
@@ -59,7 +60,10 @@ impl Editor {
                     ui.separator();
 
                     if ui.button("Export Game").clicked() {
-                        println!("TODO: Export game!");
+                        // TODO: Write this to a file somewhere...
+                        let _output = self
+                            .rom
+                            .export_as_rom(&self.graphics_editor, &self.sounds_editor);
                         ui.close_menu();
                     }
                 })
