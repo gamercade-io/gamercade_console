@@ -94,8 +94,8 @@ fn create_display(
     let window_builder = glutin::window::WindowBuilder::new()
         .with_resizable(true)
         .with_inner_size(glutin::dpi::LogicalSize {
-            width: 800.0,
-            height: 600.0,
+            width: 1280.0,
+            height: 720.0,
         })
         .with_title("Gamercade Editor");
 
