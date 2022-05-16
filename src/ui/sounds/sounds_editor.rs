@@ -39,4 +39,9 @@ impl SoundsEditor {
             SoundsEditorMode::Sequences => self.sequence_editor.draw(ui),
         };
     }
+
+    pub fn draw_bottom_panel(&mut self, ui: &mut Ui) {
+        //TODO: Write this
+        ui.label("TODO!");
+    }
 }

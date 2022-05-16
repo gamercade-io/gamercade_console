@@ -92,4 +92,8 @@ impl PaletteEditor {
             });
         });
     }
+
+    pub fn selected_palette(&self) -> usize {
+        self.palette_list.selected_palette
+    }
 }

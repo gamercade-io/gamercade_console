@@ -71,7 +71,7 @@ impl Editor {
         });
     }
 
-    pub fn draw_modes_buttons(&mut self, ctx: &Context) {
+    pub fn draw_central_panel(&mut self, ctx: &Context) {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.horizontal(|ui| {
                 ui.selectable_value(&mut self.mode, EditorMode::GraphicsMode, "Graphics Mode");
@@ -92,6 +92,13 @@ impl Editor {
                     .draw_contents(ui, &mut self.rom.graphics),
                 EditorMode::SoundMode => self.sounds_editor.draw_contents(ui, &mut self.rom.sounds),
             }
+        });
+    }
+
+    pub fn draw_bottom_panel(&mut self, ctx: &Context) {
+        egui::TopBottomPanel::bottom("bottom_panel").show(ctx, |ui| match self.mode {
+            EditorMode::GraphicsMode => self.graphics_editor.draw_bottom_panel(ui),
+            EditorMode::SoundMode => self.sounds_editor.draw_bottom_panel(ui),
         });
     }
 }
