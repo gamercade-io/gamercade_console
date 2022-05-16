@@ -21,6 +21,6 @@ fn main() {
     eframe::run_native(
         "Gamercade Editor",
         options,
-        Box::new(|_cc| Box::new(Editor::default())),
+        Box::new(|cc| Box::new(Editor::new(cc))),
     );
 }

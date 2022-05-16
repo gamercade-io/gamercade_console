@@ -31,6 +31,10 @@ impl Default for Editor {
 }
 
 impl Editor {
+    pub fn new(_cc: &eframe::CreationContext<'_>) -> Self {
+        Self::default()
+    }
+
     pub fn draw_menu_panel(&self, ctx: &Context) {
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
             menu::bar(ui, |ui| {
