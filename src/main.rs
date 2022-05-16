@@ -1,19 +1,12 @@
-use eframe::{
-    egui::{self},
-    epi,
-};
+use eframe::{egui::Context, App, Frame};
 
 mod editor_data;
 mod ui;
 
 use ui::Editor;
 
-impl epi::App for ui::Editor {
-    fn name(&self) -> &str {
-        "Gamercade Editor"
-    }
-
-    fn update(&mut self, ctx: &egui::Context, frame: &epi::Frame) {
+impl App for ui::Editor {
+    fn update(&mut self, ctx: &Context, frame: &mut Frame) {
         self.draw_menu_panel(ctx);
         self.draw_central_panel(ctx);
         self.draw_bottom_panel(ctx);
@@ -25,5 +18,9 @@ impl epi::App for ui::Editor {
 
 fn main() {
     let options = eframe::NativeOptions::default();
-    eframe::run_native(Box::new(Editor::default()), options);
+    eframe::run_native(
+        "Gamercade Editor",
+        options,
+        Box::new(|_cc| Box::new(Editor::default())),
+    );
 }
