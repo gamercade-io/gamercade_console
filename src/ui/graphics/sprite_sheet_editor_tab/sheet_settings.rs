@@ -1,7 +1,7 @@
 use std::fmt::Write;
 use std::{fmt::Display, str::FromStr};
 
-use eframe::egui::{Slider, TextEdit, Ui};
+use egui::{Slider, TextEdit, Ui};
 
 use crate::editor_data::EditorSpriteSheet;
 

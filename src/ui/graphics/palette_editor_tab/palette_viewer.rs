@@ -1,4 +1,4 @@
-use eframe::egui::{Color32, ImageButton, TextureId, Ui, Vec2};
+use egui::{Color32, ImageButton, TextureId, Ui, Vec2};
 use gamercade_core::{Color, Palette};
 
 #[derive(Clone, Default, Debug)]

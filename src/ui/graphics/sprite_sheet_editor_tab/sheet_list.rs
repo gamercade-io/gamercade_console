@@ -1,4 +1,4 @@
-use eframe::egui::Ui;
+use egui::Ui;
 use gamercade_core::SpriteSheet;
 
 use crate::editor_data::{EditorGraphicsData, EditorSpriteSheet};

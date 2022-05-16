@@ -1,4 +1,4 @@
-use eframe::egui::Ui;
+use egui::Ui;
 use gamercade_core::{Color, Palette};
 
 use crate::ui::SpriteSheetEditor;

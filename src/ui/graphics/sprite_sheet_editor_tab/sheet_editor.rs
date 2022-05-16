@@ -1,4 +1,4 @@
-use eframe::egui::{ColorImage, ImageButton, Ui, Vec2};
+use egui::{ColorImage, ImageButton, Ui, Vec2};
 
 use gamercade_core::{Palette, SpriteSheet};
 

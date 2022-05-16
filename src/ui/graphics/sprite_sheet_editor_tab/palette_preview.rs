@@ -1,4 +1,4 @@
-use eframe::egui::Ui;
+use egui::Ui;
 
 #[derive(Debug, Clone, Default)]
 pub struct PalettePreview {}

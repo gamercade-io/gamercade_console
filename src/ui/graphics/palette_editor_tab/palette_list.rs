@@ -1,4 +1,4 @@
-use eframe::egui::{Color32, Image, TextureId, Ui, Vec2};
+use egui::{Color32, Image, TextureId, Ui, Vec2};
 
 use crate::editor_data::{EditorGraphicsData, EditorPalette};
 use gamercade_core::Palette;

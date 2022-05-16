@@ -1,4 +1,4 @@
-use eframe::egui::{Slider, Ui};
+use egui::{Slider, Ui};
 
 use crate::editor_data::EditorGraphicsData;
 

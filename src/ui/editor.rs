@@ -1,5 +1,4 @@
-use eframe::egui::{self, Visuals};
-use eframe::egui::{menu, Context};
+use egui::{self, menu, Context};
 
 use crate::editor_data::EditorRom;
 
@@ -31,12 +30,6 @@ impl Default for Editor {
 }
 
 impl Editor {
-    pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
-        cc.egui_ctx.set_visuals(Visuals::dark());
-
-        Self::default()
-    }
-
     pub fn draw_menu_panel(&self, ctx: &Context) {
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
             menu::bar(ui, |ui| {
