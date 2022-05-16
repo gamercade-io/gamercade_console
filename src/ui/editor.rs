@@ -47,6 +47,8 @@ impl Editor {
 
                     if ui.button("Save").clicked() {
                         println!("TODO: Save file!");
+                        let save = self.rom.save_file();
+                        println!("{}", save);
                         ui.close_menu();
                     }
                 });
@@ -61,9 +63,7 @@ impl Editor {
 
                     if ui.button("Export Game").clicked() {
                         // TODO: Write this to a file somewhere...
-                        let _output = self
-                            .rom
-                            .export_as_rom(&self.graphics_editor, &self.sounds_editor);
+                        let _output = self.rom.export_as_rom();
                         ui.close_menu();
                     }
                 })
@@ -87,8 +87,10 @@ impl Editor {
             });
 
             match self.mode {
-                EditorMode::GraphicsMode => self.graphics_editor.draw_contents(ui),
-                EditorMode::SoundMode => self.sounds_editor.draw_contents(ui),
+                EditorMode::GraphicsMode => self
+                    .graphics_editor
+                    .draw_contents(ui, &mut self.rom.graphics),
+                EditorMode::SoundMode => self.sounds_editor.draw_contents(ui, &mut self.rom.sounds),
             }
         });
     }

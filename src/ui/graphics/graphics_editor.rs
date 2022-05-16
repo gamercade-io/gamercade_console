@@ -1,5 +1,7 @@
 use eframe::egui::Ui;
 
+use crate::editor_data::EditorGraphicsData;
+
 use super::{PaletteEditor, SpriteEditor, SpriteSheetEditor};
 
 #[derive(Clone, Debug, PartialEq)]
@@ -39,12 +41,13 @@ impl GraphicsEditor {
         ui.selectable_value(&mut self.mode, GraphicsEditorMode::Sprite, "Sprite Editor");
     }
 
-    pub fn draw_contents(&mut self, ui: &mut Ui) {
+    pub fn draw_contents(&mut self, ui: &mut Ui, data: &mut EditorGraphicsData) {
         match self.mode {
-            GraphicsEditorMode::Palette => self.palette_editor.draw(ui, &self.sprite_sheet_editor),
-            GraphicsEditorMode::SpriteSheet => {
-                self.sprite_sheet_editor.draw(ui, &self.palette_editor)
+            GraphicsEditorMode::Palette => {
+                self.palette_editor
+                    .draw(ui, data, &self.sprite_sheet_editor)
             }
+            GraphicsEditorMode::SpriteSheet => self.sprite_sheet_editor.draw(ui, data),
             GraphicsEditorMode::Sprite => self.sprite_editor.draw(ui),
         };
     }

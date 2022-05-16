@@ -3,44 +3,32 @@ use eframe::{
     epaint::{Color32, TextureId, Vec2},
 };
 
-use crate::editor_data::EditorPalette;
+use crate::editor_data::{EditorGraphicsData, EditorPalette};
 use gamercade_core::Palette;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct PaletteList {
-    palette_data: Vec<EditorPalette>,
-    selected_palette: usize,
-}
-
-impl Default for PaletteList {
-    fn default() -> Self {
-        Self {
-            palette_data: Palette::default_palette_collection()
-                .into_iter()
-                .enumerate()
-                .map(|(index, palette)| EditorPalette {
-                    name: format!("Palette {}", index + 1),
-                    palette,
-                })
-                .collect(),
-            selected_palette: Default::default(),
-        }
-    }
+    pub selected_palette: usize,
 }
 
 impl PaletteList {
     // Draws the left side panel which displays the palette list widget
     // and related buttons
-    pub(crate) fn draw(&mut self, ui: &mut Ui, texture_id: TextureId) {
+    pub(crate) fn draw(
+        &mut self,
+        ui: &mut Ui,
+        texture_id: TextureId,
+        data: &mut EditorGraphicsData,
+    ) {
         let index = self.selected_palette;
 
         ui.vertical(|ui| {
             ui.group(|ui| {
-                ui.label(format!("Palette List: {}/256", self.palette_data.len()));
+                ui.label(format!("Palette List: {}/256", data.palettes.len()));
 
                 // Draws the list of palettes
                 ui.group(|ui| {
-                    self.palette_data
+                    data.palettes
                         .iter()
                         .enumerate()
                         .for_each(|(index, palette)| {
@@ -67,12 +55,12 @@ impl PaletteList {
                     ui.horizontal(|ui| {
                         ui.vertical(|ui| {
                             if ui.button("New").clicked() {
-                                let count = self.palette_data.len();
+                                let count = data.palettes.len();
 
                                 if count == u8::MAX as usize + 1 {
                                     println!("Max of 256 Palettes");
                                 } else {
-                                    self.palette_data.push(EditorPalette {
+                                    data.palettes.push(EditorPalette {
                                         name: format!("Palette {}", count),
                                         palette: Palette::default(),
                                     })
@@ -81,10 +69,10 @@ impl PaletteList {
                             let btn_delete = ui.button("Delete");
 
                             if btn_delete.clicked() {
-                                if self.palette_data.len() != 1 {
-                                    self.palette_data.remove(index);
+                                if data.palettes.len() != 1 {
+                                    data.palettes.remove(index);
 
-                                    if index == self.palette_data.len() {
+                                    if index == data.palettes.len() {
                                         self.selected_palette = index - 1;
                                     };
                                 } else {
@@ -103,14 +91,14 @@ impl PaletteList {
                             }
 
                             if btn_duplicate.clicked() {
-                                if self.palette_data.len() == u8::MAX as usize + 1 {
+                                if data.palettes.len() == u8::MAX as usize + 1 {
                                     println!("Max of 256 Palettes");
                                 } else {
-                                    let mut cloned = self.palette_data[index].clone();
+                                    let mut cloned = data.palettes[index].clone();
                                     cloned.name = format!("{} Copy", cloned.name);
 
                                     let new_index = index + 1;
-                                    self.palette_data.insert(new_index, cloned);
+                                    data.palettes.insert(new_index, cloned);
                                     self.selected_palette = new_index;
                                 }
                             };
@@ -121,12 +109,12 @@ impl PaletteList {
                             let btn_down = ui.button("Down");
 
                             if btn_up.clicked() && index != 0 {
-                                self.palette_data.swap(index, index - 1);
+                                data.palettes.swap(index, index - 1);
                                 self.selected_palette = index - 1;
                             }
 
-                            if btn_down.clicked() && index != self.palette_data.len() - 1 {
-                                self.palette_data.swap(index, index + 1);
+                            if btn_down.clicked() && index != data.palettes.len() - 1 {
+                                data.palettes.swap(index, index + 1);
                                 self.selected_palette = index + 1;
                             }
                         });
@@ -134,13 +122,5 @@ impl PaletteList {
                 });
             });
         });
-    }
-
-    pub fn get_palette_mut(&mut self) -> &mut Palette {
-        &mut self.palette_data[self.selected_palette].palette
-    }
-
-    pub fn len(&self) -> u8 {
-        self.palette_data.len() as u8
     }
 }

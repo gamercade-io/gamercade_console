@@ -5,6 +5,7 @@ mod palette_viewer;
 mod sprite_preview;
 
 use color_editor::ColorEditor;
+use gamercade_core::Palette;
 use palette_list::PaletteList;
 use palette_viewer::PaletteViewer;
 use sprite_preview::SpritePreview;
@@ -16,6 +17,7 @@ use eframe::{
 };
 
 use super::SpriteSheetEditor;
+use crate::editor_data::EditorGraphicsData;
 
 #[derive(Clone, Default)]
 pub struct PaletteEditor {
@@ -38,7 +40,12 @@ impl std::fmt::Debug for PaletteEditor {
 }
 
 impl PaletteEditor {
-    pub fn draw(&mut self, ui: &mut Ui, sprite_sheet_editor: &SpriteSheetEditor) {
+    pub fn draw(
+        &mut self,
+        ui: &mut Ui,
+        data: &mut EditorGraphicsData,
+        sprite_sheet_editor: &SpriteSheetEditor,
+    ) {
         let texture_id = self
             .default_palette_texture
             .get_or_insert_with(|| {
@@ -50,8 +57,10 @@ impl PaletteEditor {
             .id();
 
         ui.horizontal(|ui| {
-            self.palette_list.draw(ui, texture_id);
-            self.draw_right_side(ui, texture_id, sprite_sheet_editor)
+            self.palette_list.draw(ui, texture_id, data);
+
+            let palette = &mut data.palettes[self.palette_list.selected_palette].palette;
+            self.draw_right_side(ui, texture_id, palette, sprite_sheet_editor)
         });
     }
 
@@ -61,10 +70,10 @@ impl PaletteEditor {
         &mut self,
         ui: &mut Ui,
         texture_id: TextureId,
+        palette: &mut Palette,
         sprite_sheet_editor: &SpriteSheetEditor,
     ) {
         ui.vertical(|ui| {
-            let palette = self.palette_list.get_palette_mut();
             self.palette_viewer.draw(ui, palette, texture_id);
 
             ui.horizontal(|ui| {
@@ -82,9 +91,5 @@ impl PaletteEditor {
                 );
             });
         });
-    }
-
-    pub fn len(&self) -> u8 {
-        self.palette_list.len()
     }
 }

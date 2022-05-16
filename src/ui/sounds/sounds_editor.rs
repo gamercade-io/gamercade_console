@@ -1,5 +1,7 @@
 use eframe::egui::Ui;
 
+use crate::editor_data::EditorSoundsData;
+
 use super::{PatchEditor, SequenceEditor};
 
 #[derive(Clone, Debug)]
@@ -31,7 +33,7 @@ impl SoundsEditor {
         ui.selectable_value(&mut self.mode, SoundsEditorMode::Sequences, "Sequences");
     }
 
-    pub fn draw_contents(&mut self, ui: &mut Ui) {
+    pub fn draw_contents(&mut self, ui: &mut Ui, _data: &mut EditorSoundsData) {
         match self.mode {
             SoundsEditorMode::Patches => self.patch_editor.draw(ui),
             SoundsEditorMode::Sequences => self.sequence_editor.draw(ui),

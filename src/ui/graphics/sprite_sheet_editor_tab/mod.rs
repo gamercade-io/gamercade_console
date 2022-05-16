@@ -12,7 +12,7 @@ use sheet_settings::SheetSettings;
 // Externals
 use eframe::egui::Ui;
 
-use super::PaletteEditor;
+use crate::editor_data::EditorGraphicsData;
 
 #[derive(Debug, Clone, Default)]
 pub struct SpriteSheetEditor {
@@ -23,12 +23,12 @@ pub struct SpriteSheetEditor {
 }
 
 impl SpriteSheetEditor {
-    pub fn draw(&mut self, ui: &mut Ui, palette_tab: &PaletteEditor) {
+    pub fn draw(&mut self, ui: &mut Ui, data: &mut EditorGraphicsData) {
         ui.horizontal(|ui| {
-            self.list.draw(ui);
+            self.list.draw(ui, data);
 
-            let palette_len = palette_tab.len();
-            let sheet = self.list.get_sprite_sheet_mut();
+            let palette_len = data.palettes.len() as u8;
+            let sheet = &mut data.sprite_sheets[self.list.selected_sheet];
 
             ui.vertical(|ui| {
                 self.settings.draw(ui, sheet, palette_len);

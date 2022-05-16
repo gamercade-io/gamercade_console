@@ -1,28 +1,15 @@
 use eframe::egui::Ui;
 use gamercade_core::SpriteSheet;
 
-use crate::editor_data::EditorSpriteSheet;
+use crate::editor_data::{EditorGraphicsData, EditorSpriteSheet};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct SheetList {
-    sheet_data: Vec<EditorSpriteSheet>,
-    selected_sheet: usize,
-}
-
-impl Default for SheetList {
-    fn default() -> Self {
-        Self {
-            sheet_data: vec![EditorSpriteSheet {
-                name: "Sprite Sheet 1".to_string(),
-                sprite_sheet: SpriteSheet::default(),
-            }],
-            selected_sheet: Default::default(),
-        }
-    }
+    pub selected_sheet: usize,
 }
 
 impl SheetList {
-    pub(crate) fn draw(&mut self, ui: &mut Ui) {
+    pub(crate) fn draw(&mut self, ui: &mut Ui, data: &mut EditorGraphicsData) {
         let index = self.selected_sheet;
 
         ui.vertical(|ui| {
@@ -31,7 +18,7 @@ impl SheetList {
 
                 // Draws the list of sheets
                 ui.group(|ui| {
-                    self.sheet_data
+                    data.sprite_sheets
                         .iter()
                         .enumerate()
                         .for_each(|(index, sheet)| {
@@ -49,18 +36,18 @@ impl SheetList {
                 ui.group(|ui| {
                     ui.horizontal(|ui| {
                         if ui.button("New").clicked() {
-                            let count = self.sheet_data.len() + 1;
-                            self.sheet_data.push(EditorSpriteSheet {
+                            let count = data.sprite_sheets.len() + 1;
+                            data.sprite_sheets.push(EditorSpriteSheet {
                                 name: format!("Sprite Sheet {}", count),
                                 sprite_sheet: SpriteSheet::default(),
                             })
                         };
 
                         if ui.button("Delete").clicked() {
-                            if self.sheet_data.len() != 1 {
-                                self.sheet_data.remove(index);
+                            if data.sprite_sheets.len() != 1 {
+                                data.sprite_sheets.remove(index);
 
-                                if index == self.sheet_data.len() {
+                                if index == data.sprite_sheets.len() {
                                     self.selected_sheet = index - 1;
                                 };
                             } else {
@@ -71,9 +58,5 @@ impl SheetList {
                 });
             });
         });
-    }
-
-    pub fn get_sprite_sheet_mut(&mut self) -> &mut EditorSpriteSheet {
-        &mut self.sheet_data[self.selected_sheet]
     }
 }

@@ -1,24 +1,23 @@
 use gamercade_core::{FrameRate, Resolution, Rom};
 use serde::{Deserialize, Serialize};
 
-use crate::ui::{GraphicsEditor, SoundsEditor};
+use super::{EditorGraphicsData, EditorSoundsData};
 
 #[derive(Clone, Serialize, Deserialize, Debug, Default)]
 pub struct EditorRom {
     pub resolution: Resolution,
     pub frame_rate: FrameRate,
+    pub graphics: EditorGraphicsData,
+    pub sounds: EditorSoundsData,
     // TODO: Something about code?
 }
 
 impl EditorRom {
-    pub fn export_as_rom(
-        &self,
-        _graphics_editor: &GraphicsEditor,
-        _sounds_editor: &SoundsEditor,
-    ) -> Rom {
+    pub fn export_as_rom(&self) -> Rom {
         todo!("TODO: Export as ROM is not yet implemented")
     }
-}
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub struct EditorGraphicsData {}
+    pub fn save_file(&self) -> String {
+        serde_json::to_string(self).unwrap()
+    }
+}
