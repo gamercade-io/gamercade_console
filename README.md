@@ -10,7 +10,6 @@ TODO: Short Term:
     - Import Sprite
 - Palette Editor
     - Rename Palettes Button Functionality
-    - Show a selected sprite
 - Sheet Editor
     - Adjustable/Changable Sprite Sheet Settings
     - New/Copy/Import/Edit/MoveLeftRight/Delete Sprites
