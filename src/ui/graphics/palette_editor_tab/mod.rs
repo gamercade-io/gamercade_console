@@ -5,7 +5,7 @@ mod palette_viewer;
 mod sprite_preview;
 
 use color_editor::ColorEditor;
-use gamercade_core::Palette;
+use gamercade_core::{Palette, SpriteSheet};
 use palette_list::PaletteList;
 use palette_viewer::PaletteViewer;
 use sprite_preview::SpritePreview;
@@ -42,6 +42,7 @@ impl PaletteEditor {
         ui: &mut Ui,
         data: &mut EditorGraphicsData,
         sprite_sheet_editor: &SpriteSheetEditor,
+        scale: usize,
     ) {
         let texture_id = self
             .default_palette_texture
@@ -57,7 +58,17 @@ impl PaletteEditor {
             self.palette_list.draw(ui, texture_id, data);
 
             let palette = &mut data.palettes[self.palette_list.selected_palette].palette;
-            self.draw_right_side(ui, texture_id, palette, sprite_sheet_editor)
+
+            let sheet = sprite_sheet_editor.selected_sheet();
+            let sprite = sprite_sheet_editor.selected_sprite();
+            self.draw_right_side(
+                ui,
+                texture_id,
+                palette,
+                &data.sprite_sheets[sheet].sprite_sheet,
+                sprite,
+                scale,
+            )
         });
     }
 
@@ -68,7 +79,9 @@ impl PaletteEditor {
         ui: &mut Ui,
         texture_id: TextureId,
         palette: &mut Palette,
-        sprite_sheet_editor: &SpriteSheetEditor,
+        sprite_sheet: &SpriteSheet,
+        sprite_index: usize,
+        scale: usize,
     ) {
         ui.vertical(|ui| {
             self.palette_viewer.draw(ui, palette, texture_id);
@@ -77,14 +90,17 @@ impl PaletteEditor {
                 let color = self.palette_viewer.get_color_mut(palette);
                 self.color_editor.draw(ui, color, texture_id);
 
-                let color_index = self.palette_viewer.selected_color;
-                let preview_color = self.color_editor.preview;
+                let mut preview_palette = palette.clone();
+                preview_palette.colors[self.palette_viewer.selected_color] =
+                    self.color_editor.preview;
+
                 self.sprite_preview.draw(
                     ui,
                     palette,
-                    color_index,
-                    preview_color,
-                    sprite_sheet_editor,
+                    &preview_palette,
+                    sprite_sheet,
+                    sprite_index,
+                    scale,
                 );
             });
         });

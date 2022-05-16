@@ -48,4 +48,12 @@ impl SpriteSheetEditor {
             });
         });
     }
+
+    pub fn selected_sheet(&self) -> usize {
+        self.list.selected_sheet
+    }
+
+    pub fn selected_sprite(&self) -> usize {
+        self.editor.selected_sprite
+    }
 }

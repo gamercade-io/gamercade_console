@@ -49,7 +49,7 @@ impl GraphicsEditor {
         match self.mode {
             GraphicsEditorMode::Palette => {
                 self.palette_editor
-                    .draw(ui, data, &self.sprite_sheet_editor)
+                    .draw(ui, data, &self.sprite_sheet_editor, self.scale)
             }
             GraphicsEditorMode::SpriteSheet => {
                 self.sprite_sheet_editor
