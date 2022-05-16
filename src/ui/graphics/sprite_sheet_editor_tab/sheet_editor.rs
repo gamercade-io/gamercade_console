@@ -1,7 +1,5 @@
-use eframe::{
-    egui::{ImageButton, Ui},
-    epaint::{ColorImage, Vec2},
-};
+use eframe::egui::{ColorImage, ImageButton, Ui, Vec2};
+
 use gamercade_core::{Palette, SpriteSheet};
 
 #[derive(Debug, Clone, Default)]

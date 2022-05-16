@@ -1,7 +1,4 @@
-use eframe::{
-    egui::{Image, Slider, Ui},
-    epaint::{Color32, TextureId, Vec2},
-};
+use eframe::egui::{Color32, Image, Slider, TextureId, Ui, Vec2};
 use gamercade_core::Color;
 
 #[derive(Clone, Debug, Default)]
