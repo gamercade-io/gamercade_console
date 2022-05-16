@@ -3,21 +3,15 @@ Gamercade Editor
 See Figma for UI design notes
 
 TODO: Short Term:
-- Add UI elements for
-    - Palette Editor
-    - Spirte Sheet Editor
-    - Sprite Editor
 - Add General Functionliaty
-    - Saving / Loading Editor data from json
+    - Editor JSON Save
+    - Editor JSON Load
+    - Export ROM
     - Import Sprite
 - Palette Editor
-    - Add/Copy/Remove/Rename/MoveUpDown Palettes
-    - Clicking in color picker "selects" a color
-    - Show Current & preview
-    - Revert & Update button functionliaty
+    - Rename Palettes Button Functionality
     - Show a selected sprite
 - Sheet Editor
-    - Add/Copy/Remove/Rename/MoveUpDown Sheets
     - Adjustable/Changable Sprite Sheet Settings
     - New/Copy/Import/Edit/MoveLeftRight/Delete Sprites
     - Palette Previewer for entire sprite sheet
