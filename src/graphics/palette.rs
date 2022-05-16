@@ -29,7 +29,6 @@ impl Display for PaletteIndex {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Palette {
     pub colors: [Color; PALETTE_COLORS],
-    pub transparent_index: Option<ColorIndex>,
 }
 
 impl Index<ColorIndex> for Palette {
@@ -41,19 +40,8 @@ impl Index<ColorIndex> for Palette {
 }
 
 impl Palette {
-    /// Returns the color in the palette, or None if its transparent
-    pub fn color(&self, color_index: ColorIndex) -> Option<Color> {
-        if let Some(transparent_index) = self.transparent_index {
-            if color_index == transparent_index {
-                return None;
-            }
-        }
-
-        Some(self[color_index])
-    }
-
     /// Gets the raw color, ignoring any kind of transparency
-    pub fn raw_color(&self, color_index: ColorIndex) -> Color {
+    pub fn color(&self, color_index: ColorIndex) -> Color {
         self[color_index]
     }
 
@@ -272,7 +260,6 @@ impl Default for Palette {
     fn default() -> Self {
         Self {
             colors: [Color::default(); PALETTE_COLORS],
-            transparent_index: None,
         }
     }
 }
