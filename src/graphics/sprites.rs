@@ -37,26 +37,27 @@ impl Default for SpriteSheet {
 }
 
 impl SpriteSheet {
+    /// The total number of sprites within this sheet
     pub fn count(&self) -> usize {
         self.sprites.len()
     }
 
+    /// Resizes a sprite setting the new width and height. Will clip
+    /// or pad any excess size, using the default 0 index color.
     pub fn resize(&mut self, new_width: usize, new_height: usize) {
         let mut new_sprites = Vec::with_capacity(new_width * new_height);
         let width = self.width;
 
         self.iter_sprites().for_each(|sprite| {
-            let new_sprite = (0..new_height)
-                .map(|y| {
-                    (0..new_width).map(move |x| {
-                        if x >= width {
-                            Default::default()
-                        } else {
-                            sprite.get(x + (y * width)).copied().unwrap_or_default()
-                        }
-                    })
+            let new_sprite = (0..new_height).flat_map(|y| {
+                (0..new_width).map(move |x| {
+                    if x >= width {
+                        Default::default()
+                    } else {
+                        sprite.get(x + (y * width)).copied().unwrap_or_default()
+                    }
                 })
-                .flatten();
+            });
 
             new_sprites.extend(new_sprite);
         });
@@ -66,7 +67,7 @@ impl SpriteSheet {
         self.height = new_height;
     }
 
-    pub fn step(&self) -> usize {
+    pub(crate) fn step(&self) -> usize {
         self.width * self.height
     }
 

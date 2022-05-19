@@ -83,7 +83,6 @@ impl Palette {
                 Color::new(0x00, 0x78, 0x99),
                 Color::new(0x00, 0x28, 0x59),
             ],
-            ..Default::default()
         }
     }
 
@@ -107,7 +106,6 @@ impl Palette {
                 Color::new(0xf7, 0xb6, 0x9e),
                 Color::new(0x9b, 0x9c, 0x82),
             ],
-            ..Default::default()
         }
     }
 
@@ -131,7 +129,6 @@ impl Palette {
                 Color::new(0xFF, 0x77, 0xA8),
                 Color::new(0xFF, 0xCC, 0xAA),
             ],
-            ..Default::default()
         }
     }
 
@@ -155,7 +152,6 @@ impl Palette {
                 Color::new(0x56, 0x6c, 0x86),
                 Color::new(0x33, 0x3c, 0x57),
             ],
-            ..Default::default()
         }
     }
 
@@ -179,7 +175,6 @@ impl Palette {
                 Color::new(0x17, 0x43, 0x4b),
                 Color::new(0x1f, 0x0e, 0x1c),
             ],
-            ..Default::default()
         }
     }
 
@@ -203,7 +198,6 @@ impl Palette {
                 Color::new(0xa0, 0xb9, 0xba),
                 Color::new(0xc0, 0xd1, 0xcc),
             ],
-            ..Default::default()
         }
     }
 
@@ -227,7 +221,6 @@ impl Palette {
                 Color::new(0x2c, 0xe8, 0xf4),
                 Color::new(0x04, 0x84, 0xd1),
             ],
-            ..Default::default()
         }
     }
 
@@ -251,7 +244,6 @@ impl Palette {
                 Color::new(0xff, 0xf7, 0xa0),
                 Color::new(0xff, 0xf7, 0xe4),
             ],
-            ..Default::default()
         }
     }
 }
