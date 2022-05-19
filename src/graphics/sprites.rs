@@ -2,26 +2,26 @@ use std::ops::Index;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{ColorIndex, PaletteIndex};
+use crate::{ColorIndex, PaletteIndex, SpriteIter};
 
-#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
-pub struct SpriteSheetIndex(pub(crate) u8);
+#[derive(Clone, Copy, Debug, Serialize, Deserialize, Default, PartialEq, Eq)]
+pub struct SpriteSheetIndex(pub u8);
 
-#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
-pub struct SpriteIndex(pub(crate) u8);
+#[derive(Clone, Copy, Debug, Serialize, Deserialize, Default, PartialEq, Eq)]
+pub struct SpriteIndex(pub u8);
 
-//TODO: Could this be optimized with a single slice of data ?
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct SpriteSheet {
     pub height: usize,
     pub width: usize,
-    pub sprites: Box<[Sprite]>,
+    pub sprites: Box<[ColorIndex]>,
+    pub count: u8,
     pub default_palette: PaletteIndex,
 }
 
 impl Default for SpriteSheet {
     fn default() -> Self {
-        let data = (0..16)
+        let sprites = (0..16)
             .map(ColorIndex)
             .collect::<Vec<ColorIndex>>()
             .into_boxed_slice();
@@ -29,7 +29,8 @@ impl Default for SpriteSheet {
         Self {
             height: 4,
             width: 4,
-            sprites: vec![Sprite { data }].into_boxed_slice(),
+            sprites,
+            count: 1,
             default_palette: PaletteIndex(0),
         }
     }
@@ -39,17 +40,26 @@ impl SpriteSheet {
     pub fn count(&self) -> usize {
         self.sprites.len()
     }
-}
 
-impl Index<SpriteIndex> for SpriteSheet {
-    type Output = Sprite;
+    pub fn resize(&mut self, new_width: usize, new_height: usize) {
+        todo!();
+    }
 
-    fn index(&self, index: SpriteIndex) -> &Self::Output {
-        &self.sprites[index.0 as usize]
+    pub fn step(&self) -> usize {
+        self.width * self.height
+    }
+
+    pub fn iter_sprites(&self) -> SpriteIter {
+        SpriteIter::new(self)
     }
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
-pub struct Sprite {
-    pub data: Box<[ColorIndex]>,
+impl Index<SpriteIndex> for SpriteSheet {
+    type Output = [ColorIndex];
+
+    fn index(&self, index: SpriteIndex) -> &Self::Output {
+        let step = self.step();
+        let index = index.0 as usize;
+        &self.sprites[step * index..step * (index + 1)]
+    }
 }

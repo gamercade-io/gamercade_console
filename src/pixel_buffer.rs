@@ -52,7 +52,7 @@ impl PixelBuffer {
                 let target_pixel = start + x as i32 + (y as i32 * self.buffer_width as i32);
                 let target_pixel = target_pixel as usize * BYTES_PER_PIXEL;
 
-                let color_index = sprite.data[x + (y * sprite_width)];
+                let color_index = sprite[x + (y * sprite_width)];
                 let color = palette[color_index.0];
                 self.pixel_buffer[target_pixel..target_pixel + BYTES_PER_PIXEL]
                     .copy_from_slice(&color);
