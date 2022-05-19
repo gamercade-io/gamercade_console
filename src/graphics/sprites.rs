@@ -42,7 +42,28 @@ impl SpriteSheet {
     }
 
     pub fn resize(&mut self, new_width: usize, new_height: usize) {
-        todo!();
+        let mut new_sprites = Vec::with_capacity(new_width * new_height);
+        let width = self.width;
+
+        self.iter_sprites().for_each(|sprite| {
+            let new_sprite = (0..new_height)
+                .map(|y| {
+                    (0..new_width).map(move |x| {
+                        if x >= width {
+                            Default::default()
+                        } else {
+                            sprite.get(x + (y * width)).copied().unwrap_or_default()
+                        }
+                    })
+                })
+                .flatten();
+
+            new_sprites.extend(new_sprite);
+        });
+
+        self.sprites = new_sprites.into_boxed_slice();
+        self.width = new_width;
+        self.height = new_height;
     }
 
     pub fn step(&self) -> usize {

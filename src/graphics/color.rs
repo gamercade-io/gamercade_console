@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{BYTES_PER_PIXEL, PALETTE_COLORS};
 
-#[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Clone, Copy, Default, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct ColorIndex(pub(crate) usize);
 
 impl TryFrom<i32> for ColorIndex {

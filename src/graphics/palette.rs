@@ -6,7 +6,7 @@ use crate::BYTES_PER_PIXEL;
 
 use super::{Color, ColorIndex, PALETTE_COLORS};
 
-#[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
 pub struct PaletteIndex(pub u8);
 
 impl FromStr for PaletteIndex {
