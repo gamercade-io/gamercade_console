@@ -11,7 +11,7 @@ pub struct SpriteSheetIndex(pub(crate) u8);
 pub struct SpriteIndex(pub(crate) u8);
 
 //TODO: Could this be optimized with a single slice of data ?
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct SpriteSheet {
     pub height: usize,
     pub width: usize,
@@ -49,7 +49,7 @@ impl Index<SpriteIndex> for SpriteSheet {
     }
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Sprite {
     pub data: Box<[ColorIndex]>,
 }
