@@ -9,7 +9,6 @@ pub struct SheetEditor {
 
 impl SheetEditor {
     pub fn draw(&mut self, ui: &mut Ui, sheet: &mut SpriteSheet, scale: usize, palette: &Palette) {
-        //TODO
         let step = sheet.width * sheet.height * 4;
         let mut raw_rgba = Vec::with_capacity(step * sheet.sprites.len());
 
@@ -17,32 +16,40 @@ impl SheetEditor {
             ui.label("Sprite Sheet Editor");
             ui.label(format!("Sprite Count: {}", sheet.sprites.len()));
 
-            sheet
-                .iter_sprites()
-                .enumerate()
-                .for_each(|(index, sprite)| {
-                    let start = step * index;
-                    let end = start + step;
-                    sprite.iter().for_each(|color_index| {
-                        let rgba = palette[*color_index].into_pixel_data();
-                        raw_rgba.extend(rgba);
+            // Draws all the sprites
+            // TODO: Make this tiled to fill up space correctly
+            ui.group(|ui| {
+                sheet
+                    .iter_sprites()
+                    .enumerate()
+                    .for_each(|(index, sprite)| {
+                        let start = step * index;
+                        let end = start + step;
+                        sprite.iter().for_each(|color_index| {
+                            let rgba = palette[*color_index].into_pixel_data();
+                            raw_rgba.extend(rgba);
+                        });
+                        let image = ColorImage::from_rgba_unmultiplied(
+                            [sheet.width, sheet.height],
+                            &raw_rgba[start..end],
+                        );
+                        let mut image = ui.ctx().load_texture("sprit editor", image);
+
+                        let button = ImageButton::new(
+                            &mut image,
+                            Vec2 {
+                                x: (sheet.width * scale) as f32,
+                                y: (sheet.height * scale) as f32,
+                            },
+                        );
+
+                        ui.add(button);
                     });
-                    let image = ColorImage::from_rgba_unmultiplied(
-                        [sheet.width, sheet.height],
-                        &raw_rgba[start..end],
-                    );
-                    let mut image = ui.ctx().load_texture("sprit editor", image);
+            });
 
-                    let button = ImageButton::new(
-                        &mut image,
-                        Vec2 {
-                            x: (sheet.width * scale) as f32,
-                            y: (sheet.height * scale) as f32,
-                        },
-                    );
-
-                    ui.add(button);
-                });
+            // TODO: add editor buttons:
+            // New, Copy, Move Left, Move Right
+            // Delete, Edit, Import, Export
         });
     }
 }

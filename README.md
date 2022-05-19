@@ -19,6 +19,7 @@ TODO: Short Term:
 - Sound Editor
     - Incorporate Sound system
     - TODO!
+- See other TODO's in the code
 
 TODO: Long Term:
 - How to handle localization?

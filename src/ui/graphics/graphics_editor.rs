@@ -19,7 +19,7 @@ impl Default for GraphicsEditor {
             sprite_sheet_editor: SpriteSheetEditor::default(),
             sprite_editor: SpriteEditor::default(),
 
-            scale: 1,
+            scale: 16,
         }
     }
 }

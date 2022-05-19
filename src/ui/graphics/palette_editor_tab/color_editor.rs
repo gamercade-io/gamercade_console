@@ -18,8 +18,6 @@ impl ColorEditor {
             ui.vertical(|ui| {
                 ui.label("Color Editor");
 
-                // TODO: clean this up
-
                 draw_picker(ui, texture_id, "Current", false, current_color);
                 draw_picker(ui, texture_id, "Preview", true, &mut self.preview);
 
