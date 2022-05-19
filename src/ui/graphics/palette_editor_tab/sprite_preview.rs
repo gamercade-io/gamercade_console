@@ -22,24 +22,10 @@ impl SpritePreview {
                 let sprite = &sprite_sheet[sprite_index];
 
                 // First Image
-                add_image(
-                    ui,
-                    "Current:",
-                    sprite_sheet,
-                    sprite,
-                    current_palette,
-                    scale,
-                );
+                add_image(ui, "Current:", sprite_sheet, sprite, current_palette, scale);
 
                 // Second Image
-                add_image(
-                    ui,
-                    "Preview:",
-                    sprite_sheet,
-                    sprite,
-                    preview_palette,
-                    scale,
-                );
+                add_image(ui, "Preview:", sprite_sheet, sprite, preview_palette, scale);
             });
         });
     }
