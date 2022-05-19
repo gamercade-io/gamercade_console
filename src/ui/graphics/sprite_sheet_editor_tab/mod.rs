@@ -4,6 +4,7 @@ mod sheet_editor;
 mod sheet_list;
 mod sheet_settings;
 
+use gamercade_core::{SpriteIndex, SpriteSheetIndex};
 use palette_preview::PalettePreview;
 use sheet_editor::SheetEditor;
 use sheet_list::SheetList;
@@ -36,7 +37,7 @@ impl SpriteSheetEditor {
             self.list.draw(ui, data);
 
             let palette_len = data.palettes.len() as u8;
-            let sheet = &mut data.sprite_sheets[self.list.selected_sheet];
+            let sheet = &mut data.sprite_sheets[self.list.selected_sheet.0 as usize];
             let palette = &mut data.palettes[palette_editor.selected_palette()].palette;
 
             ui.vertical(|ui| {
@@ -49,11 +50,11 @@ impl SpriteSheetEditor {
         });
     }
 
-    pub fn selected_sheet(&self) -> usize {
+    pub fn selected_sheet(&self) -> SpriteSheetIndex {
         self.list.selected_sheet
     }
 
-    pub fn selected_sprite(&self) -> usize {
+    pub fn selected_sprite(&self) -> SpriteIndex {
         self.editor.selected_sprite
     }
 }

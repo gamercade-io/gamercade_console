@@ -1,10 +1,10 @@
 use egui::{ColorImage, ImageButton, Ui, Vec2};
 
-use gamercade_core::{Palette, SpriteSheet};
+use gamercade_core::{Palette, SpriteIndex, SpriteSheet};
 
 #[derive(Debug, Clone, Default)]
 pub struct SheetEditor {
-    pub selected_sprite: usize,
+    pub selected_sprite: SpriteIndex,
 }
 
 impl SheetEditor {
@@ -18,13 +18,12 @@ impl SheetEditor {
             ui.label(format!("Sprite Count: {}", sheet.sprites.len()));
 
             sheet
-                .sprites
-                .iter()
+                .iter_sprites()
                 .enumerate()
                 .for_each(|(index, sprite)| {
                     let start = step * index;
                     let end = start + step;
-                    sprite.data.iter().for_each(|color_index| {
+                    sprite.iter().for_each(|color_index| {
                         let rgba = palette[*color_index].into_pixel_data();
                         raw_rgba.extend(rgba);
                     });

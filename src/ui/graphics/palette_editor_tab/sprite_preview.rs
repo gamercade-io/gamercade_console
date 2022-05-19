@@ -1,5 +1,5 @@
 use egui::{ColorImage, Image, Ui, Vec2};
-use gamercade_core::{ColorIndex, Palette, SpriteSheet};
+use gamercade_core::{ColorIndex, Palette, SpriteIndex, SpriteSheet};
 
 #[derive(Clone, Debug, Default)]
 pub struct SpritePreview {}
@@ -11,7 +11,7 @@ impl SpritePreview {
         current_palette: &Palette,
         preview_palette: &Palette,
         sprite_sheet: &SpriteSheet,
-        sprite_index: usize,
+        sprite_index: SpriteIndex,
         scale: usize,
     ) {
         // TODO: Write this!
@@ -19,14 +19,14 @@ impl SpritePreview {
             ui.vertical(|ui| {
                 ui.label("Sprite Preview: ");
 
-                let sprite = &sprite_sheet.sprites[sprite_index];
+                let sprite = &sprite_sheet[sprite_index];
 
                 // First Image
                 add_image(
                     ui,
                     "Current:",
                     sprite_sheet,
-                    &sprite.data,
+                    sprite,
                     current_palette,
                     scale,
                 );
@@ -36,7 +36,7 @@ impl SpritePreview {
                     ui,
                     "Preview:",
                     sprite_sheet,
-                    &sprite.data,
+                    sprite,
                     preview_palette,
                     scale,
                 );

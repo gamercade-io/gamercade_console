@@ -5,7 +5,7 @@ mod palette_viewer;
 mod sprite_preview;
 
 use color_editor::ColorEditor;
-use gamercade_core::{Palette, SpriteSheet};
+use gamercade_core::{Palette, SpriteIndex, SpriteSheet};
 use palette_list::PaletteList;
 use palette_viewer::PaletteViewer;
 use sprite_preview::SpritePreview;
@@ -65,7 +65,7 @@ impl PaletteEditor {
                 ui,
                 texture_id,
                 palette,
-                &data.sprite_sheets[sheet].sprite_sheet,
+                &data.sprite_sheets[sheet.0 as usize].sprite_sheet,
                 sprite,
                 scale,
             )
@@ -80,7 +80,7 @@ impl PaletteEditor {
         texture_id: TextureId,
         palette: &mut Palette,
         sprite_sheet: &SpriteSheet,
-        sprite_index: usize,
+        sprite_index: SpriteIndex,
         scale: usize,
     ) {
         ui.vertical(|ui| {

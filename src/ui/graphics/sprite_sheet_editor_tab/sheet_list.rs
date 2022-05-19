@@ -1,11 +1,11 @@
 use egui::Ui;
-use gamercade_core::SpriteSheet;
+use gamercade_core::{SpriteSheet, SpriteSheetIndex};
 
 use crate::editor_data::{EditorGraphicsData, EditorSpriteSheet};
 
 #[derive(Debug, Clone, Default)]
 pub struct SheetList {
-    pub selected_sheet: usize,
+    pub selected_sheet: SpriteSheetIndex,
 }
 
 impl SheetList {
@@ -23,6 +23,7 @@ impl SheetList {
                         .enumerate()
                         .for_each(|(index, sheet)| {
                             ui.horizontal(|ui| {
+                                let index = SpriteSheetIndex(index as u8);
                                 let is_checked = self.selected_sheet == index;
 
                                 if ui.selectable_label(is_checked, &sheet.name).clicked() {
@@ -45,10 +46,10 @@ impl SheetList {
 
                         if ui.button("Delete").clicked() {
                             if data.sprite_sheets.len() != 1 {
-                                data.sprite_sheets.remove(index);
+                                data.sprite_sheets.remove(index.0 as usize);
 
-                                if index == data.sprite_sheets.len() {
-                                    self.selected_sheet = index - 1;
+                                if index.0 as usize == data.sprite_sheets.len() {
+                                    self.selected_sheet = SpriteSheetIndex(index.0 - 1);
                                 };
                             } else {
                                 println!("Can't delete last sheet!")
