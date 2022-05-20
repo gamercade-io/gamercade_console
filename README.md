@@ -2,6 +2,8 @@ Gamercade Editor
 
 See Figma for UI design notes
 
+rfd crate for file dialogs
+
 TODO: Short Term:
 - Add General Functionliaty
     - Editor JSON Save
@@ -24,3 +26,12 @@ TODO: Short Term:
 TODO: Long Term:
 - How to handle localization?
 
+Supported File Formats:
+png: use image-png crate? has info struct and color_type, bit_depth, and palette fields
+gif: use image-gif crate?
+bmp
+tiff - maybe not necessary??
+
+... 
+
+Or just use image-rs and parse each image manually into a palette & index data, failing on >16 colors
