@@ -125,6 +125,9 @@ impl SheetEditor {
     }
 }
 
+// TODO: Rework this to only allow importing "same" sprites
+// force width and palettes to match
+// Instead, use the new palette/dimension logic for importing a new sprite sheet
 fn try_load_sprite(
     path: PathBuf,
     sheet: &mut SpriteSheet,
@@ -171,7 +174,6 @@ fn try_load_sprite(
     let mut test_map = HashMap::new();
     let mut test_map_keys = HashSet::new();
 
-    // TODO:
     // See if a palette containing all of those colors already exists
     let color_map = if palettes.iter().any(|palette| {
         test_map.clear();
