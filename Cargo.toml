@@ -24,3 +24,6 @@ rfd = "0.8.2"
 
 # Image Manipulation
 image = "0.24.2"
+
+# General Improvements
+hashbrown = "0.12.1"

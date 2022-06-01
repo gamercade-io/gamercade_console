@@ -44,6 +44,11 @@ impl SheetList {
                             })
                         };
 
+                        if ui.button("Import").clicked() {
+                            // Duplicate some code from importing into this place instead?
+                            println!("TODO: Import sheet");
+                        };
+
                         if ui.button("Delete").clicked() {
                             if data.sprite_sheets.len() != 1 {
                                 data.sprite_sheets.remove(index.0 as usize);

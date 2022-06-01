@@ -13,8 +13,7 @@ TODO: Short Term:
 - Palette Editor
     - Rename Palettes Button Functionality
 - Sheet Editor
-    - Adjustable/Changable Sprite Sheet Settings
-    - New/Copy/Import/Edit/MoveLeftRight/Delete Sprites
+    - New/Copy/Import/Edit/MoveLeftRight/Delete Sprites buttons and functionliaty
     - Palette Previewer for entire sprite sheet
 - Sprite Editor
     - Design TODO!

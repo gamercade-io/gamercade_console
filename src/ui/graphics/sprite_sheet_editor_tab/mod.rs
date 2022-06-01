@@ -13,9 +13,8 @@ use sheet_settings::SheetSettings;
 // Externals
 use egui::Ui;
 
-use crate::editor_data::EditorGraphicsData;
-
 use super::PaletteEditor;
+use crate::editor_data::EditorGraphicsData;
 
 #[derive(Debug, Clone, Default)]
 pub struct SpriteSheetEditor {
@@ -38,13 +37,19 @@ impl SpriteSheetEditor {
 
             let palette_len = data.palettes.len() as u8;
             let sheet = &mut data.sprite_sheets[self.list.selected_sheet.0 as usize];
-            let palette = &mut data.palettes[palette_editor.selected_palette()].palette;
+            let palettes = &mut data.palettes;
+            let selected_palette = palette_editor.selected_palette();
 
             ui.vertical(|ui| {
                 self.settings.draw(ui, sheet, palette_len);
 
-                self.editor
-                    .draw(ui, &mut sheet.sprite_sheet, scale, palette);
+                self.editor.draw(
+                    ui,
+                    &mut sheet.sprite_sheet,
+                    scale,
+                    palettes,
+                    selected_palette,
+                );
                 self.palette_preview.draw(ui);
             });
         });
