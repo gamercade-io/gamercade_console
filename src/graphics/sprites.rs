@@ -40,7 +40,8 @@ impl SpriteSheet {
     /// Resizes a sprite setting the new width and height. Will clip
     /// or pad any excess size, using the default 0 index color.
     pub fn resize(&mut self, new_width: usize, new_height: usize) {
-        let mut new_sprites = Vec::with_capacity(new_width * new_height);
+        let total_entries = new_width * new_height * self.count as usize;
+        let mut new_sprites = Vec::with_capacity(total_entries);
         let width = self.width;
 
         self.iter_sprites().for_each(|sprite| {
@@ -70,7 +71,7 @@ impl SpriteSheet {
         SpriteIter::new(self)
     }
 
-    fn add_sprite(&mut self, index: SpriteIndex, do_copy: bool) {
+    fn add_sprite(&mut self, index: SpriteIndex, kind: AddKind) {
         let step = self.step();
         let pixel_index = step * index.0 as usize;
         let start = &self.sprites[..(pixel_index + step)];
@@ -83,10 +84,10 @@ impl SpriteSheet {
         new_sprites.extend(start);
 
         // Add the copy or empty one
-        if do_copy {
-            new_sprites.extend(copy)
-        } else {
-            new_sprites.extend((0..step).map(|_| ColorIndex::default()))
+        match kind {
+            AddKind::Empty => new_sprites.extend((0..step).map(|_| ColorIndex::default())),
+            AddKind::Copy => new_sprites.extend(copy),
+            AddKind::Import(source) => new_sprites.extend(source),
         };
 
         // Copy the remaining data
@@ -98,12 +99,16 @@ impl SpriteSheet {
 
     /// Inserts a new empty sprite at the given index
     pub fn new_empty(&mut self, index: SpriteIndex) {
-        self.add_sprite(index, false);
+        self.add_sprite(index, AddKind::Empty);
     }
 
     /// Duplicates a sprite at the given index
     pub fn duplicate(&mut self, index: SpriteIndex) {
-        self.add_sprite(index, true);
+        self.add_sprite(index, AddKind::Copy);
+    }
+
+    pub fn add_new_sprite(&mut self, index: SpriteIndex, sprite: &[ColorIndex]) {
+        self.add_sprite(index, AddKind::Import(sprite))
     }
 
     pub fn delete_sprite(&mut self, _index: SpriteIndex) {
@@ -119,4 +124,10 @@ impl Index<SpriteIndex> for SpriteSheet {
         let index = index.0 as usize;
         &self.sprites[step * index..step * (index + 1)]
     }
+}
+
+enum AddKind<'a> {
+    Empty,
+    Copy,
+    Import(&'a [ColorIndex]),
 }

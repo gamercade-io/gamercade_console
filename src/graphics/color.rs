@@ -3,12 +3,12 @@ use serde::{Deserialize, Serialize};
 use crate::{BYTES_PER_PIXEL, PALETTE_COLORS};
 
 #[derive(Clone, Copy, Default, Debug, Serialize, Deserialize, PartialEq, Eq)]
-pub struct ColorIndex(pub(crate) usize);
+pub struct ColorIndex(pub u8);
 
 impl TryFrom<i32> for ColorIndex {
     fn try_from(value: i32) -> Result<Self, Self::Error> {
         if value >= 0 && value < PALETTE_COLORS as i32 {
-            Ok(Self(value as usize))
+            Ok(Self(value as u8))
         } else {
             Err("invalid color index")
         }

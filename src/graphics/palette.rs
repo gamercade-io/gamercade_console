@@ -35,7 +35,7 @@ impl Index<ColorIndex> for Palette {
     type Output = Color;
 
     fn index(&self, index: ColorIndex) -> &Self::Output {
-        &self.colors[index.0]
+        &self.colors[index.0 as usize]
     }
 }
 
