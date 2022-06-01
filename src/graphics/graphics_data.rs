@@ -45,7 +45,7 @@ impl GraphicsData {
         sheet_index: SpriteSheetIndex,
         index: i32,
     ) -> Result<SpriteIndex, &'static str> {
-        if index >= 0 && index < self.sprite_sheets[sheet_index.0 as usize].count() as i32 {
+        if index >= 0 && index < self.sprite_sheets[sheet_index.0 as usize].count as i32 {
             Ok(SpriteIndex(index as u8))
         } else {
             Err("invalid sprite index index")

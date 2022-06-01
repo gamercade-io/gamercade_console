@@ -37,11 +37,6 @@ impl Default for SpriteSheet {
 }
 
 impl SpriteSheet {
-    /// The total number of sprites within this sheet
-    pub fn count(&self) -> usize {
-        self.sprites.len()
-    }
-
     /// Resizes a sprite setting the new width and height. Will clip
     /// or pad any excess size, using the default 0 index color.
     pub fn resize(&mut self, new_width: usize, new_height: usize) {
@@ -73,6 +68,46 @@ impl SpriteSheet {
 
     pub fn iter_sprites(&self) -> SpriteIter {
         SpriteIter::new(self)
+    }
+
+    fn add_sprite(&mut self, index: SpriteIndex, do_copy: bool) {
+        let step = self.step();
+        let pixel_index = step * index.0 as usize;
+        let start = &self.sprites[..(pixel_index + step)];
+        let copy = &self.sprites[pixel_index..pixel_index + step];
+        let end = &self.sprites[(pixel_index + step)..];
+
+        let mut new_sprites = Vec::with_capacity(step * (self.count as usize + 1));
+
+        // Copy the data before this spritedr
+        new_sprites.extend(start);
+
+        // Add the copy or empty one
+        if do_copy {
+            new_sprites.extend(copy)
+        } else {
+            new_sprites.extend((0..step).map(|_| ColorIndex::default()))
+        };
+
+        // Copy the remaining data
+        new_sprites.extend(end);
+
+        self.sprites = new_sprites.into_boxed_slice();
+        self.count += 1;
+    }
+
+    /// Inserts a new empty sprite at the given index
+    pub fn new_empty(&mut self, index: SpriteIndex) {
+        self.add_sprite(index, false);
+    }
+
+    /// Duplicates a sprite at the given index
+    pub fn duplicate(&mut self, index: SpriteIndex) {
+        self.add_sprite(index, true);
+    }
+
+    pub fn delete_sprite(&mut self, _index: SpriteIndex) {
+        println!("TODO: Delete sprite")
     }
 }
 
