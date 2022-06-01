@@ -1,4 +1,5 @@
 use egui::{ColorImage, ImageButton, Ui, Vec2};
+use rfd::FileDialog;
 
 use gamercade_core::{Palette, SpriteIndex, SpriteSheet};
 
@@ -14,7 +15,7 @@ impl SheetEditor {
 
         ui.group(|ui| {
             ui.label("Sprite Sheet Editor");
-            ui.label(format!("Sprite Count: {}", sheet.sprites.len()));
+            ui.label(format!("Sprite Count: {}", sheet.count));
 
             // Draws all the sprites
             // TODO: Make this tiled to fill up space correctly
@@ -25,6 +26,8 @@ impl SheetEditor {
                     .for_each(|(index, sprite)| {
                         let start = step * index;
                         let end = start + step;
+                        let index = SpriteIndex(index as u8);
+
                         sprite.iter().for_each(|color_index| {
                             let rgba = palette[*color_index].into_pixel_data();
                             raw_rgba.extend(rgba);
@@ -41,15 +44,66 @@ impl SheetEditor {
                                 x: (sheet.width * scale) as f32,
                                 y: (sheet.height * scale) as f32,
                             },
-                        );
+                        )
+                        .selected(self.selected_sprite == index);
 
-                        ui.add(button);
+                        if ui.add(button).clicked() {
+                            self.selected_sprite = index;
+                        };
                     });
             });
 
             // TODO: add editor buttons:
             // New, Copy, Move Left, Move Right
-            // Delete, Edit, Import, Export
+            ui.vertical(|ui| {
+                ui.horizontal(|ui| {
+                    if ui.button("New").clicked() {
+                        sheet.new_empty(self.selected_sprite);
+                        self.selected_sprite = SpriteIndex(self.selected_sprite.0 + 1);
+                    }
+
+                    if ui.button("Copy").clicked() {
+                        sheet.duplicate(self.selected_sprite);
+                        self.selected_sprite = SpriteIndex(self.selected_sprite.0 + 1);
+                    }
+
+                    if ui.button("Color Swap").clicked() {
+                        println!("TODO: Color Swap")
+                    }
+
+                    if ui.button("Move Left").clicked() {
+                        println!("TODO: Move Left")
+                    }
+
+                    if ui.button("Move Right").clicked() {
+                        println!("TODO: Move Right")
+                    }
+                });
+
+                ui.horizontal(|ui| {
+                    if ui.button("Delete").clicked() {
+                        println!("TODO: call sheet.delete_sprite()");
+                    }
+
+                    if ui.button("Import").clicked() {
+                        if let Some(file_path) = FileDialog::new()
+                            .set_title("Import...")
+                            .set_directory("/")
+                            .add_filter(
+                                "image",
+                                &["png", "jpeg", "gif", "bmp", "ico", "tiff", "tga"],
+                            )
+                            .pick_file()
+                        {
+                            println!("TODO: Load file: {:?}", file_path);
+                        }
+                    }
+
+                    if ui.button("Export").clicked() {
+                        println!("TODO: Export")
+                    }
+                });
+            });
         });
     }
 }

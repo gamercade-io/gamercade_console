@@ -6,6 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+# Gamercade Dependencies
 gamercade_core = { path = "../gamercade_core" }
 
 # Serialization
@@ -17,3 +18,9 @@ serde_json = "1.0.81"
 egui_glow = { version = "0.18.1", features = ["winit"] }
 egui = "0.18.1"
 glutin = "0.28.0"
+
+# File Dialogs
+rfd = "0.8.2"
+
+# Image Manipulation
+image = "0.24.2"
