@@ -188,6 +188,10 @@ fn try_load_sprite(
                 test_map_keys.insert(key);
                 test_map.insert(key, ColorIndex(index as u8));
             });
+
+
+        // TODO: allow palettes which contain AT LEAST
+        // the image's colors
         test_map_keys == colors
     }) {
         // If so use it
