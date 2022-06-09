@@ -9,13 +9,14 @@ TODO: Short Term:
     - Editor JSON Save
     - Editor JSON Load
     - Export ROM
-    - Import Sprite
 - Palette Editor
     - Rename Palettes Button Functionality
     - "Export Palette" functionality
+    - Palette color sorting
+    - Color Swapping (drag & drop?)
 - Sheet Editor
-    - Buttion functionality
-    - Palette Previewer for entire sprite sheet
+    - (MANY) Button functionality, like add, delete, move etc
+    - Fix scrolling/sizing of sprite preview
 - Sprite Editor
     - Design TODO!
 - Sound Editor
