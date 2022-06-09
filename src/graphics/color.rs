@@ -29,6 +29,16 @@ impl Color {
         Self { r, g, b }
     }
 
+    pub fn from_hex(hex: usize) -> Self {
+        assert!(hex <= 0xFFFFFF);
+
+        Self {
+            r: ((hex >> 16) & 0xFF) as u8,
+            g: ((hex >> 8) & 0xFF) as u8,
+            b: (hex & 0xFF) as u8,
+        }
+    }
+
     pub fn into_pixel_data(&self) -> [u8; BYTES_PER_PIXEL] {
         [self.r, self.g, self.b, 0xFF]
     }
