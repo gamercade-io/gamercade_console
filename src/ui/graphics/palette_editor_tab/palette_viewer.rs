@@ -1,5 +1,5 @@
 use egui::{Color32, ImageButton, TextureId, Ui, Vec2};
-use gamercade_core::{Color, Palette};
+use gamercade_core::{Color, Palette, PALETTE_COLORS};
 
 #[derive(Clone, Default, Debug)]
 pub struct PaletteViewer {
@@ -14,22 +14,24 @@ impl PaletteViewer {
             ui.horizontal(|ui| {
                 ui.spacing_mut().item_spacing = Vec2 { x: 0.0, y: 0.0 };
 
-                palette
-                    .colors
-                    .iter()
-                    .enumerate()
-                    .for_each(|(index, color)| {
-                        let selected = index == self.selected_color;
-
-                        let image_button =
-                            ImageButton::new(palette_texture, Vec2 { x: 32.0, y: 32.0 })
-                                .selected(selected)
-                                .tint(Color32::from_rgb(color.r, color.g, color.b));
-
-                        if ui.add(image_button).clicked() {
-                            self.selected_color = index
-                        };
-                    });
+                ui.horizontal(|ui| {
+                    (0..PALETTE_COLORS / 8).for_each(|x| {
+                        ui.vertical(|ui| {
+                            (0..8).for_each(|y| {
+                                let index = x + (y * 8);
+                                let selected = index == self.selected_color;
+                                let color = palette.colors[index];
+                                let image_button =
+                                    ImageButton::new(palette_texture, Vec2 { x: 32.0, y: 32.0 })
+                                        .selected(selected)
+                                        .tint(Color32::from_rgb(color.r, color.g, color.b));
+                                if ui.add(image_button).clicked() {
+                                    self.selected_color = index
+                                };
+                            });
+                        });
+                    })
+                });
             });
         });
     }

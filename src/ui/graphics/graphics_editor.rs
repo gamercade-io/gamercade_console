@@ -1,8 +1,10 @@
-use egui::{ColorImage, Slider, TextureHandle, Ui};
-
-use crate::editor_data::EditorGraphicsData;
+use egui::{Color32, ColorImage, Image, Slider, TextureHandle, TextureId, Ui, Vec2};
 
 use super::{PaletteEditor, SpriteEditor, SpriteSheetEditor};
+use crate::editor_data::EditorGraphicsData;
+use gamercade_core::{Palette, PALETTE_COLORS};
+
+const ROWS_PER_PALETTE_PREVIEW: usize = 8;
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum GraphicsEditorMode {
@@ -83,4 +85,20 @@ impl GraphicsEditor {
             ui.add(Slider::new(&mut self.scale, 1..=100));
         });
     }
+}
+
+pub(crate) fn draw_palette_preview(ui: &mut Ui, palette: &Palette, texture_id: TextureId) {
+    ui.spacing_mut().item_spacing = Vec2 { x: 0.0, y: 0.0 };
+    ui.horizontal(|ui| {
+        (0..PALETTE_COLORS / ROWS_PER_PALETTE_PREVIEW).for_each(|x| {
+            ui.vertical(|ui| {
+                (0..ROWS_PER_PALETTE_PREVIEW).for_each(|y| {
+                    let color = palette.colors[x + (y * ROWS_PER_PALETTE_PREVIEW)];
+                    let image = Image::new(texture_id, Vec2 { x: 10.0, y: 10.0 })
+                        .tint(Color32::from_rgb(color.r, color.g, color.b));
+                    ui.add(image);
+                });
+            });
+        })
+    });
 }

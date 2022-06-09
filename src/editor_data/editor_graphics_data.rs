@@ -14,9 +14,8 @@ impl Default for EditorGraphicsData {
         Self {
             palettes: Palette::default_palette_collection()
                 .into_iter()
-                .enumerate()
-                .map(|(index, palette)| EditorPalette {
-                    name: format!("Palette {}", index + 1),
+                .map(|(palette, name)| EditorPalette {
+                    name: name.to_string(),
                     palette,
                 })
                 .collect(),

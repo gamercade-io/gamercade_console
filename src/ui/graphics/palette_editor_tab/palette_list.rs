@@ -1,9 +1,9 @@
-use egui::{Color32, Image, TextureId, Ui, Vec2};
+use egui::{TextureId, Ui};
 use hashbrown::HashSet;
 
 use crate::{
     editor_data::{EditorGraphicsData, EditorPalette},
-    ui::import_image_dialog,
+    ui::{draw_palette_preview, import_image_dialog},
 };
 use gamercade_core::{Color, Palette, PALETTE_COLORS};
 
@@ -41,12 +41,7 @@ impl PaletteList {
                                 };
 
                                 // Draws the palette preview
-                                ui.spacing_mut().item_spacing = Vec2 { x: 0.0, y: 0.0 };
-                                palette.palette.colors.iter().for_each(|color| {
-                                    let image = Image::new(texture_id, Vec2 { x: 10.0, y: 10.0 })
-                                        .tint(Color32::from_rgb(color.r, color.g, color.b));
-                                    ui.add(image);
-                                })
+                                draw_palette_preview(ui, &palette.palette, texture_id);
                             });
                         });
                 });
