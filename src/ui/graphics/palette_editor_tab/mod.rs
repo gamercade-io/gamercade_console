@@ -11,7 +11,7 @@ use palette_viewer::PaletteViewer;
 use sprite_preview::SpritePreview;
 
 // Externals
-use egui::{ColorImage, TextureHandle, TextureId, Ui};
+use egui::{TextureId, Ui};
 
 use super::SpriteSheetEditor;
 use crate::editor_data::EditorGraphicsData;
@@ -22,7 +22,6 @@ pub struct PaletteEditor {
     palette_viewer: PaletteViewer,
     color_editor: ColorEditor,
     sprite_preview: SpritePreview,
-    default_palette_texture: Option<TextureHandle>,
 }
 
 impl std::fmt::Debug for PaletteEditor {
@@ -43,17 +42,8 @@ impl PaletteEditor {
         data: &mut EditorGraphicsData,
         sprite_sheet_editor: &SpriteSheetEditor,
         scale: usize,
+        texture_id: TextureId,
     ) {
-        let texture_id = self
-            .default_palette_texture
-            .get_or_insert_with(|| {
-                ui.ctx().load_texture(
-                    "default palette texture",
-                    ColorImage::from_rgba_unmultiplied([1, 1], &[255, 255, 255, 255]),
-                )
-            })
-            .id();
-
         ui.horizontal(|ui| {
             self.palette_list.draw(ui, texture_id, data);
 
@@ -106,7 +96,7 @@ impl PaletteEditor {
         });
     }
 
-    pub fn selected_palette(&self) -> usize {
-        self.palette_list.selected_palette
+    pub fn selected_palette_mut(&mut self) -> &mut usize {
+        &mut self.palette_list.selected_palette
     }
 }

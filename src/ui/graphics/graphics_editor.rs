@@ -1,4 +1,4 @@
-use egui::{Slider, Ui};
+use egui::{ColorImage, Slider, TextureHandle, Ui};
 
 use crate::editor_data::EditorGraphicsData;
 
@@ -20,11 +20,12 @@ impl Default for GraphicsEditor {
             sprite_editor: SpriteEditor::default(),
 
             scale: 16,
+            default_palette_texture: None,
         }
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct GraphicsEditor {
     pub mode: GraphicsEditorMode,
     pub palette_editor: PaletteEditor,
@@ -32,6 +33,7 @@ pub struct GraphicsEditor {
     pub sprite_editor: SpriteEditor,
 
     pub scale: usize,
+    default_palette_texture: Option<TextureHandle>,
 }
 
 impl GraphicsEditor {
@@ -46,15 +48,31 @@ impl GraphicsEditor {
     }
 
     pub fn draw_contents(&mut self, ui: &mut Ui, data: &mut EditorGraphicsData) {
+        let texture_id = self
+            .default_palette_texture
+            .get_or_insert_with(|| {
+                ui.ctx().load_texture(
+                    "default palette texture",
+                    ColorImage::from_rgba_unmultiplied([1, 1], &[255, 255, 255, 255]),
+                )
+            })
+            .id();
+
         match self.mode {
-            GraphicsEditorMode::Palette => {
-                self.palette_editor
-                    .draw(ui, data, &self.sprite_sheet_editor, self.scale)
-            }
-            GraphicsEditorMode::SpriteSheet => {
-                self.sprite_sheet_editor
-                    .draw(ui, data, &self.palette_editor, self.scale)
-            }
+            GraphicsEditorMode::Palette => self.palette_editor.draw(
+                ui,
+                data,
+                &self.sprite_sheet_editor,
+                self.scale,
+                texture_id,
+            ),
+            GraphicsEditorMode::SpriteSheet => self.sprite_sheet_editor.draw(
+                ui,
+                data,
+                &mut self.palette_editor,
+                self.scale,
+                texture_id,
+            ),
             GraphicsEditorMode::Sprite => self.sprite_editor.draw(ui),
         };
     }

@@ -2,7 +2,10 @@ use egui::{ColorImage, Image, Ui, Vec2};
 use gamercade_core::{ColorIndex, Palette, SpriteIndex, SpriteSheet};
 
 #[derive(Clone, Debug, Default)]
-pub struct SpritePreview {}
+pub struct SpritePreview {
+    current_buffer: Vec<u8>,
+    preview_buffer: Vec<u8>,
+}
 
 impl SpritePreview {
     pub fn draw(
@@ -22,10 +25,26 @@ impl SpritePreview {
                 let sprite = &sprite_sheet[sprite_index];
 
                 // First Image
-                add_image(ui, "Current:", sprite_sheet, sprite, current_palette, scale);
+                add_image(
+                    ui,
+                    "Current:",
+                    &mut self.current_buffer,
+                    sprite_sheet,
+                    sprite,
+                    current_palette,
+                    scale,
+                );
 
                 // Second Image
-                add_image(ui, "Preview:", sprite_sheet, sprite, preview_palette, scale);
+                add_image(
+                    ui,
+                    "Preview:",
+                    &mut self.preview_buffer,
+                    sprite_sheet,
+                    sprite,
+                    preview_palette,
+                    scale,
+                );
             });
         });
     }
@@ -34,23 +53,25 @@ impl SpritePreview {
 fn add_image(
     ui: &mut Ui,
     label: &'static str,
+    buffer: &mut Vec<u8>,
     sheet: &SpriteSheet,
     sprite: &[ColorIndex],
     palette: &Palette,
     scale: usize,
 ) {
-    let mut raw_rgba = Vec::with_capacity(sheet.width * sheet.height * 4 * 2);
+    ui.label(label);
+
+    buffer.clear();
 
     sprite.iter().for_each(|color_index| {
         let rgba = palette[*color_index].into_pixel_data();
-        raw_rgba.extend(rgba);
+        buffer.extend(rgba);
     });
 
-    let image = ColorImage::from_rgba_unmultiplied([sheet.width, sheet.height], &raw_rgba);
+    let image = ColorImage::from_rgba_unmultiplied([sheet.width, sheet.height], &buffer);
 
     let image = ui.ctx().load_texture(label, image);
 
-    ui.label(label);
     ui.add(Image::new(
         &image,
         Vec2 {

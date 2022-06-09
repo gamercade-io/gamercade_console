@@ -1,7 +1,11 @@
 use egui::{Color32, Image, TextureId, Ui, Vec2};
+use hashbrown::HashSet;
 
-use crate::editor_data::{EditorGraphicsData, EditorPalette};
-use gamercade_core::Palette;
+use crate::{
+    editor_data::{EditorGraphicsData, EditorPalette},
+    ui::import_image_dialog,
+};
+use gamercade_core::{Color, Palette, PALETTE_COLORS};
 
 #[derive(Clone, Debug, Default)]
 pub struct PaletteList {
@@ -102,6 +106,31 @@ impl PaletteList {
                         });
 
                         ui.vertical(|ui| {
+                            let btn_import = ui.button("Import");
+                            let btn_export = ui.button("Export");
+
+                            if btn_import.clicked() {
+                                if data.palettes.len() == u8::MAX as usize + 1 {
+                                    println!("Max of 256 Palettes");
+                                } else {
+                                    match try_load_palette() {
+                                        Ok(loaded) => {
+                                            let new_index = index + 1;
+                                            data.palettes.insert(new_index, loaded);
+                                            self.selected_palette = new_index;
+                                        }
+                                        Err(e) => println!("{}", e),
+                                    }
+                                }
+                            };
+
+                            if btn_export.clicked() {
+                                // TODO: add Export Palette button
+                                println!("TODO: Export Palette");
+                            }
+                        });
+
+                        ui.vertical(|ui| {
                             let btn_up = ui.button("Up");
                             let btn_down = ui.button("Down");
 
@@ -120,4 +149,42 @@ impl PaletteList {
             });
         });
     }
+}
+
+fn try_load_palette() -> Result<EditorPalette, String> {
+    // Loading file stuff
+    let (image, name) = match import_image_dialog("Import Palette...") {
+        Ok(path) => path,
+        Err(e) => return Err(e.to_string()),
+    };
+
+    // Find each color in the image...
+    let mut colors = HashSet::new();
+
+    for pixel in image.pixels() {
+        if colors.insert(*pixel) {
+            // If there are > the allowed number of colors, it's invalid
+            if colors.len() > PALETTE_COLORS {
+                return Err(format!(
+                    "Image has more than the allowed colors of: {}",
+                    PALETTE_COLORS
+                ));
+            }
+        }
+    }
+
+    // We have a valid palette, so start building it
+    let mut palette = Palette {
+        colors: [Color::default(); PALETTE_COLORS],
+    };
+
+    colors.iter().enumerate().for_each(|(index, rgb)| {
+        palette.colors[index] = Color {
+            r: rgb[0],
+            g: rgb[1],
+            b: rgb[2],
+        }
+    });
+
+    Ok(EditorPalette { name, palette })
 }
