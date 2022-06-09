@@ -17,7 +17,7 @@ use egui::{TextureId, Ui};
 use super::PaletteEditor;
 use crate::editor_data::EditorGraphicsData;
 
-#[derive(Debug, Clone, Default)]
+#[derive(Clone, Default)]
 pub struct SpriteSheetEditor {
     list: SheetList,
     settings: SheetSettings,
@@ -62,14 +62,14 @@ impl SpriteSheetEditor {
     }
 }
 
-pub(crate) fn palette_to_map(palette: &Palette) -> HashMap<image::Rgb<u8>, ColorIndex> {
+pub(crate) fn palette_to_map(palette: &Palette) -> HashMap<image::Rgba<u8>, ColorIndex> {
     palette
         .colors
         .iter()
         .enumerate()
         .map(|(index, color)| {
             (
-                image::Rgb::<u8>([color.r, color.g, color.b]),
+                image::Rgba::<u8>([color.r, color.g, color.b, 0xFF]),
                 ColorIndex(index as u8),
             )
         })

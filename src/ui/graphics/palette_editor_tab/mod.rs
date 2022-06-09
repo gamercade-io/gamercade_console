@@ -24,17 +24,6 @@ pub struct PaletteEditor {
     sprite_preview: SpritePreview,
 }
 
-impl std::fmt::Debug for PaletteEditor {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("PaletteEditor")
-            .field("palette_list", &self.palette_list)
-            .field("palette_viewer", &self.palette_viewer)
-            .field("color_editor", &self.color_editor)
-            .field("sprite_preview", &self.sprite_preview)
-            .finish()
-    }
-}
-
 impl PaletteEditor {
     pub fn draw(
         &mut self,

@@ -1,10 +1,19 @@
-use egui::{ColorImage, Image, Ui, Vec2};
+use egui::{ColorImage, Image, TextureHandle, Ui, Vec2};
 use gamercade_core::{ColorIndex, Palette, SpriteIndex, SpriteSheet};
 
-#[derive(Clone, Debug, Default)]
+use crate::ui::load_buffered_image;
+
+#[derive(Clone, Default)]
 pub struct SpritePreview {
-    current_buffer: Vec<u8>,
-    preview_buffer: Vec<u8>,
+    current: SpritePreviewEntry,
+    preview: SpritePreviewEntry,
+}
+
+#[derive(Clone, Default)]
+struct SpritePreviewEntry {
+    label: &'static str,
+    rgb_buffer: Vec<u8>,
+    texture_handle: Option<TextureHandle>,
 }
 
 impl SpritePreview {
@@ -17,7 +26,6 @@ impl SpritePreview {
         sprite_index: SpriteIndex,
         scale: usize,
     ) {
-        // TODO: Write this!
         ui.group(|ui| {
             ui.vertical(|ui| {
                 ui.label("Sprite Preview: ");
@@ -27,8 +35,7 @@ impl SpritePreview {
                 // First Image
                 add_image(
                     ui,
-                    "Current:",
-                    &mut self.current_buffer,
+                    &mut self.current,
                     sprite_sheet,
                     sprite,
                     current_palette,
@@ -38,8 +45,7 @@ impl SpritePreview {
                 // Second Image
                 add_image(
                     ui,
-                    "Preview:",
-                    &mut self.preview_buffer,
+                    &mut self.preview,
                     sprite_sheet,
                     sprite,
                     preview_palette,
@@ -52,28 +58,26 @@ impl SpritePreview {
 
 fn add_image(
     ui: &mut Ui,
-    label: &'static str,
-    buffer: &mut Vec<u8>,
+    entry: &mut SpritePreviewEntry,
     sheet: &SpriteSheet,
     sprite: &[ColorIndex],
     palette: &Palette,
     scale: usize,
 ) {
-    ui.label(label);
-
-    buffer.clear();
+    ui.label(entry.label);
+    entry.rgb_buffer.clear();
 
     sprite.iter().for_each(|color_index| {
         let rgba = palette[*color_index].into_pixel_data();
-        buffer.extend(rgba);
+        entry.rgb_buffer.extend(rgba);
     });
 
-    let image = ColorImage::from_rgba_unmultiplied([sheet.width, sheet.height], &buffer);
+    let rgb = ColorImage::from_rgba_unmultiplied([sheet.width, sheet.height], &entry.rgb_buffer);
 
-    let image = ui.ctx().load_texture(label, image);
+    let image = load_buffered_image(ui, &mut entry.texture_handle, entry.label, rgb);
 
     ui.add(Image::new(
-        &image,
+        image,
         Vec2 {
             x: (sheet.width * scale) as f32,
             y: (sheet.height * scale) as f32,

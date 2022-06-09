@@ -155,22 +155,36 @@ fn try_load_palette() -> Result<EditorPalette, String> {
     // Loading file stuff
     let (image, name) = match import_image_dialog("Import Palette...") {
         Ok(path) => path,
-        Err(e) => return Err(e.to_string()),
+        Err(e) => return Err(e),
     };
 
     // Find each color in the image...
     let mut colors = HashSet::new();
 
     for pixel in image.pixels() {
-        if colors.insert(*pixel) {
-            // If there are > the allowed number of colors, it's invalid
-            if colors.len() > PALETTE_COLORS {
+        match pixel[3] {
+            u8::MAX => {
+                if colors.insert(*pixel) {
+                    // If there are > the allowed number of colors, it's invalid
+                    println!("added: {:?}", pixel);
+                }
+            }
+            0 => continue,
+            a => {
                 return Err(format!(
-                    "Image has more than the allowed colors of: {}",
-                    PALETTE_COLORS
-                ));
+                    "Image contains pixel with alpha value {}. Alpha must be 0 or 255",
+                    a
+                ))
             }
         }
+    }
+
+    let color_count = colors.len();
+    if color_count > PALETTE_COLORS {
+        return Err(format!(
+            "Image has {} colors. Maximum allowed is {}.",
+            color_count, PALETTE_COLORS
+        ));
     }
 
     // We have a valid palette, so start building it
