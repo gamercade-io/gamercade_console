@@ -82,7 +82,7 @@ impl SpriteSheet {
 
         let mut new_sprites = Vec::with_capacity(step * (self.count as usize + 1));
 
-        // Copy the data before this spritedr
+        // Copy the data before this sprite
         new_sprites.extend(start);
 
         // Add the copy or empty one
