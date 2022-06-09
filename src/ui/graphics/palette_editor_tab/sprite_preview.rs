@@ -1,19 +1,38 @@
-use egui::{ColorImage, Image, TextureHandle, Ui, Vec2};
+use egui::{ColorImage, Image, ScrollArea, TextureHandle, Ui, Vec2};
 use gamercade_core::{ColorIndex, Palette, SpriteIndex, SpriteSheet};
 
 use crate::ui::load_buffered_image;
 
-#[derive(Clone, Default)]
+#[derive(Clone)]
 pub struct SpritePreview {
     current: SpritePreviewEntry,
     preview: SpritePreviewEntry,
 }
 
-#[derive(Clone, Default)]
+impl Default for SpritePreview {
+    fn default() -> Self {
+        Self {
+            current: SpritePreviewEntry::new("Current:"),
+            preview: SpritePreviewEntry::new("Preview:"),
+        }
+    }
+}
+
+#[derive(Clone)]
 struct SpritePreviewEntry {
     label: &'static str,
     rgb_buffer: Vec<u8>,
     texture_handle: Option<TextureHandle>,
+}
+
+impl SpritePreviewEntry {
+    pub fn new(label: &'static str) -> Self {
+        Self {
+            label,
+            rgb_buffer: Vec::new(),
+            texture_handle: None,
+        }
+    }
 }
 
 impl SpritePreview {
@@ -26,32 +45,30 @@ impl SpritePreview {
         sprite_index: SpriteIndex,
         scale: usize,
     ) {
-        ui.group(|ui| {
-            ui.vertical(|ui| {
-                ui.label("Sprite Preview: ");
+        ui.vertical(|ui| {
+            ui.label("Sprite Preview: ");
 
-                let sprite = &sprite_sheet[sprite_index];
+            let sprite = &sprite_sheet[sprite_index];
 
-                // First Image
-                add_image(
-                    ui,
-                    &mut self.current,
-                    sprite_sheet,
-                    sprite,
-                    current_palette,
-                    scale,
-                );
+            // First Image
+            add_image(
+                ui,
+                &mut self.current,
+                sprite_sheet,
+                sprite,
+                current_palette,
+                scale,
+            );
 
-                // Second Image
-                add_image(
-                    ui,
-                    &mut self.preview,
-                    sprite_sheet,
-                    sprite,
-                    preview_palette,
-                    scale,
-                );
-            });
+            // Second Image
+            add_image(
+                ui,
+                &mut self.preview,
+                sprite_sheet,
+                sprite,
+                preview_palette,
+                scale,
+            );
         });
     }
 }
@@ -76,11 +93,15 @@ fn add_image(
 
     let image = load_buffered_image(ui, &mut entry.texture_handle, entry.label, rgb);
 
-    ui.add(Image::new(
-        image,
-        Vec2 {
-            x: (sheet.width * scale) as f32,
-            y: (sheet.height * scale) as f32,
-        },
-    ));
+    ui.push_id(entry.label, |ui| {
+        ScrollArea::both().show(ui, |ui| {
+            ui.add(Image::new(
+                image,
+                Vec2 {
+                    x: (sheet.width * scale) as f32,
+                    y: (sheet.height * scale) as f32,
+                },
+            ));
+        });
+    });
 }

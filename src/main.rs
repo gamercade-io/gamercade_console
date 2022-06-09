@@ -21,8 +21,8 @@ fn main() {
         let mut redraw = || {
             let needs_repaint = egui_glow.run(gl_window.window(), |egui_ctx| {
                 editor.draw_menu_panel(egui_ctx);
-                editor.draw_central_panel(egui_ctx);
                 editor.draw_bottom_panel(egui_ctx);
+                editor.draw_central_panel(egui_ctx);
             });
 
             if needs_repaint {
@@ -94,8 +94,8 @@ fn create_display(
     let window_builder = glutin::window::WindowBuilder::new()
         .with_resizable(true)
         .with_inner_size(glutin::dpi::LogicalSize {
-            width: 1280.0,
-            height: 720.0,
+            width: 1366.0,
+            height: 768.0,
         })
         .with_title("Gamercade Editor");
 

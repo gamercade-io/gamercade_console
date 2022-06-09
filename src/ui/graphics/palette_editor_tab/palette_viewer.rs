@@ -22,7 +22,7 @@ impl PaletteViewer {
                                 let selected = index == self.selected_color;
                                 let color = palette.colors[index];
                                 let image_button =
-                                    ImageButton::new(palette_texture, Vec2 { x: 32.0, y: 32.0 })
+                                    ImageButton::new(palette_texture, Vec2 { x: 24.0, y: 24.0 })
                                         .selected(selected)
                                         .tint(Color32::from_rgb(color.r, color.g, color.b));
                                 if ui.add(image_button).clicked() {

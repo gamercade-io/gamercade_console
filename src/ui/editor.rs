@@ -31,7 +31,7 @@ impl Default for Editor {
 
 impl Editor {
     pub fn draw_menu_panel(&self, ctx: &Context) {
-        egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
+        egui::TopBottomPanel::top("editor_top_panel").show(ctx, |ui| {
             menu::bar(ui, |ui| {
                 ui.menu_button("File", |ui| {
                     if ui.button("New").clicked() {
@@ -95,7 +95,7 @@ impl Editor {
     }
 
     pub fn draw_bottom_panel(&mut self, ctx: &Context) {
-        egui::TopBottomPanel::bottom("bottom_panel").show(ctx, |ui| match self.mode {
+        egui::TopBottomPanel::bottom("editor_bottom_panel").show(ctx, |ui| match self.mode {
             EditorMode::GraphicsMode => self.graphics_editor.draw_bottom_panel(ui),
             EditorMode::SoundMode => self.sounds_editor.draw_bottom_panel(ui),
         });

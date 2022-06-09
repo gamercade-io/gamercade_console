@@ -1,4 +1,4 @@
-use egui::{TextureId, Ui};
+use egui::{ScrollArea, TextureId, TopBottomPanel, Ui};
 use hashbrown::HashSet;
 
 use crate::{
@@ -21,14 +21,12 @@ impl PaletteList {
         texture_id: TextureId,
         data: &mut EditorGraphicsData,
     ) {
-        let index = self.selected_palette;
-
         ui.vertical(|ui| {
-            ui.group(|ui| {
-                ui.label(format!("Palette List: {}/256", data.palettes.len()));
+            ui.label(format!("Palette List: {}/256", data.palettes.len()));
 
-                // Draws the list of palettes
-                ui.group(|ui| {
+            // Draws the list of palettes
+            ui.group(|ui| {
+                ScrollArea::vertical().show(ui, |ui| {
                     data.palettes
                         .iter()
                         .enumerate()
@@ -44,103 +42,105 @@ impl PaletteList {
                                 draw_palette_preview(ui, &palette.palette, texture_id);
                             });
                         });
-                });
+                })
+            });
+        });
+    }
 
-                // Draws the buttons
-                ui.group(|ui| {
-                    ui.horizontal(|ui| {
-                        ui.vertical(|ui| {
-                            if ui.button("New").clicked() {
-                                let count = data.palettes.len();
+    // Draws the buttons
+    pub(crate) fn draw_buttons(&mut self, ui: &mut Ui, data: &mut EditorGraphicsData) {
+        let index = self.selected_palette;
 
-                                if count == u8::MAX as usize + 1 {
-                                    println!("Max of 256 Palettes");
-                                } else {
-                                    data.palettes.push(EditorPalette {
-                                        name: format!("Palette {}", count),
-                                        palette: Palette::default(),
-                                    })
-                                }
-                            };
-                            let btn_delete = ui.button("Delete");
+        ui.horizontal(|ui| {
+            ui.vertical(|ui| {
+                if ui.button("New").clicked() {
+                    let count = data.palettes.len();
 
-                            if btn_delete.clicked() {
-                                if data.palettes.len() != 1 {
-                                    data.palettes.remove(index);
+                    if count == u8::MAX as usize + 1 {
+                        println!("Max of 256 Palettes");
+                    } else {
+                        data.palettes.push(EditorPalette {
+                            name: format!("Palette {}", count),
+                            palette: Palette::default(),
+                        })
+                    }
+                };
+                let btn_delete = ui.button("Delete");
 
-                                    if index == data.palettes.len() {
-                                        self.selected_palette = index - 1;
-                                    };
-                                } else {
-                                    println!("Can't delete last palette!")
-                                }
+                if btn_delete.clicked() {
+                    if data.palettes.len() != 1 {
+                        data.palettes.remove(index);
+
+                        if index == data.palettes.len() {
+                            self.selected_palette = index - 1;
+                        };
+                    } else {
+                        println!("Can't delete last palette!")
+                    }
+                }
+            });
+
+            ui.vertical(|ui| {
+                let btn_rename = ui.button("Rename");
+                let btn_duplicate = ui.button("Duplicate");
+
+                if btn_rename.clicked() {
+                    // TODO: add Rename button
+                    println!("TODO: Rename palettes");
+                }
+
+                if btn_duplicate.clicked() {
+                    if data.palettes.len() == u8::MAX as usize + 1 {
+                        println!("Max of 256 Palettes");
+                    } else {
+                        let mut cloned = data.palettes[index].clone();
+                        cloned.name = format!("{} Copy", cloned.name);
+
+                        let new_index = index + 1;
+                        data.palettes.insert(new_index, cloned);
+                        self.selected_palette = new_index;
+                    }
+                };
+            });
+
+            ui.vertical(|ui| {
+                let btn_import = ui.button("Import");
+                let btn_export = ui.button("Export");
+
+                if btn_import.clicked() {
+                    if data.palettes.len() == u8::MAX as usize + 1 {
+                        println!("Max of 256 Palettes");
+                    } else {
+                        match try_load_palette() {
+                            Ok(loaded) => {
+                                let new_index = index + 1;
+                                data.palettes.insert(new_index, loaded);
+                                self.selected_palette = new_index;
                             }
-                        });
+                            Err(e) => println!("{}", e),
+                        }
+                    }
+                };
 
-                        ui.vertical(|ui| {
-                            let btn_rename = ui.button("Rename");
-                            let btn_duplicate = ui.button("Duplicate");
+                if btn_export.clicked() {
+                    // TODO: add Export Palette button
+                    println!("TODO: Export Palette");
+                }
+            });
 
-                            if btn_rename.clicked() {
-                                // TODO: add Rename button
-                                println!("TODO: Rename palettes");
-                            }
+            ui.vertical(|ui| {
+                let btn_up = ui.button("Up");
+                let btn_down = ui.button("Down");
 
-                            if btn_duplicate.clicked() {
-                                if data.palettes.len() == u8::MAX as usize + 1 {
-                                    println!("Max of 256 Palettes");
-                                } else {
-                                    let mut cloned = data.palettes[index].clone();
-                                    cloned.name = format!("{} Copy", cloned.name);
+                if btn_up.clicked() && index != 0 {
+                    data.palettes.swap(index, index - 1);
+                    self.selected_palette = index - 1;
+                }
 
-                                    let new_index = index + 1;
-                                    data.palettes.insert(new_index, cloned);
-                                    self.selected_palette = new_index;
-                                }
-                            };
-                        });
-
-                        ui.vertical(|ui| {
-                            let btn_import = ui.button("Import");
-                            let btn_export = ui.button("Export");
-
-                            if btn_import.clicked() {
-                                if data.palettes.len() == u8::MAX as usize + 1 {
-                                    println!("Max of 256 Palettes");
-                                } else {
-                                    match try_load_palette() {
-                                        Ok(loaded) => {
-                                            let new_index = index + 1;
-                                            data.palettes.insert(new_index, loaded);
-                                            self.selected_palette = new_index;
-                                        }
-                                        Err(e) => println!("{}", e),
-                                    }
-                                }
-                            };
-
-                            if btn_export.clicked() {
-                                // TODO: add Export Palette button
-                                println!("TODO: Export Palette");
-                            }
-                        });
-
-                        ui.vertical(|ui| {
-                            let btn_up = ui.button("Up");
-                            let btn_down = ui.button("Down");
-
-                            if btn_up.clicked() && index != 0 {
-                                data.palettes.swap(index, index - 1);
-                                self.selected_palette = index - 1;
-                            }
-
-                            if btn_down.clicked() && index != data.palettes.len() - 1 {
-                                data.palettes.swap(index, index + 1);
-                                self.selected_palette = index + 1;
-                            }
-                        });
-                    });
-                });
+                if btn_down.clicked() && index != data.palettes.len() - 1 {
+                    data.palettes.swap(index, index + 1);
+                    self.selected_palette = index + 1;
+                }
             });
         });
     }

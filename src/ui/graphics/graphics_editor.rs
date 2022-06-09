@@ -82,7 +82,7 @@ impl GraphicsEditor {
     pub fn draw_bottom_panel(&mut self, ui: &mut Ui) {
         ui.horizontal(|ui| {
             ui.label("Sprite Scaling:");
-            ui.add(Slider::new(&mut self.scale, 1..=100));
+            ui.add(Slider::new(&mut self.scale, 1..=256));
         });
     }
 }
