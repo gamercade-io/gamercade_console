@@ -51,18 +51,18 @@ impl Palette {
         self.colors.map(|color| color.into_pixel_data())
     }
 
-    pub fn default_palette_collection() -> Vec<Palette> {
+    pub fn default_palette_collection() -> Vec<(Palette, &'static str)> {
         vec![
-            Self::resurrect64(),
-            // Self::aap64(),
-            // Self::journey(),
-            // Self::endesga64(),
-            // Self::famicube(),
-            // Self::blknx64(),
-            // Self::tpp20(),
-            // Self::sweetcanyonextended64(),
-            // Self::pastel64(),
-            // Self::rewild64(),
+            (Self::resurrect64(), "RESURRECT 64"),
+            (Self::aap64(), "AAP-64"),
+            (Self::journey(), "JOURNEY"),
+            (Self::endesga64(), "ENDESGA 64"),
+            (Self::famicube(), "FAMICUBE"),
+            (Self::blknx64(), "BLK NX64"),
+            (Self::tpp20(), "THE PERFECT PALETTE 2.0"),
+            (Self::sweetcanyonextended64(), "SWEET CANYON EXTENDED 64"),
+            (Self::pastel64(), "PASTEL-64"),
+            (Self::rewild64(), "REWILD 64"),
         ]
     }
 
