@@ -73,7 +73,11 @@ impl Default for GraphicsData {
     fn default() -> Self {
         Self {
             sprite_sheets: vec![SpriteSheet::default()].into_boxed_slice(),
-            palettes: Palette::default_palette_collection().into_boxed_slice(),
+            palettes: Palette::default_palette_collection()
+                .into_iter()
+                .map(|x| x.0)
+                .collect::<Vec<_>>()
+                .into_boxed_slice(),
         }
     }
 }
