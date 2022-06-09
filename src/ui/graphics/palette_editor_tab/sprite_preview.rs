@@ -1,4 +1,4 @@
-use egui::{ColorImage, Image, ScrollArea, TextureHandle, Ui, Vec2};
+use egui::{ColorImage, Image, ScrollArea, TextureHandle, TopBottomPanel, Ui, Vec2};
 use gamercade_core::{ColorIndex, Palette, SpriteIndex, SpriteSheet};
 
 use crate::ui::load_buffered_image;
@@ -43,7 +43,7 @@ impl SpritePreview {
         preview_palette: &Palette,
         sprite_sheet: &SpriteSheet,
         sprite_index: SpriteIndex,
-        scale: usize,
+        scale: f32,
     ) {
         ui.vertical(|ui| {
             ui.label("Sprite Preview: ");
@@ -79,29 +79,32 @@ fn add_image(
     sheet: &SpriteSheet,
     sprite: &[ColorIndex],
     palette: &Palette,
-    scale: usize,
+    scale: f32,
 ) {
-    ui.label(entry.label);
-    entry.rgb_buffer.clear();
+    ui.group(|ui| {
+        ui.label(entry.label);
+        entry.rgb_buffer.clear();
 
-    sprite.iter().for_each(|color_index| {
-        let rgba = palette[*color_index].into_pixel_data();
-        entry.rgb_buffer.extend(rgba);
-    });
+        sprite.iter().for_each(|color_index| {
+            let rgba = palette[*color_index].into_pixel_data();
+            entry.rgb_buffer.extend(rgba);
+        });
 
-    let rgb = ColorImage::from_rgba_unmultiplied([sheet.width, sheet.height], &entry.rgb_buffer);
+        let rgb =
+            ColorImage::from_rgba_unmultiplied([sheet.width, sheet.height], &entry.rgb_buffer);
 
-    let image = load_buffered_image(ui, &mut entry.texture_handle, entry.label, rgb);
+        let image = load_buffered_image(ui, &mut entry.texture_handle, entry.label, rgb);
 
-    ui.push_id(entry.label, |ui| {
-        ScrollArea::both().show(ui, |ui| {
-            ui.add(Image::new(
-                image,
-                Vec2 {
-                    x: (sheet.width * scale) as f32,
-                    y: (sheet.height * scale) as f32,
-                },
-            ));
+        ui.push_id(entry.label, |ui| {
+            ScrollArea::both().show(ui, |ui| {
+                ui.add(Image::new(
+                    image,
+                    Vec2 {
+                        x: sheet.width as f32 * scale,
+                        y: sheet.height as f32 * scale,
+                    },
+                ));
+            });
         });
     });
 }

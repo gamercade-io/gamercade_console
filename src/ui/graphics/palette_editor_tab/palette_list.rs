@@ -1,4 +1,4 @@
-use egui::{ScrollArea, TextureId, TopBottomPanel, Ui};
+use egui::{ScrollArea, TextureId, Ui};
 use hashbrown::HashSet;
 
 use crate::{
@@ -159,10 +159,7 @@ fn try_load_palette() -> Result<EditorPalette, String> {
     for pixel in image.pixels() {
         match pixel[3] {
             u8::MAX => {
-                if colors.insert(*pixel) {
-                    // If there are > the allowed number of colors, it's invalid
-                    println!("added: {:?}", pixel);
-                }
+                colors.insert(*pixel);
             }
             0 => continue,
             a => {
@@ -194,6 +191,8 @@ fn try_load_palette() -> Result<EditorPalette, String> {
             b: rgb[2],
         }
     });
+
+    palette.colors.sort_unstable();
 
     Ok(EditorPalette { name, palette })
 }

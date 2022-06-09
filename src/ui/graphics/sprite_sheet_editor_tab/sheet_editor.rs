@@ -1,18 +1,18 @@
 use egui::{ColorImage, ImageButton, TextureHandle, Ui, Vec2};
 
 use super::palette_to_map;
-use crate::ui::{import_image_dialog, load_buffered_image};
+use crate::ui::{import_image_dialog};
 use gamercade_core::{ColorIndex, Palette, SpriteIndex, SpriteSheet};
 
 #[derive(Clone, Default)]
 pub struct SheetEditor {
     pub selected_sprite: SpriteIndex,
     raw_rgba_buffer: Vec<u8>,
-    texture_handle: Option<TextureHandle>,
+    texture_handles: Vec<TextureHandle>,
 }
 
 impl SheetEditor {
-    pub fn draw(&mut self, ui: &mut Ui, sheet: &mut SpriteSheet, scale: usize, palette: &Palette) {
+    pub fn draw(&mut self, ui: &mut Ui, sheet: &mut SpriteSheet, scale: f32, palette: &Palette) {
         let step = sheet.width * sheet.height * 4;
         self.raw_rgba_buffer.clear();
 
@@ -41,14 +41,24 @@ impl SheetEditor {
                             &self.raw_rgba_buffer[start..end],
                         );
 
-                        let image =
-                            load_buffered_image(ui, &mut self.texture_handle, "Sprite Editor", rgb);
+                        let image = match self.texture_handles.get_mut(index.0 as usize) {
+                            Some(handle) => {
+                                handle.set(rgb);
+                                handle
+                            }
+                            None => {
+                                self.texture_handles.push(
+                                    ui.ctx().load_texture(format!("sprite_{}", index.0), rgb),
+                                );
+                                &mut self.texture_handles[index.0 as usize]
+                            }
+                        };
 
                         let button = ImageButton::new(
                             image,
                             Vec2 {
-                                x: (sheet.width * scale) as f32,
-                                y: (sheet.height * scale) as f32,
+                                x: sheet.width as f32 * scale,
+                                y: sheet.height as f32 * scale,
                             },
                         )
                         .selected(self.selected_sprite == index);
@@ -118,7 +128,7 @@ fn try_load_sprite(sheet: &SpriteSheet, palette: &Palette) -> Result<Box<[ColorI
     };
 
     // Check if dimensions match
-    if sheet.width as u32 != image.width() && sheet.height as u32 != image.height() {
+    if sheet.width as u32 != image.width() || sheet.height as u32 != image.height() {
         return Err("Imported image width and height don't match the sprite sheet.".to_string());
     }
 

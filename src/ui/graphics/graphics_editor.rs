@@ -21,7 +21,7 @@ impl Default for GraphicsEditor {
             sprite_sheet_editor: SpriteSheetEditor::default(),
             sprite_editor: SpriteEditor::default(),
 
-            scale: 16,
+            scale: 16.0,
             default_palette_texture: None,
         }
     }
@@ -34,7 +34,7 @@ pub struct GraphicsEditor {
     pub sprite_sheet_editor: SpriteSheetEditor,
     pub sprite_editor: SpriteEditor,
 
-    pub scale: usize,
+    pub scale: f32,
     default_palette_texture: Option<TextureHandle>,
 }
 
@@ -82,7 +82,7 @@ impl GraphicsEditor {
     pub fn draw_bottom_panel(&mut self, ui: &mut Ui) {
         ui.horizontal(|ui| {
             ui.label("Sprite Scaling:");
-            ui.add(Slider::new(&mut self.scale, 1..=256));
+            ui.add(Slider::new(&mut self.scale, 1.0..=16.0));
         });
     }
 }

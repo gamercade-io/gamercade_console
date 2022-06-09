@@ -31,7 +31,7 @@ impl SpriteSheetEditor {
         ui: &mut Ui,
         data: &mut EditorGraphicsData,
         palette_editor: &mut PaletteEditor,
-        scale: usize,
+        scale: f32,
         texture_id: TextureId,
     ) {
         ui.horizontal(|ui| {

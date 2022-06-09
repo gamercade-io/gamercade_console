@@ -5,13 +5,13 @@ mod palette_viewer;
 mod sprite_preview;
 
 use color_editor::ColorEditor;
-use gamercade_core::{Palette, SpriteIndex, SpriteSheet};
+use gamercade_core::Palette;
 use palette_list::PaletteList;
 use palette_viewer::PaletteViewer;
 use sprite_preview::SpritePreview;
 
 // Externals
-use egui::{CentralPanel, SidePanel, TextureId, TopBottomPanel, Ui};
+use egui::{SidePanel, TextureId, TopBottomPanel, Ui};
 
 use super::SpriteSheetEditor;
 use crate::editor_data::EditorGraphicsData;
@@ -30,15 +30,17 @@ impl PaletteEditor {
         ui: &mut Ui,
         data: &mut EditorGraphicsData,
         sprite_sheet_editor: &SpriteSheetEditor,
-        scale: usize,
+        scale: f32,
         texture_id: TextureId,
     ) {
         // Draw Palette List
-        SidePanel::left("palette_list_left_panel").show_inside(ui, |ui| {
-            TopBottomPanel::bottom("palette_list_bottom_panel")
-                .show_inside(ui, |ui| self.palette_list.draw_buttons(ui, data));
-            self.palette_list.draw(ui, texture_id, data);
-        });
+        SidePanel::left("palette_list_left_panel")
+            .resizable(false)
+            .show_inside(ui, |ui| {
+                TopBottomPanel::bottom("palette_list_bottom_panel")
+                    .show_inside(ui, |ui| self.palette_list.draw_buttons(ui, data));
+                self.palette_list.draw(ui, texture_id, data);
+            });
 
         // Draw Sprite Preview
         let palette = &mut data.palettes[self.palette_list.selected_palette].palette;
@@ -50,31 +52,26 @@ impl PaletteEditor {
         let mut preview_palette = palette.clone();
         preview_palette.colors[self.palette_viewer.selected_color] = self.color_editor.preview;
 
-        SidePanel::right("sprite_preview_right_panel").show_inside(ui, |ui| {
-            self.sprite_preview.draw(
-                ui,
-                palette,
-                &preview_palette,
-                sprite_sheet,
-                sprite_index,
-                scale,
-            );
-        });
+        SidePanel::right("sprite_preview_right_panel")
+            .resizable(false)
+            .width_range(640.0..=f32::INFINITY)
+            .show_inside(ui, |ui| {
+                self.sprite_preview.draw(
+                    ui,
+                    palette,
+                    &preview_palette,
+                    sprite_sheet,
+                    sprite_index,
+                    scale,
+                );
+            });
 
-        self.draw_color_editor(ui, texture_id, palette, sprite_sheet, sprite_index, scale)
+        self.draw_color_editor(ui, texture_id, palette)
     }
 
     // Draws the right side panel which includes palette viewer, color
     // editor, and sprite preview widgets
-    fn draw_color_editor(
-        &mut self,
-        ui: &mut Ui,
-        texture_id: TextureId,
-        palette: &mut Palette,
-        sprite_sheet: &SpriteSheet,
-        sprite_index: SpriteIndex,
-        scale: usize,
-    ) {
+    fn draw_color_editor(&mut self, ui: &mut Ui, texture_id: TextureId, palette: &mut Palette) {
         ui.vertical(|ui| {
             self.palette_viewer.draw(ui, palette, texture_id);
 
