@@ -6,8 +6,6 @@ TODO: Short Term:
 - Adjust sprite sheet/image importing for sheets versus single images
     - Add "Sprite Sheet Import", same as sprite import, but adds a new one with width/height etc
 - Add General Functionliaty
-    - Editor JSON Save
-    - Editor JSON Load
     - Export ROM
 - Palette Editor
     - Rename Palettes Button Functionality

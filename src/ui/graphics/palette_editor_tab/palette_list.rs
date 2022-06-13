@@ -193,6 +193,7 @@ fn try_load_palette() -> Result<EditorPalette, String> {
     });
 
     palette.colors.sort_unstable();
+    palette.colors.reverse();
 
     Ok(EditorPalette { name, palette })
 }

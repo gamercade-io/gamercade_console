@@ -16,8 +16,4 @@ impl EditorRom {
     pub fn export_as_rom(&self) -> Rom {
         todo!("TODO: Export as ROM is not yet implemented")
     }
-
-    pub fn save_file(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
 }

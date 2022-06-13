@@ -1,4 +1,7 @@
+use std::fs;
+
 use egui::{self, menu, Context};
+use rfd::FileDialog;
 
 use crate::editor_data::EditorRom;
 
@@ -30,7 +33,7 @@ impl Default for Editor {
 }
 
 impl Editor {
-    pub fn draw_menu_panel(&self, ctx: &Context) {
+    pub fn draw_menu_panel(&mut self, ctx: &Context) {
         egui::TopBottomPanel::top("editor_top_panel").show(ctx, |ui| {
             menu::bar(ui, |ui| {
                 ui.menu_button("File", |ui| {
@@ -40,14 +43,16 @@ impl Editor {
                     }
 
                     if ui.button("Open").clicked() {
-                        println!("TODO: Open file!");
+                        if let Err(e) = try_load_editor_rom(&mut self.rom) {
+                            println!("{}", e);
+                        }
                         ui.close_menu();
                     }
 
                     if ui.button("Save").clicked() {
-                        println!("TODO: Save file!");
-                        let save = self.rom.save_file();
-                        println!("{}", save);
+                        if let Err(e) = try_save_editor_rom(&self.rom) {
+                            println!("{}", e);
+                        }
                         ui.close_menu();
                     }
                 });
@@ -99,5 +104,38 @@ impl Editor {
             EditorMode::GraphicsMode => self.graphics_editor.draw_bottom_panel(ui),
             EditorMode::SoundMode => self.sounds_editor.draw_bottom_panel(ui),
         });
+    }
+}
+
+fn try_load_editor_rom(rom: &mut EditorRom) -> Result<(), &'static str> {
+    let text = if let Some(path) = FileDialog::new()
+        .add_filter("gce (.gce)", &["gce"])
+        .pick_file()
+    {
+        match fs::read_to_string(path) {
+            Ok(text) => text,
+            Err(_) => return Err("failed to read file to string."),
+        }
+    } else {
+        return Err("failed to read file");
+    };
+
+    match serde_json::from_str::<EditorRom>(&text) {
+        Ok(parsed) => {
+            *rom = parsed;
+            Ok(())
+        }
+        Err(_) => Err("failed to parse text from file"),
+    }
+}
+
+fn try_save_editor_rom(rom: &EditorRom) -> Result<(), &'static str> {
+    if let Some(path) = FileDialog::new()
+        .add_filter("gce (.gce)", &["gce"])
+        .save_file()
+    {
+        fs::write(path, serde_json::to_string(rom).unwrap()).map_err(|_| "failed to write file")
+    } else {
+        Err("failed to find save file location")
     }
 }

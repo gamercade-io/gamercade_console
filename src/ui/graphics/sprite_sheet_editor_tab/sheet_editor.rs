@@ -1,7 +1,7 @@
 use egui::{ColorImage, ImageButton, TextureHandle, Ui, Vec2};
 
 use super::palette_to_map;
-use crate::ui::{import_image_dialog};
+use crate::ui::import_image_dialog;
 use gamercade_core::{ColorIndex, Palette, SpriteIndex, SpriteSheet};
 
 #[derive(Clone, Default)]
