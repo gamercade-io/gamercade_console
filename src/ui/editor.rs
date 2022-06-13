@@ -66,8 +66,9 @@ impl Editor {
                     ui.separator();
 
                     if ui.button("Export Game").clicked() {
-                        // TODO: Write this to a file somewhere...
-                        let _output = self.rom.export_as_rom();
+                        if let Err(e) = try_export_rom(&self.rom) {
+                            println!("{}", e);
+                        }
                         ui.close_menu();
                     }
                 })
@@ -134,8 +135,22 @@ fn try_save_editor_rom(rom: &EditorRom) -> Result<(), &'static str> {
         .add_filter("gce (.gce)", &["gce"])
         .save_file()
     {
-        fs::write(path, serde_json::to_string(rom).unwrap()).map_err(|_| "failed to write file")
+        fs::write(path, serde_json::to_string(rom).expect("failed to serialize editor rom to json")).map_err(|_| "failed to write file")
     } else {
-        Err("failed to find save file location")
+        Ok(())
     }
+}
+
+fn try_export_rom(rom: &EditorRom) -> Result<(), &'static str> {
+    if let Some(path) = FileDialog::new().add_filter("wasm (.wasm)", &["wasm"]).pick_file() {
+        let wasm = fs::read(path).map_err(|_| "failed to read as bytes")?;
+
+        if let Some(path) = FileDialog::new().add_filter("gcrom (.gcrom)", &["gcrom"]).save_file() {
+            let rom = rom.export_as_rom(&wasm);
+
+            return fs::write(path, bincode::serialize(&rom).expect("failed to serialize editor rom to binary")).map_err(|_| "failed to serialize editor rom to binary")
+        }
+    }
+
+    Ok(())
 }

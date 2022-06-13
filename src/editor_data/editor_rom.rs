@@ -9,11 +9,17 @@ pub struct EditorRom {
     pub frame_rate: FrameRate,
     pub graphics: EditorGraphicsData,
     pub sounds: EditorSoundsData,
-    // TODO: Something about code?
+    // TODO: Allow loading/setting a file for code?
 }
 
 impl EditorRom {
-    pub fn export_as_rom(&self) -> Rom {
-        todo!("TODO: Export as ROM is not yet implemented")
+    pub fn export_as_rom(&self, code: &[u8]) -> Rom {
+        Rom {
+            resolution: self.resolution,
+            frame_rate: self.frame_rate,
+            graphics: (&self.graphics).into(),
+            sounds: (&self.sounds).into(),
+            code: code.into(),
+        }
     }
 }
