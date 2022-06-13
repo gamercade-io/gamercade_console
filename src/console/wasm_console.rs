@@ -43,11 +43,11 @@ impl Functions {
 }
 
 impl WasmConsole {
-    pub fn new(rom: Arc<Rom>, num_players: usize, code: &[u8]) -> Self {
+    pub fn new(rom: Arc<Rom>, num_players: usize) -> Self {
         // Initialize the contexts
         let contexts = Contexts::new(rom.clone(), num_players);
         let engine = Engine::default();
-        let module = Module::new(&engine, code).unwrap();
+        let module = Module::new(&engine, &rom.code).unwrap();
         let mut linker = Linker::new(&engine);
 
         // TODO: Make this static?

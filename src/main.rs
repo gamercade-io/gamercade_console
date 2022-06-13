@@ -2,8 +2,10 @@ mod api;
 mod console;
 
 use gamercade_core::Rom;
+use rfd::FileDialog;
 
 use std::{
+    fs,
     net::SocketAddr,
     sync::Arc,
     time::{Duration, Instant},
@@ -25,11 +27,12 @@ use crate::console::LocalInputManager;
 use console::{Console, WasmConsole};
 
 fn main() -> Result<(), Error> {
-    let event_loop = EventLoop::new();
-    let code_filename = "wasm_test.wasm";
-    let window = init_window(&event_loop, code_filename);
+    let (rom, filename) = try_load_rom().map_err(|e| Error::UserDefined(e.into()))?;
 
-    let rom = Rom::default();
+    let event_loop = EventLoop::new();
+
+    let window = init_window(&event_loop, &filename);
+
     let (num_players, mut session) = init_session_fast(&rom);
     //let (num_players, mut session) = init_session(&rom);
 
@@ -39,12 +42,7 @@ fn main() -> Result<(), Error> {
 
     //let player_inputs = InputContext::new(num_players);
 
-    let mut console = if code_filename.ends_with(".wasm") {
-        let code = std::fs::read(code_filename).unwrap();
-        WasmConsole::new(rom.clone(), num_players, &code)
-    } else {
-        panic!("Unknown file type");
-    };
+    let mut console = WasmConsole::new(rom.clone(), num_players);
 
     console.call_init();
 
@@ -235,4 +233,30 @@ where
 
     let socket = UdpNonBlockingSocket::bind_to_port(port).unwrap();
     (num_players, sess_builder.start_p2p_session(socket).unwrap())
+}
+
+fn try_load_rom() -> Result<(Rom, String), &'static str> {
+    if let Some(path) = FileDialog::new()
+        .add_filter("gcrom (.gcrom)", &["gcrom"])
+        .pick_file()
+    {
+        let filename = path
+            .file_name()
+            .expect("filename not found")
+            .to_string_lossy()
+            .to_string();
+        match fs::read(path) {
+            Ok(bin) => {
+                let rom =
+                    bincode::deserialize_from(&*bin).map_err(|_| "failed to deserialize file");
+                match rom {
+                    Ok(rom) => Ok((rom, filename)),
+                    Err(e) => Err(e),
+                }
+            }
+            Err(_) => Err("Failed to read file"),
+        }
+    } else {
+        Err("no file selected")
+    }
 }

@@ -39,3 +39,6 @@ nanorand = "0.7.0"
 
 # Networking
 ggrs = "0.9.1"
+
+# File Picker Dialog
+rfd = "0.8.4"
