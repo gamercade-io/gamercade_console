@@ -14,7 +14,7 @@ pub struct Rom {
     pub frame_rate: FrameRate,
     pub graphics: GraphicsData,
     pub sounds: SoundsData,
-    //pub code: Box<[u8]>,
+    pub code: Box<[u8]>,
 }
 
 impl Rom {
