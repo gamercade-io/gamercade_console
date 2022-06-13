@@ -6,11 +6,10 @@ TODO: Short Term:
 - Adjust sprite sheet/image importing for sheets versus single images
     - Add "Sprite Sheet Import", same as sprite import, but adds a new one with width/height etc
 - Add General Functionliaty
-    - Export ROM
+    - Save a rom in memory to use while exporting?
 - Palette Editor
     - Rename Palettes Button Functionality
     - "Export Palette" functionality
-    - Palette color sorting
     - Color Swapping (drag & drop?)
 - Sheet Editor
     - (MANY) Button functionality, like add, delete, move etc
