@@ -30,6 +30,7 @@ impl PixelBuffer {
         palette: &Palette,
         x: i32,
         y: i32,
+        transparency_mask: i64,
     ) {
         let palette = palette.as_pixel_colors();
         let sprite_width = sheet.width;
@@ -53,6 +54,12 @@ impl PixelBuffer {
                 let target_pixel = target_pixel as usize * BYTES_PER_PIXEL;
 
                 let color_index = sprite[x + (y * sprite_width)];
+
+                // We skip this color, due to transparency
+                if (1 << color_index.0) & transparency_mask != 0 {
+                    return;
+                }
+
                 let color = palette[color_index.0 as usize];
                 self.pixel_buffer[target_pixel..target_pixel + BYTES_PER_PIXEL]
                     .copy_from_slice(&color);
