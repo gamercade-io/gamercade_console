@@ -39,5 +39,5 @@ derive_draw_api_binding! {
         palette_index: i32,
     ),
     line(x0: i32, y0: i32, x1: i32, y1: i32, color_index: i32, palette_index: i32),
-    sprite(sheet_index: i32, sprite_index: i32, x: i32, y: i32, palette_index: i32),
+    sprite(sheet_index: i32, sprite_index: i32, x: i32, y: i32, palette_index: i32, transparency_mask: i64),
 }

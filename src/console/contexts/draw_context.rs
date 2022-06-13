@@ -19,7 +19,7 @@ impl DrawContext {
 }
 
 impl DrawApi for DrawContext {
-    fn sprite(&mut self, sheet_index: i32, sprite_index: i32, x: i32, y: i32, palette_index: i32) {
+    fn sprite(&mut self, sheet_index: i32, sprite_index: i32, x: i32, y: i32, palette_index: i32, transparency_mask: i64) {
         let palette = self.rom.graphics.validate_palette_index(palette_index);
         let result = self
             .rom
@@ -43,7 +43,7 @@ impl DrawApi for DrawContext {
         let sheet = self.rom.graphics.sprite_sheet(sheet_index);
 
         self.frame_buffer
-            .draw_sprite(sheet, sprite_index, palette, x, y);
+            .draw_sprite(sheet, sprite_index, palette, x, y, transparency_mask);
     }
 
     fn clear_screen(&mut self, color_index: i32, palette_index: i32) {
