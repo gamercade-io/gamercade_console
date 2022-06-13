@@ -59,10 +59,7 @@ In Progress:
     - Handle Circle out of bounds
 
 TODO (In order of priority):
-1. Example games/wasm folder?
-    1. Helper script / build script to automatically place into correct directory
 1. "Game Editor"
-    1. Import WASM files
     1. Adjust settings like fps/resolution etc
     1. Create patches, sound effects, music (sequences)
     1. Create art assets
@@ -73,10 +70,7 @@ TODO (In order of priority):
     1. How many sprites or sprite sheets there are
     1. Sprite sheet width/height
 1. Include the audio stuff from audio-test
-1. Saving/Loading games as ROM files
 1. Build showcase projects (see below)
-1. Start adding "Sprites" and Sprite Drawing
-    1. Bit blit algorithm
 1. Input handling
     1. Do "Emulated gamepad" for keyboard input, include analogs etc
     1. Gamepad support (GILRS?)
