@@ -6,8 +6,8 @@ use super::{Palette, PaletteIndex, SpriteSheet, SpriteSheetIndex};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct GraphicsData {
-    sprite_sheets: Box<[SpriteSheet]>,
-    palettes: Box<[Palette]>,
+    pub sprite_sheets: Box<[SpriteSheet]>,
+    pub palettes: Box<[Palette]>,
 }
 
 impl GraphicsData {
