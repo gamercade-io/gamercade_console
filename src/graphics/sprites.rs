@@ -113,8 +113,21 @@ impl SpriteSheet {
         self.add_sprite(index, AddKind::Import(sprite))
     }
 
-    pub fn delete_sprite(&mut self, _index: SpriteIndex) {
-        println!("TODO: Delete sprite")
+    pub fn delete_sprite(&mut self, sprite_index: SpriteIndex) {
+        let step = self.step();
+        let mut new_sprites = Vec::with_capacity(step * (self.count as usize + 1));
+
+        self.sprites
+            .chunks_exact(step)
+            .enumerate()
+            .for_each(|(index, slice)| {
+                if index != sprite_index.0 as usize {
+                    new_sprites.extend_from_slice(slice)
+                }
+            });
+
+        self.sprites = new_sprites.into_boxed_slice();
+        self.count -= 1;
     }
 }
 
