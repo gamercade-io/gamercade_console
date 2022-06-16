@@ -2,7 +2,7 @@ use std::ops::Index;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{ColorIndex, PaletteIndex, SpriteIter, PALETTE_COLORS};
+use crate::{ColorIndex, SpriteIter, PALETTE_COLORS};
 
 #[derive(Clone, Copy, Debug, Serialize, Deserialize, Default, PartialEq, Eq)]
 pub struct SpriteSheetIndex(pub u8);
@@ -16,7 +16,6 @@ pub struct SpriteSheet {
     pub width: usize,
     pub sprites: Box<[ColorIndex]>,
     pub count: u8,
-    pub default_palette: PaletteIndex,
 }
 
 impl Default for SpriteSheet {
@@ -33,7 +32,6 @@ impl Default for SpriteSheet {
             width: dimension,
             sprites,
             count: 1,
-            default_palette: PaletteIndex(0),
         }
     }
 }

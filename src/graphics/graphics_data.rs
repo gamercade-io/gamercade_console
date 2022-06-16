@@ -12,7 +12,7 @@ pub struct GraphicsData {
 
 impl GraphicsData {
     pub fn validate_palette_index(&self, index: i32) -> Result<PaletteIndex, &'static str> {
-        if index >= 0 && index < self.palette_count() as i32 {
+        if index >= 0 && index < self.palettes.len() as i32 {
             Ok(PaletteIndex(index as u8))
         } else {
             Err("invalid palette index")
@@ -50,10 +50,6 @@ impl GraphicsData {
         } else {
             Err("invalid sprite index index")
         }
-    }
-
-    pub fn palette_count(&self) -> usize {
-        self.palettes.len()
     }
 
     pub fn palette(&self, palette_index: PaletteIndex) -> &Palette {

@@ -25,4 +25,8 @@ impl FrameRate {
             FrameRate::SuperFast => 240,
         }
     }
+
+    pub fn frame_time(&self) -> f32 {
+        (self.frames_per_second() as f32).recip()
+    }
 }
