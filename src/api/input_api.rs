@@ -22,6 +22,8 @@ macro_rules! derive_bind_input_api {
                 $(
                     fn [<trigger_ $trg_name>](&self, player_id: i32) -> f32;
                 )*
+
+                fn raw_input_state(&self, player_id: i32) -> i64;
             }
 
             pub trait InputApiBinding {
@@ -40,6 +42,8 @@ macro_rules! derive_bind_input_api {
                     fn [<bind_trigger_ $trg_name>](&mut self);
                 )*
 
+                fn bind_raw_input_state(&mut self);
+
                 fn bind_input_api(&mut self) {
                     $(
                         self.[<bind_button_ $btn_name _pressed>]();
@@ -55,6 +59,8 @@ macro_rules! derive_bind_input_api {
                     $(
                         self.[<bind_trigger_ $trg_name>]();
                     )*
+
+                    self.bind_raw_input_state();
                 }
             }
         }

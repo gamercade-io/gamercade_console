@@ -12,6 +12,12 @@ pub struct InputState {
     pub buttons: Buttons,
 }
 
+impl InputState {
+    pub fn as_raw_state(&self) -> i64 {
+        todo!()
+    }
+}
+
 #[repr(C)]
 #[derive(Clone, Copy, PartialEq, Debug, Default, Pod, Zeroable)]
 // 16 bits

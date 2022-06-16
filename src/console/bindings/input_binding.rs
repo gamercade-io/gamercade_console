@@ -76,6 +76,12 @@ macro_rules! derive_bind_wasm_input_api {
                     }
                 )*
                 // END TRIGGER MACRO
+
+                fn bind_raw_input_state(&mut self) {
+                    self.func_wrap("env", "raw_input_state", |caller: Caller<'_, Contexts>, id: i32| {
+                        caller.data().input_context.raw_input_state(id)
+                    }).unwrap();
+                }
             }
         }
     };

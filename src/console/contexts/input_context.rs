@@ -69,6 +69,11 @@ macro_rules! derive_generate_input_api {
                         player_input.current.[<$trg_name _trigger>].get_value()
                     }
                 )*
+
+                fn raw_input_state(&self, player_id: i32) -> i64 {
+                    let player_input = &self.input_entries[player_id as usize];
+                    player_input.current.as_raw_state()
+                }
             }
         }
     }
