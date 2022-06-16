@@ -25,8 +25,7 @@ macro_rules! derive_draw_api_binding {
 derive_draw_api_binding! {
     clear_screen(color_index: i32, palette_index: i32),
     set_pixel(x: i32, y: i32, color_index: i32, palette_index: i32),
-    height(),
-    width(),
+
     circle(x: i32, y: i32, radius: i32, color_index: i32, palette_index: i32),
     //circle_filled(x: i32, y: i32, color_index: i32, palette_index: i32),
     rect(x: i32, y: i32, width: i32, height: i32, color_index: i32, palette_index: i32),

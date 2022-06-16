@@ -1,11 +1,22 @@
 #![allow(unused)]
 
-// Graphics
+// Data
+extern "C" {
+    pub fn height();
+    pub fn width();
+    pub fn fps();
+    pub fn frame_time();
+    pub fn sprite_sheet_count();
+    pub fn palette_count();
+    pub fn sprite_height(sprite_sheet: i32);
+    pub fn sprite_width(sprite_sheet: i32);
+    pub fn sprite_count(sprite_sheet: i32);
+}
+
+// Draw
 extern "C" {
     pub fn clear_screen(color_index: i32, palette_index: i32);
     pub fn set_pixel(x: i32, y: i32, color_index: i32, palette_index: i32);
-    pub fn height() -> i32;
-    pub fn width() -> i32;
     pub fn circle(x: i32, y: i32, radius: i32, color_index: i32, palette_index: i32);
     pub fn rect(x: i32, y: i32, width: i32, height: i32, color_index: i32, palette_index: i32);
     pub fn rect_filled(
@@ -17,7 +28,14 @@ extern "C" {
         palette_index: i32,
     );
     pub fn line(x0: i32, y0: i32, x1: i32, y1: i32, color_index: i32, palette_index: i32);
-    pub fn sprite(sheet_index: i32, sprite_index: i32, x: i32, y: i32, palette_index: i32, transparency_mask: i64);
+    pub fn sprite(
+        sheet_index: i32,
+        sprite_index: i32,
+        x: i32,
+        y: i32,
+        palette_index: i32,
+        transparency_mask: i64,
+    );
 }
 
 // Input

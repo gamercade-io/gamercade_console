@@ -19,7 +19,15 @@ impl DrawContext {
 }
 
 impl DrawApi for DrawContext {
-    fn sprite(&mut self, sheet_index: i32, sprite_index: i32, x: i32, y: i32, palette_index: i32, transparency_mask: i64) {
+    fn sprite(
+        &mut self,
+        sheet_index: i32,
+        sprite_index: i32,
+        x: i32,
+        y: i32,
+        palette_index: i32,
+        transparency_mask: i64,
+    ) {
         let palette = self.rom.graphics.validate_palette_index(palette_index);
         let result = self
             .rom
@@ -65,14 +73,6 @@ impl DrawApi for DrawContext {
         ) {
             self.set_pixel_safe(x, y, color_index, palette_index);
         }
-    }
-
-    fn height(&self) -> i32 {
-        self.rom.height()
-    }
-
-    fn width(&self) -> i32 {
-        self.rom.width()
     }
 
     fn line(&mut self, x0: i32, y0: i32, x1: i32, y1: i32, color_index: i32, palette_index: i32) {
@@ -293,6 +293,14 @@ struct XCord(usize);
 struct YCord(usize);
 
 impl DrawContext {
+    fn width(&self) -> i32 {
+        self.rom.width()
+    }
+
+    fn height(&self) -> i32 {
+        self.rom.height()
+    }
+
     fn validate_x(&self, x: i32) -> Result<XCord, &'static str> {
         if x >= 0 && x < self.width() {
             Ok(XCord(x as usize))

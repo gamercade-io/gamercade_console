@@ -13,8 +13,6 @@ macro_rules! derive_bind_draw_api {
 pub trait DrawApi {
     fn clear_screen(&mut self, color_index: i32, palette_index: i32);
     fn set_pixel(&mut self, x: i32, y: i32, color_index: i32, palette_index: i32);
-    fn height(&self) -> i32;
-    fn width(&self) -> i32;
 
     //TODO
     fn circle(&mut self, x: i32, y: i32, radius: i32, color_index: i32, palette_index: i32);
@@ -41,14 +39,20 @@ pub trait DrawApi {
     );
     fn line(&mut self, x0: i32, y0: i32, x1: i32, y1: i32, color_index: i32, palette_index: i32);
 
-    fn sprite(&mut self, sheet_index: i32, sprite_index: i32, x: i32, y: i32, palette_index: i32, transparency_mask: i64);
+    fn sprite(
+        &mut self,
+        sheet_index: i32,
+        sprite_index: i32,
+        x: i32,
+        y: i32,
+        palette_index: i32,
+        transparency_mask: i64,
+    );
 }
 
 derive_bind_draw_api! {
     bind_clear_screen,
     bind_set_pixel,
-    bind_height,
-    bind_width,
     bind_circle,
     //bind_circle_filled,
     bind_rect,

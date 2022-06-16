@@ -59,6 +59,8 @@ In Progress:
     - Handle Circle out of bounds
 
 TODO (In order of priority):
+1. "Graphics API"
+    1. Proves data related functions like sprite sheet count, width etc
 1. "Game Editor"
     1. Adjust settings like fps/resolution etc
     1. Create patches, sound effects, music (sequences)
@@ -66,9 +68,6 @@ TODO (In order of priority):
 1. Finish "Graphcis" outlined functions
     1. Add "Draw Circle" filled?
     1. Add Write Text function (need a font??)
-1. Add "Data" functions for grabbing data from the ROM
-    1. How many sprites or sprite sheets there are
-    1. Sprite sheet width/height
 1. Include the audio stuff from audio-test
 1. Build showcase projects (see below)
 1. Input handling
@@ -110,18 +109,3 @@ Pong 1p - Simple showcase
 Pong 2p - Showcase networking multiplayer
 Controller Debug - Showcase all controls for local player
 Blasters - Twin stick shooter, Showcase two analog stick usage
-
-Graphics Editor:
-https://en.wikipedia.org/wiki/Indexed_color
-Common Formats which support 4-bit indexed color:
-.gif
-.tif
-.bmp .dib .rle
-.png
-
-Others..
-.pcx
-.lbm .iff
-
-Pixel Scaling/Rotation Stuff:
-https://en.wikipedia.org/wiki/Pixel-art_scaling_algorithms
