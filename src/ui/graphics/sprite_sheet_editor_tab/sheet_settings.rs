@@ -1,8 +1,7 @@
 use std::fmt::Write;
 use std::{fmt::Display, str::FromStr};
 
-use egui::{Button, Slider, TextEdit, Ui};
-use gamercade_core::PaletteIndex;
+use egui::{Button, TextEdit, Ui};
 
 use crate::editor_data::EditorSpriteSheet;
 
@@ -13,38 +12,20 @@ pub struct SheetSettings {
 }
 
 impl SheetSettings {
-    pub fn draw(&mut self, ui: &mut Ui, sheet: &mut EditorSpriteSheet, palette_count: u8) {
+    pub fn draw(&mut self, ui: &mut Ui, sheet: &mut EditorSpriteSheet) {
         ui.group(|ui| {
-            let (is_editable, name, default_palette, width, height) = match &mut self.editable {
+            let (is_editable, name, width, height) = match &mut self.editable {
                 EditState::Off => {
                     let inner = &mut sheet.sprite_sheet;
-                    (
-                        false,
-                        &mut sheet.name,
-                        &mut inner.default_palette,
-                        &mut inner.width,
-                        &mut inner.height,
-                    )
+                    (false, &mut sheet.name, &mut inner.width, &mut inner.height)
                 }
-                EditState::On(ref mut p) => (
-                    true,
-                    &mut p.name,
-                    &mut p.default_palette,
-                    &mut p.width,
-                    &mut p.height,
-                ),
+                EditState::On(ref mut p) => (true, &mut p.name, &mut p.width, &mut p.height),
             };
 
             ui.label("Sprite Sheet Settings");
 
             ui.horizontal(|ui| {
                 entry(&mut self.buffer, is_editable, "Name", ui, name);
-
-                ui.label("Default Palette");
-                ui.add_enabled(
-                    is_editable,
-                    Slider::new(&mut default_palette.0, 0..=palette_count - 1),
-                )
             });
 
             ui.horizontal(|ui| {
@@ -82,7 +63,6 @@ impl SheetSettings {
                 }
 
                 sheet.name = update.name.clone();
-                sheet.sprite_sheet.default_palette = update.default_palette;
             }
         }
 
@@ -116,7 +96,6 @@ struct EditableSettings {
     name: String,
     width: usize,
     height: usize,
-    default_palette: PaletteIndex,
 }
 
 #[derive(Clone, Debug)]
@@ -137,7 +116,6 @@ impl EditState {
             name: other.name.clone(),
             width: other.sprite_sheet.width,
             height: other.sprite_sheet.height,
-            default_palette: other.sprite_sheet.default_palette,
         })
     }
 }

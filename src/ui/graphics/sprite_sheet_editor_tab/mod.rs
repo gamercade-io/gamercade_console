@@ -37,13 +37,12 @@ impl SpriteSheetEditor {
         ui.horizontal(|ui| {
             self.list.draw(ui, data);
 
-            let palette_len = data.palettes.len() as u8;
             let sheet = &mut data.sprite_sheets[self.list.selected_sheet.0 as usize];
             let selected_palette = palette_editor.selected_palette_mut();
             let palette = &data.palettes[*selected_palette].palette;
 
             ui.vertical(|ui| {
-                self.settings.draw(ui, sheet, palette_len);
+                self.settings.draw(ui, sheet);
 
                 self.editor
                     .draw(ui, &mut sheet.sprite_sheet, scale, palette);
