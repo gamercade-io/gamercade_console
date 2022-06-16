@@ -7,6 +7,7 @@ TODO: Short Term:
     - Add "Sprite Sheet Import", same as sprite import, but adds a new one with width/height etc
 - Add General Functionliaty
     - Save a rom in memory to use while exporting?
+    - "Local Test Game" functionality
 - Palette Editor
     - Rename Palettes Button Functionality
     - "Export Palette" functionality
