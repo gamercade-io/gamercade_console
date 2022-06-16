@@ -107,3 +107,17 @@ Pong 1p - Simple showcase
 Pong 2p - Showcase networking multiplayer
 Controller Debug - Showcase all controls for local player
 Blasters - Twin stick shooter, Showcase two analog stick usage
+
+Consider adjusting graphics API to pass "contextual" structs which are just bit flags
+Params Objects:
+Defs:
+Palette = 8 bits, max 256
+Color Index = 6 bits, max 64
+X/Y Flip = 2bits
+Sprite Index = 8bits, max 256
+Sprite Sheet Index = 8bits, max 256
+
+Everything can fit in a single 32bit type
+
+Rect/Line/ClearScreen => Palette + ColorIndex
+Sprite => Palette + X/Y Flip

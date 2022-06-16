@@ -14,8 +14,8 @@ pub trait DrawApi {
     fn clear_screen(&mut self, color_index: i32, palette_index: i32);
     fn set_pixel(&mut self, x: i32, y: i32, color_index: i32, palette_index: i32);
 
-    //TODO
     fn circle(&mut self, x: i32, y: i32, radius: i32, color_index: i32, palette_index: i32);
+    //TODO
     // fn circle_filled(&self, x: i32, y: i32, color_index: i32, palette_index: i32);
 
     fn rect(
