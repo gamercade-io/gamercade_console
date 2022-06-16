@@ -59,8 +59,6 @@ In Progress:
     - Handle Circle out of bounds
 
 TODO (In order of priority):
-1. "Graphics API"
-    1. Proves data related functions like sprite sheet count, width etc
 1. "Game Editor"
     1. Adjust settings like fps/resolution etc
     1. Create patches, sound effects, music (sequences)
