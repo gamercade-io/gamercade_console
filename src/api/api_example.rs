@@ -2,12 +2,12 @@
 
 // Data
 extern "C" {
-    pub fn height();
-    pub fn width();
-    pub fn fps();
-    pub fn frame_time();
-    pub fn sprite_sheet_count();
-    pub fn palette_count();
+    pub fn height() -> i32;
+    pub fn width() -> i32;
+    pub fn fps() -> i32;
+    pub fn frame_time() -> f32;
+    pub fn sprite_sheet_count() -> i32;
+    pub fn palette_count() -> i32;
     pub fn sprite_height(sprite_sheet: i32);
     pub fn sprite_width(sprite_sheet: i32);
     pub fn sprite_count(sprite_sheet: i32);
