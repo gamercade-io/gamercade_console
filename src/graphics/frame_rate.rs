@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 pub enum FrameRate {
     SuperSlow,
     Slow,
@@ -16,7 +16,7 @@ impl Default for FrameRate {
 }
 
 impl FrameRate {
-    pub fn frames_per_second(&self) -> usize {
+    pub fn frames_per_second(self) -> usize {
         match self {
             FrameRate::SuperSlow => 24,
             FrameRate::Slow => 30,
@@ -26,7 +26,7 @@ impl FrameRate {
         }
     }
 
-    pub fn frame_time(&self) -> f32 {
+    pub fn frame_time(self) -> f32 {
         (self.frames_per_second() as f32).recip()
     }
 }

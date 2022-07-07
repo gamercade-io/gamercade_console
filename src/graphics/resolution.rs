@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub enum Resolution {
     UltraLow,  // 128 x 72
     VeryLow,   // 160 x 90
@@ -18,7 +18,7 @@ impl Default for Resolution {
 }
 
 impl Resolution {
-    pub fn width(&self) -> i32 {
+    pub fn width(self) -> i32 {
         match self {
             Self::UltraLow => 128,
             Self::VeryLow => 160,
@@ -30,7 +30,7 @@ impl Resolution {
         }
     }
 
-    pub fn height(&self) -> i32 {
+    pub fn height(self) -> i32 {
         match self {
             Self::UltraLow => 72,
             Self::VeryLow => 90,
@@ -42,7 +42,7 @@ impl Resolution {
         }
     }
 
-    pub fn total_pixels(&self) -> i32 {
+    pub fn total_pixels(self) -> i32 {
         self.width() * self.height()
     }
 }
