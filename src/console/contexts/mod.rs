@@ -1,5 +1,6 @@
 mod data_context;
 mod draw_context;
+mod graphics_parameter_context;
 mod input_context;
 mod random_context;
 
@@ -7,6 +8,7 @@ use std::sync::Arc;
 
 use data_context::DataContext;
 use draw_context::DrawContext;
+use graphics_parameter_context::GraphicsParameterContext;
 use input_context::InputContext;
 use random_context::RandomContext;
 
@@ -17,6 +19,7 @@ pub struct Contexts {
     pub(crate) input_context: InputContext,
     pub(crate) random_context: RandomContext,
     pub(crate) data_context: DataContext,
+    pub(crate) graphics_parameter_context: GraphicsParameterContext,
 }
 
 impl Contexts {
@@ -26,6 +29,7 @@ impl Contexts {
             input_context: InputContext::new(num_players),
             random_context: RandomContext::new(156263),
             data_context: DataContext::new(rom.clone()),
+            graphics_parameter_context: GraphicsParameterContext::default(),
         }
     }
 }
