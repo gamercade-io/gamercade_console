@@ -95,3 +95,13 @@ extern "C" {
     pub fn trigger_left(player_id: i32) -> f32;
     pub fn trigger_right(player_id: i32) -> f32;
 }
+
+// Graphics Params
+extern "C" {
+    pub fn palette_index(palette_index: i32) -> i32;
+    pub fn sprite_sheet_index(sprite_sheet_index: i32) -> i32;
+    pub fn sprite_index(sprite_index: i32) -> i32;
+    pub fn color_index(color_index: i32) -> i32;
+    pub fn flip_x(flip_x: i32) -> i32;
+    pub fn flip_y(flip_y: i32) -> i32;
+}
