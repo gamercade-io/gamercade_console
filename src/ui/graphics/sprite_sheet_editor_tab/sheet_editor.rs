@@ -20,110 +20,120 @@ impl SheetEditor {
             ui.label("Sprite Sheet Editor");
             ui.label(format!("Sprite Count: {}", sheet.count));
 
+            ui.expand_to_include_y(600.0);
+
             // Draws all the sprites
-            // TODO: Make this tiled to fill up space correctly
             ScrollArea::both().show(ui, |ui| {
                 ui.group(|ui| {
-                    sheet
-                        .iter_sprites()
-                        .enumerate()
-                        .for_each(|(index, sprite)| {
-                            let start = step * index;
-                            let end = start + step;
-                            let index = SpriteIndex(index as u8);
+                    egui::Grid::new("sprite_sheet_editor_grid").show(ui, |ui| {
+                        sheet
+                            .iter_sprites()
+                            .enumerate()
+                            .for_each(|(index, sprite)| {
+                                if index != 0 && index % 8 == 0 {
+                                    ui.end_row();
+                                }
 
-                            sprite.iter().for_each(|color_index| {
-                                let rgba = palette[*color_index].into_pixel_data();
-                                self.raw_rgba_buffer.extend(rgba);
+                                let start = step * index;
+                                let end = start + step;
+                                let index = SpriteIndex(index as u8);
+
+                                sprite.iter().for_each(|color_index| {
+                                    let rgba = palette[*color_index].into_pixel_data();
+                                    self.raw_rgba_buffer.extend(rgba);
+                                });
+
+                                let rgb = ColorImage::from_rgba_unmultiplied(
+                                    [sheet.width, sheet.height],
+                                    &self.raw_rgba_buffer[start..end],
+                                );
+
+                                let image = match self.texture_handles.get_mut(index.0 as usize) {
+                                    Some(handle) => {
+                                        handle.set(rgb);
+                                        handle
+                                    }
+                                    None => {
+                                        self.texture_handles.push(
+                                            ui.ctx()
+                                                .load_texture(format!("sprite_{}", index.0), rgb),
+                                        );
+                                        &mut self.texture_handles[index.0 as usize]
+                                    }
+                                };
+
+                                let button = ImageButton::new(
+                                    image,
+                                    Vec2 {
+                                        x: sheet.width as f32 * scale,
+                                        y: sheet.height as f32 * scale,
+                                    },
+                                )
+                                .selected(self.selected_sprite == index);
+
+                                if ui.add(button).clicked() {
+                                    self.selected_sprite = index;
+                                };
                             });
-
-                            let rgb = ColorImage::from_rgba_unmultiplied(
-                                [sheet.width, sheet.height],
-                                &self.raw_rgba_buffer[start..end],
-                            );
-
-                            let image = match self.texture_handles.get_mut(index.0 as usize) {
-                                Some(handle) => {
-                                    handle.set(rgb);
-                                    handle
-                                }
-                                None => {
-                                    self.texture_handles.push(
-                                        ui.ctx().load_texture(format!("sprite_{}", index.0), rgb),
-                                    );
-                                    &mut self.texture_handles[index.0 as usize]
-                                }
-                            };
-
-                            let button = ImageButton::new(
-                                image,
-                                Vec2 {
-                                    x: sheet.width as f32 * scale,
-                                    y: sheet.height as f32 * scale,
-                                },
-                            )
-                            .selected(self.selected_sprite == index);
-
-                            if ui.add(button).clicked() {
-                                self.selected_sprite = index;
-                            };
-                        });
+                    });
                 });
             });
 
             // TODO: add editor buttons:
             // New, Copy, Move Left, Move Right
-            ui.vertical(|ui| {
-                ui.horizontal(|ui| {
-                    if ui.button("New").clicked() {
-                        sheet.new_empty(self.selected_sprite);
-                        self.selected_sprite = SpriteIndex(self.selected_sprite.0 + 1);
-                    }
-
-                    if ui.button("Copy").clicked() {
-                        sheet.duplicate(self.selected_sprite);
-                        self.selected_sprite = SpriteIndex(self.selected_sprite.0 + 1);
-                    }
-
-                    if ui.button("Color Swap").clicked() {
-                        println!("TODO: Color Swap")
-                    }
-
-                    if ui.button("Move Left").clicked() {
-                        println!("TODO: Move Left")
-                    }
-
-                    if ui.button("Move Right").clicked() {
-                        println!("TODO: Move Right")
-                    }
-                });
-
-                ui.horizontal(|ui| {
-                    if ui.button("Delete").clicked() {
-                        if sheet.count != 1 {
-                            sheet.delete_sprite(self.selected_sprite);
-
-                            if self.selected_sprite.0 == sheet.count {
-                                self.selected_sprite.0 = self.selected_sprite.0 - 1;
-                            };
-                        } else {
-                            println!("Can't delete last sprite!")
+            ui.group(|ui| {
+                ui.vertical(|ui| {
+                    ui.horizontal(|ui| {
+                        if ui.button("New").clicked() {
+                            sheet.new_empty(self.selected_sprite);
+                            self.selected_sprite = SpriteIndex(self.selected_sprite.0 + 1);
                         }
-                    }
 
-                    if ui.button("Import").clicked() {
-                        match try_load_sprite(sheet, palette) {
-                            Ok(new_sprite) => {
-                                sheet.add_new_sprite(self.selected_sprite, &new_sprite);
-                                self.selected_sprite = SpriteIndex(self.selected_sprite.0 + 1);
+                        if ui.button("Copy").clicked() {
+                            sheet.duplicate(self.selected_sprite);
+                            self.selected_sprite = SpriteIndex(self.selected_sprite.0 + 1);
+                        }
+
+                        if ui.button("Color Swap").clicked() {
+                            println!("TODO: Color Swap")
+                        }
+
+                        if ui.button("Move Left").clicked() {
+                            println!("TODO: Move Left")
+                        }
+
+                        if ui.button("Move Right").clicked() {
+                            println!("TODO: Move Right")
+                        }
+                    });
+
+                    ui.horizontal(|ui| {
+                        if ui.button("Delete").clicked() {
+                            if sheet.count != 1 {
+                                sheet.delete_sprite(self.selected_sprite);
+
+                                if self.selected_sprite.0 == sheet.count {
+                                    self.selected_sprite.0 = self.selected_sprite.0 - 1;
+                                };
+                            } else {
+                                println!("Can't delete last sprite!")
                             }
-                            Err(e) => println!("{}", e),
                         }
-                    }
 
-                    if ui.button("Export").clicked() {
-                        println!("TODO: Export")
-                    }
+                        if ui.button("Import").clicked() {
+                            match try_load_sprite(sheet, palette) {
+                                Ok(new_sprite) => {
+                                    sheet.add_new_sprite(self.selected_sprite, &new_sprite);
+                                    self.selected_sprite = SpriteIndex(self.selected_sprite.0 + 1);
+                                }
+                                Err(e) => println!("{}", e),
+                            }
+                        }
+
+                        if ui.button("Export").clicked() {
+                            println!("TODO: Export")
+                        }
+                    });
                 });
             });
         });

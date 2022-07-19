@@ -1,4 +1,4 @@
-use std::fs;
+use std::{fs, path::PathBuf};
 
 use egui::{self, menu, Context};
 use rfd::FileDialog;
@@ -13,6 +13,8 @@ pub struct Editor {
 
     graphics_editor: GraphicsEditor,
     sounds_editor: SoundsEditor,
+
+    wasm_path: Option<PathBuf>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -28,6 +30,7 @@ impl Default for Editor {
             rom: EditorRom::default(),
             graphics_editor: GraphicsEditor::default(),
             sounds_editor: SoundsEditor::default(),
+            wasm_path: None,
         }
     }
 }
@@ -64,9 +67,15 @@ impl Editor {
                     }
 
                     ui.separator();
+                    if ui.button("Select game .wasm").clicked() {
+                        if let Err(e) = try_select_wasm(&mut &mut self.wasm_path) {
+                            println!("{}", e);
+                        };
+                        ui.close_menu();
+                    }
 
                     if ui.button("Export Game").clicked() {
-                        if let Err(e) = try_export_rom(&self.rom) {
+                        if let Err(e) = try_export_rom(&self.rom, &mut self.wasm_path) {
                             println!("{}", e);
                         }
                         ui.close_menu();
@@ -145,15 +154,32 @@ fn try_save_editor_rom(rom: &EditorRom) -> Result<(), &'static str> {
     }
 }
 
-fn try_export_rom(rom: &EditorRom) -> Result<(), &'static str> {
-    if let Some(path) = FileDialog::new()
-        .add_filter("wasm (.wasm)", &["wasm"])
-        .pick_file()
-    {
+fn try_select_wasm(wasm_path: &mut Option<PathBuf>) -> Result<(), &'static str> {
+    match try_pick_wasm() {
+        Some(path) => {
+            *wasm_path = Some(path);
+        }
+        None => return Err("didn't select a .wasm file"),
+    };
+
+    Ok(())
+}
+
+fn try_export_rom(rom: &EditorRom, wasm_path: &mut Option<PathBuf>) -> Result<(), &'static str> {
+    *wasm_path = match wasm_path {
+        Some(path) => Some(path.to_path_buf()),
+        None => match try_pick_wasm() {
+            Some(path) => Some(path),
+            None => return Err("didn't select a .wasm file"),
+        },
+    };
+
+    if let Some(path) = wasm_path {
         let wasm = fs::read(path).map_err(|_| "failed to read as bytes")?;
 
         if let Some(path) = FileDialog::new()
             .add_filter("gcrom (.gcrom)", &["gcrom"])
+            .set_title("Export Game .gcrom")
             .save_file()
         {
             let rom = rom.export_as_rom(&wasm);
@@ -167,4 +193,11 @@ fn try_export_rom(rom: &EditorRom) -> Result<(), &'static str> {
     }
 
     Ok(())
+}
+
+fn try_pick_wasm() -> Option<PathBuf> {
+    FileDialog::new()
+        .add_filter("wasm (.wasm)", &["wasm"])
+        .set_title("Load .wasm file")
+        .pick_file()
 }

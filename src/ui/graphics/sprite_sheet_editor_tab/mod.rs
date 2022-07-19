@@ -43,7 +43,6 @@ impl SpriteSheetEditor {
 
             ui.vertical(|ui| {
                 self.settings.draw(ui, sheet);
-
                 self.editor
                     .draw(ui, &mut sheet.sprite_sheet, scale, palette);
                 self.palette_preview
