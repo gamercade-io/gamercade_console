@@ -29,4 +29,5 @@ derive_graphics_parameter_bindings! {
     color_index(color_index: i32),
     flip_x(flip_x: i32),
     flip_y(flip_y: i32),
+    graphics_parameters(palette_index: i32, sprite_sheet_index: i32, sprite_index: i32, color_index: i32, flip_x: i32, flip_y: i32),
 }

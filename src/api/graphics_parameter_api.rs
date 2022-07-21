@@ -5,6 +5,15 @@ pub trait GraphicsParameterApi {
     fn color_index(&self, color_index: i32) -> i32;
     fn flip_x(&self, flip: i32) -> i32;
     fn flip_y(&self, flip: i32) -> i32;
+    fn graphics_parameters(
+        &self,
+        palette_index: i32,
+        sprite_sheet_index: i32,
+        sprite_index: i32,
+        color_index: i32,
+        flip_x: i32,
+        flip_y: i32,
+    ) -> i32;
 }
 
 macro_rules! derive_bind_graphics_parameter_api {
@@ -26,4 +35,5 @@ derive_bind_graphics_parameter_api! {
     bind_color_index,
     bind_flip_x,
     bind_flip_y,
+    bind_graphics_parameters,
 }
