@@ -19,7 +19,15 @@ pub struct Rom {
 
 impl Rom {
     pub fn clear_buffer(&self, color: ColorIndex, palette: PaletteIndex, target: &mut PixelBuffer) {
-        let color = self.graphics.palette(palette)[color].into_pixel_data();
+        let color = if let Some(Some(color)) = self
+            .graphics
+            .palette(palette)
+            .map(|palette| palette.colors.get(color.0 as usize))
+        {
+            color.into_pixel_data()
+        } else {
+            return;
+        };
         target
             .pixel_buffer
             .chunks_exact_mut(BYTES_PER_PIXEL)

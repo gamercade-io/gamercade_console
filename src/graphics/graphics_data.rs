@@ -52,16 +52,20 @@ impl GraphicsData {
         }
     }
 
-    pub fn palette(&self, palette_index: PaletteIndex) -> &Palette {
-        &self.palettes[palette_index.0 as usize]
+    pub fn palette(&self, palette_index: PaletteIndex) -> Option<&Palette> {
+        self.palettes.get(palette_index.0 as usize)
     }
 
-    pub fn sprite_sheet(&self, sprite_sheet_index: SpriteSheetIndex) -> &SpriteSheet {
-        &self.sprite_sheets[sprite_sheet_index.0 as usize]
+    pub fn sprite_sheet(&self, sprite_sheet_index: SpriteSheetIndex) -> Option<&SpriteSheet> {
+        self.sprite_sheets.get(sprite_sheet_index.0 as usize)
     }
 
-    pub fn color(&self, palette_index: PaletteIndex, color: ColorIndex) -> &Color {
-        &self.palettes[palette_index.0 as usize][color]
+    pub fn color(&self, palette_index: PaletteIndex, color: ColorIndex) -> Option<&Color> {
+        if let Some(palette) = self.palettes.get(palette_index.0 as usize) {
+            palette.colors.get(color.0 as usize)
+        } else {
+            None
+        }
     }
 }
 
