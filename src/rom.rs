@@ -10,14 +10,27 @@ use super::{
     SoundsData,
 };
 
-#[derive(Clone, Debug, Serialize, Deserialize, Default)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Rom {
     pub resolution: Resolution,
     pub frame_rate: FrameRate,
     pub graphics: GraphicsData,
     pub sounds: SoundsData,
     pub code: Box<[u8]>,
-    // pub player_counts: (usize, usize),
+    pub player_counts: RangeInclusive<usize>,
+}
+
+impl Default for Rom {
+    fn default() -> Self {
+        Self {
+            resolution: Default::default(),
+            frame_rate: Default::default(),
+            graphics: Default::default(),
+            sounds: Default::default(),
+            code: Default::default(),
+            player_counts: (1..=1),
+        }
+    }
 }
 
 impl Rom {
