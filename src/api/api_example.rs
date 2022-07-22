@@ -13,7 +13,6 @@ extern "C" {
     pub fn sprite_count(sprite_sheet: i32);
 }
 
-
 // Graphics Params
 extern "C" {
     pub fn palette_index(palette_index: i32) -> i32;
@@ -31,7 +30,6 @@ extern "C" {
         flip_y: i32,
     ) -> i32;
 }
-
 
 // Draw
 extern "C" {
