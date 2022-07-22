@@ -77,7 +77,6 @@ TODO (In order of priority):
 1. Add "shared" or "client" random for doing local effects?
 
 Research/Thinking Tasks:
-1. Consider a graphics api without palette calls?
 1. Mouse/Cursor API? for UI + (mouse = right stick) emulation? How to handle networking here?
 1. Brainstorm "UserApi" for stuff like player names, avatar, meta-data outside the game
 1. Full screen shaders: Bloom, scanlines, etc

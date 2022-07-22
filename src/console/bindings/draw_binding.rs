@@ -23,20 +23,34 @@ macro_rules! derive_draw_api_binding {
 }
 
 derive_draw_api_binding! {
-    clear_screen(color_index: i32, palette_index: i32),
-    set_pixel(x: i32, y: i32, color_index: i32, palette_index: i32),
+    clear_screen(graphics_parameters: i32),
+    set_pixel(graphics_parameters: i32, x: i32, y: i32),
 
-    circle(x: i32, y: i32, radius: i32, color_index: i32, palette_index: i32),
-    //circle_filled(x: i32, y: i32, color_index: i32, palette_index: i32),
-    rect(x: i32, y: i32, width: i32, height: i32, color_index: i32, palette_index: i32),
-    rect_filled(
+    circle(graphics_parameters: i32, x: i32, y: i32, radius: i32),
+    // fn circle_filled(x: i32, y: i32, color_index: i32, palette_index: i32),
+
+    rect(
+        graphics_parameters: i32,
         x: i32,
         y: i32,
         width: i32,
         height: i32,
-        color_index: i32,
-        palette_index: i32,
     ),
-    line(x0: i32, y0: i32, x1: i32, y1: i32, color_index: i32, palette_index: i32),
-    sprite(sheet_index: i32, sprite_index: i32, x: i32, y: i32, palette_index: i32, transparency_mask: i64),
+
+    rect_filled(
+        graphics_parameters: i32,
+        x: i32,
+        y: i32,
+        width: i32,
+        height: i32,
+    ),
+
+    line(graphics_parameters: i32, x0: i32, y0: i32, x1: i32, y1: i32),
+
+    sprite(
+        graphics_parameters: i32,
+        transparency_mask: i64,
+        x: i32,
+        y: i32
+    ),
 }

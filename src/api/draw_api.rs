@@ -11,43 +11,20 @@ macro_rules! derive_bind_draw_api {
 }
 
 pub trait DrawApi {
-    fn clear_screen(&mut self, color_index: i32, palette_index: i32);
-    fn set_pixel(&mut self, x: i32, y: i32, color_index: i32, palette_index: i32);
+    fn clear_screen(&mut self, graphics_parameters: i32);
+    fn set_pixel(&mut self, graphics_parameters: i32, x: i32, y: i32);
 
-    fn circle(&mut self, x: i32, y: i32, radius: i32, color_index: i32, palette_index: i32);
+    fn circle(&mut self, graphics_parameters: i32, x: i32, y: i32, radius: i32);
     //TODO
     // fn circle_filled(&self, x: i32, y: i32, color_index: i32, palette_index: i32);
 
-    fn rect(
-        &mut self,
-        x: i32,
-        y: i32,
-        width: i32,
-        height: i32,
-        color_index: i32,
-        palette_index: i32,
-    );
+    fn rect(&mut self, graphics_parameters: i32, x: i32, y: i32, width: i32, height: i32);
 
-    fn rect_filled(
-        &mut self,
-        x: i32,
-        y: i32,
-        width: i32,
-        height: i32,
-        color_index: i32,
-        palette_index: i32,
-    );
-    fn line(&mut self, x0: i32, y0: i32, x1: i32, y1: i32, color_index: i32, palette_index: i32);
+    fn rect_filled(&mut self, graphics_parameters: i32, x: i32, y: i32, width: i32, height: i32);
 
-    fn sprite(
-        &mut self,
-        sheet_index: i32,
-        sprite_index: i32,
-        x: i32,
-        y: i32,
-        palette_index: i32,
-        transparency_mask: i64,
-    );
+    fn line(&mut self, graphics_parameters: i32, x0: i32, y0: i32, x1: i32, y1: i32);
+
+    fn sprite(&mut self, graphics_parameters: i32, transparency_mask: i64, x: i32, y: i32);
 }
 
 derive_bind_draw_api! {

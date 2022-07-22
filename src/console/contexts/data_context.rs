@@ -66,5 +66,6 @@ impl DataContext {
             .validate_sprite_sheet_index(sheet_index)
             .map(|index| self.rom.graphics.sprite_sheet(index))
             .ok()
+            .flatten()
     }
 }
