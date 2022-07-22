@@ -19,6 +19,11 @@ winit = "0.26.1"
 pixels = "0.9.0"
 winit_input_helper = "0.12.0"
 
+# GUI Stuff
+egui = "0.17"
+egui_wgpu_backend = "0.17"
+egui-winit = "0.17"
+
 # Macros & Helpers
 text_io = "0.1.10"
 strum = { version = "0.24.1", features = ["derive"] }

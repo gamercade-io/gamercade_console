@@ -27,6 +27,7 @@ derive_data_api_binding! {
     width(),
     fps(),
     frame_time(),
+    num_players(),
     sprite_sheet_count(),
     palette_count(),
     sprite_height(sprite_sheet: i32),

@@ -79,13 +79,17 @@ impl WasmConsole {
             mutable_globals,
         };
 
-        Self {
+        let mut out = Self {
             rom,
             functions,
             instance,
             state_definition,
             store,
-        }
+        };
+
+        out.call_init();
+
+        out
     }
 
     fn generate_save_state(&mut self) -> WasmConsoleState {

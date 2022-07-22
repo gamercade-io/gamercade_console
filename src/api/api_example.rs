@@ -6,6 +6,7 @@ extern "C" {
     pub fn width() -> i32;
     pub fn fps() -> i32;
     pub fn frame_time() -> f32;
+    pub fn num_players() -> i32;
     pub fn sprite_sheet_count() -> i32;
     pub fn palette_count() -> i32;
     pub fn sprite_height(sprite_sheet: i32);

@@ -7,17 +7,22 @@ use crate::api::DataApi;
 #[derive(Clone)]
 pub struct DataContext {
     rom: Arc<Rom>,
+    num_players: usize,
 }
 
 impl DataContext {
-    pub fn new(rom: Arc<Rom>) -> Self {
-        Self { rom }
+    pub fn new(rom: Arc<Rom>, num_players: usize) -> Self {
+        Self { rom, num_players }
     }
 }
 
 impl DataApi for DataContext {
     fn height(&self) -> i32 {
         self.rom.height()
+    }
+
+    fn num_players(&self) -> i32 {
+        self.num_players as i32
     }
 
     fn width(&self) -> i32 {

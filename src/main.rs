@@ -1,59 +1,63 @@
 mod api;
 mod console;
+mod gui;
 
-use gamercade_core::Rom;
-use rfd::FileDialog;
+use std::time::{Duration, Instant};
 
-use std::{
-    fs,
-    net::SocketAddr,
-    sync::Arc,
-    time::{Duration, Instant},
-};
-
-use ggrs::{
-    Config, GGRSError, P2PSession, PlayerType, SessionBuilder, SessionState, UdpNonBlockingSocket,
-};
-use pixels::{Error, Pixels, SurfaceTexture};
+use ggrs::{GGRSError, P2PSession, SessionState};
+use pixels::{Pixels, SurfaceTexture};
 use winit::{
     dpi::LogicalSize,
-    event::VirtualKeyCode,
+    event::{Event, VirtualKeyCode},
     event_loop::{ControlFlow, EventLoop},
     window::{Window, WindowBuilder},
 };
 use winit_input_helper::WinitInputHelper;
 
-use crate::console::LocalInputManager;
+use crate::{
+    console::LocalInputManager,
+    gui::{framework::Framework, Gui},
+};
 use console::{Console, WasmConsole};
 
-fn main() -> Result<(), Error> {
-    let (rom, filename) = try_load_rom().map_err(|e| Error::UserDefined(e.into()))?;
-
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     let event_loop = EventLoop::new();
 
-    let window = init_window(&event_loop, &filename);
+    let window = init_window(&event_loop);
+    let window_size = window.inner_size();
+    let scale_factor = window.scale_factor() as f32;
 
-    let (num_players, mut session) = init_session_fast(&rom);
+    //let (num_players, mut session) = init_session_fast(&rom);
     //let (num_players, mut session) = init_session(&rom);
+    let mut session: Option<P2PSession<WasmConsole>> = None;
+    let mut pixels = init_pixels(&window);
 
-    let mut pixels = init_pixels(&window, &rom);
-
-    let rom = Arc::new(rom);
+    //let rom = Arc::new(rom);
 
     //let player_inputs = InputContext::new(num_players);
 
-    let mut console = WasmConsole::new(rom.clone(), num_players);
-
-    console.call_init();
+    //let mut console = WasmConsole::new(rom.clone(), num_players);
 
     let mut input = WinitInputHelper::new();
     let input_manager = LocalInputManager::default();
     let mut last_update = Instant::now();
     let mut accumulator = Duration::ZERO;
 
-    println!("Everything loaded, awaiting remote players.");
+    let mut framework = Framework::new(
+        window_size.width,
+        window_size.height,
+        scale_factor,
+        &pixels,
+        Gui::default(),
+    );
 
     event_loop.run(move |event, _, control_flow| {
+        if let Event::WindowEvent { event, .. } = &event {
+            framework.handle_event(event);
+        }
+
+        framework.prepare(&mut pixels, &mut session, &window);
+
         // Handle input events
         if input.update(&event) {
             // Close events
@@ -62,201 +66,103 @@ fn main() -> Result<(), Error> {
                 return;
             }
 
+            if input.key_pressed(VirtualKeyCode::Space) {
+                framework.gui.window_open = !framework.gui.window_open;
+            }
+
+            // Update the scale factor
+            if let Some(scale_factor) = input.scale_factor() {
+                framework.scale_factor(scale_factor);
+            }
+
             // Resize the window
             if let Some(size) = input.window_resized() {
                 pixels.resize_surface(size.width, size.height);
+                framework.resize(size.width, size.height);
             }
 
-            // Handle GGRS packets
-            session.poll_remote_clients();
+            if let Some(console) = &mut framework.gui.wasm_console {
+                // Handle GGRS packets
+                let session = session.as_mut().unwrap();
+                session.poll_remote_clients();
 
-            if session.current_state() == SessionState::Running {
-                // this is to keep ticks between clients synchronized.
-                // if a client is ahead, it will run frames slightly slower to allow catching up
-                let mut fps_delta = 1. / rom.frame_rate.frames_per_second() as f64;
-                if session.frames_ahead() > 0 {
-                    fps_delta *= 1.1;
-                }
-
-                // get delta time from last iteration and accumulate it
-                let delta = Instant::now().duration_since(last_update);
-                accumulator = accumulator.saturating_add(delta);
-                last_update = Instant::now();
-
-                while accumulator.as_secs_f64() > fps_delta {
-                    accumulator = accumulator.saturating_sub(Duration::from_secs_f64(fps_delta));
-
-                    // Generate all local inputs
-                    // TODO: Refactor this to handle multiple local players correctly
-                    for handle in session.local_player_handles() {
-                        session
-                            .add_local_input(handle, input_manager.generate_input_state(&input))
-                            .unwrap();
+                if session.current_state() == SessionState::Running {
+                    // this is to keep ticks between clients synchronized.
+                    // if a client is ahead, it will run frames slightly slower to allow catching up
+                    let mut fps_delta = 1. / console.rom.frame_rate.frames_per_second() as f64;
+                    if session.frames_ahead() > 0 {
+                        fps_delta *= 1.1;
                     }
 
-                    // Update internal state
-                    match session.advance_frame() {
-                        Ok(requests) => {
-                            console.handle_requests(requests);
+                    // get delta time from last iteration and accumulate it
+                    let delta = Instant::now().duration_since(last_update);
+                    accumulator = accumulator.saturating_add(delta);
+                    last_update = Instant::now();
+
+                    while accumulator.as_secs_f64() > fps_delta {
+                        accumulator =
+                            accumulator.saturating_sub(Duration::from_secs_f64(fps_delta));
+
+                        // Generate all local inputs
+                        // TODO: Refactor this to handle multiple local players correctly
+                        for handle in session.local_player_handles() {
+                            session
+                                .add_local_input(handle, input_manager.generate_input_state(&input))
+                                .unwrap();
                         }
-                        Err(GGRSError::PredictionThreshold) => (),
-                        Err(e) => panic!("{}", e),
+
+                        // Update internal state
+                        match session.advance_frame() {
+                            Ok(requests) => {
+                                console.handle_requests(requests);
+                            }
+                            Err(GGRSError::PredictionThreshold) => (),
+                            Err(e) => panic!("{}", e),
+                        }
                     }
-                }
 
-                // Render the game
-                console.call_draw();
-                console.blit(pixels.get_frame());
-                if pixels
-                    .render()
-                    .map_err(|e| println!("pixels.render() failed: {}", e))
-                    .is_err()
-                {
-                    *control_flow = ControlFlow::Exit;
-                    return;
-                }
+                    // Render the game
+                    console.call_draw();
+                    console.blit(pixels.get_frame());
+                };
+            };
 
-                window.request_redraw();
+            let render_result = pixels.render_with(|encoder, render_target, context| {
+                //TODO: Handle this correctly
+                context.scaling_renderer.render(encoder, render_target);
+                framework.render(encoder, render_target, context)?;
+
+                Ok(())
+            });
+
+            if render_result.is_err() {
+                println!("render_with failed");
+                *control_flow = ControlFlow::Exit;
+                return;
             }
+            window.request_redraw();
         }
     });
 }
 
-fn init_window(event_loop: &EventLoop<()>, code_filename: &str) -> Window {
+fn init_window(event_loop: &EventLoop<()>) -> Window {
     let size = LogicalSize::new(320_f64, 180_f64);
     WindowBuilder::new()
-        .with_title(format!(
-            "Gamercade Console - {} - {}x{}",
-            code_filename, size.width, size.height
-        ))
+        .with_title("Gamercade Console")
         .with_inner_size(size)
         .with_min_inner_size(size)
         .build(event_loop)
         .unwrap()
 }
 
-fn init_pixels(window: &Window, rom: &Rom) -> Pixels {
+fn init_pixels(window: &Window) -> Pixels {
     let window_size = window.inner_size();
     let surface_texture = SurfaceTexture::new(window_size.width, window_size.height, &window);
 
-    let (width, height) = (rom.resolution.width(), rom.resolution.height());
+    // TODO: Check if this is correct
+    //let (width, height) = (rom.resolution.width(), rom.resolution.height());
 
-    Pixels::new(width as u32, height as u32, surface_texture).unwrap()
-}
-
-fn init_session_fast<T>(rom: &Rom) -> (usize, P2PSession<T>)
-where
-    T: Config,
-    <T as Config>::Address: std::str::FromStr,
-    UdpNonBlockingSocket: ggrs::NonBlockingSocket<<T as Config>::Address>,
-    <<T as Config>::Address as std::str::FromStr>::Err: std::fmt::Debug,
-{
-    use text_io::read;
-    println!("Enter player number:");
-
-    let player_id: usize = read!();
-
-    let mut sess_builder = SessionBuilder::<T>::new()
-        .with_num_players(2)
-        .with_fps(rom.frame_rate.frames_per_second())
-        .unwrap();
-
-    let (player_ips, port) = match player_id {
-        1 => (
-            vec![
-                PlayerType::Local,
-                PlayerType::Remote("127.0.0.1:8001".parse().unwrap()),
-            ],
-            8000,
-        ),
-        2 => (
-            vec![
-                PlayerType::Remote("127.0.0.1:8000".parse().unwrap()),
-                PlayerType::Local,
-            ],
-            8001,
-        ),
-        _ => panic!(),
-    };
-
-    for (id, address) in player_ips.into_iter().enumerate() {
-        sess_builder = sess_builder.add_player(address, id).unwrap();
-    }
-
-    let socket = UdpNonBlockingSocket::bind_to_port(port).unwrap();
-    (2, sess_builder.start_p2p_session(socket).unwrap())
+    Pixels::new(320, 180, surface_texture).unwrap()
 }
 
 // TODO: Finish this GGRS Related things:
-fn init_session<T>(rom: &Rom) -> (usize, P2PSession<T>)
-where
-    T: Config<Address = SocketAddr>,
-    UdpNonBlockingSocket: ggrs::NonBlockingSocket<<T as Config>::Address>,
-{
-    use text_io::read;
-
-    println!("Enter port number:");
-    let port: u16 = read!();
-
-    println!("Enter number of players (1-4): ");
-    let num_players: usize = read!();
-
-    assert!(num_players > 0);
-    assert!(num_players <= 4);
-
-    let player_ips = if num_players == 1 {
-        vec![PlayerType::<SocketAddr>::Local]
-    } else {
-        (0..num_players)
-            .map(|_| {
-                println!("Enter ip-address (or 'local' for local):");
-
-                let address: String = read!();
-
-                if address == "local" {
-                    PlayerType::Local
-                } else {
-                    PlayerType::Remote(address.parse().unwrap())
-                }
-            })
-            .collect()
-    };
-
-    let mut sess_builder = SessionBuilder::<T>::new()
-        .with_num_players(num_players)
-        .with_fps(rom.frame_rate.frames_per_second())
-        .unwrap();
-
-    for (id, address) in player_ips.into_iter().enumerate() {
-        sess_builder = sess_builder.add_player(address, id).unwrap();
-    }
-
-    let socket = UdpNonBlockingSocket::bind_to_port(port).unwrap();
-    (num_players, sess_builder.start_p2p_session(socket).unwrap())
-}
-
-fn try_load_rom() -> Result<(Rom, String), &'static str> {
-    if let Some(path) = FileDialog::new()
-        .add_filter("gcrom (.gcrom)", &["gcrom"])
-        .pick_file()
-    {
-        let filename = path
-            .file_name()
-            .expect("filename not found")
-            .to_string_lossy()
-            .to_string();
-        match fs::read(path) {
-            Ok(bin) => {
-                let rom =
-                    bincode::deserialize_from(&*bin).map_err(|_| "failed to deserialize file");
-                match rom {
-                    Ok(rom) => Ok((rom, filename)),
-                    Err(e) => Err(e),
-                }
-            }
-            Err(_) => Err("Failed to read file"),
-        }
-    } else {
-        Err("no file selected")
-    }
-}

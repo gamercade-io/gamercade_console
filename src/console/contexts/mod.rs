@@ -28,7 +28,7 @@ impl Contexts {
             draw_context: DrawContext::new(rom.clone()),
             input_context: InputContext::new(num_players),
             random_context: RandomContext::new(156263),
-            data_context: DataContext::new(rom.clone()),
+            data_context: DataContext::new(rom.clone(), num_players),
             graphics_parameter_context: GraphicsParameterContext::default(),
         }
     }
