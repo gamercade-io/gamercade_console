@@ -11,7 +11,7 @@ pub enum FrameRate {
 
 impl Default for FrameRate {
     fn default() -> Self {
-        Self::Fast
+        Self::Normal
     }
 }
 

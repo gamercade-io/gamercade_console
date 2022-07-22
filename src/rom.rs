@@ -1,5 +1,3 @@
-use std::ops::RangeInclusive;
-
 use crate::{ColorIndex, PaletteIndex, PixelBuffer, BYTES_PER_PIXEL};
 
 use super::graphics::Resolution;
@@ -14,10 +12,10 @@ use super::{
 pub struct Rom {
     pub resolution: Resolution,
     pub frame_rate: FrameRate,
+    pub player_count: (usize, usize),
     pub graphics: GraphicsData,
     pub sounds: SoundsData,
     pub code: Box<[u8]>,
-    pub player_counts: RangeInclusive<usize>,
 }
 
 impl Default for Rom {
@@ -28,7 +26,7 @@ impl Default for Rom {
             graphics: Default::default(),
             sounds: Default::default(),
             code: Default::default(),
-            player_counts: (1..=1),
+            player_count: (1, 1),
         }
     }
 }
