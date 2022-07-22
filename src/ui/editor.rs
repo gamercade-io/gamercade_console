@@ -5,12 +5,13 @@ use rfd::FileDialog;
 
 use crate::editor_data::EditorRom;
 
-use super::{GraphicsEditor, SoundsEditor};
+use super::{GraphicsEditor, RomEditor, SoundsEditor};
 
 pub struct Editor {
     pub rom: EditorRom,
     pub mode: EditorMode,
 
+    rom_editor: RomEditor,
     graphics_editor: GraphicsEditor,
     sounds_editor: SoundsEditor,
 
@@ -19,15 +20,17 @@ pub struct Editor {
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum EditorMode {
-    GraphicsMode,
-    SoundMode,
+    Rom,
+    Graphics,
+    Sound,
 }
 
 impl Default for Editor {
     fn default() -> Self {
         Self {
-            mode: EditorMode::GraphicsMode,
+            mode: EditorMode::Rom,
             rom: EditorRom::default(),
+            rom_editor: RomEditor::default(),
             graphics_editor: GraphicsEditor::default(),
             sounds_editor: SoundsEditor::default(),
             wasm_path: None,
@@ -68,7 +71,7 @@ impl Editor {
 
                     ui.separator();
                     if ui.button("Select game .wasm").clicked() {
-                        if let Err(e) = try_select_wasm(&mut &mut self.wasm_path) {
+                        if let Err(e) = try_select_wasm(&mut self.wasm_path) {
                             println!("{}", e);
                         };
                         ui.close_menu();
@@ -88,31 +91,34 @@ impl Editor {
     pub fn draw_central_panel(&mut self, ctx: &Context) {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.horizontal(|ui| {
-                ui.selectable_value(&mut self.mode, EditorMode::GraphicsMode, "Graphics Mode");
-
-                ui.selectable_value(&mut self.mode, EditorMode::SoundMode, "Sounds Mode");
+                ui.selectable_value(&mut self.mode, EditorMode::Rom, "Rom Settings");
+                ui.selectable_value(&mut self.mode, EditorMode::Graphics, "Graphics Mode");
+                ui.selectable_value(&mut self.mode, EditorMode::Sound, "Sounds Mode");
 
                 ui.separator();
 
                 ui.horizontal(|ui| match &mut self.mode {
-                    EditorMode::GraphicsMode => self.graphics_editor.draw_selector(ui),
-                    EditorMode::SoundMode => self.sounds_editor.draw_selector(ui),
+                    EditorMode::Rom => (),
+                    EditorMode::Graphics => self.graphics_editor.draw_selector(ui),
+                    EditorMode::Sound => self.sounds_editor.draw_selector(ui),
                 });
             });
 
             match self.mode {
-                EditorMode::GraphicsMode => self
+                EditorMode::Rom => self.rom_editor.draw_contents(ui, &mut self.rom),
+                EditorMode::Graphics => self
                     .graphics_editor
                     .draw_contents(ui, &mut self.rom.graphics),
-                EditorMode::SoundMode => self.sounds_editor.draw_contents(ui, &mut self.rom.sounds),
+                EditorMode::Sound => self.sounds_editor.draw_contents(ui, &mut self.rom.sounds),
             }
         });
     }
 
     pub fn draw_bottom_panel(&mut self, ctx: &Context) {
         egui::TopBottomPanel::bottom("editor_bottom_panel").show(ctx, |ui| match self.mode {
-            EditorMode::GraphicsMode => self.graphics_editor.draw_bottom_panel(ui),
-            EditorMode::SoundMode => self.sounds_editor.draw_bottom_panel(ui),
+            EditorMode::Rom => (),
+            EditorMode::Graphics => self.graphics_editor.draw_bottom_panel(ui),
+            EditorMode::Sound => self.sounds_editor.draw_bottom_panel(ui),
         });
     }
 }

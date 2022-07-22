@@ -113,7 +113,7 @@ impl SheetEditor {
                                 sheet.delete_sprite(self.selected_sprite);
 
                                 if self.selected_sprite.0 == sheet.count {
-                                    self.selected_sprite.0 = self.selected_sprite.0 - 1;
+                                    self.selected_sprite.0 -= 1;
                                 };
                             } else {
                                 println!("Can't delete last sprite!")
