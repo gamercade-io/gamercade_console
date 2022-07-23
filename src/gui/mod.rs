@@ -1,6 +1,6 @@
 use std::{fs, net::SocketAddr, path::PathBuf, sync::Arc};
 
-use egui::Context;
+use egui::{Context, Slider};
 use gamercade_core::Rom;
 use ggrs::{P2PSession, PlayerType, SessionBuilder, UdpNonBlockingSocket};
 use pixels::Pixels;
@@ -15,7 +15,7 @@ pub struct Gui {
     pub game_file: Option<PathBuf>,
     pub play_mode: PlayMode,
     pub remote_addr: String,
-    pub player_num: String,
+    pub player_num: usize,
     pub port: String,
 
     pub wasm_console: Option<WasmConsole>,
@@ -28,7 +28,7 @@ impl Default for Gui {
             game_file: None,
             play_mode: PlayMode::SinglePlayer,
             remote_addr: String::new(),
-            player_num: String::new(),
+            player_num: 1,
             port: String::new(),
             wasm_console: None,
         }
@@ -87,10 +87,7 @@ impl Gui {
                         ui.text_edit_singleline(&mut self.remote_addr);
                     });
 
-                    ui.horizontal(|ui| {
-                        ui.label("Player #:");
-                        ui.text_edit_singleline(&mut self.player_num);
-                    });
+                    ui.add(Slider::new(&mut self.player_num, 1..=2).text("Player Number"));
 
                     ui.horizontal(|ui| {
                         ui.label("Port: ");
@@ -104,31 +101,34 @@ impl Gui {
                     .clicked()
                 {
                     let path = self.game_file.as_ref().unwrap();
-                    let players = match self.play_mode {
-                        PlayMode::SinglePlayer => vec![PlayerType::Local],
+                    let (players, port) = match self.play_mode {
+                        PlayMode::SinglePlayer => (vec![PlayerType::Local], 8000),
                         PlayMode::Networked => {
-                            let player_num = self.player_num.parse::<usize>();
                             let remote_addr = self.remote_addr.parse::<SocketAddr>();
+                            let port = self.port.parse::<u16>();
 
-                            if player_num.is_err() {
-                                println!("Player # is invalid");
-                                return;
-                            } else if remote_addr.is_err() {
+                            if remote_addr.is_err() {
                                 println!("Remote Addr is invalid");
+                                return;
+                            } else if port.is_err() {
+                                println!("Port is invalid");
                                 return;
                             }
 
-                            let player_num = player_num.unwrap();
+                            let player_num = self.player_num;
                             let remote_addr = remote_addr.unwrap();
+                            let port = port.unwrap();
 
-                            if player_num == 1 {
+                            let players = if player_num == 1 {
                                 vec![PlayerType::Local, PlayerType::Remote(remote_addr)]
                             } else if player_num == 2 {
                                 vec![PlayerType::Remote(remote_addr), PlayerType::Local]
                             } else {
                                 println!("Player # should be 1 or 2");
                                 return;
-                            }
+                            };
+
+                            (players, port)
                         }
                     };
 
@@ -137,13 +137,6 @@ impl Gui {
                         Ok(bin) => match bincode::deserialize_from::<_, Rom>(&*bin) {
                             Err(e) => println!("{}", e),
                             Ok(rom) => {
-                                let port = match self.port.parse::<u16>() {
-                                    Ok(port) => port,
-                                    Err(_) => {
-                                        println!("Failed to parse port");
-                                        return;
-                                    }
-                                };
                                 let num_players = if self.play_mode == PlayMode::SinglePlayer {
                                     1
                                 } else {

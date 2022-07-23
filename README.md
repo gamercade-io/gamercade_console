@@ -82,7 +82,7 @@ Research/Thinking Tasks:
 1. Full screen shaders: Bloom, scanlines, etc
 
 How to build WASM Projects:
-cargo build --target wasm32-unknown-unknown
+cargo build --release --target wasm32-unknown-unknown
 
 If WGPU errors occur, set WGPU_BACKEND=gl via
 
