@@ -2,7 +2,7 @@ use std::{fs, net::SocketAddr, path::PathBuf, sync::Arc};
 
 use egui::{Context, Slider};
 use gamercade_core::Rom;
-use ggrs::{P2PSession, PlayerType, SessionBuilder, UdpNonBlockingSocket};
+use ggrs::{P2PSession, PlayerType, SessionBuilder, SessionState, UdpNonBlockingSocket};
 use pixels::Pixels;
 use rfd::FileDialog;
 
@@ -52,52 +52,66 @@ impl Gui {
             .open(&mut self.window_open)
             .collapsible(false)
             .show(ctx, |ui| {
-                ui.horizontal(|ui| {
-                    if ui.button("Select Game").clicked() {
-                        self.game_file = FileDialog::new()
-                            .add_filter("gcrom (.gcrom)", &["gcrom"])
-                            .pick_file();
-                    };
+                ui.group(|ui| {
+                    ui.horizontal(|ui| {
+                        if ui.button("Select Game").clicked() {
+                            self.game_file = FileDialog::new()
+                                .add_filter("gcrom (.gcrom)", &["gcrom"])
+                                .pick_file();
+                        };
 
-                    if let Some(file) = &self.game_file {
-                        let filename = file
-                            .file_name()
-                            .expect("filename not found")
-                            .to_string_lossy()
-                            .to_string();
-                        ui.label(filename);
+                        if let Some(file) = &self.game_file {
+                            let filename = file
+                                .file_name()
+                                .expect("filename not found")
+                                .to_string_lossy()
+                                .to_string();
+                            ui.label(filename);
+                        }
+                    });
+                });
+
+                ui.group(|ui| {
+                    ui.label("Play Mode:");
+                    ui.horizontal(|ui| {
+                        ui.selectable_value(
+                            &mut self.play_mode,
+                            PlayMode::SinglePlayer,
+                            "Single Player",
+                        );
+                        ui.selectable_value(&mut self.play_mode, PlayMode::Networked, "Networked");
+                    });
+
+                    let enabled = self.play_mode == PlayMode::Networked;
+
+                    if enabled {
+                        ui.horizontal(|ui| {
+                            ui.label("Remote Address:");
+                            ui.text_edit_singleline(&mut self.remote_addr);
+                        });
+
+                        ui.add(Slider::new(&mut self.player_num, 1..=2).text("Player Number"));
+
+                        ui.horizontal(|ui| {
+                            ui.label("Local Port: ");
+                            ui.text_edit_singleline(&mut self.port);
+                        });
                     }
                 });
 
-                ui.label("Play Mode:");
-                ui.horizontal(|ui| {
-                    ui.selectable_value(
-                        &mut self.play_mode,
-                        PlayMode::SinglePlayer,
-                        "Single Player",
-                    );
-                    ui.selectable_value(&mut self.play_mode, PlayMode::Networked, "Networked");
-                });
+                let launch_game_text = if let Some(session) = session {
+                    if session.current_state() == SessionState::Synchronizing {
+                        "Waiting to establish connection..."
+                    } else {
+                        "Connected!"
+                    }
+                } else {
+                    "Launch Game"
+                };
 
-                let enabled = self.play_mode == PlayMode::Networked;
-
-                if enabled {
-                    ui.horizontal(|ui| {
-                        ui.label("Remote Address:");
-                        ui.text_edit_singleline(&mut self.remote_addr);
-                    });
-
-                    ui.add(Slider::new(&mut self.player_num, 1..=2).text("Player Number"));
-
-                    ui.horizontal(|ui| {
-                        ui.label("Port: ");
-                        ui.text_edit_singleline(&mut self.port);
-                    });
-                }
-
-                let launch_game = egui::Button::new("Launch Game");
+                let launch_game = egui::Button::new(launch_game_text);
                 if ui
-                    .add_enabled(self.game_file.is_some(), launch_game)
+                    .add_enabled(self.game_file.is_some() && session.is_none(), launch_game)
                     .clicked()
                 {
                     let path = self.game_file.as_ref().unwrap();
