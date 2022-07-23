@@ -121,10 +121,13 @@ Rect/Line/ClearScreen => Palette + ColorIndex
 Sprite => Palette + X/Y Flip
 
 Windows:
-64-bit - x86_64-pc-windows-msvc
+64-bit - x86_64-pc-windows-msvc - Desktop
 32-bit - i686-pc-windows-msvc
 
 Linux:
-arm64 - aarch64-unknown-linux-gnu
+arm64 - aarch64-unknown-linux-gnu - Orange Pi??
 32-bit - i686-unknown-linux-gnu
-64-bit - x86_64-unknown-linux-gnu
+64-bit - x86_64-unknown-linux-gnu - Chromebook
+
+Mac:
+lol apple
