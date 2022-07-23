@@ -102,8 +102,7 @@ http://jp.oplx.com/opl2.htm
 https://doomwiki.org/wiki/OPL_emulation
 
 Showcase Projects TODO:
-Pong 1p - Simple showcase
-Pong 2p - Showcase networking multiplayer
+Pong 1p/2p - DONE!
 Controller Debug - Showcase all controls for local player
 Blasters - Twin stick shooter, Showcase two analog stick usage
 
@@ -120,3 +119,12 @@ Everything can fit in a single 32bit type
 
 Rect/Line/ClearScreen => Palette + ColorIndex
 Sprite => Palette + X/Y Flip
+
+Windows:
+64-bit - x86_64-pc-windows-msvc
+32-bit - i686-pc-windows-msvc
+
+Linux:
+arm64 - aarch64-unknown-linux-gnu
+32-bit - i686-unknown-linux-gnu
+64-bit - x86_64-unknown-linux-gnu
