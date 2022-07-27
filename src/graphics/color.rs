@@ -22,17 +22,19 @@ pub struct Color {
     pub r: u8,
     pub g: u8,
     pub b: u8,
+    pub a: u8,
 }
 
 impl Color {
-    pub fn new(r: u8, g: u8, b: u8) -> Self {
-        Self { r, g, b }
+    pub fn new(r: u8, g: u8, b: u8, a: u8) -> Self {
+        Self { r, g, b, a }
     }
 
     pub fn from_hex(hex: usize) -> Self {
         assert!(hex <= 0xFFFFFF);
 
         Self {
+            a: ((hex >> 24) * 0xFF) as u8,
             r: ((hex >> 16) & 0xFF) as u8,
             g: ((hex >> 8) & 0xFF) as u8,
             b: (hex & 0xFF) as u8,
@@ -40,16 +42,17 @@ impl Color {
     }
 
     pub fn into_pixel_data(&self) -> [u8; BYTES_PER_PIXEL] {
-        [self.r, self.g, self.b, 0xFF]
+        [self.r, self.g, self.b, self.a]
     }
 }
 
-impl From<[u8; 3]> for Color {
-    fn from(color: [u8; 3]) -> Self {
+impl From<[u8; 4]> for Color {
+    fn from(color: [u8; 4]) -> Self {
         Self {
             r: color[0],
             g: color[1],
             b: color[2],
+            a: color[3],
         }
     }
 }
