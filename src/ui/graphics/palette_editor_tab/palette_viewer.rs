@@ -24,7 +24,9 @@ impl PaletteViewer {
                                 let image_button =
                                     ImageButton::new(palette_texture, Vec2 { x: 24.0, y: 24.0 })
                                         .selected(selected)
-                                        .tint(Color32::from_rgb(color.r, color.g, color.b));
+                                        .tint(Color32::from_rgba_unmultiplied(
+                                            color.r, color.g, color.b, color.a,
+                                        ));
                                 if ui.add(image_button).clicked() {
                                     self.selected_color = index
                                 };

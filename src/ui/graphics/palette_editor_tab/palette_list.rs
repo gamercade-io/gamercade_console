@@ -158,10 +158,9 @@ fn try_load_palette() -> Result<EditorPalette, String> {
 
     for pixel in image.pixels() {
         match pixel[3] {
-            u8::MAX => {
+            u8::MAX | 0 => {
                 colors.insert(*pixel);
             }
-            0 => continue,
             a => {
                 return Err(format!(
                     "Image contains pixel with alpha value {}. Alpha must be 0 or 255",
@@ -184,11 +183,12 @@ fn try_load_palette() -> Result<EditorPalette, String> {
         colors: [Color::default(); PALETTE_COLORS],
     };
 
-    colors.iter().enumerate().for_each(|(index, rgb)| {
+    colors.iter().enumerate().for_each(|(index, rgba)| {
         palette.colors[index] = Color {
-            r: rgb[0],
-            g: rgb[1],
-            b: rgb[2],
+            r: rgba[0],
+            g: rgba[1],
+            b: rgba[2],
+            a: rgba[3],
         }
     });
 

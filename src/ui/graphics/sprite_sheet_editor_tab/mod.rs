@@ -67,7 +67,7 @@ pub(crate) fn palette_to_map(palette: &Palette) -> HashMap<image::Rgba<u8>, Colo
         .enumerate()
         .map(|(index, color)| {
             (
-                image::Rgba::<u8>([color.r, color.g, color.b, 0xFF]),
+                image::Rgba::<u8>([color.r, color.g, color.b, color.a]),
                 ColorIndex(index as u8),
             )
         })

@@ -1,4 +1,4 @@
-use egui::{Color32, Image, Slider, TextureId, Ui, Vec2};
+use egui::{Checkbox, Color32, Image, Slider, TextureId, Ui, Vec2};
 use gamercade_core::Color;
 
 #[derive(Clone, Debug, Default)]
@@ -64,12 +64,23 @@ fn draw_picker(
                     ui.label("B");
                     ui.add_enabled(editable, Slider::new(&mut color.b, 0..=255));
                 });
+
+                ui.horizontal(|ui| {
+                    let mut checked = color.a == 0xFF;
+                    let checkbox = Checkbox::new(&mut checked, "Visible");
+                    if ui.add_enabled(editable, checkbox).changed() {
+                        if checked {
+                            color.a = 0xFF;
+                        } else {
+                            color.a = 0;
+                        }
+                    };
+                });
             });
 
-            ui.add(
-                Image::new(texture_id, Vec2 { x: 64.0, y: 64.0 })
-                    .tint(Color32::from_rgb(color.r, color.g, color.b)),
-            );
+            ui.add(Image::new(texture_id, Vec2 { x: 64.0, y: 64.0 }).tint(
+                Color32::from_rgba_unmultiplied(color.r, color.g, color.b, color.a),
+            ));
         });
     });
 }

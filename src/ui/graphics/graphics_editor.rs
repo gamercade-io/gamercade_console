@@ -94,8 +94,9 @@ pub(crate) fn draw_palette_preview(ui: &mut Ui, palette: &Palette, texture_id: T
             ui.vertical(|ui| {
                 (0..ROWS_PER_PALETTE_PREVIEW).for_each(|y| {
                     let color = palette.colors[x + (y * ROWS_PER_PALETTE_PREVIEW)];
-                    let image = Image::new(texture_id, Vec2 { x: 10.0, y: 10.0 })
-                        .tint(Color32::from_rgb(color.r, color.g, color.b));
+                    let image = Image::new(texture_id, Vec2 { x: 10.0, y: 10.0 }).tint(
+                        Color32::from_rgba_unmultiplied(color.r, color.g, color.b, color.a),
+                    );
                     ui.add(image);
                 });
             });
