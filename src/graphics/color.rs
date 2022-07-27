@@ -31,8 +31,6 @@ impl Color {
     }
 
     pub fn from_hex(hex: usize) -> Self {
-        assert!(hex <= 0xFFFFFF);
-
         Self {
             a: ((hex >> 24) * 0xFF) as u8,
             r: ((hex >> 16) & 0xFF) as u8,
