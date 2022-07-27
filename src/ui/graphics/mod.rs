@@ -36,6 +36,32 @@ pub(crate) fn import_image_dialog(title: &str) -> Result<(image::RgbaImage, Stri
     Ok((image, image_name))
 }
 
+pub(crate) fn import_many_images_dialog(title: &str) -> Result<Vec<image::RgbaImage>, String> {
+    let paths = match rfd::FileDialog::new()
+        .set_title(title)
+        .set_directory("/")
+        .add_filter(
+            "image (.png, .jpeg, .gif, .bmp, .ico, .tiff, .tga)",
+            &["png", "jpeg", "gif", "bmp", "ico", "tiff", "tga"],
+        )
+        .pick_files()
+    {
+        Some(paths) => paths,
+        None => return Err("No images selected.".to_string()),
+    };
+
+    let mut out = Vec::new();
+
+    for path in paths.iter() {
+        match image::open(path) {
+            Ok(image) => out.push(image.into_rgba8()),
+            Err(e) => return Err(format!("Failed to load iamge: {:?}", e)),
+        }
+    }
+
+    Ok(out)
+}
+
 pub(crate) fn load_buffered_image<'a>(
     ui: &mut egui::Ui,
     handle: &'a mut Option<egui::TextureHandle>,
