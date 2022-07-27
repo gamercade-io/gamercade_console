@@ -32,10 +32,10 @@ impl Color {
 
     pub fn from_hex(hex: usize) -> Self {
         Self {
-            a: ((hex >> 24) * 0xFF) as u8,
-            r: ((hex >> 16) & 0xFF) as u8,
-            g: ((hex >> 8) & 0xFF) as u8,
-            b: (hex & 0xFF) as u8,
+            r: ((hex >> 24) & 0xFF) as u8,
+            g: ((hex >> 16) & 0xFF) as u8,
+            b: ((hex >> 8) & 0xFF) as u8,
+            a: (hex & 0xFF) as u8,
         }
     }
 
