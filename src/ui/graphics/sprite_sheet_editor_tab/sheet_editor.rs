@@ -1,7 +1,7 @@
 use egui::{ColorImage, ImageButton, ScrollArea, TextureHandle, Ui, Vec2};
 
 use super::palette_to_map;
-use crate::ui::import_image_dialog;
+use crate::ui::import_many_images_dialog;
 use gamercade_core::{ColorIndex, Palette, SpriteIndex, SpriteSheet};
 
 #[derive(Clone, Default)]
@@ -121,11 +121,11 @@ impl SheetEditor {
                         }
 
                         if ui.button("Import").clicked() {
-                            match try_load_sprite(sheet, palette) {
-                                Ok(new_sprite) => {
+                            match try_load_sprites(sheet, palette) {
+                                Ok(new_sprites) => new_sprites.iter().for_each(|new_sprite| {
                                     sheet.add_new_sprite(self.selected_sprite, &new_sprite);
                                     self.selected_sprite = SpriteIndex(self.selected_sprite.0 + 1);
-                                }
+                                }),
                                 Err(e) => println!("{}", e),
                             }
                         }
@@ -140,32 +140,46 @@ impl SheetEditor {
     }
 }
 
-fn try_load_sprite(sheet: &SpriteSheet, palette: &Palette) -> Result<Box<[ColorIndex]>, String> {
+fn try_load_sprites(
+    sheet: &SpriteSheet,
+    palette: &Palette,
+) -> Result<Vec<Box<[ColorIndex]>>, String> {
     // File opening stuff
-    let (image, _) = match import_image_dialog("Import Sprite...") {
+    let images = match import_many_images_dialog("Import Sprites...") {
         Ok(path) => path,
         Err(e) => return Err(e),
     };
 
-    // Check if dimensions match
-    if sheet.width as u32 != image.width() || sheet.height as u32 != image.height() {
-        return Err("Imported image width and height don't match the sprite sheet.".to_string());
+    if images.is_empty() {
+        return Err("Returned an empty vector of images".to_string());
     }
 
-    // Build the colors map, and load the sprite
     let colors = palette_to_map(palette);
-    let mut output = Vec::with_capacity(image.len());
+    let mut out_group = Vec::new();
 
-    for color in image.pixels() {
-        if let Some(index) = colors.get(color) {
-            output.push(*index)
-        } else {
-            return Err(format!(
-                "Image contains a color not found in the palette: {:?}",
-                color
-            ));
+    for image in images.iter() {
+        // Check if dimensions match
+        if sheet.width as u32 != image.width() || sheet.height as u32 != image.height() {
+            return Err(
+                "Imported image width and height don't match the sprite sheet.".to_string(),
+            );
         }
-    }
 
-    Ok(output.into_boxed_slice())
+        // Build the colors map, and load the sprite
+        let mut new_sprite = Vec::with_capacity(image.len());
+
+        for color in image.pixels() {
+            if let Some(index) = colors.get(color) {
+                new_sprite.push(*index)
+            } else {
+                return Err(format!(
+                    "Image contains a color not found in the palette: {:?}",
+                    color
+                ));
+            }
+        }
+
+        out_group.push(new_sprite.into_boxed_slice());
+    }
+    Ok(out_group)
 }
