@@ -1,4 +1,4 @@
-use serde::{Deserialize, Serialize};
+use serde::{self, Deserialize, Deserializer, Serialize};
 
 use crate::{BYTES_PER_PIXEL, PALETTE_COLORS};
 
@@ -17,7 +17,7 @@ impl TryFrom<i32> for ColorIndex {
     type Error = &'static str;
 }
 
-#[derive(Clone, Copy, Debug, Serialize, Deserialize, Default, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Color {
     pub r: u8,
     pub g: u8,
@@ -25,18 +25,47 @@ pub struct Color {
     pub a: u8,
 }
 
+impl<'de> Deserialize<'de> for Color {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let hex: String = Deserialize::deserialize(deserializer)?;
+        let hex = u32::from_str_radix(&hex, 16).map_err(serde::de::Error::custom)?;
+        Ok(Color::from_hex(hex))
+    }
+}
+
+impl Serialize for Color {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_str(&format!("{:x}", self.to_hex()))
+    }
+}
+
 impl Color {
     pub fn new(r: u8, g: u8, b: u8, a: u8) -> Self {
         Self { r, g, b, a }
     }
 
-    pub fn from_hex(hex: usize) -> Self {
+    pub fn from_hex(hex: u32) -> Self {
         Self {
             r: ((hex >> 24) & 0xFF) as u8,
             g: ((hex >> 16) & 0xFF) as u8,
             b: ((hex >> 8) & 0xFF) as u8,
             a: (hex & 0xFF) as u8,
         }
+    }
+
+    pub fn to_hex(&self) -> u32 {
+        let r = (self.r as u32) << 24;
+        let g = (self.g as u32) << 16;
+        let b = (self.b as u32) << 8;
+        let a = self.a as u32;
+
+        r | g | b | a
     }
 
     pub fn into_pixel_data(&self) -> [u8; BYTES_PER_PIXEL] {

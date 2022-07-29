@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 serde = { version = "1.0.138", features = ["derive"] }
 serde-big-array = "0.4.1"
+base64 = "0.13.0"

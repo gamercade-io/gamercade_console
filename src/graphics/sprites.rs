@@ -1,6 +1,6 @@
 use std::ops::Index;
 
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 
 use crate::{ColorIndex, SpriteIter, PALETTE_COLORS};
 
@@ -14,8 +14,30 @@ pub struct SpriteIndex(pub u8);
 pub struct SpriteSheet {
     pub height: usize,
     pub width: usize,
+
+    #[serde(serialize_with = "ser_sprites", deserialize_with = "de_sprites")]
     pub sprites: Box<[ColorIndex]>,
+
     pub count: u8,
+}
+
+fn de_sprites<'de, D>(deserializer: D) -> Result<Box<[ColorIndex]>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let text: String = Deserialize::deserialize(deserializer)?;
+    let bytes = base64::decode(&text).map_err(serde::de::Error::custom)?;
+    let bytes: Vec<ColorIndex> = unsafe { std::mem::transmute(bytes) };
+    Ok(bytes.into_boxed_slice())
+}
+
+fn ser_sprites<S>(sprites: &[ColorIndex], serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    let sprites: &[u8] = unsafe { std::mem::transmute(sprites) };
+    let sprites = base64::encode(sprites);
+    serializer.serialize_str(&sprites)
 }
 
 impl Default for SpriteSheet {

@@ -27,6 +27,7 @@ impl Display for PaletteIndex {
     }
 }
 #[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(transparent)]
 pub struct Palette {
     #[serde(with = "BigArray")]
     pub colors: [Color; PALETTE_COLORS],

@@ -61,7 +61,6 @@ impl PixelBuffer {
                     return;
                 }
 
-                
                 self.pixel_buffer[target_pixel..target_pixel + BYTES_PER_PIXEL]
                     .copy_from_slice(&color);
             });
