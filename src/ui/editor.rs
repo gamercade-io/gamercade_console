@@ -141,7 +141,10 @@ fn try_load_editor_rom(rom: &mut EditorRom) -> Result<(), &'static str> {
             *rom = parsed;
             Ok(())
         }
-        Err(_) => Err("failed to parse text from file"),
+        Err(e) => {
+            println!("{}", e);
+            Err("failed to parse text from file")
+        }
     }
 }
 
@@ -152,7 +155,7 @@ fn try_save_editor_rom(rom: &EditorRom) -> Result<(), &'static str> {
     {
         fs::write(
             path,
-            serde_json::to_string(rom).expect("failed to serialize editor rom to json"),
+            serde_json::to_string_pretty(rom).expect("failed to serialize editor rom to json"),
         )
         .map_err(|_| "failed to write file")
     } else {
