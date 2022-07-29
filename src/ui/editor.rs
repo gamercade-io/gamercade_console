@@ -195,7 +195,9 @@ fn try_export_rom(rom: &EditorRom, wasm_path: &mut Option<PathBuf>) -> Result<()
             let mut encoder = zstd::Encoder::new(target, zstd::DEFAULT_COMPRESSION_LEVEL)
                 .map_err(|_| "failed to create encoder")?;
 
-            encoder.write_all(&rom).map_err(|_| "failed to encoder.write")?;
+            encoder
+                .write_all(&rom)
+                .map_err(|_| "failed to encoder.write")?;
 
             encoder.finish().map_err(|_| "failed to finish writing")?;
         }

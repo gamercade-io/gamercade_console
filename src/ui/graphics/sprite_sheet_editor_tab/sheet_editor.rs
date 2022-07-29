@@ -123,7 +123,7 @@ impl SheetEditor {
                         if ui.button("Import").clicked() {
                             match try_load_sprites(sheet, palette) {
                                 Ok(new_sprites) => new_sprites.iter().for_each(|new_sprite| {
-                                    sheet.add_new_sprite(self.selected_sprite, &new_sprite);
+                                    sheet.add_new_sprite(self.selected_sprite, new_sprite);
                                     self.selected_sprite = SpriteIndex(self.selected_sprite.0 + 1);
                                 }),
                                 Err(e) => println!("{}", e),
