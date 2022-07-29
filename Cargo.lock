@@ -1212,6 +1212,7 @@ dependencies = [
  "wasmtime",
  "winit",
  "winit_input_helper",
+ "zstd",
 ]
 
 [[package]]

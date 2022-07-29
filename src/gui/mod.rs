@@ -1,4 +1,4 @@
-use std::{fs, net::SocketAddr, path::PathBuf, sync::Arc};
+use std::{fs, io::Read, net::SocketAddr, path::PathBuf, sync::Arc};
 
 use egui::{Context, Slider};
 use gamercade_core::Rom;
@@ -146,23 +146,39 @@ impl Gui {
                         }
                     };
 
-                    match fs::read(path) {
-                        Err(e) => println!("{}", e),
-                        Ok(bin) => match bincode::deserialize_from::<_, Rom>(&*bin) {
-                            Err(e) => println!("{}", e),
-                            Ok(rom) => {
-                                let num_players = if self.play_mode == PlayMode::SinglePlayer {
-                                    1
-                                } else {
-                                    2
-                                };
+                    match fs::File::open(path) {
+                        Err(e) => println!("fs::File::open failed: {}", e),
+                        Ok(file) => {
+                            let mut reader = match zstd::Decoder::new(file) {
+                                Ok(reader) => reader,
+                                Err(e) => {
+                                    println!("creating decoder failed: {}", e);
+                                    return;
+                                }
+                            };
 
-                                pixels.resize_buffer(rom.width() as u32, rom.height() as u32);
-                                *session = Some(init_session(&rom, port, &players));
-                                self.wasm_console =
-                                    Some(WasmConsole::new(Arc::new(rom), num_players));
+                            let mut buffer = Vec::new();
+                            if let Err(e) = reader.read_to_end(&mut buffer) {
+                                println!("read_to_end failed: {}", e);
+                                return;
                             }
-                        },
+
+                            match bincode::deserialize_from::<_, Rom>(&*buffer) {
+                                Err(e) => println!("bincode failed: {}", e),
+                                Ok(rom) => {
+                                    let num_players = if self.play_mode == PlayMode::SinglePlayer {
+                                        1
+                                    } else {
+                                        2
+                                    };
+
+                                    pixels.resize_buffer(rom.width() as u32, rom.height() as u32);
+                                    *session = Some(init_session(&rom, port, &players));
+                                    self.wasm_console =
+                                        Some(WasmConsole::new(Arc::new(rom), num_players));
+                                }
+                            }
+                        }
                     };
                 }
             });
