@@ -1,4 +1,4 @@
-use std::{fs, path::PathBuf};
+use std::{fs, io::Write, path::PathBuf};
 
 use egui::{self, menu, Context};
 use rfd::FileDialog;
@@ -189,12 +189,15 @@ fn try_export_rom(rom: &EditorRom, wasm_path: &mut Option<PathBuf>) -> Result<()
             .save_file()
         {
             let rom = rom.export_as_rom(&wasm);
+            let rom =
+                bincode::serialize(&rom).map_err(|_| "failed to serialize editor rom to binary")?;
+            let target = fs::File::create(path).map_err(|_| "failed to create file")?;
+            let mut encoder = zstd::Encoder::new(target, zstd::DEFAULT_COMPRESSION_LEVEL)
+                .map_err(|_| "failed to create encoder")?;
 
-            return fs::write(
-                path,
-                bincode::serialize(&rom).expect("failed to serialize editor rom to binary"),
-            )
-            .map_err(|_| "failed to serialize editor rom to binary");
+            encoder.write_all(&rom).map_err(|_| "failed to encoder.write")?;
+
+            encoder.finish().map_err(|_| "failed to finish writing")?;
         }
     }
 
