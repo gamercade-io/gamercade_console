@@ -31,11 +31,11 @@ pub struct Contexts {
 }
 
 impl Contexts {
-    pub fn new(rom: &Arc<Rom>, session: SessionDescriptor) -> Self {
+    pub fn new(rom: &Arc<Rom>, seed: u64, session: SessionDescriptor) -> Self {
         Self {
             draw_context: DrawContext::new(rom.clone()),
             input_context: InputContext::new(session.num_players),
-            random_context: RandomContext::new(156263),
+            random_context: RandomContext::new(seed),
             data_context: DataContext::new(rom.clone()),
             graphics_parameter_context: GraphicsParameterContext::default(),
             text_context: TextContext::default(),

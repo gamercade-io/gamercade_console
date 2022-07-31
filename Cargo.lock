@@ -1079,9 +1079,9 @@ checksum = "4443176a9f2c162692bd3d352d745ef9413eec5782a80d8fd6f8a1ac692a07f7"
 
 [[package]]
 name = "fastrand"
-version = "1.7.0"
+version = "1.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c3fcf0cee53519c866c09b5de1f6c56ff9d647101f81c1964fa632e148896cdf"
+checksum = "a7a407cfaa3385c4ae6b23e84623d48c2798d06e3e6a1878f7f59f17b3f86499"
 dependencies = [
  "instant",
 ]
@@ -1198,10 +1198,10 @@ dependencies = [
  "egui",
  "egui-winit",
  "egui_wgpu_backend",
+ "fastrand",
  "gamercade_core",
  "ggrs",
  "hashbrown 0.12.3",
- "nanorand",
  "parking_lot 0.12.1",
  "paste",
  "pixels",
@@ -1772,12 +1772,6 @@ dependencies = [
  "spirv",
  "thiserror",
 ]
-
-[[package]]
-name = "nanorand"
-version = "0.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6a51313c5820b0b02bd422f4b44776fbf47961755c74ce64afc73bfad10226c3"
 
 [[package]]
 name = "ndk"

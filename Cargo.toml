@@ -38,7 +38,7 @@ zstd = "0.11"
 wasmtime = { version = "0.38.1", features = ["cranelift"] }
 
 # Random
-nanorand = "0.7.0"
+fastrand = "1.8.0"
 
 # Audio
 

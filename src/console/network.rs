@@ -27,5 +27,5 @@ impl Config for WasmConsole {
 #[derive(Clone)]
 pub struct SessionDescriptor {
     pub num_players: usize,
-    pub player_types: std::rc::Rc<[PlayerType<SocketAddr>]>,
+    pub player_types: Box<[PlayerType<SocketAddr>]>,
 }

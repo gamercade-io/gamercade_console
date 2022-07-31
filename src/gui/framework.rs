@@ -83,7 +83,7 @@ impl Framework {
         let raw_input = self.egui_state.take_egui_input(window);
         let output = self.egui_ctx.run(raw_input, |egui_ctx| {
             // Draw the demo application.
-            self.gui.ui(pixels, session, egui_ctx);
+            self.gui.ui(pixels, window, session, egui_ctx);
         });
 
         self.textures.append(output.textures_delta);

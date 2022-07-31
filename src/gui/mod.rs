@@ -1,10 +1,11 @@
-use std::{fs, io::Read, net::SocketAddr, path::PathBuf, rc::Rc, sync::Arc};
+use std::{fs, io::Read, net::SocketAddr, path::PathBuf, sync::Arc};
 
 use egui::{Context, Slider};
 use gamercade_core::Rom;
 use ggrs::{P2PSession, PlayerType, SessionBuilder, SessionState, UdpNonBlockingSocket};
 use pixels::Pixels;
 use rfd::FileDialog;
+use winit::{dpi::PhysicalSize, window::Window};
 
 use crate::console::{SessionDescriptor, WasmConsole};
 
@@ -17,13 +18,17 @@ pub struct Gui {
     pub remote_addr: String,
     pub player_num: usize,
     pub port: String,
+    pub seed: String,
 
     pub wasm_console: Option<WasmConsole>,
 }
 
+const DEFAULT_SEED: &str = "a12cade";
+
 impl Default for Gui {
     fn default() -> Self {
         Self {
+            seed: DEFAULT_SEED.to_string(),
             window_open: true,
             game_file: None,
             play_mode: PlayMode::SinglePlayer,
@@ -45,6 +50,7 @@ impl Gui {
     fn ui(
         &mut self,
         pixels: &mut Pixels,
+        window: &Window,
         session: &mut Option<P2PSession<WasmConsole>>,
         ctx: &Context,
     ) {
@@ -69,6 +75,14 @@ impl Gui {
                             ui.label(filename);
                         }
                     });
+
+                    ui.horizontal(|ui| {
+                        ui.label("Random Seed: ");
+                        ui.text_edit_singleline(&mut self.seed);
+                        if u64::from_str_radix(&self.seed, 16).is_err() {
+                            self.seed = DEFAULT_SEED.to_string()
+                        }
+                    })
                 });
 
                 ui.group(|ui| {
@@ -146,7 +160,7 @@ impl Gui {
                         }
                     };
 
-                    let players = Rc::from(players);
+                    let players = players.into_boxed_slice();
 
                     match fs::File::open(path) {
                         Err(e) => println!("fs::File::open failed: {}", e),
@@ -180,13 +194,24 @@ impl Gui {
                                     };
 
                                     pixels.resize_buffer(rom.width() as u32, rom.height() as u32);
+                                    window.set_inner_size(PhysicalSize::new(
+                                        rom.width(),
+                                        rom.height(),
+                                    ));
+
+                                    let seed = u64::from_str_radix(&self.seed, 16).unwrap();
+
                                     *session = Some(init_session(
                                         &rom,
                                         port,
                                         &session_descriptor.player_types,
                                     ));
-                                    self.wasm_console =
-                                        Some(WasmConsole::new(Arc::new(rom), session_descriptor));
+
+                                    self.wasm_console = Some(WasmConsole::new(
+                                        Arc::new(rom),
+                                        seed,
+                                        session_descriptor,
+                                    ));
                                 }
                             }
                         }

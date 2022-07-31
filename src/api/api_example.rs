@@ -44,8 +44,16 @@ extern "C" {
 
 // Text
 extern "C" {
-    fn log(text_ptr: i32, len: i32);
-    fn draw_text(text_ptr: i32, len: i32, x: i32, y: i32);
+    pub fn log(text_ptr: i32, len: i32);
+    pub fn draw_text(text_ptr: i32, len: i32, x: i32, y: i32);
+}
+
+// Random
+extern "C" {
+    pub fn set_seed(seed: i32);
+    pub fn random_int_range(min: i32, max: i32) -> i32;
+    pub fn random_float() -> f32;
+    pub fn random_float_range(min: f32, max: f32) -> f32;
 }
 
 // Input
