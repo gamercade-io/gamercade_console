@@ -4,7 +4,7 @@ use crate::api::TextApi;
 pub struct TextContext;
 
 impl TextApi for TextContext {
-    fn trace(&self, text: &str) {
+    fn console_log(&self, text: &str) {
         println!("{}", text);
     }
 
