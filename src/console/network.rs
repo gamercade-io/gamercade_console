@@ -1,6 +1,6 @@
 use std::net::SocketAddr;
 
-use ggrs::Config;
+use ggrs::{Config, PlayerType};
 use wasmtime::Global;
 
 use super::input::{Buttons, InputState};
@@ -22,4 +22,10 @@ impl Config for WasmConsole {
     type Input = InputState;
     type State = WasmConsoleState;
     type Address = SocketAddr;
+}
+
+#[derive(Clone)]
+pub struct SessionDescriptor {
+    pub num_players: usize,
+    pub player_types: std::rc::Rc<[PlayerType<SocketAddr>]>,
 }

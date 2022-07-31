@@ -8,7 +8,7 @@ type GameFunc = TypedFunc<(), ()>;
 use super::{
     bindings,
     network::{SaveStateDefinition, WasmConsoleState},
-    Contexts,
+    Contexts, SessionDescriptor,
 };
 use crate::Console;
 use gamercade_core::Rom;
@@ -43,9 +43,9 @@ impl Functions {
 }
 
 impl WasmConsole {
-    pub fn new(rom: Arc<Rom>, num_players: usize) -> Self {
+    pub fn new(rom: Arc<Rom>, session: SessionDescriptor) -> Self {
         // Initialize the contexts
-        let contexts = Contexts::new(&rom, num_players);
+        let contexts = Contexts::new(&rom, session);
         let engine = Engine::default();
         let module = Module::new(&engine, &rom.code).unwrap();
         let mut linker = Linker::new(&engine);

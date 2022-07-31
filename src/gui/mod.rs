@@ -1,4 +1,4 @@
-use std::{fs, io::Read, net::SocketAddr, path::PathBuf, sync::Arc};
+use std::{fs, io::Read, net::SocketAddr, path::PathBuf, rc::Rc, sync::Arc};
 
 use egui::{Context, Slider};
 use gamercade_core::Rom;
@@ -6,7 +6,7 @@ use ggrs::{P2PSession, PlayerType, SessionBuilder, SessionState, UdpNonBlockingS
 use pixels::Pixels;
 use rfd::FileDialog;
 
-use crate::console::WasmConsole;
+use crate::console::{SessionDescriptor, WasmConsole};
 
 pub mod framework;
 
@@ -146,6 +146,8 @@ impl Gui {
                         }
                     };
 
+                    let players = Rc::from(players);
+
                     match fs::File::open(path) {
                         Err(e) => println!("fs::File::open failed: {}", e),
                         Ok(file) => {
@@ -172,10 +174,19 @@ impl Gui {
                                         2
                                     };
 
+                                    let session_descriptor = SessionDescriptor {
+                                        num_players,
+                                        player_types: players,
+                                    };
+
                                     pixels.resize_buffer(rom.width() as u32, rom.height() as u32);
-                                    *session = Some(init_session(&rom, port, &players));
+                                    *session = Some(init_session(
+                                        &rom,
+                                        port,
+                                        &session_descriptor.player_types,
+                                    ));
                                     self.wasm_console =
-                                        Some(WasmConsole::new(Arc::new(rom), num_players));
+                                        Some(WasmConsole::new(Arc::new(rom), session_descriptor));
                                 }
                             }
                         }

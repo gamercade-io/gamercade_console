@@ -7,6 +7,7 @@ mod wasm_console;
 pub use contexts::Contexts;
 use ggrs::{Config, GGRSRequest};
 pub use input::*;
+pub use network::SessionDescriptor;
 pub use wasm_console::WasmConsole;
 
 use gamercade_core::Rom;

@@ -3,7 +3,6 @@ pub trait DataApi {
     fn width(&self) -> i32;
     fn fps(&self) -> i32;
     fn frame_time(&self) -> f32;
-    fn num_players(&self) -> i32;
 
     fn sprite_sheet_count(&self) -> i32;
     fn palette_count(&self) -> i32;
@@ -35,5 +34,4 @@ derive_bind_data_api! {
     bind_sprite_height,
     bind_sprite_width,
     bind_sprite_count,
-    bind_num_players,
 }
