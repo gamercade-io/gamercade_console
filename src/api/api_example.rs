@@ -8,9 +8,9 @@ extern "C" {
     pub fn frame_time() -> f32;
     pub fn sprite_sheet_count() -> i32;
     pub fn palette_count() -> i32;
-    pub fn sprite_height(sprite_sheet: i32);
-    pub fn sprite_width(sprite_sheet: i32);
-    pub fn sprite_count(sprite_sheet: i32);
+    pub fn sprite_height(sprite_sheet: i32) -> i32;
+    pub fn sprite_width(sprite_sheet: i32) -> i32;
+    pub fn sprite_count(sprite_sheet: i32) -> i32;
 }
 
 // Graphics Params
