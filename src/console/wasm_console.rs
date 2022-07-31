@@ -23,21 +23,43 @@ pub struct WasmConsole {
 
 #[derive(Clone)]
 pub(crate) struct Functions {
-    init_fn: GameFunc,
-    update_fn: GameFunc,
-    draw_fn: GameFunc,
+    init_fn: Option<GameFunc>,
+    update_fn: Option<GameFunc>,
+    draw_fn: Option<GameFunc>,
 }
 
 impl Functions {
     pub(crate) fn find_functions<T>(store: &mut Store<T>, instance: &Instance) -> Self {
-        let init_fn = instance.get_typed_func(&mut *store, "init").unwrap();
-        let update_fn = instance.get_typed_func(&mut *store, "update").unwrap();
-        let draw_fn = instance.get_typed_func(&mut *store, "draw").unwrap();
+        let init_fn = match instance.get_typed_func(&mut *store, "init") {
+            Ok(init_fn) => Some(init_fn),
+            Err(e) => {
+                println!("init function not found: {}", e);
+                None
+            }
+        };
+        let update_fn = match instance.get_typed_func(&mut *store, "update") {
+            Ok(update_fn) => Some(update_fn),
+            Err(e) => {
+                println!("update function not found: {}", e);
+                None
+            }
+        };
+        let draw_fn = match instance.get_typed_func(&mut *store, "draw") {
+            Ok(draw_fn) => Some(draw_fn),
+            Err(e) => {
+                println!("draw function not found: {}", e);
+                None
+            }
+        };
 
-        Self {
-            init_fn,
-            update_fn,
-            draw_fn,
+        if init_fn.is_some() || update_fn.is_some() || draw_fn.is_some() {
+            Self {
+                init_fn,
+                update_fn,
+                draw_fn,
+            }
+        } else {
+            panic!("Loaded rom doesn't contain any valid functions.")
         }
     }
 }
@@ -171,17 +193,23 @@ impl WasmConsole {
     }
 }
 
+fn call<T>(func: &Option<GameFunc>, store: &mut Store<T>) {
+    if let Some(func) = func {
+        func.call(store, ()).unwrap()
+    }
+}
+
 impl Console for WasmConsole {
     fn call_init(&mut self) {
-        self.functions.init_fn.call(&mut self.store, ()).unwrap();
+        call(&self.functions.init_fn, &mut self.store);
     }
 
     fn call_update(&mut self) {
-        self.functions.update_fn.call(&mut self.store, ()).unwrap();
+        call(&self.functions.update_fn, &mut self.store);
     }
 
     fn call_draw(&mut self) {
-        self.functions.draw_fn.call(&mut self.store, ()).unwrap();
+        call(&self.functions.draw_fn, &mut self.store);
     }
 
     fn rom(&self) -> &Rom {
