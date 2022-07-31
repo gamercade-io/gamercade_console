@@ -3,7 +3,7 @@ use egui_glow::{self, glow, painter::TextureFilter};
 mod editor_data;
 mod ui;
 
-use ui::Editor;
+use crate::ui::Editor;
 
 fn main() {
     let clear_color = [0.1, 0.1, 0.1];
