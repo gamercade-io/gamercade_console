@@ -14,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    - name: Get atk-sys
+      run: apt-get install atk-dev
     - name: Build
       run: cargo build --verbose
     - name: Run tests
