@@ -69,5 +69,5 @@ jobs:
           upload_url: https://uploads.github.com/repos/gamercade-io/gamercade_editor/releases/73479874/assets{?name,label} # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases in your browser and copy the full "upload_url" value including the {?name,label} part
           release_id: 73479874 # same as above (id can just be taken out the upload_url, it's used to find old releases)
           asset_path: ./target/release/gamercade_editor.exe
-          asset_name: gamercade_editor-${{ matrix.release_suffix }}
+          asset_name: gamercade_editor-${{ matrix.release_suffix }}.exe
           asset_content_type: application/zip # required by GitHub API
