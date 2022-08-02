@@ -1,4 +1,4 @@
-use crate::{f32_to_option, i32_to_option, raw};
+use crate::{f32_to_option, i32_bool_to_option, raw};
 
 use paste::paste;
 
@@ -13,17 +13,17 @@ macro_rules! derive_input_api {
             $(
                 pub fn [<button_ $btn_name _pressed>](player_id: usize) -> Option<bool> {
                     let val = unsafe { raw::[<button_ $btn_name _pressed>](player_id as i32) };
-                    i32_to_option(val)
+                    i32_bool_to_option(val)
                 }
 
                 pub fn [<button_ $btn_name _released>](player_id: usize) -> Option<bool> {
                     let val = unsafe { raw::[<button_ $btn_name _released>](player_id as i32) };
-                    i32_to_option(val)
+                    i32_bool_to_option(val)
                 }
 
                 pub fn [<button_ $btn_name _held>](player_id: usize) -> Option<bool> {
                     let val = unsafe { raw::[<button_ $btn_name _held>](player_id as i32) };
-                    i32_to_option(val)
+                    i32_bool_to_option(val)
                 }
             )*
             // END BUTTON MACRO

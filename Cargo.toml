@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 paste = "1.0.7"
+gamercade_core = { git = "https://github.com/gamercade-io/gamercade_core" }
