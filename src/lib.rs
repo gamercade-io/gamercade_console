@@ -12,3 +12,5 @@ pub mod prelude {
     pub use super::text::*;
     pub use gamercade_core::GraphicsParameters;
 }
+
+pub use gamercade_core::GraphicsParameters;

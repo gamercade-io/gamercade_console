@@ -10,6 +10,7 @@ pub fn is_local_player(player_id: usize) -> Option<bool> {
     let val = unsafe { raw::is_local_player(player_id as i32) };
     i32_bool_to_option(val)
 }
+
 pub fn is_remote_player(player_id: usize) -> Option<bool> {
     let val = unsafe { raw::is_remote_player(player_id as i32) };
     i32_bool_to_option(val)
