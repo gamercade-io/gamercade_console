@@ -1,6 +1,4 @@
-Gamercade Editor
-
-See Figma for UI design notes
+# Gamercade Editor
 
 TODO: Short Term:
 - Adjust sprite sheet/image importing for sheets versus single images
