@@ -597,6 +597,7 @@ checksum = "21163e139fa306126e6eedaf49ecdb4588f939600f0b1e770f4205ee4b7fa868"
 [[package]]
 name = "gamercade_core"
 version = "0.1.0"
+source = "git+https://github.com/gamercade-io/gamercade_core#630af27f79c52e96c29dc3e8fadb30692c2a6316"
 dependencies = [
  "base64",
  "serde",
