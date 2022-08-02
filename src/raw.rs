@@ -1,5 +1,3 @@
-#![allow(unused)]
-
 // Data
 extern "C" {
     pub fn height() -> i32;
