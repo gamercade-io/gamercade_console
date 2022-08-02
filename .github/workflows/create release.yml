@@ -58,8 +58,13 @@ jobs:
       - name: Optimized build
         run: cargo build --release
 
-      - name: Release
-        uses: softprops/action-gh-release@v1
+      - name: Deploy Release
+        uses: WebFreak001/deploy-nightly@v1.1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # automatically provided by github actions
         with:
-          tag_name: nightly
-          files: release_${{ matrix.release_suffix }}
+          upload_url: https://uploads.github.com/repos/Pure-D/serve-d/releases/20717582/assets{?name,label} # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases in your browser and copy the full "upload_url" value including the {?name,label} part
+          release_id: 20717582 # same as above (id can just be taken out the upload_url, it's used to find old releases)
+          asset_path: ./target/release/gamercade_console
+          asset_name: gamercade_console${{ matrix.release_suffix }}
+          asset_content_type: application/zip # required by GitHub API
