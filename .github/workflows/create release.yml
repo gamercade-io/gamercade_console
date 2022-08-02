@@ -18,28 +18,12 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install build-essential librust-atk-sys-dev libgtk-3-dev gcc-multilib libpq-dev libxcb-shape0-dev libxcb-xfixes0-dev
-    - name: Build
-      run: cargo build --verbose
     - name: Run tests
       run: cargo test --verbose
-      
-  create_release:
-    name: Create Release
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Create Release
-        id: create_release
-        uses: softprops/action-gh-release@v1
-        with:
-          name: ${{ github.ref_name }}
-          draft: false
-          prerelease: false
-          generate_release_notes: false
           
   build_release:
     name: Build Release
-    needs: create_release
+    needs: build
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
