@@ -72,7 +72,8 @@ impl WasmConsole {
         let module = Module::new(&engine, &rom.code).unwrap();
         let mut linker = Linker::new(&engine);
 
-        // TODO: Make this static?
+        // TODO: Make this static? Is there a way we can not have to call this
+        // each time?
         bindings::bind_all_apis(&mut linker);
 
         let mut store = Store::new(&engine, contexts);

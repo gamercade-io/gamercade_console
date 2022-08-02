@@ -1,4 +1,3 @@
-// TODO: Write this
 pub trait TextApi {
     fn console_log(&self, text: &str);
     fn draw_text(&self, text: &str, x: i32, y: i32);

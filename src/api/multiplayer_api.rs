@@ -1,4 +1,3 @@
-// TODO: Write this
 pub trait MultiplayerApi {
     fn num_players(&self) -> i32;
     fn is_local_player(&self, player_id: i32) -> i32;

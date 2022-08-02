@@ -2,7 +2,6 @@ use fastrand::Rng;
 
 use crate::api::RandomApi;
 
-// TODO: Handle local rngs?
 #[derive(Clone)]
 pub struct RandomContext {
     shared_rng: Rng,

@@ -159,10 +159,5 @@ fn init_pixels(window: &Window) -> Pixels {
     let window_size = window.inner_size();
     let surface_texture = SurfaceTexture::new(window_size.width, window_size.height, &window);
 
-    // TODO: Check if this is correct
-    //let (width, height) = (rom.resolution.width(), rom.resolution.height());
-
     Pixels::new(320, 180, surface_texture).unwrap()
 }
-
-// TODO: Finish this GGRS Related things:

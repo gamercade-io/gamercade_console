@@ -1,5 +1,3 @@
-// TODO: Write this
-
 pub trait RandomApi {
     fn set_seed(&self, seed: i32);
 
