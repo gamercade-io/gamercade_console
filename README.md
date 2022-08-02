@@ -1,3 +1,17 @@
+# Gamercade Console
+
+A wasm powered Fantasy Console.
+
+Learn more about [Gamercade](https://gamercade.io), or head over to the the other related projects such as:
+
+[Gamercade Console](https://github.com/gamercade-io/gamercade_console)
+
+[Gamercade Editor](https://github.com/gamercade-io/gamercade_editor)
+
+[Gamercade Core](https://github.com/gamercade-io/gamercade_core)
+
+[Gamercade Site](https://github.com/gamercade-io/gamercade_site)
+
 ```
 Keyboard Controls:
 Left Analog Stick:
@@ -46,12 +60,9 @@ draw() - Called once every frame, after update.
 
 ```
 
-1. Finish "Graphcis" outlined functions
-    1. Add Write Text function (need a font??)
-
-Research/Thinking Tasks:
-1. Mouse/Cursor API? for UI + (mouse = right stick) emulation? How to handle networking here?
-1. Brainstorm "UserApi" for stuff like player names, avatar, meta-data outside the game
+Potential Future Additions: 
+1. Mouse/Cursor API? for UI with emulation.
+1. "UserApi" for things like player names, avatar, meta-data outside the game.
 1. Full screen shaders: Bloom, scanlines, etc
 
 How to build WASM Projects:
@@ -61,18 +72,21 @@ If WGPU errors occur, set WGPU_BACKEND=gl via
 
 > export WGPU_BACKEND=gl
 
-Useful Links:
-Circle Drawing Algorithm
-http://rosettacode.org/wiki/Bitmap/Midpoint_circle_algorithm
-
-
-OPL Programming:
-http://map.grauw.nl/resources/sound/yamaha_opl4.pdf
-https://www.fit.vutbr.cz/~arnost/opl/opl3.html
-http://jp.oplx.com/opl2.htm
-https://doomwiki.org/wiki/OPL_emulation
-
-Showcase Projects TODO:
+Showcase Projects TODOs:
 Controller Debug - Showcase all controls for local player
 Blasters - Twin stick shooter, Showcase two analog stick usage
 
+## License
+
+Licensed under either of
+
+ * Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
+ * MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
+
+at your option.
+
+#### Contribution
+
+Unless you explicitly state otherwise, any contribution intentionally submitted
+for inclusion in the work by you, as defined in the Apache-2.0 license, shall be
+dual licensed as above, without any additional terms or conditions.
