@@ -32,41 +32,59 @@ macro_rules! derive_generate_input_api {
             impl InputApi for InputContext {
                 $(
                     fn [<button_ $btn_name _pressed>](&self, player_id: i32) -> i32 {
-                        let player_input = &self.input_entries[player_id as usize];
-                        let prev = player_input.previous.get_button_state(ButtonCode::$btn_code);
-                        let curr = player_input.current.buttons.get_button_state(ButtonCode::$btn_code);
-                        (prev == false && curr == true) as i32
+                        if let Some(player_input) = &self.input_entries.get(player_id as usize) {
+                            let prev = player_input.previous.get_button_state(ButtonCode::$btn_code);
+                            let curr = player_input.current.buttons.get_button_state(ButtonCode::$btn_code);
+                            (prev == false && curr == true) as i32    
+                        } else {
+                            -1
+                        }
                     }
 
                     fn [<button_ $btn_name _released>](&self, player_id: i32) -> i32 {
-                        let player_input = &self.input_entries[player_id as usize];
-                        let prev = player_input.previous.get_button_state(ButtonCode::$btn_code);
+                        if let Some(player_input) = &self.input_entries.get(player_id as usize) {
+                            let prev = player_input.previous.get_button_state(ButtonCode::$btn_code);
                         let curr = player_input.current.buttons.get_button_state(ButtonCode::$btn_code);
                         (prev == true && curr == false) as i32
+                        } else {
+                            -1
+                        }
                     }
 
                     fn [<button_ $btn_name _held>](&self, player_id: i32) -> i32 {
-                        let player_input = &self.input_entries[player_id as usize];
-                        player_input.current.buttons.get_button_state(ButtonCode::$btn_code) as i32
+                        if let Some(player_input) = &self.input_entries.get(player_id as usize) {
+                            player_input.current.buttons.get_button_state(ButtonCode::$btn_code) as i32
+                        } else {
+                            -1
+                        }
                     }
                 )*
 
                 $(
                     fn [<analog_ $anlg_name _x>](&self, player_id: i32) -> f32 {
-                        let player_input = &self.input_entries[player_id as usize];
-                        player_input.current.[<$anlg_name _stick>].get_x_axis()
+                        if let Some(player_input) = &self.input_entries.get(player_id as usize) {
+                            player_input.current.[<$anlg_name _stick>].get_x_axis()
+                        } else {
+                            f32::NAN
+                        }
                     }
 
                     fn [<analog_ $anlg_name _y>](&self, player_id: i32) -> f32 {
-                        let player_input = &self.input_entries[player_id as usize];
-                        player_input.current.[<$anlg_name _stick>].get_y_axis()
+                        if let Some(player_input) = &self.input_entries.get(player_id as usize) {
+                            player_input.current.[<$anlg_name _stick>].get_y_axis()
+                        } else {
+                            f32::NAN
+                        }
                     }
                 )*
 
                 $(
                     fn [<trigger_ $trg_name>](&self, player_id: i32) -> f32 {
-                        let player_input = &self.input_entries[player_id as usize];
-                        player_input.current.[<$trg_name _trigger>].get_value()
+                        if let Some(player_input) = &self.input_entries.get(player_id as usize) {
+                            player_input.current.[<$trg_name _trigger>].get_value()
+                        } else {
+                            f32::NAN
+                        }
                     }
                 )*
 
