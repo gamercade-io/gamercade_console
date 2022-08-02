@@ -48,7 +48,8 @@ jobs:
       - name: Optimized build
         run: cargo build --release
 
-      - name: Deploy Release
+      - name: Deploy Release Mac & Linux
+        if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
         uses: WebFreak001/deploy-nightly@v1.1.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # automatically provided by github actions
@@ -56,5 +57,17 @@ jobs:
           upload_url: https://uploads.github.com/repos/gamercade-io/gamercade_console/releases/73475292/assets{?name,label} # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases in your browser and copy the full "upload_url" value including the {?name,label} part
           release_id: 73475292 # same as above (id can just be taken out the upload_url, it's used to find old releases)
           asset_path: ./target/release/gamercade_console
+          asset_name: gamercade_console-${{ matrix.release_suffix }}
+          asset_content_type: application/zip # required by GitHub API
+          
+      - name: Deploy Release Windows   
+        if: matrix.os == 'windows-latest'
+        uses: WebFreak001/deploy-nightly@v1.1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # automatically provided by github actions
+        with:
+          upload_url: https://uploads.github.com/repos/gamercade-io/gamercade_console/releases/73475292/assets{?name,label} # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases in your browser and copy the full "upload_url" value including the {?name,label} part
+          release_id: 73475292 # same as above (id can just be taken out the upload_url, it's used to find old releases)
+          asset_path: ./target/release/gamercade_console.exe
           asset_name: gamercade_console-${{ matrix.release_suffix }}
           asset_content_type: application/zip # required by GitHub API
