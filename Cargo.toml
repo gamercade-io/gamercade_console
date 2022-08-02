@@ -2,8 +2,11 @@
 name = "gamercade-rs"
 version = "0.1.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+license = "MIT OR Apache-2.0"
+description = "A safe wrapper around Gamercade's Raw Api"
+homepage = "https://gamercade.io"
+repository = "https://github.com/gamercade-io/gamercade_rs"
+keywords = ["gamedev"]
 
 [dependencies]
 paste = "1.0.7"

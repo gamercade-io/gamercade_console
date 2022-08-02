@@ -19,12 +19,18 @@ pub fn circle(graphics_parameters: GraphicsParameters, x: i32, y: i32, radius: u
 
 pub fn rect(graphics_parameters: GraphicsParameters, x: i32, y: i32, width: u32, height: u32) {
     let gp = graphics_parameters.into();
-    unsafe { raw::rect(gp,x,y, width as i32, height as i32) }
+    unsafe { raw::rect(gp, x, y, width as i32, height as i32) }
 }
 
-pub fn rect_filled(graphics_parameters: GraphicsParameters, x: i32, y: i32, width: u32, height: u32) {
+pub fn rect_filled(
+    graphics_parameters: GraphicsParameters,
+    x: i32,
+    y: i32,
+    width: u32,
+    height: u32,
+) {
     let gp = graphics_parameters.into();
-    unsafe { raw::rect_filled(gp,x,y, width as i32, height as i32) }
+    unsafe { raw::rect_filled(gp, x, y, width as i32, height as i32) }
 }
 
 pub fn line(graphics_parameters: GraphicsParameters, x0: i32, y0: i32, x1: i32, y1: i32) {
