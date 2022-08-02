@@ -25,7 +25,6 @@ egui_wgpu_backend = "0.17"
 egui-winit = "0.17"
 
 # Macros & Helpers
-text_io = "0.1.10"
 strum = { version = "0.24.1", features = ["derive"] }
 paste = "1.0.7"
 
