@@ -17,29 +17,13 @@ jobs:
     - name: Get dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install build-essential librust-atk-sys-dev libgtk-3-dev gcc-multilib libpq-dev 
-    - name: Build
-      run: cargo build --verbose
+        sudo apt-get install build-essential librust-atk-sys-dev libgtk-3-dev gcc-multilib libpq-dev libxcb-shape0-dev libxcb-xfixes0-dev
     - name: Run tests
       run: cargo test --verbose
-      
-  create_release:
-    name: Create Release
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Create Release
-        id: create_release
-        uses: softprops/action-gh-release@v1
-        with:
-          name: ${{ github.ref_name }}
-          draft: false
-          prerelease: false
-          generate_release_notes: false
           
   build_release:
     name: Build Release
-    needs: create_release
+    needs: build
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -54,12 +38,23 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      
+        
+      - name: Linux Deps
+        if: matrix.os == 'ubuntu-latest'
+        run: | 
+          sudo apt-get update
+          sudo apt-get install build-essential librust-atk-sys-dev libgtk-3-dev gcc-multilib libpq-dev libxcb-shape0-dev libxcb-xfixes0-dev
+          
       - name: Optimized build
         run: cargo build --release
 
-      - name: Release
-        uses: softprops/action-gh-release@v1
+      - name: Deploy Release
+        uses: WebFreak001/deploy-nightly@v1.1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # automatically provided by github actions
         with:
-          tag_name: ${{ needs.create_release.outputs.tag-name }}
-          files: release_${{ matrix.release_suffix }}
+          upload_url: https://uploads.github.com/repos/gamercade-io/gamercade_console/releases/73475292/assets{?name,label} # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases in your browser and copy the full "upload_url" value including the {?name,label} part
+          release_id: 73475292 # same as above (id can just be taken out the upload_url, it's used to find old releases)
+          asset_path: ./target/release/gamercade_console
+          asset_name: gamercade_console-${{ matrix.release_suffix }}
+          asset_content_type: application/zip # required by GitHub API
