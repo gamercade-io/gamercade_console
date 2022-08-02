@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 # GC Dependencies
-gamercade_core = { path = "../gamercade_core" }
+gamercade_core = { git = "https://github.com/gamercade-io/gamercade_core" }
 
 # General Improvements
 hashbrown = "0.12.1"

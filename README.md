@@ -102,32 +102,6 @@ http://jp.oplx.com/opl2.htm
 https://doomwiki.org/wiki/OPL_emulation
 
 Showcase Projects TODO:
-Pong 1p/2p - DONE!
 Controller Debug - Showcase all controls for local player
 Blasters - Twin stick shooter, Showcase two analog stick usage
 
-Consider adjusting graphics API to pass "contextual" structs which are just bit flags
-Params Objects:
-Defs:
-Palette = 8 bits, max 256
-Color Index = 6 bits, max 64
-X/Y Flip = 2bits
-Sprite Index = 8bits, max 256
-Sprite Sheet Index = 8bits, max 256
-
-Everything can fit in a single 32bit type
-
-Rect/Line/ClearScreen => Palette + ColorIndex
-Sprite => Palette + X/Y Flip
-
-Windows:
-64-bit - x86_64-pc-windows-msvc - Desktop
-32-bit - i686-pc-windows-msvc
-
-Linux:
-arm64 - aarch64-unknown-linux-gnu - Orange Pi??
-32-bit - i686-unknown-linux-gnu
-64-bit - x86_64-unknown-linux-gnu - Chromebook
-
-Mac:
-lol apple
