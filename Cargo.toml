@@ -1,5 +1,5 @@
 [package]
-name = "gamercade-rs"
+name = "gamercade_rs"
 version = "0.1.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
@@ -10,4 +10,4 @@ keywords = ["gamedev"]
 
 [dependencies]
 paste = "1.0.7"
-gamercade_core = { git = "https://github.com/gamercade-io/gamercade_core" }
+gamercade_core = "0.1.0"
