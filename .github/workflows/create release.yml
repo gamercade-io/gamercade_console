@@ -17,7 +17,7 @@ jobs:
     - name: Get dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install librust-atk-sys-dev
+        sudo apt-get install librust-atk-sys-dev libgtk-3-dev
     - name: Build
       run: cargo build --verbose
     - name: Run tests
