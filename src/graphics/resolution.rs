@@ -7,7 +7,7 @@ pub enum Resolution {
     VeryLow,   // 160 x 90
     Low,       // 320 x 180
     Medium,    // 480 x 270
-    High,      // 640 x 320
+    High,      // 640 x 360
     VeryHigh,  // 1280 x 720
     UltraHigh, // 1920 x 1080
 }
@@ -37,7 +37,7 @@ impl Resolution {
             Self::VeryLow => 90,
             Self::Low => 180,
             Self::Medium => 270,
-            Self::High => 320,
+            Self::High => 360,
             Self::VeryHigh => 720,
             Self::UltraHigh => 1080,
         }
