@@ -1,3 +1,4 @@
+#![allow(missing_docs)]
 // Data
 extern "C" {
     pub fn height() -> i32;
@@ -116,9 +117,6 @@ extern "C" {
 // Multiplayer
 extern "C" {
     pub fn num_players() -> i32;
-
-    // WARNING: Using this is possible to desync clients!
-    // Make sure you know what you're doing before using these.
     pub fn is_local_player(player_id: i32) -> i32;
     pub fn is_remote_player(player_id: i32) -> i32;
 }
