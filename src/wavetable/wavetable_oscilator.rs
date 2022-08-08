@@ -14,7 +14,7 @@ pub struct WavetableOscilator {
 
 impl WavetableOscilator {
     /// Generates a new WavetableOscilator
-    pub fn new(sample_rate: usize, definition: Arc<WavetableDefinition>) -> Self {
+    pub fn new(definition: Arc<WavetableDefinition>) -> Self {
         Self {
             definition,
             index: 0.0,

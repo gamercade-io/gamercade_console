@@ -13,9 +13,9 @@ pub struct WavetableGenerator {
 }
 
 impl WavetableGenerator {
-    /// Generates the WavetableDefinition based on the passed in parameters
-    pub fn generate(self) -> WavetableDefinition {
-        let data = (0..self.size)
+    /// Generates the wavetable's data based on the passed in parameters
+    pub fn generate(self) -> Box<[WavetableBitDepth]> {
+        (0..self.size)
             .map(|index| {
                 let value = (TAU * index as f32) / self.size as f32;
                 let value = self.waveform.func(value);
@@ -23,8 +23,6 @@ impl WavetableGenerator {
                 value as WavetableBitDepth
             })
             .collect::<Vec<WavetableBitDepth>>()
-            .into_boxed_slice();
-
-        WavetableDefinition { data }
+            .into_boxed_slice()
     }
 }

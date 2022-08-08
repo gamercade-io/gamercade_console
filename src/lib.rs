@@ -1,7 +1,9 @@
+mod envelope;
 mod fm;
 mod waveform;
 mod wavetable;
 
+pub use envelope::*;
 pub use waveform::*;
 pub use wavetable::*;
 
