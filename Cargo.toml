@@ -1,0 +1,14 @@
+[package]
+name = "gamercade_audio"
+version = "0.1.0"
+edition = "2021"
+default-run = "tester"
+
+[[bin]]
+name = "tester"
+path = "src/bin/tester.rs"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rodio = "0.15.0"
