@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use rodio::Source;
 
-use crate::OUTPUT_SAMPLE_RATE;
+use crate::{lut_sin, OUTPUT_SAMPLE_RATE};
 
 use super::{WavetableBitDepth, WavetableDefinition};
 
@@ -36,6 +36,10 @@ impl WavetableOscilator {
 
         let next_weight = self.index.fract();
         let index_weight = 1.0 - next_weight;
+
+        // Use these when testing sin lut
+        // let index = lut_sin(index);
+        // let next = lut_sin(next);
 
         let index = self.definition.data[index] as f32 / WavetableBitDepth::MAX as f32;
         let next = self.definition.data[next] as f32 / WavetableBitDepth::MAX as f32;
