@@ -15,7 +15,7 @@ fn main() {
 
     let def = WavetableDefinition {
         data,
-        envelope: Arc::new(EnvelopeDefinition {}),
+        envelope: Arc::new(EnvelopeDefinition::default()),
     };
 
     let mut oscilator = WavetableOscilator::new(Arc::new(def));
