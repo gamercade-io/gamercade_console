@@ -44,8 +44,8 @@ macro_rules! derive_generate_input_api {
                     fn [<button_ $btn_name _released>](&self, player_id: i32) -> i32 {
                         if let Some(player_input) = &self.input_entries.get(player_id as usize) {
                             let prev = player_input.previous.get_button_state(ButtonCode::$btn_code);
-                        let curr = player_input.current.buttons.get_button_state(ButtonCode::$btn_code);
-                        (prev == true && curr == false) as i32
+                            let curr = player_input.current.buttons.get_button_state(ButtonCode::$btn_code);
+                            (prev == true && curr == false) as i32
                         } else {
                             -1
                         }
