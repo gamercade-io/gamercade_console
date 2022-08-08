@@ -34,8 +34,8 @@ impl WavetableOscilator {
         let index = self.index as usize;
         let next = (index + 1) % self.definition.len();
 
-        let index_weight = self.index.fract();
-        let next_weight = 1.0 - index_weight;
+        let next_weight = self.index.fract();
+        let index_weight = 1.0 - next_weight;
 
         let index = self.definition.data[index] as f32 / WavetableBitDepth::MAX as f32;
         let next = self.definition.data[next] as f32 / WavetableBitDepth::MAX as f32;
