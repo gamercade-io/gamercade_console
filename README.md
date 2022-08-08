@@ -1,4 +1,4 @@
-# gamercade-rs
+# gamercade_rs
 
 A safe wrapper around Gamercade's Raw Api.
 
