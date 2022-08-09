@@ -1,12 +1,11 @@
 use std::f32::consts::TAU;
 
-use super::{WavetableBitDepth, WavetableDefinition};
-use crate::waveform::Waveform;
+use super::{WavetableBitDepth, WavetableWaveform};
 
 /// Use to generate wavetables based on predetermined conditions
 pub struct WavetableGenerator {
     /// The kind of waveform to generate.
-    pub waveform: Waveform,
+    pub waveform: WavetableWaveform,
 
     /// The length of the table of a single cycle of the waveform.
     pub size: usize,

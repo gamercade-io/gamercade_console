@@ -1,11 +1,9 @@
 mod envelope;
 mod fm;
-mod waveform;
+mod oscillator;
 mod wavetable;
 
 pub use envelope::*;
 pub use fm::*;
-pub use waveform::*;
+pub use oscillator::*;
 pub use wavetable::*;
-
-pub const OUTPUT_SAMPLE_RATE: usize = 44_100; // 44.1 khz

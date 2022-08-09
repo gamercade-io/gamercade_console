@@ -1,7 +1,7 @@
 use std::f32::consts::{FRAC_PI_2, PI, TAU};
 
 #[derive(Debug, Copy, Clone, PartialEq)]
-pub enum Waveform {
+pub enum WavetableWaveform {
     // Basics
     Sine,
     Square,
@@ -24,13 +24,13 @@ pub enum Waveform {
     InvertedCamelSine,
 }
 
-impl Default for Waveform {
+impl Default for WavetableWaveform {
     fn default() -> Self {
         Self::Sine
     }
 }
 
-impl Waveform {
+impl WavetableWaveform {
     /// Generates a Sine wave oscilator
     pub fn sine() -> Self {
         Self::Sine

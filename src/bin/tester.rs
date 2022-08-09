@@ -3,23 +3,23 @@ use std::sync::Arc;
 use rodio::OutputStream;
 
 use gamercade_audio::{
-    init_lut, EnvelopeDefinition, Waveform, WavetableDefinition, WavetableGenerator,
-    WavetableOscilator,
+    init_fm_lut, EnvelopeDefinition, WavetableDefinition, WavetableGenerator, WavetableOscilator,
+    WavetableWaveform,
 };
 
 fn main() {
-    init_lut();
+    init_fm_lut();
 
     let data = WavetableGenerator {
-        waveform: Waveform::Sine,
-        size: 64 * 4, //<-- use this for testing FM sin lut
-                      //size: 64,
+        waveform: WavetableWaveform::Sine,
+        size: 64,
     }
     .generate();
 
     let def = WavetableDefinition {
         data,
         envelope: Arc::new(EnvelopeDefinition::default()),
+        sample_rate: 44_100, //44.1 khz
     };
 
     let mut oscilator = WavetableOscilator::new(Arc::new(def));
