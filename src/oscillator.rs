@@ -6,7 +6,7 @@ pub struct Oscillator {
 }
 
 impl Oscillator {
-    pub fn new(phase_length: usize) -> Self {
+    pub(crate) fn new(phase_length: usize) -> Self {
         Self {
             index: 0.0,
             index_increment: 0.0,
@@ -15,7 +15,7 @@ impl Oscillator {
     }
 
     /// Sets the frequency of the oscillator
-    pub fn set_frequency(&mut self, frequency: f32, output_sample_rate: usize) {
+    pub(crate) fn set_frequency(&mut self, frequency: f32, output_sample_rate: usize) {
         self.index_increment = (frequency * self.phase_length) / output_sample_rate as f32;
     }
 

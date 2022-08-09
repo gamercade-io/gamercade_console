@@ -65,12 +65,12 @@ impl FMWaveform {
         match self {
             FMWaveform::Sine => sine_lut(index),
             FMWaveform::InverseSine => inverse_sine_lut(index),
-            FMWaveform::HalfSine => half_sine(index),
-            FMWaveform::InverseHalfSine => inverse_half_sine(index),
-            FMWaveform::AlternatingSine => alternating_sine(index),
-            FMWaveform::InverseAlternatingSine => inverse_alternating_sine(index),
-            FMWaveform::CamelSine => camel_sine(index),
-            FMWaveform::InveseCamelSine => invese_camel_sine(index),
+            FMWaveform::HalfSine => half_sine_lut(index),
+            FMWaveform::InverseHalfSine => inverse_half_sine_lut(index),
+            FMWaveform::AlternatingSine => alternating_sine_lut(index),
+            FMWaveform::InverseAlternatingSine => inverse_alternating_sine_lut(index),
+            FMWaveform::CamelSine => camel_sine_lut(index),
+            FMWaveform::InveseCamelSine => invese_camel_sine_lut(index),
         }
     }
 }
@@ -99,29 +99,92 @@ fn inverse_sine_lut(index: usize) -> f32 {
     }
 }
 
-fn half_sine(index: usize) -> f32 {
+fn half_sine_lut(index: usize) -> f32 {
+    let lut = unsafe { LUT.assume_init_ref() };
+    let index_mod = index % LUT_LEN;
+
+    match Quadrant::from_index(index) {
+        Quadrant::First => lut[index_mod],
+        Quadrant::Second => lut[LUT_LEN - index_mod - 1],
+        Quadrant::Third | Quadrant::Fourth => 0.0,
+    }
+}
+
+fn inverse_half_sine_lut(index: usize) -> f32 {
     let lut = unsafe { LUT.assume_init_ref() };
     let index_mod = index % LUT_LEN;
 
     match Quadrant::from_index(index) {
         Quadrant::First => 1.0 - lut[LUT_LEN - index_mod - 1],
-        Quadrant::Second => 1.0 - lut[LUT_LEN],
+        Quadrant::Second => 1.0 - lut[index_mod],
         Quadrant::Third | Quadrant::Fourth => 0.0,
     }
 }
 
-fn inverse_half_sine(index: usize) -> f32 {
-    todo!()
+fn alternating_sine_lut(index: usize) -> f32 {
+    let lut = unsafe { LUT.assume_init_ref() };
+
+    let index = index * 2;
+
+    if index > LUT_FULL - 1 {
+        return 0.0;
+    }
+
+    let index_mod = index % LUT_LEN;
+    match Quadrant::from_index(index) {
+        Quadrant::First => lut[index_mod],
+        Quadrant::Second => lut[LUT_LEN - index_mod - 1],
+        Quadrant::Third => -lut[index_mod],
+        Quadrant::Fourth => -lut[LUT_LEN - index_mod - 1],
+    }
 }
-fn alternating_sine(index: usize) -> f32 {
-    todo!()
+
+fn inverse_alternating_sine_lut(index: usize) -> f32 {
+    let lut = unsafe { LUT.assume_init_ref() };
+
+    let index = index * 2;
+
+    if index > LUT_FULL - 1 {
+        return 0.0;
+    }
+
+    let index_mod = index % LUT_LEN;
+    match Quadrant::from_index(index) {
+        Quadrant::First => 1.0 - lut[LUT_LEN - index_mod - 1],
+        Quadrant::Second => 1.0 - lut[index_mod],
+        Quadrant::Third => -1.0 + lut[LUT_LEN - index_mod - 1],
+        Quadrant::Fourth => -1.0 + lut[index_mod],
+    }
 }
-fn inverse_alternating_sine(index: usize) -> f32 {
-    todo!()
+
+fn camel_sine_lut(index: usize) -> f32 {
+    let lut = unsafe { LUT.assume_init_ref() };
+
+    let index = index * 2;
+
+    if index > LUT_FULL - 1 {
+        return 0.0;
+    }
+
+    let index_mod = index % LUT_LEN;
+    match Quadrant::from_index(index) {
+        Quadrant::First | Quadrant::Third => lut[index_mod],
+        Quadrant::Second | Quadrant::Fourth => lut[LUT_LEN - index_mod - 1],
+    }
 }
-fn camel_sine(index: usize) -> f32 {
-    todo!()
-}
-fn invese_camel_sine(index: usize) -> f32 {
-    todo!()
+
+fn invese_camel_sine_lut(index: usize) -> f32 {
+    let lut = unsafe { LUT.assume_init_ref() };
+
+    let index = index * 2;
+
+    if index > LUT_FULL - 1 {
+        return 0.0;
+    }
+
+    let index_mod = index % LUT_LEN;
+    match Quadrant::from_index(index) {
+        Quadrant::First | Quadrant::Third => 1.0 - lut[LUT_LEN - index_mod - 1],
+        Quadrant::Second | Quadrant::Fourth => 1.0 - lut[index_mod],
+    }
 }
