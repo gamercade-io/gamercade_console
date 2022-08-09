@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use super::{Algorithm, FeedbackLevel, OperatorDefinition, OPERATOR_COUNT};
 
+#[derive(Clone)]
 pub struct PatchDefinition {
     pub operators: Arc<[OperatorDefinition; OPERATOR_COUNT]>,
     pub algorithm: Algorithm,
