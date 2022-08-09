@@ -18,7 +18,7 @@ fn main() {
 
     let def = WavetableDefinition {
         data,
-        envelope: Arc::new(EnvelopeDefinition::default()),
+        envelope: EnvelopeDefinition::default(),
         sample_rate: 44_100, //44.1 khz
     };
 

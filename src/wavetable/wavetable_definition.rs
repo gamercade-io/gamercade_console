@@ -1,11 +1,12 @@
-use std::sync::Arc;
+use serde::{Deserialize, Serialize};
 
 use super::WavetableBitDepth;
 use crate::EnvelopeDefinition;
 
+#[derive(Clone, Serialize, Deserialize)]
 pub struct WavetableDefinition {
     pub data: Box<[WavetableBitDepth]>,
-    pub envelope: Arc<EnvelopeDefinition>,
+    pub envelope: EnvelopeDefinition,
     pub sample_rate: usize,
 }
 

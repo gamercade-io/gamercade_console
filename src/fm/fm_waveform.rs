@@ -3,6 +3,8 @@ use std::{
     mem::MaybeUninit,
 };
 
+use serde::{Deserialize, Serialize};
+
 const LUT_LEN: usize = 64;
 const LUT_FULL: usize = LUT_LEN * 4;
 static mut LUT: MaybeUninit<[f32; LUT_LEN]> = MaybeUninit::uninit();
@@ -48,7 +50,7 @@ impl Quadrant {
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Serialize, Deserialize)]
 pub enum FMWaveform {
     Sine,
     InverseSine,

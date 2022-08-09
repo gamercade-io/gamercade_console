@@ -1,6 +1,8 @@
 use std::f32::consts::PI;
 
-#[derive(Clone, Copy, Debug, Default)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Copy, Debug, Default, Serialize, Deserialize)]
 pub struct FeedbackLevel(pub usize);
 
 impl FeedbackLevel {
