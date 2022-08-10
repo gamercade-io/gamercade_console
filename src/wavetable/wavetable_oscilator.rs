@@ -28,8 +28,9 @@ impl WavetableOscilator {
 
     /// Get's the current sample value
     /// This interpolates between the current index and the next index
-    pub fn get_sample(&self) -> f32 {
-        let index = self.oscillator.index();
+    /// Also increments the oscillator
+    pub fn tick(&mut self) -> f32 {
+        let index = self.oscillator.tick();
 
         let next_weight = index.fract();
         let index_weight = 1.0 - next_weight;
@@ -48,8 +49,7 @@ impl Iterator for WavetableOscilator {
     type Item = f32;
 
     fn next(&mut self) -> Option<f32> {
-        let output = self.get_sample() * 0.15;
-        self.oscillator.tick();
+        let output = self.tick() * 0.15;
         Some(output)
     }
 }

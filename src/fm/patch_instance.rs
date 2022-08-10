@@ -51,8 +51,7 @@ impl Iterator for PatchInstance {
         // 1st Operator is always feedback
         let feedback_input = ((self.feedback[0] + self.feedback[1]) / 2.0)
             * self.definition.feedback.as_multiplier();
-        outputs[0] = operators[0].get_sample(operator_definitions[0].waveform, feedback_input);
-        operators[0].tick();
+        outputs[0] = operators[0].tick(operator_definitions[0].waveform, feedback_input);
 
         // Handle feedback
         self.feedback[1] = self.feedback[0];
@@ -70,23 +69,18 @@ impl Iterator for PatchInstance {
             let modulator = &algorithm.modulators[i - 1];
 
             // TODO: Remove this when modulation is working
-            let result = operator.get_sample(waveform, 0.0);
+            let result = operator.tick(waveform, 0.0);
 
-            // let result = match modulator {
-            //     ModulatedBy::None => operator.get_sample(waveform, 0.0),
-            //     ModulatedBy::Single(modulator) => {
-            //         operator.get_sample(waveform, outputs[*modulator])
+            // let modulation = match modulator {
+            //     ModulatedBy::None => 0.0,
+            //     ModulatedBy::Single(modulator) => outputs[*modulator],
+            //     ModulatedBy::Double(first, second) => outputs[*first] + outputs[*second],
+            //     ModulatedBy::Triple(first, second, third) => {
+            //         outputs[*first] + outputs[*second] + outputs[*third]
             //     }
-            //     ModulatedBy::Double(first, second) => {
-            //         operator.get_sample(waveform, outputs[*first] + outputs[*second])
-            //     }
-            //     ModulatedBy::Triple(first, second, third) => operator.get_sample(
-            //         waveform,
-            //         outputs[*first] + outputs[*second] + outputs[*third],
-            //     ),
             // };
 
-            operator.tick();
+            // let result = operator.tick(waveform, modulation);
 
             let result = result * FM_AMPLIFICATION;
 

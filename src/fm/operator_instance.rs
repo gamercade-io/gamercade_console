@@ -24,15 +24,11 @@ impl OperatorInstance {
             .set_frequency(frequency, FM_OUTPUT_SAMPLE_RATE);
     }
 
-    /// Increments the oscillator
-    pub fn tick(&mut self) {
-        self.oscillator.tick()
-    }
-
     /// Get's the current sample value including any modulation and
     /// interpolates between the next sample.
-    pub fn get_sample(&self, waveform: FMWaveform, modulation: f32) -> f32 {
-        let index = self.oscillator.index() + modulation;
+    /// Also ticks the operator.
+    pub fn tick(&mut self, waveform: FMWaveform, modulation: f32) -> f32 {
+        let index = self.oscillator.tick() + modulation;
 
         let next_weight = index.fract();
         let index_weight = 1.0 - next_weight;

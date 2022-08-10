@@ -19,19 +19,17 @@ impl Oscillator {
         self.index_increment = (frequency * self.phase_length) / output_sample_rate as f32;
     }
 
-    /// Returns the index of the oscillator
-    pub(crate) fn index(&self) -> f32 {
-        self.index
-    }
-
     /// Resets the oscillator's index back to zero
     pub(crate) fn reset(&mut self) {
         self.index = 0.0;
     }
 
-    /// Increments the oscillator by its predefined amounts
-    pub(crate) fn tick(&mut self) {
+    /// Returns the index, then
+    /// Increments the oscillator by its predefined amount
+    pub(crate) fn tick(&mut self) -> f32 {
+        let out = self.index;
         self.index += self.index_increment;
         self.index %= self.phase_length;
+        out
     }
 }
