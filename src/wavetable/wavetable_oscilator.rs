@@ -9,6 +9,7 @@ use super::WavetableDefinition;
 pub struct WavetableOscilator {
     definition: Arc<WavetableDefinition>,
     oscillator: Oscillator,
+    active: bool,
 }
 
 impl WavetableOscilator {
@@ -17,6 +18,7 @@ impl WavetableOscilator {
         Self {
             oscillator: Oscillator::new(definition.len()),
             definition,
+            active: false,
         }
     }
 

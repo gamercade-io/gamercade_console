@@ -1,6 +1,6 @@
 use crate::{
     FMWaveform, OperatorDefinition, OperatorDefinitionBundle, Oscillator, FM_OUTPUT_SAMPLE_RATE,
-    LUT_FULL_LEN, LUT_QUARTER_LEN, OPERATOR_COUNT,
+    LUT_FULL_LEN, OPERATOR_COUNT,
 };
 
 #[derive(Debug, Clone)]
