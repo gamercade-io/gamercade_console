@@ -1,4 +1,4 @@
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct Oscillator {
     index: f32,
     index_increment: f32,

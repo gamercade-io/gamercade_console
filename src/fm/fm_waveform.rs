@@ -5,7 +5,7 @@ use std::{
 
 use serde::{Deserialize, Serialize};
 
-const LUT_LEN: usize = 64;
+pub const LUT_LEN: usize = 256;
 const LUT_FULL: usize = LUT_LEN * 4;
 static mut LUT: MaybeUninit<[f32; LUT_LEN]> = MaybeUninit::uninit();
 
