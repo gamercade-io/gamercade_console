@@ -22,8 +22,11 @@ fn main() {
     fm.set_frequency(440.0);
     wavetable.set_frequency(440.0);
 
-    stream_handle.play_raw(fm).unwrap();
-    std::thread::sleep(std::time::Duration::from_secs(5));
+    //fm.set_active(true);
+    wavetable.set_active(true);
+
+    stream_handle.play_raw(wavetable).unwrap();
+    std::thread::sleep(std::time::Duration::from_secs_f32(5.0));
 }
 
 fn fm_test() -> PatchInstance {
@@ -41,7 +44,7 @@ fn wavetable_test() -> WavetableOscilator {
 
     let def = WavetableDefinition {
         data,
-        envelope: EnvelopeDefinition::default(),
+        envelope: EnvelopeDefinition::interesting(),
         sample_rate: 44_100, //44.1 khz
     };
 

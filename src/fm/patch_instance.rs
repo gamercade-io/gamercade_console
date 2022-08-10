@@ -10,8 +10,8 @@ use crate::{
 pub struct PatchInstance {
     operators: OperatorInstanceBundle,
     definition: Arc<PatchDefinition>,
-    active: bool,
     feedback: [f32; 2],
+    active: bool,
 }
 
 impl PatchInstance {
@@ -19,8 +19,8 @@ impl PatchInstance {
         Self {
             operators: OperatorInstanceBundle::new(&definition.operators),
             definition,
-            active: false,
             feedback: [0.0; 2],
+            active: false,
         }
     }
 
@@ -34,6 +34,10 @@ impl PatchInstance {
                 let adjusted_frequency = definition.frequency_multiplier.multiply(frequency);
                 instance.set_frequency(adjusted_frequency)
             });
+    }
+
+    pub fn set_active(&mut self, active: bool) {
+        self.active = active;
     }
 }
 
@@ -51,7 +55,11 @@ impl Iterator for PatchInstance {
         // 1st Operator is always feedback
         let feedback_input = ((self.feedback[0] + self.feedback[1]) / 2.0)
             * self.definition.feedback.as_multiplier();
-        outputs[0] = operators[0].tick(operator_definitions[0].waveform, feedback_input);
+        outputs[0] = operators[0].tick(
+            operator_definitions[0].waveform,
+            feedback_input,
+            self.active,
+        );
 
         // Handle feedback
         self.feedback[1] = self.feedback[0];
@@ -69,7 +77,7 @@ impl Iterator for PatchInstance {
             let modulator = &algorithm.modulators[i - 1];
 
             // TODO: Remove this when modulation is working
-            let result = operator.tick(waveform, 0.0);
+            let result = operator.tick(waveform, 0.0, self.active);
 
             // let modulation = match modulator {
             //     ModulatedBy::None => 0.0,
@@ -80,7 +88,7 @@ impl Iterator for PatchInstance {
             //     }
             // };
 
-            // let result = operator.tick(waveform, modulation);
+            // let result = operator.tick(waveform, modulation, self.active);
 
             let result = result * FM_AMPLIFICATION;
 

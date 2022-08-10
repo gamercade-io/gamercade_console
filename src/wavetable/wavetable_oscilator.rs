@@ -2,12 +2,13 @@ use std::sync::Arc;
 
 use rodio::Source;
 
-use crate::{Oscillator, WavetableBitDepth};
+use crate::{EnvelopeInstance, Oscillator, WavetableBitDepth};
 
 use super::WavetableDefinition;
 
 pub struct WavetableOscilator {
     definition: Arc<WavetableDefinition>,
+    envelope: EnvelopeInstance,
     oscillator: Oscillator,
     active: bool,
 }
@@ -16,6 +17,7 @@ impl WavetableOscilator {
     /// Generates a new WavetableOscilator
     pub fn new(definition: Arc<WavetableDefinition>) -> Self {
         Self {
+            envelope: EnvelopeInstance::new(&definition.envelope, definition.sample_rate),
             oscillator: Oscillator::new(definition.len()),
             definition,
             active: false,
@@ -43,7 +45,13 @@ impl WavetableOscilator {
         let index = self.definition.data[index] as f32 / WavetableBitDepth::MAX as f32;
         let next = self.definition.data[next] as f32 / WavetableBitDepth::MAX as f32;
 
-        (index * index_weight) + (next * next_weight)
+        let output = (index * index_weight) + (next * next_weight);
+        let envelope = self.envelope.tick(self.active);
+        output * envelope
+    }
+
+    pub fn set_active(&mut self, active: bool) {
+        self.active = active;
     }
 }
 
@@ -51,7 +59,7 @@ impl Iterator for WavetableOscilator {
     type Item = f32;
 
     fn next(&mut self) -> Option<f32> {
-        let output = self.tick() * 0.15;
+        let output = self.tick() * 0.05;
         Some(output)
     }
 }

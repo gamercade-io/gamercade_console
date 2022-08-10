@@ -1,20 +1,20 @@
 use crate::{
-    FMWaveform, OperatorDefinition, OperatorDefinitionBundle, Oscillator, FM_OUTPUT_SAMPLE_RATE,
-    LUT_FULL_LEN, OPERATOR_COUNT,
+    EnvelopeInstance, FMWaveform, OperatorDefinition, OperatorDefinitionBundle, Oscillator,
+    FM_OUTPUT_SAMPLE_RATE, LUT_FULL_LEN, OPERATOR_COUNT,
 };
 
 #[derive(Debug, Clone)]
 pub struct OperatorInstance {
-    index: usize,
     oscillator: Oscillator,
+    envelope: EnvelopeInstance,
 }
 
 impl OperatorInstance {
     /// Constructs a new operator instance based on the passed in definition
-    pub fn new(index: usize, source: &OperatorDefinition) -> Self {
+    pub fn new(source: &OperatorDefinition) -> Self {
         Self {
-            index,
             oscillator: Oscillator::new(LUT_FULL_LEN),
+            envelope: EnvelopeInstance::new(&source.envlope_definition, FM_OUTPUT_SAMPLE_RATE),
         }
     }
 
@@ -27,7 +27,7 @@ impl OperatorInstance {
     /// Get's the current sample value including any modulation and
     /// interpolates between the next sample.
     /// Also ticks the operator.
-    pub fn tick(&mut self, waveform: FMWaveform, modulation: f32) -> f32 {
+    pub fn tick(&mut self, waveform: FMWaveform, modulation: f32, active: bool) -> f32 {
         let index = self.oscillator.tick() + modulation;
 
         let next_weight = index.fract();
@@ -39,7 +39,9 @@ impl OperatorInstance {
         let index = waveform.lookup(index);
         let next = waveform.lookup(next);
 
-        (index * index_weight) + (next * next_weight)
+        let output = (index * index_weight) + (next * next_weight);
+        let envelope = self.envelope.tick(active);
+        output * envelope
     }
 }
 
@@ -54,8 +56,7 @@ impl OperatorInstanceBundle {
             operators: source
                 .operators
                 .iter()
-                .enumerate()
-                .map(|(index, operator)| OperatorInstance::new(index, operator))
+                .map(OperatorInstance::new)
                 .collect::<Vec<_>>()
                 .try_into()
                 .unwrap(),

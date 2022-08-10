@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use super::FrequencyMultiplier;
-use crate::{EnvelopeDefinition, FMWaveform, OPERATOR_COUNT};
+use crate::{EnvelopeDefinition, EnvelopeType, FMWaveform, OPERATOR_COUNT};
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct OperatorDefinitionBundle {
@@ -11,7 +11,7 @@ pub struct OperatorDefinitionBundle {
 impl Default for OperatorDefinitionBundle {
     fn default() -> Self {
         let first_envelope = EnvelopeDefinition {
-            total_level: u8::MAX,
+            total_level: EnvelopeType::MAX,
             ..Default::default()
         };
 
