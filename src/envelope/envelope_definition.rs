@@ -1,7 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-use crate::EnvelopePhase;
-
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct EnvelopeDefinition {
     /// The max level
@@ -21,20 +19,6 @@ pub struct EnvelopeDefinition {
 
     /// The rate of decay after the key is released
     pub release_rate: u8,
-}
-
-impl EnvelopeDefinition {
-    pub(crate) fn generate_attack(&self) -> (EnvelopePhase, f32) {
-        todo!()
-    }
-
-    pub(crate) fn generate_decay(&self) -> (EnvelopePhase, f32) {
-        todo!()
-    }
-
-    pub(crate) fn generate_sustain(&self) -> (EnvelopePhase, f32) {
-        todo!()
-    }
 }
 
 impl Default for EnvelopeDefinition {
