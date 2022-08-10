@@ -1,17 +1,25 @@
+use std::ops::Sub;
+
+#[derive(Clone, Debug)]
 pub(crate) struct Ramp {
     steps: usize,
-    value: f32,
+    pub(crate) value: f32,
     increment: f32,
 }
 
 impl Ramp {
-    pub fn new(start: f32, end: f32, steps: usize) -> Self {
+    pub fn new<T>(start: T, end: T, steps: usize) -> Self
+    where
+        f32: From<<T as Sub>::Output> + From<T>,
+        T: Sub + Copy,
+    {
         // Divide by zero results in NaN which is OK
-        let increment = (end - start) / steps as f32;
+        let range: f32 = (end - start).into();
+        let increment = range / steps as f32;
 
         Self {
             steps,
-            value: start,
+            value: start.into(),
             increment,
         }
     }
