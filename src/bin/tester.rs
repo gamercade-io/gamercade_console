@@ -22,10 +22,10 @@ fn main() {
     fm.set_frequency(440.0);
     wavetable.set_frequency(440.0);
 
-    //fm.set_active(true);
+    fm.set_active(true);
     wavetable.set_active(true);
 
-    stream_handle.play_raw(wavetable).unwrap();
+    stream_handle.play_raw(fm).unwrap();
     std::thread::sleep(std::time::Duration::from_secs_f32(5.0));
 }
 

@@ -28,7 +28,7 @@ impl OperatorInstance {
     /// interpolates between the next sample.
     /// Also ticks the operator.
     pub fn tick(&mut self, waveform: FMWaveform, modulation: f32, active: bool) -> f32 {
-        let index = self.oscillator.tick() + modulation;
+        let index = self.oscillator.tick() + self.oscillator.modulation(modulation);
 
         let next_weight = index.fract();
         let index_weight = 1.0 - next_weight;
@@ -41,6 +41,7 @@ impl OperatorInstance {
 
         let output = (index * index_weight) + (next * next_weight);
         let envelope = self.envelope.tick(active);
+
         output * envelope
     }
 }

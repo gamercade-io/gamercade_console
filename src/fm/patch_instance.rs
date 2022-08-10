@@ -55,6 +55,7 @@ impl Iterator for PatchInstance {
         // 1st Operator is always feedback
         let feedback_input = ((self.feedback[0] + self.feedback[1]) / 2.0)
             * self.definition.feedback.as_multiplier();
+
         outputs[0] = operators[0].tick(
             operator_definitions[0].waveform,
             feedback_input,
@@ -76,19 +77,16 @@ impl Iterator for PatchInstance {
             let waveform = operator_definitions[i].waveform;
             let modulator = &algorithm.modulators[i - 1];
 
-            // TODO: Remove this when modulation is working
-            let result = operator.tick(waveform, 0.0, self.active);
+            let modulation = match modulator {
+                ModulatedBy::None => 0.0,
+                ModulatedBy::Single(modulator) => outputs[*modulator],
+                ModulatedBy::Double(first, second) => outputs[*first] + outputs[*second],
+                ModulatedBy::Triple(first, second, third) => {
+                    outputs[*first] + outputs[*second] + outputs[*third]
+                }
+            };
 
-            // let modulation = match modulator {
-            //     ModulatedBy::None => 0.0,
-            //     ModulatedBy::Single(modulator) => outputs[*modulator],
-            //     ModulatedBy::Double(first, second) => outputs[*first] + outputs[*second],
-            //     ModulatedBy::Triple(first, second, third) => {
-            //         outputs[*first] + outputs[*second] + outputs[*third]
-            //     }
-            // };
-
-            // let result = operator.tick(waveform, modulation, self.active);
+            let result = operator.tick(waveform, modulation, self.active);
 
             let result = result * FM_AMPLIFICATION;
 

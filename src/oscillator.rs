@@ -19,6 +19,10 @@ impl Oscillator {
         self.index_increment = (frequency * self.phase_length) / output_sample_rate as f32;
     }
 
+    pub(crate) fn modulation(&self, modulation: f32) -> f32 {
+        modulation * self.index_increment
+    }
+
     /// Returns the index, then
     /// Increments the oscillator by its predefined amount
     pub(crate) fn tick(&mut self) -> f32 {

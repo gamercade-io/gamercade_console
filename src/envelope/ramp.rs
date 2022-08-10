@@ -77,8 +77,8 @@ impl Ramp {
 
         self.decaying_increment = self.value - self.overshoot_value;
 
-        let time = -1.0 * time / (1.0 - (1.0 / OVERSHOOT)).log10();
-        self.multiplier = f32::powf(f32::exp(-1.0 / time), 1.0 / self.sample_rate as f32);
+        let time = (-1.0 * time) / (1.0 - OVERSHOOT.recip()).ln();
+        self.multiplier = f32::powf(f32::exp(-1.0 / time), (self.sample_rate as f32).recip());
     }
 
     pub fn tick(&mut self) -> f32 {

@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use super::FrequencyMultiplier;
-use crate::{EnvelopeDefinition, EnvelopeType, FMWaveform, OPERATOR_COUNT};
+use crate::{EnvelopeDefinition, FMWaveform, OPERATOR_COUNT};
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct OperatorDefinitionBundle {
@@ -10,19 +10,31 @@ pub struct OperatorDefinitionBundle {
 
 impl Default for OperatorDefinitionBundle {
     fn default() -> Self {
-        let first_envelope = EnvelopeDefinition {
-            total_level: EnvelopeType::MAX,
+        let modulators_envelope = EnvelopeDefinition {
+            total_level: 0,
             ..Default::default()
         };
 
-        let first = OperatorDefinition {
+        let silent_modulator = OperatorDefinition {
             waveform: FMWaveform::Sine,
             frequency_multiplier: FrequencyMultiplier::one(),
             detune: 0,
-            envlope_definition: first_envelope,
+            envlope_definition: modulators_envelope,
         };
 
-        let others = OperatorDefinition {
+        let modulator_envelope = EnvelopeDefinition {
+            total_level: 49_152, // Random value to compare against audio-test
+            ..Default::default()
+        };
+
+        let modulator = OperatorDefinition {
+            waveform: FMWaveform::Sine,
+            frequency_multiplier: FrequencyMultiplier::one(),
+            detune: 0,
+            envlope_definition: modulator_envelope,
+        };
+
+        let carrier = OperatorDefinition {
             waveform: FMWaveform::Sine,
             frequency_multiplier: FrequencyMultiplier::one(),
             detune: 0,
@@ -30,7 +42,12 @@ impl Default for OperatorDefinitionBundle {
         };
 
         Self {
-            operators: [first, others.clone(), others.clone(), others],
+            operators: [
+                silent_modulator.clone(),
+                silent_modulator,
+                modulator,
+                carrier,
+            ],
         }
     }
 }
