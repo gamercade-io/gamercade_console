@@ -92,12 +92,12 @@ impl Ramp {
     }
 
     pub fn is_finished(&self) -> bool {
+        // Going up
         if self.value >= self.target_value && self.value <= self.overshoot_value {
             true
-        } else if self.value <= self.target_value && self.value >= self.overshoot_value {
-            true
         } else {
-            false
+            // Going Down
+            self.value <= self.target_value && self.value >= self.overshoot_value
         }
     }
 }
