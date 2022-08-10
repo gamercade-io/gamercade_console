@@ -2,9 +2,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::OperatorDefinitionBundle;
 
-use super::{Algorithm, FeedbackLevel, OperatorDefinition, OPERATOR_COUNT};
+use super::{Algorithm, FeedbackLevel};
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Default)]
 pub struct PatchDefinition {
     pub operators: OperatorDefinitionBundle,
     pub algorithm: Algorithm,

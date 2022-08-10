@@ -1,4 +1,7 @@
-use crate::{OperatorDefinition, OperatorDefinitionBundle, Oscillator, LUT_LEN, OPERATOR_COUNT};
+use crate::{
+    FMWaveform, OperatorDefinition, OperatorDefinitionBundle, Oscillator, FM_OUTPUT_SAMPLE_RATE,
+    LUT_FULL_LEN, LUT_QUARTER_LEN, OPERATOR_COUNT,
+};
 
 #[derive(Debug, Clone)]
 pub struct OperatorInstance {
@@ -7,11 +10,40 @@ pub struct OperatorInstance {
 }
 
 impl OperatorInstance {
+    /// Constructs a new operator instance based on the passed in definition
     pub fn new(index: usize, source: &OperatorDefinition) -> Self {
         Self {
             index,
-            oscillator: Oscillator::new(LUT_LEN),
+            oscillator: Oscillator::new(LUT_FULL_LEN),
         }
+    }
+
+    /// Sets the frequency
+    pub fn set_frequency(&mut self, frequency: f32) {
+        self.oscillator
+            .set_frequency(frequency, FM_OUTPUT_SAMPLE_RATE);
+    }
+
+    /// Increments the oscillator
+    pub fn tick(&mut self) {
+        self.oscillator.tick()
+    }
+
+    /// Get's the current sample value including any modulation and
+    /// interpolates between the next sample.
+    pub fn get_sample(&self, waveform: FMWaveform, modulation: f32) -> f32 {
+        let index = self.oscillator.index() + modulation;
+
+        let next_weight = index.fract();
+        let index_weight = 1.0 - next_weight;
+
+        let index = index as usize % LUT_FULL_LEN;
+        let next = (index + 1) % LUT_FULL_LEN;
+
+        let index = waveform.lookup(index);
+        let next = waveform.lookup(next);
+
+        (index * index_weight) + (next * next_weight)
     }
 }
 

@@ -5,17 +5,17 @@ use std::{
 
 use serde::{Deserialize, Serialize};
 
-pub const LUT_LEN: usize = 256;
-const LUT_FULL: usize = LUT_LEN * 4;
-static mut LUT: MaybeUninit<[f32; LUT_LEN]> = MaybeUninit::uninit();
+use crate::{LUT_FULL_LEN, LUT_QUARTER_LEN};
+
+static mut LUT: MaybeUninit<[f32; LUT_QUARTER_LEN]> = MaybeUninit::uninit();
 
 pub fn init_fm_lut() {
     unsafe {
         LUT.write(
-            (0..LUT_LEN)
+            (0..LUT_QUARTER_LEN)
                 .map(|index| {
-                    let phase = (TAU * index as f32) / LUT_FULL as f32;
-                    let phase = phase + (PI / LUT_FULL as f32); //Offset it slightly to break symmetry
+                    let phase = (TAU * index as f32) / LUT_FULL_LEN as f32;
+                    let phase = phase + (PI / LUT_FULL_LEN as f32); //Offset it slightly to break symmetry
 
                     phase.sin()
                 })
@@ -36,13 +36,13 @@ enum Quadrant {
 
 impl Quadrant {
     pub fn from_index(index: usize) -> Self {
-        if index < LUT_LEN {
+        if index < LUT_QUARTER_LEN {
             Quadrant::First
-        } else if index < LUT_LEN * 2 {
+        } else if index < LUT_QUARTER_LEN * 2 {
             Quadrant::Second
-        } else if index < LUT_LEN * 3 {
+        } else if index < LUT_QUARTER_LEN * 3 {
             Quadrant::Third
-        } else if index < LUT_FULL {
+        } else if index < LUT_FULL_LEN {
             Quadrant::Fourth
         } else {
             unreachable!()
@@ -63,6 +63,7 @@ pub enum FMWaveform {
 }
 
 impl FMWaveform {
+    /// Returns the actual f32 value of the waveform from the table
     pub fn lookup(self, index: usize) -> f32 {
         match self {
             FMWaveform::Sine => sine_lut(index),
@@ -79,45 +80,45 @@ impl FMWaveform {
 
 fn sine_lut(index: usize) -> f32 {
     let lut = unsafe { LUT.assume_init_ref() };
-    let index_mod = index % LUT_LEN;
+    let index_mod = index % LUT_QUARTER_LEN;
 
     match Quadrant::from_index(index) {
         Quadrant::First => lut[index_mod],
-        Quadrant::Second => lut[LUT_LEN - index_mod - 1],
+        Quadrant::Second => lut[LUT_QUARTER_LEN - index_mod - 1],
         Quadrant::Third => -lut[index_mod],
-        Quadrant::Fourth => -lut[LUT_LEN - index_mod - 1],
+        Quadrant::Fourth => -lut[LUT_QUARTER_LEN - index_mod - 1],
     }
 }
 
 fn inverse_sine_lut(index: usize) -> f32 {
     let lut = unsafe { LUT.assume_init_ref() };
-    let index_mod = index % LUT_LEN;
+    let index_mod = index % LUT_QUARTER_LEN;
 
     match Quadrant::from_index(index) {
-        Quadrant::First => 1.0 - lut[LUT_LEN - index_mod - 1],
+        Quadrant::First => 1.0 - lut[LUT_QUARTER_LEN - index_mod - 1],
         Quadrant::Second => 1.0 - lut[index_mod],
-        Quadrant::Third => -1.0 + lut[LUT_LEN - index_mod - 1],
+        Quadrant::Third => -1.0 + lut[LUT_QUARTER_LEN - index_mod - 1],
         Quadrant::Fourth => -1.0 + lut[index_mod],
     }
 }
 
 fn half_sine_lut(index: usize) -> f32 {
     let lut = unsafe { LUT.assume_init_ref() };
-    let index_mod = index % LUT_LEN;
+    let index_mod = index % LUT_QUARTER_LEN;
 
     match Quadrant::from_index(index) {
         Quadrant::First => lut[index_mod],
-        Quadrant::Second => lut[LUT_LEN - index_mod - 1],
+        Quadrant::Second => lut[LUT_QUARTER_LEN - index_mod - 1],
         Quadrant::Third | Quadrant::Fourth => 0.0,
     }
 }
 
 fn inverse_half_sine_lut(index: usize) -> f32 {
     let lut = unsafe { LUT.assume_init_ref() };
-    let index_mod = index % LUT_LEN;
+    let index_mod = index % LUT_QUARTER_LEN;
 
     match Quadrant::from_index(index) {
-        Quadrant::First => 1.0 - lut[LUT_LEN - index_mod - 1],
+        Quadrant::First => 1.0 - lut[LUT_QUARTER_LEN - index_mod - 1],
         Quadrant::Second => 1.0 - lut[index_mod],
         Quadrant::Third | Quadrant::Fourth => 0.0,
     }
@@ -128,16 +129,16 @@ fn alternating_sine_lut(index: usize) -> f32 {
 
     let index = index * 2;
 
-    if index > LUT_FULL - 1 {
+    if index > LUT_FULL_LEN - 1 {
         return 0.0;
     }
 
-    let index_mod = index % LUT_LEN;
+    let index_mod = index % LUT_QUARTER_LEN;
     match Quadrant::from_index(index) {
         Quadrant::First => lut[index_mod],
-        Quadrant::Second => lut[LUT_LEN - index_mod - 1],
+        Quadrant::Second => lut[LUT_QUARTER_LEN - index_mod - 1],
         Quadrant::Third => -lut[index_mod],
-        Quadrant::Fourth => -lut[LUT_LEN - index_mod - 1],
+        Quadrant::Fourth => -lut[LUT_QUARTER_LEN - index_mod - 1],
     }
 }
 
@@ -146,15 +147,15 @@ fn inverse_alternating_sine_lut(index: usize) -> f32 {
 
     let index = index * 2;
 
-    if index > LUT_FULL - 1 {
+    if index > LUT_FULL_LEN - 1 {
         return 0.0;
     }
 
-    let index_mod = index % LUT_LEN;
+    let index_mod = index % LUT_QUARTER_LEN;
     match Quadrant::from_index(index) {
-        Quadrant::First => 1.0 - lut[LUT_LEN - index_mod - 1],
+        Quadrant::First => 1.0 - lut[LUT_QUARTER_LEN - index_mod - 1],
         Quadrant::Second => 1.0 - lut[index_mod],
-        Quadrant::Third => -1.0 + lut[LUT_LEN - index_mod - 1],
+        Quadrant::Third => -1.0 + lut[LUT_QUARTER_LEN - index_mod - 1],
         Quadrant::Fourth => -1.0 + lut[index_mod],
     }
 }
@@ -164,14 +165,14 @@ fn camel_sine_lut(index: usize) -> f32 {
 
     let index = index * 2;
 
-    if index > LUT_FULL - 1 {
+    if index > LUT_FULL_LEN - 1 {
         return 0.0;
     }
 
-    let index_mod = index % LUT_LEN;
+    let index_mod = index % LUT_QUARTER_LEN;
     match Quadrant::from_index(index) {
         Quadrant::First | Quadrant::Third => lut[index_mod],
-        Quadrant::Second | Quadrant::Fourth => lut[LUT_LEN - index_mod - 1],
+        Quadrant::Second | Quadrant::Fourth => lut[LUT_QUARTER_LEN - index_mod - 1],
     }
 }
 
@@ -180,13 +181,13 @@ fn invese_camel_sine_lut(index: usize) -> f32 {
 
     let index = index * 2;
 
-    if index > LUT_FULL - 1 {
+    if index > LUT_FULL_LEN - 1 {
         return 0.0;
     }
 
-    let index_mod = index % LUT_LEN;
+    let index_mod = index % LUT_QUARTER_LEN;
     match Quadrant::from_index(index) {
-        Quadrant::First | Quadrant::Third => 1.0 - lut[LUT_LEN - index_mod - 1],
+        Quadrant::First | Quadrant::Third => 1.0 - lut[LUT_QUARTER_LEN - index_mod - 1],
         Quadrant::Second | Quadrant::Fourth => 1.0 - lut[index_mod],
     }
 }

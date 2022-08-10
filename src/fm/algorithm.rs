@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use super::OPERATOR_COUNT;
 
+#[derive(Clone, Serialize, Deserialize)]
 pub enum ModulatedBy {
     None,
     Single(usize),
@@ -140,6 +141,7 @@ impl Algorithm {
     }
 }
 
+#[derive(Clone, Serialize, Deserialize)]
 pub struct AlgorithmDefinition {
     pub(crate) carriers: [bool; OPERATOR_COUNT],
     pub(crate) modulators: [ModulatedBy; OPERATOR_COUNT - 1],

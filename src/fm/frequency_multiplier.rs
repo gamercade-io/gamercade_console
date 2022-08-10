@@ -18,6 +18,10 @@ impl Default for FrequencyMultiplier {
 }
 
 impl FrequencyMultiplier {
+    pub fn one() -> Self {
+        Self { top: 1, bottom: 1 }
+    }
+
     pub fn min_value() -> u8 {
         1
     }
