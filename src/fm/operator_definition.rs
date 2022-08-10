@@ -10,8 +10,10 @@ pub struct OperatorDefinitionBundle {
 
 impl Default for OperatorDefinitionBundle {
     fn default() -> Self {
-        let mut first_envelope = EnvelopeDefinition::default();
-        first_envelope.total_level = u8::MAX;
+        let first_envelope = EnvelopeDefinition {
+            total_level: u8::MAX,
+            ..Default::default()
+        };
 
         let first = OperatorDefinition {
             waveform: FMWaveform::Sine,
@@ -28,7 +30,7 @@ impl Default for OperatorDefinitionBundle {
         };
 
         Self {
-            operators: [first, others.clone(), others.clone(), others.clone()],
+            operators: [first, others.clone(), others.clone(), others],
         }
     }
 }
