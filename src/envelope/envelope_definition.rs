@@ -1,36 +1,38 @@
 use serde::{Deserialize, Serialize};
 
+use crate::EnvelopeType;
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct EnvelopeDefinition {
     /// The max level
-    pub total_level: u8,
+    pub total_level: EnvelopeType,
 
     /// The level decayed to after the initial attack
-    pub sustain_level: u8,
+    pub sustain_level: EnvelopeType,
 
-    /// The rate of increase before reaching total_level. Between zero and total_level
-    pub attack_rate: u8,
+    /// The length of time to finish the attack phase. Between zero and total_level
+    pub attack_time: EnvelopeType,
 
-    /// The rate of decay after attacking. Between total_level and sustain_level
-    pub decay_attack_rate: u8,
+    /// The length of time to finish the decay phase. Between total_level and sustain_level
+    pub decay_attack_time: EnvelopeType,
 
-    /// The rate of decay while sustaining. Between sustain_level and zero.
-    pub decay_sustain_rate: u8,
+    /// The length of time to finish sustain. Between sustain_level and zero.
+    pub decay_sustain_time: EnvelopeType,
 
-    /// The rate of decay after the key is released
-    pub release_rate: u8,
+    /// The the length of decay after the key is released.
+    pub release_time: EnvelopeType,
 }
 
 impl Default for EnvelopeDefinition {
     fn default() -> Self {
         Self {
-            total_level: 0,
-            sustain_level: u8::MAX,
+            total_level: EnvelopeType::MAX,
+            sustain_level: EnvelopeType::MAX / 2,
 
-            attack_rate: u8::MAX,
-            decay_attack_rate: 0,
-            decay_sustain_rate: 0,
-            release_rate: u8::MAX,
+            attack_time: 0,
+            decay_attack_time: 0,
+            decay_sustain_time: EnvelopeType::MAX,
+            release_time: 0,
         }
     }
 }

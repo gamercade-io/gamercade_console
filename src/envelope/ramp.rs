@@ -1,6 +1,6 @@
 use std::ops::Sub;
 
-use crate::{EnvelopeDefinition, EnvelopePhase};
+use crate::{EnvelopeDefinition, EnvelopePhase, EnvelopeType};
 
 const OVERSHOOT: f32 = 1.001;
 
@@ -40,12 +40,24 @@ impl Ramp {
         definition: &EnvelopeDefinition,
     ) {
         match phase {
-            EnvelopePhase::Attack => todo!(),
-            EnvelopePhase::Decay => todo!(),
-            EnvelopePhase::Sustain => todo!(),
-            EnvelopePhase::Release => todo!(),
+            EnvelopePhase::Attack => self.ramp_to(
+                definition.total_level as f32 / EnvelopeType::MAX as f32,
+                definition.attack_time as f32 / EnvelopeType::MAX as f32,
+            ),
+            EnvelopePhase::Decay => self.ramp_to(
+                definition.sustain_level as f32 / EnvelopeType::MAX as f32,
+                definition.decay_attack_time as f32 / EnvelopeType::MAX as f32,
+            ),
+            EnvelopePhase::Sustain => self.ramp_to(
+                0.0,
+                definition.decay_sustain_time as f32 / EnvelopeType::MAX as f32,
+            ),
+            EnvelopePhase::Release => self.ramp_to(
+                0.0,
+                definition.release_time as f32 / EnvelopeType::MAX as f32,
+            ),
             EnvelopePhase::Off => self.set_constant_value(0.0),
-        }
+        };
     }
 
     // Causes the ramp to hold at the passed in value
