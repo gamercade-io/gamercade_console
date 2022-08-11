@@ -3,7 +3,7 @@ use crate::{EnvelopeDefinition, EnvelopePhase, EnvelopeType, ENVELOPE_TIME_SCALE
 const OVERSHOOT: f32 = 1.001;
 
 #[derive(Clone, Debug)]
-pub(crate) struct Ramp {
+pub(crate) struct ExponentialRamp {
     sample_rate: usize,
     value: f32,              // The current value
     target_value: f32,       // The "end" value
@@ -12,7 +12,7 @@ pub(crate) struct Ramp {
     multiplier: f32,         // The multiplier for the increment
 }
 
-impl Ramp {
+impl ExponentialRamp {
     pub fn new(sample_rate: usize) -> Self {
         Self {
             sample_rate,
@@ -24,11 +24,7 @@ impl Ramp {
         }
     }
 
-    pub fn generate_from_definition(
-        &mut self,
-        phase: EnvelopePhase,
-        definition: &EnvelopeDefinition,
-    ) {
+    pub fn set_from_envelope(&mut self, phase: EnvelopePhase, definition: &EnvelopeDefinition) {
         match phase {
             EnvelopePhase::Attack => self.ramp_to(
                 definition.total_level as f32 / EnvelopeType::MAX as f32,

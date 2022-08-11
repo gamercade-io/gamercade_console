@@ -1,9 +1,9 @@
-use crate::{EnvelopeDefinition, EnvelopePhase, Ramp};
+use crate::{EnvelopeDefinition, EnvelopePhase, ExponentialRamp};
 
 #[derive(Clone, Debug)]
 pub struct EnvelopeInstance {
     definition: EnvelopeDefinition,
-    ramp: Ramp,
+    ramp: ExponentialRamp,
     state: EnvelopePhase,
 }
 
@@ -11,7 +11,7 @@ impl EnvelopeInstance {
     pub fn new(definition: &EnvelopeDefinition, sample_rate: usize) -> Self {
         Self {
             definition: definition.clone(),
-            ramp: Ramp::new(sample_rate),
+            ramp: ExponentialRamp::new(sample_rate),
             state: EnvelopePhase::Off,
         }
     }
@@ -25,7 +25,7 @@ impl EnvelopeInstance {
                     if active {
                         self.state = EnvelopePhase::Attack;
                         self.ramp
-                            .generate_from_definition(EnvelopePhase::Attack, &self.definition);
+                            .set_from_envelope(EnvelopePhase::Attack, &self.definition);
                         self.ramp.tick()
                     } else {
                         0.0
@@ -36,8 +36,7 @@ impl EnvelopeInstance {
 
                     if self.ramp.is_finished() {
                         self.state = self.state.next_phase();
-                        self.ramp
-                            .generate_from_definition(self.state, &self.definition)
+                        self.ramp.set_from_envelope(self.state, &self.definition)
                     }
 
                     out
@@ -45,8 +44,7 @@ impl EnvelopeInstance {
                 EnvelopePhase::Sustain => {
                     if !active {
                         self.state = self.state.next_phase();
-                        self.ramp
-                            .generate_from_definition(self.state, &self.definition);
+                        self.ramp.set_from_envelope(self.state, &self.definition);
                     }
 
                     self.ramp.tick()
@@ -55,7 +53,7 @@ impl EnvelopeInstance {
                     if active {
                         self.state = EnvelopePhase::Attack;
                         self.ramp
-                            .generate_from_definition(EnvelopePhase::Attack, &self.definition);
+                            .set_from_envelope(EnvelopePhase::Attack, &self.definition);
                     }
                     self.ramp.tick()
                 }
