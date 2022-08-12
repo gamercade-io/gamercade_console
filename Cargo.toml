@@ -14,3 +14,4 @@ path = "src/bin/tester.rs"
 rodio = "0.15.0"
 serde = { version = "1.0.143", features = ["derive"] }
 strum = { version = "0.24.1", features = ["derive"] }
+arrayvec = { version = "0.7.2", features = ["serde"] }
