@@ -3,7 +3,7 @@ use crate::{EnvelopeDefinition, EnvelopePhase, EnvelopeType, ENVELOPE_TIME_SCALE
 const OVERSHOOT: f32 = 1.001;
 
 #[derive(Clone, Debug)]
-pub(crate) struct ExponentialRamp {
+pub struct ExponentialRamp {
     sample_rate: usize,
     value: f32,              // The current value
     target_value: f32,       // The "end" value
@@ -24,7 +24,11 @@ impl ExponentialRamp {
         }
     }
 
-    pub fn set_from_envelope(&mut self, phase: EnvelopePhase, definition: &EnvelopeDefinition) {
+    pub(crate) fn set_from_envelope(
+        &mut self,
+        phase: EnvelopePhase,
+        definition: &EnvelopeDefinition,
+    ) {
         match phase {
             EnvelopePhase::Attack => self.ramp_to(
                 definition.total_level as f32 / EnvelopeType::MAX as f32,
@@ -57,7 +61,7 @@ impl ExponentialRamp {
     }
 
     // Causes the ramp to hold at the passed in value
-    fn set_constant_value(&mut self, new_value: f32) {
+    pub fn set_constant_value(&mut self, new_value: f32) {
         self.value = new_value;
         self.target_value = new_value;
         self.overshoot_value = new_value;
@@ -65,7 +69,7 @@ impl ExponentialRamp {
         self.multiplier = 0.0;
     }
 
-    fn ramp_to(&mut self, target_value: f32, time: f32) {
+    pub fn ramp_to(&mut self, target_value: f32, time: f32) {
         self.target_value = target_value;
 
         let distance_to_target = target_value - self.value;
@@ -77,7 +81,7 @@ impl ExponentialRamp {
         self.multiplier = f32::powf(f32::exp(-1.0 / time), (self.sample_rate as f32).recip());
     }
 
-    pub fn tick(&mut self) -> f32 {
+    pub(crate) fn tick(&mut self) -> f32 {
         self.value = self.overshoot_value + self.decaying_increment;
 
         if !self.is_finished() {

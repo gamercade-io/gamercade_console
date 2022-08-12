@@ -10,7 +10,7 @@ pub enum ModulatedBy {
     Triple(usize, usize, usize),
 }
 
-#[derive(PartialEq, Copy, Clone, Debug, Default, Serialize, Deserialize)]
+#[derive(Copy, Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Algorithm(pub u8);
 
 // These are similar to those found on the Dirtywave m8

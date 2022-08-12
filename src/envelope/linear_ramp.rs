@@ -32,7 +32,7 @@ impl LinearRamp {
         self.value = value;
     }
 
-    pub fn tick(&mut self) -> f32 {
+    pub(crate) fn tick(&mut self) -> f32 {
         if !self.is_finished() {
             if self.remaining_ticks == 1 {
                 self.value = self.target_value
