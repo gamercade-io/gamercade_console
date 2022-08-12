@@ -7,11 +7,11 @@ use serde::{Deserialize, Serialize};
 
 use crate::{LUT_FULL_LEN, LUT_QUARTER_LEN};
 
-static mut LUT: MaybeUninit<[f32; LUT_QUARTER_LEN]> = MaybeUninit::uninit();
+static mut SIN_LUT: MaybeUninit<[f32; LUT_QUARTER_LEN]> = MaybeUninit::uninit();
 
-pub fn init_fm_lut() {
+pub(crate) fn init_fm_lut() {
     unsafe {
-        LUT.write(std::array::from_fn(|index| {
+        SIN_LUT.write(std::array::from_fn(|index| {
             let phase = (TAU * index as f32) / LUT_FULL_LEN as f32;
             let phase = phase + (PI / LUT_FULL_LEN as f32); //Offset it slightly to break symmetry
 
@@ -73,7 +73,7 @@ impl FMWaveform {
 }
 
 fn sine_lut(index: usize) -> f32 {
-    let lut = unsafe { LUT.assume_init_ref() };
+    let lut = unsafe { SIN_LUT.assume_init_ref() };
     let index_mod = index % LUT_QUARTER_LEN;
 
     match Quadrant::from_index(index) {
@@ -85,7 +85,7 @@ fn sine_lut(index: usize) -> f32 {
 }
 
 fn inverse_sine_lut(index: usize) -> f32 {
-    let lut = unsafe { LUT.assume_init_ref() };
+    let lut = unsafe { SIN_LUT.assume_init_ref() };
     let index_mod = index % LUT_QUARTER_LEN;
 
     match Quadrant::from_index(index) {
@@ -97,7 +97,7 @@ fn inverse_sine_lut(index: usize) -> f32 {
 }
 
 fn half_sine_lut(index: usize) -> f32 {
-    let lut = unsafe { LUT.assume_init_ref() };
+    let lut = unsafe { SIN_LUT.assume_init_ref() };
     let index_mod = index % LUT_QUARTER_LEN;
 
     match Quadrant::from_index(index) {
@@ -108,7 +108,7 @@ fn half_sine_lut(index: usize) -> f32 {
 }
 
 fn inverse_half_sine_lut(index: usize) -> f32 {
-    let lut = unsafe { LUT.assume_init_ref() };
+    let lut = unsafe { SIN_LUT.assume_init_ref() };
     let index_mod = index % LUT_QUARTER_LEN;
 
     match Quadrant::from_index(index) {
@@ -119,7 +119,7 @@ fn inverse_half_sine_lut(index: usize) -> f32 {
 }
 
 fn alternating_sine_lut(index: usize) -> f32 {
-    let lut = unsafe { LUT.assume_init_ref() };
+    let lut = unsafe { SIN_LUT.assume_init_ref() };
 
     let index = index * 2;
 
@@ -137,7 +137,7 @@ fn alternating_sine_lut(index: usize) -> f32 {
 }
 
 fn inverse_alternating_sine_lut(index: usize) -> f32 {
-    let lut = unsafe { LUT.assume_init_ref() };
+    let lut = unsafe { SIN_LUT.assume_init_ref() };
 
     let index = index * 2;
 
@@ -155,7 +155,7 @@ fn inverse_alternating_sine_lut(index: usize) -> f32 {
 }
 
 fn camel_sine_lut(index: usize) -> f32 {
-    let lut = unsafe { LUT.assume_init_ref() };
+    let lut = unsafe { SIN_LUT.assume_init_ref() };
 
     let index = index * 2;
 
@@ -171,7 +171,7 @@ fn camel_sine_lut(index: usize) -> f32 {
 }
 
 fn invese_camel_sine_lut(index: usize) -> f32 {
-    let lut = unsafe { LUT.assume_init_ref() };
+    let lut = unsafe { SIN_LUT.assume_init_ref() };
 
     let index = index * 2;
 

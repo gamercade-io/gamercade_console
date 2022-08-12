@@ -3,13 +3,13 @@ use std::sync::Arc;
 use rodio::OutputStream;
 
 use gamercade_audio::{
-    init_fm_lut, EnvelopeDefinition, PatchDefinition, PatchInstance, WavetableDefinition,
+    initialize_luts, EnvelopeDefinition, PatchDefinition, PatchInstance, WavetableDefinition,
     WavetableGenerator, WavetableOscilator, WavetableWaveform,
 };
 
 fn main() {
     // Initialization
-    init_fm_lut();
+    initialize_luts();
     let (_stream, stream_handle) = OutputStream::try_default().unwrap();
 
     // Initialize our sound sources
