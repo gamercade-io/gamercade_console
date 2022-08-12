@@ -11,18 +11,12 @@ static mut LUT: MaybeUninit<[f32; LUT_QUARTER_LEN]> = MaybeUninit::uninit();
 
 pub fn init_fm_lut() {
     unsafe {
-        LUT.write(
-            (0..LUT_QUARTER_LEN)
-                .map(|index| {
-                    let phase = (TAU * index as f32) / LUT_FULL_LEN as f32;
-                    let phase = phase + (PI / LUT_FULL_LEN as f32); //Offset it slightly to break symmetry
+        LUT.write(std::array::from_fn(|index| {
+            let phase = (TAU * index as f32) / LUT_FULL_LEN as f32;
+            let phase = phase + (PI / LUT_FULL_LEN as f32); //Offset it slightly to break symmetry
 
-                    phase.sin()
-                })
-                .collect::<Vec<_>>()
-                .try_into()
-                .unwrap(),
-        );
+            phase.sin()
+        }));
     }
 }
 

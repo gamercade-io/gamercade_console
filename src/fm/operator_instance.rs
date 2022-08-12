@@ -54,13 +54,7 @@ pub struct OperatorInstanceBundle {
 impl OperatorInstanceBundle {
     pub fn new(source: &OperatorDefinitionBundle) -> Self {
         Self {
-            operators: source
-                .operators
-                .iter()
-                .map(OperatorInstance::new)
-                .collect::<Vec<_>>()
-                .try_into()
-                .unwrap(),
+            operators: std::array::from_fn(|index| OperatorInstance::new(&source.operators[index])),
         }
     }
 }
