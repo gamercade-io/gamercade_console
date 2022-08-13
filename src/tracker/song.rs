@@ -1,7 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use super::chain::Chain;
-use crate::SONG_TRACK_CHANNELS;
+use crate::{SONG_TRACK_CHANNELS, ChainId};
 
 pub struct SongId(pub usize);
 
@@ -9,5 +8,5 @@ pub struct SongId(pub usize);
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Song {
     bpm: f32,
-    tracks: Box<[[Chain; SONG_TRACK_CHANNELS]]>,
+    tracks: Box<[[Option<ChainId>; SONG_TRACK_CHANNELS]]>,
 }

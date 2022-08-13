@@ -8,7 +8,7 @@ use crate::{NoteName, Octave, TOTAL_NOTES_COUNT};
 
 /// Newtype Note Id
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct NoteIndex(pub usize);
+pub struct NoteId(pub usize);
 
 /// A representation of a musical note
 #[derive(Debug, Clone)]
@@ -49,7 +49,7 @@ pub(crate) fn initialize_notes() {
 }
 
 /// Get's a note for the given index
-pub fn get_note(index: NoteIndex) -> &'static Note {
+pub fn get_note(index: NoteId) -> &'static Note {
     unsafe {
         let notes = NOTES_LUT.assume_init_ref();
         &notes[index.0]
