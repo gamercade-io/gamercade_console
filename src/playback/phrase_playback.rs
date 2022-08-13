@@ -1,4 +1,4 @@
-use crate::{InstrumentInstance, PhraseId, SoundEngine, PHRASE_MAX_ENTRIES};
+use crate::{InstrumentInstance, PhraseId, SoundEngine, TrackerFlow, PHRASE_MAX_ENTRIES};
 
 #[derive(Debug, Clone)]
 pub struct PhrasePlayback {
@@ -16,16 +16,19 @@ impl PhrasePlayback {
         engine: &SoundEngine,
         instance: &mut InstrumentInstance,
     ) {
-        match &engine[self.phrase].entries[self.index] {
-            Some(next) => instance.update_from_phrase_entry(next),
-            None => (),
+        match &engine[self.phrase].entries.get(self.index) {
+            Some(Some(next)) => instance.update_from_phrase_entry(next),
+            _ => (),
         }
     }
 
-    pub fn next_step(&mut self) {
+    pub fn next_step(&mut self) -> TrackerFlow {
         self.index += 1;
         if self.index >= PHRASE_MAX_ENTRIES {
             self.index = 0;
+            TrackerFlow::Finished
+        } else {
+            TrackerFlow::Continue
         }
     }
 }

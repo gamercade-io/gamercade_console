@@ -49,6 +49,13 @@ impl Phrase {
             })),
         }
     }
+
+    pub fn c_scale_reverse() -> Self {
+        let reversed = Self::c_scale().entries.into_iter().rev();
+        Self {
+            entries: ArrayVec::from_iter(reversed),
+        }
+    }
 }
 
 impl Default for Phrase {

@@ -4,9 +4,9 @@ use arrayvec::ArrayVec;
 use rodio::{OutputStream, Source};
 
 use gamercade_audio::{
-    initialize_luts, Chain, ChainId, EnvelopeDefinition, InstrumentDefinition, InstrumentId,
-    InstrumentInstance, PatchDefinition, Phrase, PhraseId, PhrasePlayback, Song, SongId,
-    SoundEngine, SoundRom, WavetableDefinition, WavetableGenerator, WavetableWaveform,
+    initialize_luts, Chain, ChainId, ChainPlayback, EnvelopeDefinition, InstrumentDefinition,
+    InstrumentId, InstrumentInstance, PatchDefinition, Phrase, PhraseId, Song, SongId, SoundEngine,
+    SoundRom, TrackerFlow, WavetableDefinition, WavetableGenerator, WavetableWaveform,
     PHRASE_STEPS_PER_BEAT,
 };
 
@@ -17,7 +17,7 @@ fn main() {
 
     let engine = test_engine();
 
-    let mut phrase = PhrasePlayback::new(PhraseId(0));
+    let mut chain = ChainPlayback::new(ChainId(0), &engine);
     let instrument_instance = InstrumentInstance::from(&engine[InstrumentId(0)]);
 
     let engine = Arc::new(engine);
@@ -27,8 +27,11 @@ fn main() {
     let instrument_instance = instrument_instance.periodic_access(
         std::time::Duration::from_secs_f32(entries_per_second),
         move |instance| {
-            phrase.adjust_instrument_instance(&engine, instance);
-            phrase.next_step();
+            if TrackerFlow::Finished == chain.update_tracker(&engine, instance) {
+                chain = ChainPlayback::new(ChainId(0), &engine);
+            }
+            // phrase.adjust_instrument_instance(&engine, instance);
+            // phrase.next_step();
         },
     );
 
@@ -53,6 +56,7 @@ fn test_engine() -> SoundEngine {
 
     let mut chains = ArrayVec::new();
     chains.push(Some(PhraseId(0)));
+    chains.push(Some(PhraseId(1)));
 
     let songs = vec![Song {
         bpm: 120.0,
@@ -64,7 +68,7 @@ fn test_engine() -> SoundEngine {
     let rom = SoundRom {
         songs,
         chains: vec![Chain { entries: chains }].into_boxed_slice(),
-        phrases: vec![Phrase::c_scale()].into_boxed_slice(),
+        phrases: vec![Phrase::c_scale(), Phrase::c_scale_reverse()].into_boxed_slice(),
         instruments: instruments.into_boxed_slice(),
     };
 
