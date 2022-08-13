@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{ChainId, SONG_TRACK_CHANNELS};
 
+#[derive(Debug, Clone, Copy)]
 pub struct SongId(pub usize);
 
 /// A song is a series of chains
