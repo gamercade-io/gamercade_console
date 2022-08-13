@@ -18,6 +18,7 @@ pub struct Phrase {
 }
 
 impl Phrase {
+    /// Generates a C scale. Useful for testing.
     pub fn c_scale(instrument: InstrumentId) -> Self {
         use std::array::from_fn;
 
@@ -50,6 +51,7 @@ impl Phrase {
         }
     }
 
+    /// Generates a reversed C scale. Useful for testing.
     pub fn c_scale_reverse(instrument: InstrumentId) -> Self {
         let reversed = Self::c_scale(instrument).entries.into_iter().rev();
         Self {

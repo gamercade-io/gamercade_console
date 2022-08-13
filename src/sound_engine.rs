@@ -23,6 +23,7 @@ pub enum Instrument {
 }
 
 impl Instrument {
+    /// Returns the kind of the instrument
     pub fn get_type(&self) -> InstrumentKind {
         match self {
             Instrument::Wavetable(_) => InstrumentKind::Wavetable,
@@ -32,6 +33,8 @@ impl Instrument {
 }
 
 impl SoundEngine {
+    /// Generates a new sound engine. This struct is used throughout the audio system.
+    /// Performs some light logic to prepare the generation of sound sources.
     pub fn initialize(rom: SoundRom) -> Self {
         Self {
             songs: rom.songs,

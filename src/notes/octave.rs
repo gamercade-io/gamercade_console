@@ -1,6 +1,7 @@
 use strum::{EnumCount, EnumIter};
 use tinystr::TinyAsciiStr;
 
+/// A list of valid octaves for the sound engine.
 #[derive(Debug, Clone, Copy, EnumIter, EnumCount, PartialEq, Eq)]
 pub enum Octave {
     One,
@@ -15,6 +16,7 @@ pub enum Octave {
 }
 
 impl Octave {
+    /// Value as an inedx multipler. Used to search for notes.
     pub(crate) fn as_index_multiplier(self) -> usize {
         match self {
             Octave::One => 0,
@@ -29,6 +31,7 @@ impl Octave {
         }
     }
 
+    /// Value as a single digit character. Used during note generation.
     pub(crate) fn as_str(self) -> TinyAsciiStr<1> {
         TinyAsciiStr::from_str(match self {
             Octave::One => "1",

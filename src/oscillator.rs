@@ -1,3 +1,4 @@
+/// A wavetable oscillator. Returns table indices.
 #[derive(Debug, Clone)]
 pub struct Oscillator {
     index: f32,
@@ -5,6 +6,7 @@ pub struct Oscillator {
     phase_length: f32,
 }
 
+/// The Trigger or Key state for the sound source.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ActiveState {
     Off,
@@ -13,6 +15,7 @@ pub enum ActiveState {
 }
 
 impl Oscillator {
+    /// Generates a new Oscillator with the default value.
     pub(crate) fn new(phase_length: usize) -> Self {
         Self {
             index: 0.0,
@@ -26,6 +29,7 @@ impl Oscillator {
         self.index_increment = (frequency * self.phase_length) / output_sample_rate as f32;
     }
 
+    /// Returns the modulation amount for this oscillator. Used with FM Synth
     pub(crate) fn modulation(&self, modulation: f32) -> f32 {
         modulation * self.index_increment
     }
