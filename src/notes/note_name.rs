@@ -1,4 +1,5 @@
 use strum::{EnumCount, EnumIter};
+use tinystr::TinyAsciiStr;
 
 #[derive(Debug, Clone, Copy, EnumIter, EnumCount, PartialEq, Eq)]
 pub enum NoteName {
@@ -17,8 +18,8 @@ pub enum NoteName {
 }
 
 impl NoteName {
-    pub(crate) fn as_str(self) -> &'static str {
-        match self {
+    pub(crate) fn as_str(self) -> TinyAsciiStr<2> {
+        TinyAsciiStr::from_str(match self {
             NoteName::A => "A ",
             NoteName::ASharp => "A#",
             NoteName::B => "B ",
@@ -31,6 +32,7 @@ impl NoteName {
             NoteName::FSharp => "F ",
             NoteName::G => "G ",
             NoteName::GSharp => "G#",
-        }
+        })
+        .unwrap()
     }
 }

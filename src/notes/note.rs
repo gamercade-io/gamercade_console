@@ -2,6 +2,7 @@ use std::mem::MaybeUninit;
 
 use serde::{Deserialize, Serialize};
 use strum::IntoEnumIterator;
+use tinystr::TinyAsciiStr;
 
 use crate::{NoteName, Octave, TOTAL_NOTES_COUNT};
 
@@ -12,7 +13,7 @@ pub struct NoteIndex(pub usize);
 /// A representation of a musical note
 #[derive(Debug, Clone)]
 pub struct Note {
-    pub name: String,
+    pub name: TinyAsciiStr<3>,
     pub frequency: f32,
 }
 
@@ -38,7 +39,8 @@ pub(crate) fn initialize_notes() {
 
             let octave = octave_iter.peek().unwrap().as_str();
 
-            let name = [name.as_str(), octave].concat();
+            let name = TinyAsciiStr::from_str(&[name.as_str().as_str(), octave.as_str()].concat())
+                .unwrap();
             let frequency = note_to_frequency(index as isize);
 
             Note { name, frequency }

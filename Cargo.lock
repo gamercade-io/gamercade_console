@@ -225,6 +225,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "displaydoc"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3bf95dc3f046b9da4f2d51833c0d3547d8564ef6910f5c1ed130306a75b92886"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "fnv"
 version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -238,6 +249,7 @@ dependencies = [
  "rodio",
  "serde",
  "strum",
+ "tinystr",
 ]
 
 [[package]]
@@ -813,6 +825,15 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "tinystr"
+version = "0.6.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9acb672a9b854b13d4b8ae30e0333b0ebd7dbe54ddfc7198c46275c8ec94988f"
+dependencies = [
+ "displaydoc",
 ]
 
 [[package]]
