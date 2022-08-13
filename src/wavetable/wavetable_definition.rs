@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use super::WavetableBitDepth;
 use crate::EnvelopeDefinition;
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WavetableDefinition {
     pub data: Box<[WavetableBitDepth]>,
     pub envelope: EnvelopeDefinition,
