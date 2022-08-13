@@ -40,8 +40,10 @@ fn main() {
     std::thread::sleep(std::time::Duration::from_secs_f32(25.0));
 }
 
+// Initialize our sound sources
+// This isn't the intended use case, only a temporary solution until
+// the editor gets audio support.
 fn test_engine() -> SoundEngine {
-    // Initialize our sound sources
     let instruments = vec![
         InstrumentDefinition::FMSynth(PatchDefinition::default()),
         InstrumentDefinition::Wavetable(WavetableDefinition {
@@ -60,8 +62,8 @@ fn test_engine() -> SoundEngine {
     chains0.push(Some(PhraseId(1)));
 
     let mut chains1 = ArrayVec::new();
-    chains1.push(Some(PhraseId(3)));
     chains1.push(Some(PhraseId(2)));
+    chains1.push(Some(PhraseId(3)));
 
     let songs = vec![Song {
         bpm: 120.0,
@@ -84,9 +86,9 @@ fn test_engine() -> SoundEngine {
         chains: vec![Chain { entries: chains0 }, Chain { entries: chains1 }].into_boxed_slice(),
         phrases: vec![
             Phrase::c_scale(InstrumentId(0)),
+            Phrase::c_scale_reverse(InstrumentId(0)),
             Phrase::c_scale_reverse(InstrumentId(1)),
             Phrase::c_scale(InstrumentId(1)),
-            Phrase::c_scale_reverse(InstrumentId(0)),
         ]
         .into_boxed_slice(),
         instruments: instruments.into_boxed_slice(),

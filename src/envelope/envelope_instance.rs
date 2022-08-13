@@ -1,5 +1,6 @@
 use crate::{ActiveState, EnvelopeDefinition, EnvelopePhase, ExponentialRamp};
 
+/// A running instance of an envelope.
 #[derive(Clone, Debug)]
 pub struct EnvelopeInstance {
     definition: EnvelopeDefinition,
@@ -8,6 +9,7 @@ pub struct EnvelopeInstance {
 }
 
 impl EnvelopeInstance {
+    /// Generates a new envelope with the given sample rate.
     pub fn new(definition: &EnvelopeDefinition, sample_rate: usize) -> Self {
         Self {
             definition: definition.clone(),
@@ -16,6 +18,7 @@ impl EnvelopeInstance {
         }
     }
 
+    /// Advances the envelope forward one tick and returns the output value.
     pub fn tick(&mut self, active: ActiveState) -> f32 {
         if self.definition.total_level == 0 {
             0.0

@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::EnvelopeType;
 
+/// Definition of an Envelope. Controls the ADSR and volume levels.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct EnvelopeDefinition {
     /// The max level
@@ -38,6 +39,7 @@ impl Default for EnvelopeDefinition {
 }
 
 impl EnvelopeDefinition {
+    /// A slightly more interesting envelope compared to the default one.
     pub fn interesting() -> Self {
         Self {
             total_level: EnvelopeType::MAX,

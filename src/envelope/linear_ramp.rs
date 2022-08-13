@@ -1,3 +1,4 @@
+/// A linear ramp which travels to a target value.
 #[derive(Debug, Clone)]
 pub struct LinearRamp {
     sample_rate: usize,
@@ -8,6 +9,7 @@ pub struct LinearRamp {
 }
 
 impl LinearRamp {
+    /// TODO: Write docs for this
     pub fn new(sample_rate: usize) -> Self {
         Self {
             sample_rate,

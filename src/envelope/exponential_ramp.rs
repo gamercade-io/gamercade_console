@@ -2,6 +2,7 @@ use crate::{EnvelopeDefinition, EnvelopePhase, EnvelopeType, ENVELOPE_TIME_SCALE
 
 const OVERSHOOT: f32 = 1.001;
 
+/// An exponential ramp which, when ticked, travels from one value to the target one.
 #[derive(Clone, Debug)]
 pub struct ExponentialRamp {
     sample_rate: usize,
@@ -13,6 +14,7 @@ pub struct ExponentialRamp {
 }
 
 impl ExponentialRamp {
+    /// Generates a new exponential ramp with the default values of 0.
     pub fn new(sample_rate: usize) -> Self {
         Self {
             sample_rate,
@@ -24,6 +26,7 @@ impl ExponentialRamp {
         }
     }
 
+    /// Generates a new exponential ramp to be used with the ADSR envelope.
     pub(crate) fn set_from_envelope(
         &mut self,
         phase: EnvelopePhase,
@@ -60,7 +63,7 @@ impl ExponentialRamp {
         };
     }
 
-    // Causes the ramp to hold at the passed in value
+    /// Causes the ramp to hold at the passed in value
     pub fn set_constant_value(&mut self, new_value: f32) {
         self.value = new_value;
         self.target_value = new_value;
@@ -69,6 +72,7 @@ impl ExponentialRamp {
         self.multiplier = 0.0;
     }
 
+    /// Sets the next target value for the ramp and how long it should take to get there.
     pub fn ramp_to(&mut self, target_value: f32, time: f32) {
         self.target_value = target_value;
 
@@ -81,6 +85,7 @@ impl ExponentialRamp {
         self.multiplier = f32::powf(f32::exp(-1.0 / time), (self.sample_rate as f32).recip());
     }
 
+    /// Ticks the ramp, advancing it forward once and returing the resulting value.
     pub(crate) fn tick(&mut self) -> f32 {
         self.value = self.overshoot_value + self.decaying_increment;
 
@@ -91,6 +96,7 @@ impl ExponentialRamp {
         self.value
     }
 
+    /// Returns true if the ramp is done advancing.
     pub fn is_finished(&self) -> bool {
         // Going up
         if self.value >= self.target_value && self.value <= self.overshoot_value {
