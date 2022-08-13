@@ -4,6 +4,12 @@ mod instrument;
 mod phrase;
 mod song;
 
+pub use chain::*;
+pub use effect::*;
+pub use instrument::*;
+pub use phrase::*;
+pub use song::*;
+
 pub const SONG_TRACK_CHANNELS: usize = 8;
 pub const EFFECT_COUNT: usize = 3;
 

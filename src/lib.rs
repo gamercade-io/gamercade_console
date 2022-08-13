@@ -2,6 +2,7 @@ mod envelope;
 mod fm;
 mod notes;
 mod oscillator;
+mod sound_rom;
 mod tracker;
 mod wavetable;
 
@@ -9,6 +10,7 @@ pub use envelope::*;
 pub use fm::*;
 pub use notes::*;
 pub use oscillator::*;
+pub use sound_rom::*;
 pub use tracker::*;
 pub use wavetable::*;
 
