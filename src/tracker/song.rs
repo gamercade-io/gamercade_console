@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{SONG_TRACK_CHANNELS, ChainId};
+use crate::{ChainId, SONG_TRACK_CHANNELS};
 
 pub struct SongId(pub usize);
 

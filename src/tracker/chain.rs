@@ -17,6 +17,8 @@ pub struct Chain {
 
 impl Default for Chain {
     fn default() -> Self {
-        Self { entries: ArrayVec::from(std::array::from_fn(|_| None))}
+        Self {
+            entries: ArrayVec::from(std::array::from_fn(|_| None)),
+        }
     }
 }

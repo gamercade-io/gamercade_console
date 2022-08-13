@@ -2,7 +2,7 @@ use arrayvec::ArrayVec;
 use serde::{Deserialize, Serialize};
 
 use super::{effect::Effect, instrument::InstrumentId};
-use crate::{EFFECT_COUNT, PHRASE_MAX_ENTRIES, NoteId};
+use crate::{NoteId, PhraseVolumeType, EFFECT_COUNT, PHRASE_MAX_ENTRIES};
 
 /// Newtype Chain Identifier
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -16,7 +16,9 @@ pub struct Phrase {
 
 impl Default for Phrase {
     fn default() -> Self {
-        Self { entries: ArrayVec::from(std::array::from_fn(|_| None))}
+        Self {
+            entries: ArrayVec::from(std::array::from_fn(|_| None)),
+        }
     }
 }
 
@@ -24,6 +26,7 @@ impl Default for Phrase {
 /// An entry in the phrase, contains all data necessary to produce a sound
 pub struct PhraseEntry {
     note: NoteId,
+    volume: PhraseVolumeType,
     instrument: InstrumentId,
     effects: [Effect; EFFECT_COUNT],
 }

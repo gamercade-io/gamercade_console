@@ -2,11 +2,12 @@
 name = "gamercade_audio"
 version = "0.1.0"
 edition = "2021"
-default-run = "tester"
 license = "MIT OR Apache-2.0"
 description = "Audio functionality for Gamercade and related projects"
 homepage = "https://gamercade.io"
 repository = "https://github.com/gamercade-io/gamercade_audio"
+
+default-run = "tester"
 
 [[bin]]
 name = "tester"

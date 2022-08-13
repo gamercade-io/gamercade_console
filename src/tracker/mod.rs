@@ -18,3 +18,5 @@ pub const CHAIN_MAX_PHRASE_COUNT: usize = 16;
 
 // Maximum allowed entries in a phrase
 pub const PHRASE_MAX_ENTRIES: usize = 16;
+
+pub type PhraseVolumeType = u8;

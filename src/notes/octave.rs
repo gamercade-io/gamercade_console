@@ -1,7 +1,7 @@
 use strum::{EnumCount, EnumIter};
 use tinystr::TinyAsciiStr;
 
-#[derive(Debug, Clone, Copy, EnumIter, EnumCount)]
+#[derive(Debug, Clone, Copy, EnumIter, EnumCount, PartialEq, Eq)]
 pub enum Octave {
     One,
     Two,
@@ -15,6 +15,20 @@ pub enum Octave {
 }
 
 impl Octave {
+    pub(crate) fn as_index_multiplier(self) -> usize {
+        match self {
+            Octave::One => 0,
+            Octave::Two => 1,
+            Octave::Three => 2,
+            Octave::Four => 3,
+            Octave::Five => 4,
+            Octave::Six => 5,
+            Octave::Seven => 6,
+            Octave::Eight => 7,
+            Octave::Nine => 8,
+        }
+    }
+
     pub(crate) fn as_str(self) -> TinyAsciiStr<1> {
         TinyAsciiStr::from_str(match self {
             Octave::One => "1",
