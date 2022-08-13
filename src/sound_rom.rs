@@ -2,14 +2,14 @@ use std::ops::Index;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{Chain, ChainId, Instrument, InstrumentId, Phrase, PhraseId, Song, SongId};
+use crate::{Chain, ChainId, InstrumentDefinition, InstrumentId, Phrase, PhraseId, Song, SongId};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SoundRom {
-    songs: Box<[Song]>,
-    chains: Box<[Chain]>,
-    phrases: Box<[Phrase]>,
-    instruments: Box<[Instrument]>,
+    pub songs: Box<[Song]>,
+    pub chains: Box<[Chain]>,
+    pub phrases: Box<[Phrase]>,
+    pub instruments: Box<[InstrumentDefinition]>,
 }
 
 impl Default for SoundRom {
@@ -48,7 +48,7 @@ impl Index<PhraseId> for SoundRom {
 }
 
 impl Index<InstrumentId> for SoundRom {
-    type Output = Instrument;
+    type Output = InstrumentDefinition;
 
     fn index(&self, index: InstrumentId) -> &Self::Output {
         &self.instruments[index.0]

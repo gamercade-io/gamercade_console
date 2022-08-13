@@ -1,7 +1,7 @@
 use arrayvec::ArrayVec;
 use serde::{Deserialize, Serialize};
 
-use super::{effect::Effect, instrument::InstrumentId};
+use super::{effect::Effect, instrument_definition::InstrumentId};
 use crate::{NoteId, PhraseVolumeType, EFFECT_COUNT, PHRASE_MAX_ENTRIES};
 
 /// Newtype Chain Identifier

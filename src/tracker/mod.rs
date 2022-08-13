@@ -1,12 +1,12 @@
 mod chain;
 mod effect;
-mod instrument;
+mod instrument_definition;
 mod phrase;
 mod song;
 
 pub use chain::*;
 pub use effect::*;
-pub use instrument::*;
+pub use instrument_definition::*;
 pub use phrase::*;
 pub use song::*;
 
