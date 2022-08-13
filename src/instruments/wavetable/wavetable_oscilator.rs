@@ -6,6 +6,7 @@ use crate::{ActiveState, EnvelopeInstance, Oscillator, WavetableBitDepth};
 
 use super::WavetableDefinition;
 
+#[derive(Clone)]
 pub struct WavetableOscilator {
     definition: Arc<WavetableDefinition>,
     envelope: EnvelopeInstance,

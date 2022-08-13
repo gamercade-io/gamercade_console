@@ -1,7 +1,10 @@
 use rodio::Source;
 
-use crate::{notes, Instrument, PatchInstance, PhraseEntry, WavetableOscilator};
+use crate::{
+    notes, Instrument, PatchInstance, PhraseEntry, WavetableOscilator, SONG_TRACK_CHANNELS,
+};
 
+#[derive(Clone)]
 pub enum InstrumentInstance {
     Wavetable(WavetableOscilator),
     FMSynth(PatchInstance),
