@@ -5,8 +5,9 @@ use rodio::{OutputStream, Source};
 
 use gamercade_audio::{
     initialize_luts, Chain, ChainId, EnvelopeDefinition, InstrumentDefinition, InstrumentId,
-    InstrumentInstance, PatchDefinition, Phrase, PhraseId, PhrasePlayback, Song, SoundEngine,
-    SoundRom, WavetableDefinition, WavetableGenerator, WavetableWaveform,
+    InstrumentInstance, PatchDefinition, Phrase, PhraseId, PhrasePlayback, Song, SongId,
+    SoundEngine, SoundRom, WavetableDefinition, WavetableGenerator, WavetableWaveform,
+    PHRASE_STEPS_PER_BEAT,
 };
 
 fn main() {
@@ -21,8 +22,10 @@ fn main() {
 
     let engine = Arc::new(engine);
 
+    let entries_per_second = 60.0 / engine[SongId(0)].bpm / PHRASE_STEPS_PER_BEAT as f32;
+
     let instrument_instance = instrument_instance.periodic_access(
-        std::time::Duration::from_secs_f32(0.25),
+        std::time::Duration::from_secs_f32(entries_per_second),
         move |instance| {
             phrase.adjust_instrument_instance(&engine, instance);
             phrase.next_step();
