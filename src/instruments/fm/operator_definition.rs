@@ -24,7 +24,7 @@ impl Default for OperatorDefinitionBundle {
 
         let modulator_envelope = EnvelopeDefinition {
             total_level: 49_152, // Random value to compare against audio-test
-            ..Default::default()
+            ..EnvelopeDefinition::interesting()
         };
 
         let modulator = OperatorDefinition {
@@ -38,7 +38,7 @@ impl Default for OperatorDefinitionBundle {
             waveform: FMWaveform::Sine,
             frequency_multiplier: FrequencyMultiplier::one(),
             detune: 0,
-            envlope_definition: EnvelopeDefinition::default(),
+            envlope_definition: EnvelopeDefinition::interesting(),
         };
 
         Self {

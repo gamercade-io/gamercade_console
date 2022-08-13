@@ -3,7 +3,8 @@ use std::sync::Arc;
 use rodio::Source;
 
 use crate::{
-    ModulatedBy, OperatorInstanceBundle, PatchDefinition, FM_AMPLIFICATION, OPERATOR_COUNT,
+    ActiveState, ModulatedBy, OperatorInstanceBundle, PatchDefinition, FM_AMPLIFICATION,
+    OPERATOR_COUNT,
 };
 
 #[derive(Clone)]
@@ -11,7 +12,7 @@ pub struct PatchInstance {
     operators: OperatorInstanceBundle,
     definition: Arc<PatchDefinition>,
     feedback: [f32; 2],
-    active: bool,
+    active: ActiveState,
 }
 
 impl PatchInstance {
@@ -20,7 +21,7 @@ impl PatchInstance {
             operators: OperatorInstanceBundle::new(&definition.operators),
             definition,
             feedback: [0.0; 2],
-            active: false,
+            active: ActiveState::Off,
         }
     }
 
@@ -37,7 +38,15 @@ impl PatchInstance {
     }
 
     pub fn set_active(&mut self, active: bool) {
-        self.active = active;
+        self.active = if active {
+            ActiveState::On
+        } else {
+            ActiveState::Off
+        };
+    }
+
+    pub fn trigger(&mut self) {
+        self.active = ActiveState::Trigger;
     }
 
     pub fn tick(&mut self) -> f32 {
@@ -92,6 +101,10 @@ impl PatchInstance {
                 final_output += result;
             }
         });
+
+        if ActiveState::Trigger == self.active {
+            self.active = ActiveState::Off;
+        }
 
         final_output / FM_AMPLIFICATION
     }

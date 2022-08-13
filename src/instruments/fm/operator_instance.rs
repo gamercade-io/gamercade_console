@@ -1,6 +1,6 @@
 use crate::{
-    EnvelopeInstance, FMWaveform, OperatorDefinition, OperatorDefinitionBundle, Oscillator,
-    FM_OUTPUT_SAMPLE_RATE, LUT_FULL_LEN, OPERATOR_COUNT,
+    ActiveState, EnvelopeInstance, FMWaveform, OperatorDefinition, OperatorDefinitionBundle,
+    Oscillator, FM_OUTPUT_SAMPLE_RATE, LUT_FULL_LEN, OPERATOR_COUNT,
 };
 
 #[derive(Debug, Clone)]
@@ -27,7 +27,7 @@ impl OperatorInstance {
     /// Get's the current sample value including any modulation and
     /// interpolates between the next sample.
     /// Also ticks the operator.
-    pub fn tick(&mut self, waveform: FMWaveform, modulation: f32, active: bool) -> f32 {
+    pub fn tick(&mut self, waveform: FMWaveform, modulation: f32, active: ActiveState) -> f32 {
         let index = self.oscillator.tick() + self.oscillator.modulation(modulation);
 
         let next_weight = index.fract();

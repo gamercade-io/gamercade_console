@@ -14,11 +14,11 @@ impl InstrumentInstance {
         match self {
             InstrumentInstance::Wavetable(wave) => {
                 wave.set_frequency(notes::get_note(entry.note).frequency);
-                wave.set_active(true);
+                wave.trigger();
             }
             InstrumentInstance::FMSynth(fm) => {
                 fm.set_frequency(notes::get_note(entry.note).frequency);
-                fm.set_active(true);
+                fm.trigger();
             }
         }
     }
@@ -45,7 +45,7 @@ impl Iterator for InstrumentInstance {
             match self {
                 InstrumentInstance::Wavetable(wave) => wave.tick(),
                 InstrumentInstance::FMSynth(fm) => fm.tick(),
-            } * 0.05,
+            } * 0.15,
         )
     }
 }

@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use rodio::Source;
 
-use crate::{EnvelopeInstance, Oscillator, WavetableBitDepth};
+use crate::{ActiveState, EnvelopeInstance, Oscillator, WavetableBitDepth};
 
 use super::WavetableDefinition;
 
@@ -10,7 +10,7 @@ pub struct WavetableOscilator {
     definition: Arc<WavetableDefinition>,
     envelope: EnvelopeInstance,
     oscillator: Oscillator,
-    active: bool,
+    active: ActiveState,
 }
 
 impl WavetableOscilator {
@@ -20,7 +20,7 @@ impl WavetableOscilator {
             envelope: EnvelopeInstance::new(&definition.envelope, definition.sample_rate),
             oscillator: Oscillator::new(definition.len()),
             definition,
-            active: false,
+            active: ActiveState::Off,
         }
     }
 
@@ -47,11 +47,24 @@ impl WavetableOscilator {
 
         let output = (index * index_weight) + (next * next_weight);
         let envelope = self.envelope.tick(self.active);
+
+        if ActiveState::Trigger == self.active {
+            self.active = ActiveState::Off;
+        }
+
         output * envelope
     }
 
     pub fn set_active(&mut self, active: bool) {
-        self.active = active;
+        self.active = if active {
+            ActiveState::On
+        } else {
+            ActiveState::Off
+        };
+    }
+
+    pub fn trigger(&mut self) {
+        self.active = ActiveState::Trigger;
     }
 }
 

@@ -41,12 +41,12 @@ impl EnvelopeDefinition {
     pub fn interesting() -> Self {
         Self {
             total_level: EnvelopeType::MAX,
-            sustain_level: EnvelopeType::MAX / 2,
+            sustain_level: EnvelopeType::MAX - EnvelopeType::MAX / 6,
 
-            attack_time: 6,
-            decay_attack_time: EnvelopeType::MAX / 512,
-            decay_sustain_time: EnvelopeType::MAX / 8,
-            release_time: 0,
+            attack_time: 64,
+            decay_attack_time: EnvelopeType::MAX / 2048,
+            decay_sustain_time: EnvelopeType::MAX / 32,
+            release_time: EnvelopeType::MAX / 128,
         }
     }
 }

@@ -17,21 +17,20 @@ fn main() {
     let engine = test_engine();
 
     let mut phrase = PhrasePlayback::new(PhraseId(0));
-    let instrument_instance = InstrumentInstance::from(&engine[InstrumentId(1)]);
+    let instrument_instance = InstrumentInstance::from(&engine[InstrumentId(0)]);
 
     let engine = Arc::new(engine);
 
     let instrument_instance = instrument_instance.periodic_access(
-        std::time::Duration::from_secs_f32(0.125),
+        std::time::Duration::from_secs_f32(0.25),
         move |instance| {
-            println!("next_step");
             phrase.adjust_instrument_instance(&engine, instance);
             phrase.next_step();
         },
     );
 
     stream_handle.play_raw(instrument_instance).unwrap();
-    std::thread::sleep(std::time::Duration::from_secs_f32(10.0));
+    std::thread::sleep(std::time::Duration::from_secs_f32(25.0));
 }
 
 fn test_engine() -> SoundEngine {

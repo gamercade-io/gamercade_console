@@ -5,6 +5,13 @@ pub struct Oscillator {
     phase_length: f32,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ActiveState {
+    Off,
+    On,
+    Trigger,
+}
+
 impl Oscillator {
     pub(crate) fn new(phase_length: usize) -> Self {
         Self {
