@@ -1,19 +1,24 @@
 use rodio::Source;
 
 use crate::{
-    notes, Instrument, PatchInstance, PhraseEntry, WavetableOscilator, SONG_TRACK_CHANNELS,
+    notes, Instrument, InstrumentKind, PatchInstance, PhraseEntry, SoundEngine, WavetableOscilator,
 };
 
 #[derive(Clone)]
 pub enum InstrumentInstance {
     Wavetable(WavetableOscilator),
-    FMSynth(PatchInstance),
+    FMSynth(Box<PatchInstance>),
 }
 
 impl InstrumentInstance {
-    pub(crate) fn update_from_phrase_entry(&mut self, entry: &PhraseEntry) {
+    pub(crate) fn update_from_phrase_entry(&mut self, entry: &PhraseEntry, engine: &SoundEngine) {
         // TODO: Set volume
         // TODO: Set effects
+        let next_instrument = &engine[entry.instrument];
+        if self.get_type() != next_instrument.get_type() {
+            *self = Self::from(next_instrument)
+        }
+
         match self {
             InstrumentInstance::Wavetable(wave) => {
                 wave.set_frequency(notes::get_note(entry.note).frequency);
@@ -25,6 +30,13 @@ impl InstrumentInstance {
             }
         }
     }
+
+    pub(crate) fn get_type(&self) -> InstrumentKind {
+        match self {
+            InstrumentInstance::Wavetable(_) => InstrumentKind::Wavetable,
+            InstrumentInstance::FMSynth(_) => InstrumentKind::FMSynth,
+        }
+    }
 }
 
 impl From<&Instrument> for InstrumentInstance {
@@ -34,7 +46,7 @@ impl From<&Instrument> for InstrumentInstance {
                 InstrumentInstance::Wavetable(WavetableOscilator::new(wavetable.clone()))
             }
             Instrument::FMSynth(fm_synth) => {
-                InstrumentInstance::FMSynth(PatchInstance::new(fm_synth.clone()))
+                InstrumentInstance::FMSynth(Box::new(PatchInstance::new(fm_synth.clone())))
             }
         }
     }

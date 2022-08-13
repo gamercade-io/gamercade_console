@@ -1,8 +1,8 @@
 use std::{ops::Index, sync::Arc};
 
 use crate::{
-    Chain, ChainId, InstrumentDefinition, InstrumentId, PatchDefinition, Phrase, PhraseId, Song,
-    SongId, SoundRom, WavetableDefinition,
+    Chain, ChainId, InstrumentDefinition, InstrumentId, InstrumentKind, PatchDefinition, Phrase,
+    PhraseId, Song, SongId, SoundRom, WavetableDefinition,
 };
 
 /// An engine loaded in memory, ready to use.
@@ -20,6 +20,15 @@ pub struct SoundEngine {
 pub enum Instrument {
     Wavetable(Arc<WavetableDefinition>),
     FMSynth(Arc<PatchDefinition>),
+}
+
+impl Instrument {
+    pub fn get_type(&self) -> InstrumentKind {
+        match self {
+            Instrument::Wavetable(_) => InstrumentKind::Wavetable,
+            Instrument::FMSynth(_) => InstrumentKind::FMSynth,
+        }
+    }
 }
 
 impl SoundEngine {

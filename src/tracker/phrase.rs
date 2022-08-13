@@ -18,7 +18,7 @@ pub struct Phrase {
 }
 
 impl Phrase {
-    pub fn c_scale() -> Self {
+    pub fn c_scale(instrument: InstrumentId) -> Self {
         use std::array::from_fn;
 
         let notes = [
@@ -40,7 +40,7 @@ impl Phrase {
                     Some(PhraseEntry {
                         note: name_octave_to_index(note.0, note.1).unwrap(),
                         volume: PhraseVolumeType::MAX,
-                        instrument: InstrumentId(0),
+                        instrument,
                         effects: from_fn(|_| None),
                     })
                 } else {
@@ -50,8 +50,8 @@ impl Phrase {
         }
     }
 
-    pub fn c_scale_reverse() -> Self {
-        let reversed = Self::c_scale().entries.into_iter().rev();
+    pub fn c_scale_reverse(instrument: InstrumentId) -> Self {
+        let reversed = Self::c_scale(instrument).entries.into_iter().rev();
         Self {
             entries: ArrayVec::from_iter(reversed),
         }

@@ -19,9 +19,8 @@ impl PhrasePlayback {
         engine: &SoundEngine,
         instance: &mut InstrumentInstance,
     ) {
-        match &engine[self.phrase].entries.get(self.entry_index) {
-            Some(Some(next)) => instance.update_from_phrase_entry(next),
-            _ => (),
+        if let Some(Some(next)) = &engine[self.phrase].entries.get(self.entry_index) {
+            instance.update_from_phrase_entry(next, engine)
         }
     }
 
