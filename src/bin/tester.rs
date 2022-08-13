@@ -1,10 +1,12 @@
 use std::sync::Arc;
 
-use rodio::OutputStream;
+use arrayvec::ArrayVec;
+use rodio::{OutputStream, Source};
 
 use gamercade_audio::{
-    initialize_luts, EnvelopeDefinition, PatchDefinition, PatchInstance, WavetableDefinition,
-    WavetableGenerator, WavetableOscilator, WavetableWaveform,
+    initialize_luts, Chain, ChainId, EnvelopeDefinition, InstrumentDefinition, InstrumentId,
+    InstrumentInstance, PatchDefinition, Phrase, PhraseId, PhrasePlayback, Song, SoundEngine,
+    SoundRom, WavetableDefinition, WavetableGenerator, WavetableWaveform,
 };
 
 fn main() {
@@ -12,41 +14,57 @@ fn main() {
     initialize_luts();
     let (_stream, stream_handle) = OutputStream::try_default().unwrap();
 
+    let engine = test_engine();
+
+    let mut phrase = PhrasePlayback::new(PhraseId(0));
+    let instrument_instance = InstrumentInstance::from(&engine[InstrumentId(1)]);
+
+    let engine = Arc::new(engine);
+
+    let instrument_instance = instrument_instance.periodic_access(
+        std::time::Duration::from_secs_f32(0.125),
+        move |instance| {
+            println!("next_step");
+            phrase.adjust_instrument_instance(&engine, instance);
+            phrase.next_step();
+        },
+    );
+
+    stream_handle.play_raw(instrument_instance).unwrap();
+    std::thread::sleep(std::time::Duration::from_secs_f32(10.0));
+}
+
+fn test_engine() -> SoundEngine {
     // Initialize our sound sources
-    let mut wavetable = wavetable_test();
-    let mut fm = fm_test();
+    let instruments = vec![
+        InstrumentDefinition::FMSynth(PatchDefinition::default()),
+        InstrumentDefinition::Wavetable(WavetableDefinition {
+            data: WavetableGenerator {
+                waveform: WavetableWaveform::Sine,
+                size: 64,
+            }
+            .generate(),
+            envelope: EnvelopeDefinition::interesting(),
+            sample_rate: 44_100, //44.1 khz
+        }),
+    ];
 
-    // Max: 7902.132820098003
-    // Default: 440.0
-    // Min: 32.703195662574764
-    fm.set_frequency(440.0);
-    wavetable.set_frequency(440.0);
+    let mut chains = ArrayVec::new();
+    chains.push(Some(PhraseId(0)));
 
-    fm.set_active(true);
-    wavetable.set_active(true);
+    let songs = vec![Song {
+        bpm: 120.0,
+        tracks: vec![[Some(ChainId(0)), None, None, None, None, None, None, None]]
+            .into_boxed_slice(),
+    }]
+    .into_boxed_slice();
 
-    stream_handle.play_raw(fm).unwrap();
-    std::thread::sleep(std::time::Duration::from_secs_f32(5.0));
-}
-
-fn fm_test() -> PatchInstance {
-    let definition = Arc::new(PatchDefinition::default());
-
-    PatchInstance::new(definition)
-}
-
-fn wavetable_test() -> WavetableOscilator {
-    let data = WavetableGenerator {
-        waveform: WavetableWaveform::Sine,
-        size: 64,
-    }
-    .generate();
-
-    let def = WavetableDefinition {
-        data,
-        envelope: EnvelopeDefinition::interesting(),
-        sample_rate: 44_100, //44.1 khz
+    let rom = SoundRom {
+        songs,
+        chains: vec![Chain { entries: chains }].into_boxed_slice(),
+        phrases: vec![Phrase::c_scale()].into_boxed_slice(),
+        instruments: instruments.into_boxed_slice(),
     };
 
-    WavetableOscilator::new(Arc::new(def))
+    SoundEngine::initialize(rom)
 }

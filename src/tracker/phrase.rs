@@ -2,16 +2,53 @@ use arrayvec::ArrayVec;
 use serde::{Deserialize, Serialize};
 
 use super::effect::Effect;
-use crate::{InstrumentId, NoteId, PhraseVolumeType, EFFECT_COUNT, PHRASE_MAX_ENTRIES};
+use crate::{
+    name_octave_to_index, InstrumentId, NoteId, NoteName, Octave, PhraseVolumeType, EFFECT_COUNT,
+    PHRASE_MAX_ENTRIES,
+};
 
 /// Newtype Chain Identifier
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 pub struct PhraseId(pub usize);
 
 /// A phrase is a series of notes tied to instruments, which when combined together form a chain.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Phrase {
     pub entries: ArrayVec<Option<PhraseEntry>, PHRASE_MAX_ENTRIES>,
+}
+
+impl Phrase {
+    pub fn c_scale() -> Self {
+        use std::array::from_fn;
+
+        let notes = [
+            (NoteName::C, Octave::Four),
+            (NoteName::D, Octave::Four),
+            (NoteName::E, Octave::Four),
+            (NoteName::F, Octave::Four),
+            (NoteName::G, Octave::Four),
+            (NoteName::A, Octave::Five),
+            (NoteName::B, Octave::Five),
+            (NoteName::C, Octave::Five),
+        ];
+        let mut note_iter = notes.iter();
+
+        Self {
+            entries: ArrayVec::from(from_fn(|index| {
+                if index % 2 == 0 {
+                    let note = note_iter.next().unwrap();
+                    Some(PhraseEntry {
+                        note: name_octave_to_index(note.0, note.1).unwrap(),
+                        volume: PhraseVolumeType::MAX,
+                        instrument: InstrumentId(0),
+                        effects: from_fn(|_| None),
+                    })
+                } else {
+                    None
+                }
+            })),
+        }
+    }
 }
 
 impl Default for Phrase {
@@ -25,8 +62,8 @@ impl Default for Phrase {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 /// An entry in the phrase, contains all data necessary to produce a sound
 pub struct PhraseEntry {
-    note: NoteId,
-    volume: PhraseVolumeType,
-    instrument: InstrumentId,
-    effects: [Effect; EFFECT_COUNT],
+    pub note: NoteId,
+    pub volume: PhraseVolumeType,
+    pub instrument: InstrumentId,
+    pub effects: [Option<Effect>; EFFECT_COUNT],
 }

@@ -7,7 +7,7 @@ use tinystr::TinyAsciiStr;
 use crate::{NoteName, Octave, TOTAL_NOTES_COUNT};
 
 /// Newtype Note Id
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct NoteId(pub usize);
 
 /// A representation of a musical note

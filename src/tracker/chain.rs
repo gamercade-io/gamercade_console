@@ -12,7 +12,7 @@ pub struct ChainId(pub usize);
 /// A chain is a series of phrases, which when combined together form a song.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Chain {
-    entries: ArrayVec<Option<PhraseId>, CHAIN_MAX_PHRASE_COUNT>,
+    pub entries: ArrayVec<Option<PhraseId>, CHAIN_MAX_PHRASE_COUNT>,
 }
 
 impl Default for Chain {

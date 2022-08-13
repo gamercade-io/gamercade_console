@@ -59,8 +59,7 @@ impl Iterator for WavetableOscilator {
     type Item = f32;
 
     fn next(&mut self) -> Option<f32> {
-        let output = self.tick() * 0.05;
-        Some(output)
+        Some(self.tick())
     }
 }
 

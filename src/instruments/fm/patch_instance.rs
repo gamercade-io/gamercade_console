@@ -39,12 +39,8 @@ impl PatchInstance {
     pub fn set_active(&mut self, active: bool) {
         self.active = active;
     }
-}
 
-impl Iterator for PatchInstance {
-    type Item = f32;
-
-    fn next(&mut self) -> Option<Self::Item> {
+    pub fn tick(&mut self) -> f32 {
         let mut outputs = [0.0f32; OPERATOR_COUNT];
         let mut final_output = 0.0f32;
 
@@ -97,7 +93,15 @@ impl Iterator for PatchInstance {
             }
         });
 
-        Some(final_output / FM_AMPLIFICATION)
+        final_output / FM_AMPLIFICATION
+    }
+}
+
+impl Iterator for PatchInstance {
+    type Item = f32;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        Some(self.tick())
     }
 }
 
