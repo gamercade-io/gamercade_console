@@ -168,8 +168,15 @@ fn try_load_sprites(
         // Build the colors map, and load the sprite
         let mut new_sprite = Vec::with_capacity(image.len());
 
+        let no_alpha_color_index = colors
+            .iter()
+            .find(|(color, _)| color.0[3] == 0)
+            .map(|(_, index)| *index);
+
         for color in image.pixels() {
-            if let Some(index) = colors.get(color) {
+            if color.0[3] == 0 && no_alpha_color_index.is_some() {
+                new_sprite.push(no_alpha_color_index.unwrap())
+            } else if let Some(index) = colors.get(color) {
                 new_sprite.push(*index)
             } else {
                 return Err(format!(
