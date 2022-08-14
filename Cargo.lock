@@ -250,7 +250,7 @@ checksum = "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1"
 [[package]]
 name = "gamercade_audio"
 version = "0.1.0"
-source = "git+https://github.com/gamercade-io/gamercade_audio#101fd9b365e5f0719807a0348f7a193517cc6e50"
+source = "git+https://github.com/gamercade-io/gamercade_audio#952d53f6fcec6509f9f822fe7ddeeb597df32175"
 dependencies = [
  "arrayvec",
  "rodio",
