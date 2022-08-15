@@ -1,5 +1,6 @@
 use crate::api::*;
 
+mod audio_binding;
 mod data_binding;
 mod draw_binding;
 mod graphics_parameter_binding;
@@ -16,4 +17,5 @@ pub fn bind_all_apis(linker: &mut wasmtime::Linker<super::Contexts>) {
     linker.bind_graphics_parameter_api();
     linker.bind_text_api();
     linker.bind_multiplayer_api();
+    linker.bind_audio_api();
 }

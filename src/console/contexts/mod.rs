@@ -1,3 +1,4 @@
+mod audio_context;
 mod data_context;
 mod draw_context;
 mod graphics_parameter_context;
@@ -8,6 +9,7 @@ mod text_context;
 
 use std::sync::Arc;
 
+use audio_context::*;
 use data_context::DataContext;
 use draw_context::DrawContext;
 use graphics_parameter_context::GraphicsParameterContext;
@@ -19,7 +21,6 @@ use text_context::TextContext;
 use gamercade_core::Rom;
 
 use super::SessionDescriptor;
-
 pub struct Contexts {
     pub(crate) draw_context: DrawContext,
     pub(crate) input_context: InputContext,
@@ -28,6 +29,7 @@ pub struct Contexts {
     pub(crate) graphics_parameter_context: GraphicsParameterContext,
     pub(crate) text_context: TextContext,
     pub(crate) multiplayer_context: MultiplayerContext,
+    pub(crate) audio_context: AudioContext,
 }
 
 impl Contexts {
@@ -40,6 +42,7 @@ impl Contexts {
             graphics_parameter_context: GraphicsParameterContext::default(),
             text_context: TextContext::default(),
             multiplayer_context: MultiplayerContext::new(session),
+            audio_context: AudioContext::default(),
         }
     }
 }
