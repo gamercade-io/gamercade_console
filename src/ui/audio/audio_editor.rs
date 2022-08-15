@@ -1,6 +1,6 @@
 use egui::Ui;
 
-use crate::editor_data::EditorSoundsData;
+use crate::editor_data::EditorSoundData;
 
 use super::{ChainEditor, InstrumentEditor, PatternEditor, SongEditor};
 
@@ -41,7 +41,7 @@ impl AudioEditor {
         ui.selectable_value(&mut self.mode, AudioEditorMode::Patterns, "Patterns");
     }
 
-    pub fn draw_contents(&mut self, ui: &mut Ui, _data: &mut EditorSoundsData) {
+    pub fn draw_contents(&mut self, ui: &mut Ui, _data: &mut EditorSoundData) {
         match self.mode {
             AudioEditorMode::Instrument => self.instrument_editor.draw(ui),
             AudioEditorMode::Songs => self.song_editor.draw(ui),

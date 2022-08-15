@@ -22,6 +22,7 @@ path = "src/bin/5r5g4b_color.rs"
 [dependencies]
 # Gamercade Dependencies
 gamercade_core = { git = "https://github.com/gamercade-io/gamercade_core" }
+gamercade_audio = { git = "https://github.com/gamercade-io/gamercade_audio" }
 
 # Serialization
 serde = { version = "1.0.141", features = ["derive"] }

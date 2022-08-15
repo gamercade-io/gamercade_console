@@ -1,11 +1,16 @@
-use gamercade_core::SoundsData;
+use gamercade_audio::SoundRom;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub struct EditorSoundsData {}
+pub struct EditorSoundData {}
 
-impl From<&EditorSoundsData> for SoundsData {
-    fn from(_data: &EditorSoundsData) -> Self {
-        Self {}
+impl From<&EditorSoundData> for SoundRom {
+    fn from(_data: &EditorSoundData) -> Self {
+        Self {
+            songs: Default::default(),
+            chains: Default::default(),
+            phrases: Default::default(),
+            instruments: Default::default(),
+        }
     }
 }
