@@ -12,6 +12,7 @@ use crate::{
 };
 
 pub struct SoundEngine {
+    pub rom: Arc<SoundRomInstance>,
     sender: Sender<TickerCommand>,
     _stream: OutputStream,
 }
@@ -22,11 +23,15 @@ impl SoundEngine {
         initialize_globals();
 
         // Build the RomInstance
-        let rom = SoundRomInstance::new(rom);
+        let rom = Arc::new(SoundRomInstance::new(rom));
 
-        let (sender, _stream) = spawn_ticker_runner(rom);
+        let (sender, _stream) = spawn_ticker_runner(&rom);
 
-        Self { sender, _stream }
+        Self {
+            rom,
+            sender,
+            _stream,
+        }
     }
 
     /// Plays the Bgm. If None is passed, instead will mute the bgm.
@@ -214,11 +219,9 @@ impl TickerRunner {
     }
 }
 
-fn spawn_ticker_runner(rom: SoundRomInstance) -> (Sender<TickerCommand>, OutputStream) {
+fn spawn_ticker_runner(rom: &Arc<SoundRomInstance>) -> (Sender<TickerCommand>, OutputStream) {
     let (sender, receiver) = crossbeam_channel::bounded((SFX_CHANNELS + SONG_TRACK_CHANNELS) * 2);
     let (stream, stream_handle) = OutputStream::try_default().unwrap();
-
-    let rom = Arc::new(rom);
 
     // Callback closure to initialize our chains as needed
     let build_chain = |_| {
@@ -226,13 +229,13 @@ fn spawn_ticker_runner(rom: SoundRomInstance) -> (Sender<TickerCommand>, OutputS
         let instance = InstrumentInstance::no_sound(receiver);
 
         stream_handle.play_raw(instance).unwrap();
-        ChainPlayback::new(None, sender, &rom)
+        ChainPlayback::new(None, sender, rom)
     };
 
     let runner = TickerRunner {
-        bgm: SongPlayback::new(None, array::from_fn(build_chain), &rom),
+        bgm: SongPlayback::new(None, array::from_fn(build_chain), rom),
         sfx: array::from_fn(build_chain),
-        rom,
+        rom: rom.clone(),
         receiver,
         ticker: Ticker::default(),
     };
