@@ -1349,7 +1349,7 @@ dependencies = [
 [[package]]
 name = "gamercade_core"
 version = "0.1.0"
-source = "git+https://github.com/gamercade-io/gamercade_core#5a24ac6e7c54955ef9e92b9308a4d71a92174512"
+source = "git+https://github.com/gamercade-io/gamercade_core#3c5a881afaac441772b4b2f5e87b24c3f8089812"
 dependencies = [
  "base64",
  "gamercade_audio",
