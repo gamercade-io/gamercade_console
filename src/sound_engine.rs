@@ -19,7 +19,7 @@ pub struct SoundEngine {
 
 impl SoundEngine {
     /// Generates a new SoundEngine
-    pub fn new(rom: SoundRom) -> Self {
+    pub fn new(rom: &SoundRom) -> Self {
         initialize_globals();
 
         // Build the RomInstance

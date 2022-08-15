@@ -79,5 +79,5 @@ fn test_engine() -> SoundEngine {
         instruments: instruments.into_boxed_slice(),
     };
 
-    SoundEngine::new(rom)
+    SoundEngine::new(&rom)
 }

@@ -35,12 +35,12 @@ impl Instrument {
 impl SoundRomInstance {
     /// Generates a new sound engine. This struct is used throughout the audio system.
     /// Performs some light logic to prepare the generation of sound sources.
-    pub(crate) fn new(rom: SoundRom) -> Self {
+    pub(crate) fn new(rom: &SoundRom) -> Self {
         Self {
-            songs: rom.songs,
-            chains: rom.chains,
-            phrases: rom.phrases,
-            instrument_bank: Vec::from(rom.instruments)
+            songs: rom.songs.clone(),
+            chains: rom.chains.clone(),
+            phrases: rom.phrases.clone(),
+            instrument_bank: Vec::from(rom.instruments.clone())
                 .into_iter()
                 .map(|instrument| match instrument {
                     InstrumentDefinition::Wavetable(wavetable_def) => {
