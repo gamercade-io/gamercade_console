@@ -3,12 +3,13 @@ use std::sync::Arc;
 use crossbeam_channel::Sender;
 
 use crate::{
-    InstrumentChannelType, PhraseId, SoundEngine, TrackerFlow, TrackerState, PHRASE_MAX_ENTRIES,
+    InstrumentChannelType, PhraseId, SoundRomInstance, TrackerFlow, TrackerState,
+    PHRASE_MAX_ENTRIES,
 };
 
 #[derive(Debug)]
 pub struct PhrasePlayback {
-    pub(crate) engine: Arc<SoundEngine>,
+    pub(crate) engine: Arc<SoundRomInstance>,
     pub(crate) step_index: usize,
     pub(crate) phrase: Option<PhraseId>,
     pub(crate) sender: Sender<InstrumentChannelType>,
@@ -18,7 +19,7 @@ impl PhrasePlayback {
     pub(crate) fn new(
         phrase: Option<PhraseId>,
         sender: Sender<InstrumentChannelType>,
-        engine: &Arc<SoundEngine>,
+        engine: &Arc<SoundRomInstance>,
     ) -> Self {
         let mut out = Self {
             step_index: 0,

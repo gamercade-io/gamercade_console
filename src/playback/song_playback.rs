@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::{BgmState, ChainPlayback, SongId, SoundEngine, TrackerFlow, SONG_TRACK_CHANNELS};
+use crate::{BgmState, ChainPlayback, SongId, SoundRomInstance, TrackerFlow, SONG_TRACK_CHANNELS};
 
 #[derive(Debug)]
 pub struct SongPlayback {
@@ -8,7 +8,7 @@ pub struct SongPlayback {
     pub(crate) chain_index: usize, // The current location in the song
     pub(crate) tracks: [ChainPlayback; SONG_TRACK_CHANNELS],
     pub(crate) tracker_states: [TrackerFlow; SONG_TRACK_CHANNELS],
-    pub(crate) engine: Arc<SoundEngine>,
+    pub(crate) engine: Arc<SoundRomInstance>,
 }
 
 fn default_tracker_states() -> [TrackerFlow; SONG_TRACK_CHANNELS] {
@@ -19,7 +19,7 @@ impl SongPlayback {
     pub fn new(
         song: Option<SongId>,
         tracks: [ChainPlayback; SONG_TRACK_CHANNELS],
-        engine: &Arc<SoundEngine>,
+        engine: &Arc<SoundRomInstance>,
     ) -> Self {
         let mut out = Self {
             song,

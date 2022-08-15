@@ -7,7 +7,7 @@ use crate::{
 
 /// An engine loaded in memory, ready to use.
 #[derive(Debug)]
-pub struct SoundEngine {
+pub struct SoundRomInstance {
     songs: Box<[Song]>,
     chains: Box<[Chain]>,
     phrases: Box<[Phrase]>,
@@ -32,7 +32,7 @@ impl Instrument {
     }
 }
 
-impl SoundEngine {
+impl SoundRomInstance {
     /// Generates a new sound engine. This struct is used throughout the audio system.
     /// Performs some light logic to prepare the generation of sound sources.
     pub fn initialize(rom: SoundRom) -> Self {
@@ -54,7 +54,7 @@ impl SoundEngine {
     }
 }
 
-impl Index<SongId> for SoundEngine {
+impl Index<SongId> for SoundRomInstance {
     type Output = Song;
 
     fn index(&self, index: SongId) -> &Self::Output {
@@ -62,7 +62,7 @@ impl Index<SongId> for SoundEngine {
     }
 }
 
-impl Index<ChainId> for SoundEngine {
+impl Index<ChainId> for SoundRomInstance {
     type Output = Chain;
 
     fn index(&self, index: ChainId) -> &Self::Output {
@@ -70,7 +70,7 @@ impl Index<ChainId> for SoundEngine {
     }
 }
 
-impl Index<PhraseId> for SoundEngine {
+impl Index<PhraseId> for SoundRomInstance {
     type Output = Phrase;
 
     fn index(&self, index: PhraseId) -> &Self::Output {
@@ -78,7 +78,7 @@ impl Index<PhraseId> for SoundEngine {
     }
 }
 
-impl Index<InstrumentId> for SoundEngine {
+impl Index<InstrumentId> for SoundRomInstance {
     type Output = Instrument;
 
     fn index(&self, index: InstrumentId) -> &Self::Output {

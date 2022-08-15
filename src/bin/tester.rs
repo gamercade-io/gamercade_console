@@ -6,7 +6,7 @@ use rodio::OutputStream;
 use gamercade_audio::{
     initialize_luts, Chain, ChainId, ChainPlayback, EnvelopeDefinition, InstrumentDefinition,
     InstrumentId, InstrumentInstance, InstrumentInstanceType, PatchDefinition, Phrase, PhraseId,
-    Song, SongId, SongPlayback, SoundEngine, SoundRom, TrackerFlow, WavetableDefinition,
+    Song, SongId, SongPlayback, SoundRom, SoundRomInstance, TrackerFlow, WavetableDefinition,
     WavetableGenerator, WavetableWaveform, PHRASE_STEPS_PER_BEAT,
 };
 
@@ -61,7 +61,7 @@ fn main() {
 // Initialize our sound sources
 // This isn't the intended use case, only a temporary solution until
 // the editor gets audio support.
-fn test_engine() -> SoundEngine {
+fn test_engine() -> SoundRomInstance {
     let instruments = vec![
         InstrumentDefinition::FMSynth(PatchDefinition::default()),
         InstrumentDefinition::Wavetable(WavetableDefinition {
@@ -114,5 +114,5 @@ fn test_engine() -> SoundEngine {
         instruments: instruments.into_boxed_slice(),
     };
 
-    SoundEngine::initialize(rom)
+    SoundRomInstance::initialize(rom)
 }

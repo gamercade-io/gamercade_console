@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use super::effect::Effect;
 use crate::{
     name_octave_to_index, notes, Instrument, InstrumentId, NoteId, NoteName, Octave,
-    PhraseVolumeType, SoundEngine, EFFECT_COUNT, PHRASE_MAX_ENTRIES,
+    PhraseVolumeType, SoundRomInstance, EFFECT_COUNT, PHRASE_MAX_ENTRIES,
 };
 
 /// Newtype Chain Identifier
@@ -71,7 +71,7 @@ impl Default for Phrase {
 pub type InstrumentChannelType = PhraseEntry<f32, Instrument>;
 
 impl InstrumentChannelType {
-    pub fn new(entry: &PhraseStorageType, engine: &SoundEngine) -> Self {
+    pub fn new(entry: &PhraseStorageType, engine: &SoundRomInstance) -> Self {
         let note = notes::get_note(entry.note).frequency;
         let instrument = engine[entry.instrument].clone();
 
