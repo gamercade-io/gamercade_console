@@ -10,6 +10,16 @@ pub struct SoundRom {
     pub chains: Box<[Chain]>,
     pub phrases: Box<[Phrase]>,
     pub instruments: Box<[InstrumentDefinition]>,
+    pub sfx: Box<[Sfx]>,
+}
+
+/// Represents a singular sound effect
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Sfx {
+    pub bpm: f32,
+    pub chain: ChainId,
+    // TODO: Should we include other data here, like
+    // loop style? or should this be handled by game code?
 }
 
 impl Default for SoundRom {
@@ -19,6 +29,7 @@ impl Default for SoundRom {
             chains: vec![].into_boxed_slice(),
             phrases: vec![].into_boxed_slice(),
             instruments: vec![].into_boxed_slice(),
+            sfx: vec![].into_boxed_slice(),
         }
     }
 }

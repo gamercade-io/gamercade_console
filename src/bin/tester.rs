@@ -77,6 +77,7 @@ fn test_engine() -> SoundEngine {
         ]
         .into_boxed_slice(),
         instruments: instruments.into_boxed_slice(),
+        sfx: vec![].into_boxed_slice(),
     };
 
     SoundEngine::new(&rom)

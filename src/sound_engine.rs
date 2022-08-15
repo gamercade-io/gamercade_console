@@ -6,7 +6,7 @@ use crossbeam_channel::{Receiver, Sender};
 use rodio::OutputStream;
 
 use crate::{
-    initialize_globals, BgmState, ChainId, ChainPlayback, ChainState, InstrumentInstance, SongId,
+    initialize_globals, BgmState, ChainPlayback, ChainState, InstrumentInstance, Sfx, SongId,
     SongPlayback, SoundRom, SoundRomInstance, TrackerState, PHRASE_STEPS_PER_BEAT, SFX_CHANNELS,
     SONG_TRACK_CHANNELS,
 };
@@ -41,11 +41,11 @@ impl SoundEngine {
 
     /// Plays the SFX on the given channel. If None is passed,
     /// instead will mute the channel.
-    pub fn play_sfx(&self, chain: Option<ChainId>, channel: usize) {
+    pub fn play_sfx(&self, sfx: Option<Sfx>, channel: usize) {
         self.sender
             .try_send(TickerCommand::PlaySfx {
                 index: channel,
-                chain,
+                sfx,
             })
             .unwrap();
     }
@@ -85,7 +85,7 @@ enum TickerCommand {
     PlayBgm(Option<SongId>),
     PlaySfx {
         index: usize,
-        chain: Option<ChainId>,
+        sfx: Option<Sfx>,
     },
     TrackerState(Box<TrackerState>),
     BgmState(Box<BgmState>),
@@ -133,6 +133,13 @@ impl Ticker {
             }
         })
     }
+
+    fn reset_ticker_for_bpm(&mut self, index: usize, bpm: f32) {
+        let tick_time = 60.0 / bpm / PHRASE_STEPS_PER_BEAT as f32;
+        let tick_time = Duration::from_secs_f32(tick_time).as_nanos() as i64;
+        self.remaining[index] = tick_time;
+        self.reset[index] = tick_time;
+    }
 }
 
 impl TickerRunner {
@@ -144,7 +151,7 @@ impl TickerRunner {
             while let Ok(msg) = self.receiver.try_recv() {
                 match msg {
                     TickerCommand::PlayBgm(song) => self.handle_play_bgm(song),
-                    TickerCommand::PlaySfx { index, chain } => self.handle_play_sfx(chain, index),
+                    TickerCommand::PlaySfx { index, sfx } => self.handle_play_sfx(sfx, index),
                     TickerCommand::TrackerState(tracker) => self.handle_tracker_state(&tracker),
                     TickerCommand::BgmState(state) => self.handle_bgm_state(&state),
                     TickerCommand::ChainState { index, chain_state } => {
@@ -183,18 +190,17 @@ impl TickerRunner {
         self.bgm.set_song_id(song);
 
         if let Some(song) = song {
-            let tick_time = 60.0 / self.rom[song].bpm / PHRASE_STEPS_PER_BEAT as f32;
-            let tick_time = Duration::from_secs_f32(tick_time).as_nanos() as i64;
-            self.ticker.remaining[0] = tick_time;
-            self.ticker.reset[0] = tick_time;
+            self.ticker.reset_ticker_for_bpm(0, self.rom[song].bpm)
         }
     }
 
-    fn handle_play_sfx(&mut self, chain: Option<ChainId>, index: usize) {
+    fn handle_play_sfx(&mut self, sfx: Option<Sfx>, index: usize) {
         if let Some(track) = self.sfx.get_mut(index) {
-            // TODO: Update ticker rate
-            // TODO: How to handle effects / playback?
-            track.set_chain_id(chain);
+            if let Some(sfx) = sfx {
+                self.ticker.reset_ticker_for_bpm(index + 1, sfx.bpm)
+            } else {
+                track.set_chain_id(None);
+            }
         } else {
             println!("Tried to play sound on an invalid channel");
         }
