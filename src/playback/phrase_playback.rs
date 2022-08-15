@@ -1,35 +1,74 @@
-use crate::{InstrumentInstance, PhraseId, SoundEngine, TrackerFlow, PHRASE_MAX_ENTRIES};
+use std::sync::Arc;
 
-#[derive(Debug, Clone)]
+use crossbeam_channel::Sender;
+
+use crate::{
+    InstrumentChannelType, PhraseId, SoundEngine, TrackerFlow, TrackerState, PHRASE_MAX_ENTRIES,
+};
+
+#[derive(Debug)]
 pub struct PhrasePlayback {
-    entry_index: usize,
-    phrase: PhraseId,
+    pub(crate) engine: Arc<SoundEngine>,
+    pub(crate) step_index: usize,
+    pub(crate) phrase: Option<PhraseId>,
+    pub(crate) sender: Sender<InstrumentChannelType>,
 }
 
 impl PhrasePlayback {
-    pub fn new(phrase: PhraseId) -> Self {
-        Self {
-            entry_index: 0,
+    pub(crate) fn new(
+        phrase: Option<PhraseId>,
+        sender: Sender<InstrumentChannelType>,
+        engine: &Arc<SoundEngine>,
+    ) -> Self {
+        let mut out = Self {
+            step_index: 0,
             phrase,
+            engine: engine.clone(),
+            sender,
+        };
+
+        out.notify_sources();
+        out
+    }
+
+    /// Sets the active phrase ID for this playback
+    /// and notifies the sound thread.
+    pub(crate) fn set_phrase_id(&mut self, phrase: Option<PhraseId>) {
+        self.phrase = phrase;
+        self.step_index = 0;
+
+        self.notify_sources();
+    }
+
+    /// Notifies sound thread of any updates to
+    /// instrument, frequency, effects, etc
+    fn notify_sources(&mut self) {
+        if let Some(phrase_id) = self.phrase {
+            if let Some(next_entry) = &self.engine[phrase_id].entries[self.step_index] {
+                let out_message = InstrumentChannelType::new(next_entry, &self.engine);
+                self.sender.try_send(out_message).unwrap();
+            }
         }
     }
 
-    pub fn adjust_instrument_instance(
-        &self,
-        engine: &SoundEngine,
-        instance: &mut InstrumentInstance,
-    ) {
-        if let Some(Some(next)) = &engine[self.phrase].entries.get(self.entry_index) {
-            instance.update_from_phrase_entry(next, engine)
-        }
+    /// Updates this phrase to match that of the passed in TrackerState
+    /// Useful when trying to seek to an exact time.
+    pub(crate) fn set_from_tracker_state(&mut self, tracker_state: &TrackerState) {
+        self.phrase = tracker_state.phrase_id;
+        self.step_index = tracker_state.phrase_step_index;
+
+        self.notify_sources();
     }
 
-    pub fn next_step(&mut self) -> TrackerFlow {
-        self.entry_index += 1;
-        if self.entry_index >= PHRASE_MAX_ENTRIES {
-            self.entry_index = 0;
+    /// Increments the index and notifies the sound thread
+    pub(crate) fn update_tracker(&mut self) -> TrackerFlow {
+        self.step_index += 1;
+
+        if self.step_index >= PHRASE_MAX_ENTRIES {
+            self.step_index = 0;
             TrackerFlow::Finished
         } else {
+            self.notify_sources();
             TrackerFlow::Continue
         }
     }

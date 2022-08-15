@@ -16,7 +16,7 @@ pub struct SoundEngine {
 
 /// An instrument stored in memory, ready to generate the pieces
 /// needed to produce sounds.
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum Instrument {
     Wavetable(Arc<WavetableDefinition>),
     FMSynth(Arc<PatchDefinition>),

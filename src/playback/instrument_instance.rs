@@ -1,67 +1,28 @@
+use crossbeam_channel::{Receiver, TryRecvError};
 use rodio::Source;
 
-use crate::{
-    notes, Instrument, InstrumentKind, PatchInstance, PhraseEntry, SoundEngine, WavetableOscilator,
-};
+use crate::{Instrument, InstrumentChannelType, InstrumentKind, PatchInstance, WavetableOscilator};
 
-#[derive(Clone)]
-pub enum InstrumentInstance {
-    Wavetable(WavetableOscilator),
-    FMSynth(Box<PatchInstance>),
-}
-
-impl InstrumentInstance {
-    pub(crate) fn update_from_phrase_entry(&mut self, entry: &PhraseEntry, engine: &SoundEngine) {
-        // TODO: Set volume
-        // TODO: Set effects
-        let next_instrument = &engine[entry.instrument];
-        if self.get_type() != next_instrument.get_type() {
-            *self = Self::from(next_instrument)
-        }
-
-        match self {
-            InstrumentInstance::Wavetable(wave) => {
-                wave.set_frequency(notes::get_note(entry.note).frequency);
-                wave.trigger();
-            }
-            InstrumentInstance::FMSynth(fm) => {
-                fm.set_frequency(notes::get_note(entry.note).frequency);
-                fm.trigger();
-            }
-        }
-    }
-
-    pub(crate) fn get_type(&self) -> InstrumentKind {
-        match self {
-            InstrumentInstance::Wavetable(_) => InstrumentKind::Wavetable,
-            InstrumentInstance::FMSynth(_) => InstrumentKind::FMSynth,
-        }
-    }
-}
-
-impl From<&Instrument> for InstrumentInstance {
-    fn from(source: &Instrument) -> Self {
-        match source {
-            Instrument::Wavetable(wavetable) => {
-                InstrumentInstance::Wavetable(WavetableOscilator::new(wavetable.clone()))
-            }
-            Instrument::FMSynth(fm_synth) => {
-                InstrumentInstance::FMSynth(Box::new(PatchInstance::new(fm_synth.clone())))
-            }
-        }
-    }
+pub struct InstrumentInstance {
+    pub receiver: Receiver<InstrumentChannelType>,
+    pub instance_type: InstrumentInstanceType,
 }
 
 impl Iterator for InstrumentInstance {
     type Item = f32;
 
     fn next(&mut self) -> Option<Self::Item> {
-        Some(
-            match self {
-                InstrumentInstance::Wavetable(wave) => wave.tick(),
-                InstrumentInstance::FMSynth(fm) => fm.tick(),
-            } * 0.15,
-        )
+        match self.receiver.try_recv() {
+            Err(TryRecvError::Empty) => (),
+            Err(TryRecvError::Disconnected) => {
+                println!("{}", TryRecvError::Disconnected);
+            }
+            Ok(next) => {
+                self.instance_type.update_from_channel(next);
+            }
+        }
+
+        self.instance_type.next()
     }
 }
 
@@ -75,9 +36,85 @@ impl Source for InstrumentInstance {
     }
 
     fn sample_rate(&self) -> u32 {
+        self.instance_type.sample_rate()
+    }
+
+    fn total_duration(&self) -> Option<std::time::Duration> {
+        None
+    }
+}
+
+#[derive(Clone)]
+pub enum InstrumentInstanceType {
+    Wavetable(WavetableOscilator),
+    FMSynth(Box<PatchInstance>),
+}
+
+impl InstrumentInstanceType {
+    pub(crate) fn update_from_channel(&mut self, entry: InstrumentChannelType) {
+        if self.get_type() != entry.instrument.get_type() {
+            *self = Self::from(&entry.instrument)
+        }
+
         match self {
-            InstrumentInstance::Wavetable(wave) => wave.sample_rate(),
-            InstrumentInstance::FMSynth(fm) => fm.sample_rate(),
+            InstrumentInstanceType::Wavetable(wave) => {
+                wave.set_frequency(entry.note);
+                wave.trigger();
+            }
+            InstrumentInstanceType::FMSynth(fm) => {
+                fm.set_frequency(entry.note);
+                fm.trigger();
+            }
+        }
+    }
+
+    pub(crate) fn get_type(&self) -> InstrumentKind {
+        match self {
+            InstrumentInstanceType::Wavetable(_) => InstrumentKind::Wavetable,
+            InstrumentInstanceType::FMSynth(_) => InstrumentKind::FMSynth,
+        }
+    }
+}
+
+impl From<&Instrument> for InstrumentInstanceType {
+    fn from(source: &Instrument) -> Self {
+        match source {
+            Instrument::Wavetable(wavetable) => {
+                InstrumentInstanceType::Wavetable(WavetableOscilator::new(wavetable.clone()))
+            }
+            Instrument::FMSynth(fm_synth) => {
+                InstrumentInstanceType::FMSynth(Box::new(PatchInstance::new(fm_synth.clone())))
+            }
+        }
+    }
+}
+
+impl Iterator for InstrumentInstanceType {
+    type Item = f32;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        Some(
+            match self {
+                InstrumentInstanceType::Wavetable(wave) => wave.tick(),
+                InstrumentInstanceType::FMSynth(fm) => fm.tick(),
+            } * 0.15,
+        )
+    }
+}
+
+impl Source for InstrumentInstanceType {
+    fn current_frame_len(&self) -> Option<usize> {
+        None
+    }
+
+    fn channels(&self) -> u16 {
+        1
+    }
+
+    fn sample_rate(&self) -> u32 {
+        match self {
+            InstrumentInstanceType::Wavetable(wave) => wave.sample_rate(),
+            InstrumentInstanceType::FMSynth(fm) => fm.sample_rate(),
         }
     }
 

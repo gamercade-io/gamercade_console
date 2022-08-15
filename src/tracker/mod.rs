@@ -2,11 +2,13 @@ mod chain;
 mod effect;
 mod phrase;
 mod song;
+mod tracker_states;
 
 pub use chain::*;
 pub use effect::*;
 pub use phrase::*;
 pub use song::*;
+pub use tracker_states::*;
 
 pub const SONG_TRACK_CHANNELS: usize = 8;
 pub const EFFECT_COUNT: usize = 3;

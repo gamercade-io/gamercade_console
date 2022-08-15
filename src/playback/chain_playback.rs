@@ -1,62 +1,85 @@
+use std::sync::Arc;
+
+use crossbeam_channel::Sender;
+
 use crate::{
-    ChainId, InstrumentInstance, PhrasePlayback, SoundEngine, TrackerFlow, CHAIN_MAX_PHRASE_COUNT,
+    ChainId, InstrumentChannelType, PhrasePlayback, SoundEngine, TrackerFlow, TrackerState,
 };
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct ChainPlayback {
-    phrase_index: usize,
-    chain: ChainId,
-    phrase_playback: Option<PhrasePlayback>,
+    pub(crate) engine: Arc<SoundEngine>,
+    pub(crate) phrase_index: usize,
+    pub(crate) chain: Option<ChainId>,
+    pub(crate) phrase_playback: PhrasePlayback,
 }
 
 impl ChainPlayback {
-    pub fn new(chain: ChainId, engine: &SoundEngine) -> Self {
+    pub fn new(
+        chain: Option<ChainId>,
+        sender: Sender<InstrumentChannelType>,
+        engine: &Arc<SoundEngine>,
+    ) -> Self {
         let mut out = Self {
+            engine: engine.clone(),
             phrase_index: 0,
             chain,
-            phrase_playback: None,
+            phrase_playback: PhrasePlayback::new(None, sender, engine),
         };
 
-        out.fetch_phrase_playback(engine);
+        out.set_chain_id(chain);
         out
     }
 
-    fn fetch_phrase_playback(&mut self, engine: &SoundEngine) {
-        self.phrase_playback = match engine[self.chain].entries.get(self.phrase_index) {
-            Some(Some(next)) => Some(PhrasePlayback::new(*next)),
-            _ => None,
+    /// Updates this chain to match that of the passed in TrackerState
+    /// Useful when trying to seek to an exact time.
+    pub fn set_from_tracker_state(&mut self, tracker_state: &TrackerState) {
+        self.chain = tracker_state.chain_id;
+        self.phrase_index = tracker_state.phrase_step_index;
+
+        self.phrase_playback.set_from_tracker_state(tracker_state)
+    }
+
+    /// Sets the active chain ID for this playback
+    /// and notifies the sound thread. This will additionally
+    /// set the reset phrase index to zero.
+    pub fn set_chain_id(&mut self, chain: Option<ChainId>) {
+        self.chain = chain;
+        self.phrase_index = 0;
+
+        let phrase_id = chain.and_then(|chain| self.engine[chain].entries[0]);
+
+        self.phrase_playback.set_phrase_id(phrase_id);
+    }
+
+    /// Calls update_tracker on the phrase playback,
+    /// if its done, will increment our current phrase index
+    /// within the chain
+    pub fn update_tracker(&mut self) -> TrackerFlow {
+        match self.phrase_playback.update_tracker() {
+            TrackerFlow::Continue => TrackerFlow::Continue,
+            TrackerFlow::Finished => self.next_step(),
         }
     }
 
-    pub fn update_tracker(
-        &mut self,
-        engine: &SoundEngine,
-        instance: &mut InstrumentInstance,
-    ) -> TrackerFlow {
-        match &mut self.phrase_playback {
-            Some(phrase) => {
-                phrase.adjust_instrument_instance(engine, instance);
+    /// Advances the chain to the next phrase within the chain.
+    fn next_step(&mut self) -> TrackerFlow {
+        if let Some(chain) = self.chain {
+            self.phrase_index += 1;
 
-                match phrase.next_step() {
-                    TrackerFlow::Continue => TrackerFlow::Continue,
-                    TrackerFlow::Finished => self.next_step(engine),
-                }
+            let next_phrase = self.engine[chain]
+                .entries
+                .get(self.phrase_index)
+                .and_then(|x| *x);
+
+            if next_phrase.is_some() {
+                self.phrase_playback.set_phrase_id(next_phrase);
+                TrackerFlow::Continue
+            } else {
+                TrackerFlow::Finished
             }
-            None => TrackerFlow::Finished,
-        }
-    }
-
-    pub fn next_step(&mut self, engine: &SoundEngine) -> TrackerFlow {
-        self.phrase_index += 1;
-
-        let out = if self.phrase_index >= CHAIN_MAX_PHRASE_COUNT {
-            self.phrase_index = 0;
-            TrackerFlow::Finished
         } else {
-            TrackerFlow::Continue
-        };
-
-        self.fetch_phrase_playback(engine);
-        out
+            TrackerFlow::Finished
+        }
     }
 }

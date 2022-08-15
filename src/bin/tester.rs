@@ -1,16 +1,22 @@
-use std::sync::Arc;
+use std::{process, sync::Arc};
 
 use arrayvec::ArrayVec;
-use rodio::{OutputStream, Source};
+use rodio::OutputStream;
 
 use gamercade_audio::{
-    initialize_luts, Chain, ChainId, EnvelopeDefinition, InstrumentDefinition, InstrumentId,
-    InstrumentInstance, PatchDefinition, Phrase, PhraseId, Song, SongId, SongPlayback, SoundEngine,
-    SoundRom, TrackerFlow, WavetableDefinition, WavetableGenerator, WavetableWaveform,
-    PHRASE_STEPS_PER_BEAT,
+    initialize_luts, Chain, ChainId, ChainPlayback, EnvelopeDefinition, InstrumentDefinition,
+    InstrumentId, InstrumentInstance, InstrumentInstanceType, PatchDefinition, Phrase, PhraseId,
+    Song, SongId, SongPlayback, SoundEngine, SoundRom, TrackerFlow, WavetableDefinition,
+    WavetableGenerator, WavetableWaveform, PHRASE_STEPS_PER_BEAT,
 };
 
 fn main() {
+    let panic_hook = std::panic::take_hook();
+    std::panic::set_hook(Box::new(move |panic_info| {
+        panic_hook(panic_info);
+        process::exit(1);
+    }));
+
     // Initialization
     initialize_luts();
     let (_stream, stream_handle) = OutputStream::try_default().unwrap();
@@ -20,22 +26,34 @@ fn main() {
     let entries_per_second = 60.0 / engine[SongId(0)].bpm / PHRASE_STEPS_PER_BEAT as f32;
     let entries_per_second = std::time::Duration::from_secs_f32(entries_per_second);
 
-    let playbacks = SongPlayback::generate_multiple(SongId(0), &engine);
+    // Test with a single chain
+    let tracks = std::array::from_fn(|_| {
+        let (sender, receiver) = crossbeam_channel::bounded(1);
+        let instance = InstrumentInstance {
+            receiver,
+            instance_type: InstrumentInstanceType::from(&engine[InstrumentId(0)]),
+        };
 
-    playbacks
-        .into_iter()
-        .enumerate()
-        .for_each(|(index, mut playback)| {
-            let engine = engine.clone();
-            let instance = InstrumentInstance::from(&engine[InstrumentId(0)]);
-            let instance = instance.periodic_access(entries_per_second, move |instance| {
-                if TrackerFlow::Finished == playback.update_tracker(&engine, instance) {
-                    playback = SongPlayback::new(SongId(0), index, &engine);
-                }
-            });
+        stream_handle.play_raw(instance).unwrap();
+        ChainPlayback::new(None, sender, &engine)
+    });
 
-            stream_handle.play_raw(instance).unwrap();
-        });
+    let mut song = SongPlayback::new(Some(SongId(0)), tracks, &engine);
+
+    // Tracker thread
+    std::thread::spawn(move || loop {
+        std::thread::sleep(entries_per_second);
+
+        // println!("{:?}", BgmState::new(&song));
+        if TrackerFlow::Finished == song.update_tracker() {
+            song.set_song_id(Some(SongId(0)));
+        }
+
+        //println!("{:?}", TrackerState::new(&chain));
+        // if TrackerFlow::Finished == chain.update_tracker() {
+        //     chain.set_chain_id(Some(ChainId(1)));
+        // }
+    });
 
     std::thread::sleep(std::time::Duration::from_secs_f32(25.0));
 }
@@ -62,8 +80,10 @@ fn test_engine() -> SoundEngine {
     chains0.push(Some(PhraseId(1)));
 
     let mut chains1 = ArrayVec::new();
+    chains1.push(Some(PhraseId(0)));
+    chains1.push(Some(PhraseId(0)));
     chains1.push(Some(PhraseId(2)));
-    chains1.push(Some(PhraseId(3)));
+    chains1.push(Some(PhraseId(2)));
 
     let songs = vec![Song {
         bpm: 120.0,
@@ -87,8 +107,8 @@ fn test_engine() -> SoundEngine {
         phrases: vec![
             Phrase::c_scale(InstrumentId(0)),
             Phrase::c_scale_reverse(InstrumentId(0)),
-            Phrase::c_scale_reverse(InstrumentId(1)),
             Phrase::c_scale(InstrumentId(1)),
+            Phrase::c_scale_reverse(InstrumentId(1)),
         ]
         .into_boxed_slice(),
         instruments: instruments.into_boxed_slice(),

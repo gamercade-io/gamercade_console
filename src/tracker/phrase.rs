@@ -3,8 +3,8 @@ use serde::{Deserialize, Serialize};
 
 use super::effect::Effect;
 use crate::{
-    name_octave_to_index, InstrumentId, NoteId, NoteName, Octave, PhraseVolumeType, EFFECT_COUNT,
-    PHRASE_MAX_ENTRIES,
+    name_octave_to_index, notes, Instrument, InstrumentId, NoteId, NoteName, Octave,
+    PhraseVolumeType, SoundEngine, EFFECT_COUNT, PHRASE_MAX_ENTRIES,
 };
 
 /// Newtype Chain Identifier
@@ -14,7 +14,7 @@ pub struct PhraseId(pub usize);
 /// A phrase is a series of notes tied to instruments, which when combined together form a chain.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Phrase {
-    pub entries: ArrayVec<Option<PhraseEntry>, PHRASE_MAX_ENTRIES>,
+    pub entries: ArrayVec<Option<PhraseStorageType>, PHRASE_MAX_ENTRIES>,
 }
 
 impl Phrase {
@@ -68,11 +68,29 @@ impl Default for Phrase {
     }
 }
 
+pub type InstrumentChannelType = PhraseEntry<f32, Instrument>;
+
+impl InstrumentChannelType {
+    pub fn new(entry: &PhraseStorageType, engine: &SoundEngine) -> Self {
+        let note = notes::get_note(entry.note).frequency;
+        let instrument = engine[entry.instrument].clone();
+
+        Self {
+            note,
+            volume: entry.volume,
+            instrument,
+            effects: entry.effects.clone(),
+        }
+    }
+}
+
+pub type PhraseStorageType = PhraseEntry<NoteId, InstrumentId>;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 /// An entry in the phrase, contains all data necessary to produce a sound
-pub struct PhraseEntry {
-    pub note: NoteId,
+pub struct PhraseEntry<N, T> {
+    pub note: N,
     pub volume: PhraseVolumeType,
-    pub instrument: InstrumentId,
+    pub instrument: T,
     pub effects: [Option<Effect>; EFFECT_COUNT],
 }
