@@ -5,7 +5,7 @@ use rfd::FileDialog;
 
 use crate::editor_data::EditorRom;
 
-use super::{GraphicsEditor, RomEditor, SoundsEditor};
+use super::{AudioEditor, GraphicsEditor, RomEditor};
 
 pub struct Editor {
     pub rom: EditorRom,
@@ -13,7 +13,7 @@ pub struct Editor {
 
     rom_editor: RomEditor,
     graphics_editor: GraphicsEditor,
-    sounds_editor: SoundsEditor,
+    audio_editor: AudioEditor,
 
     wasm_path: Option<PathBuf>,
 }
@@ -22,7 +22,7 @@ pub struct Editor {
 pub enum EditorMode {
     Rom,
     Graphics,
-    Sound,
+    Audio,
 }
 
 impl Default for Editor {
@@ -32,7 +32,7 @@ impl Default for Editor {
             rom: EditorRom::default(),
             rom_editor: RomEditor::default(),
             graphics_editor: GraphicsEditor::default(),
-            sounds_editor: SoundsEditor::default(),
+            audio_editor: AudioEditor::default(),
             wasm_path: None,
         }
     }
@@ -93,14 +93,14 @@ impl Editor {
             ui.horizontal(|ui| {
                 ui.selectable_value(&mut self.mode, EditorMode::Rom, "Rom Settings");
                 ui.selectable_value(&mut self.mode, EditorMode::Graphics, "Graphics Mode");
-                ui.selectable_value(&mut self.mode, EditorMode::Sound, "Sounds Mode");
+                ui.selectable_value(&mut self.mode, EditorMode::Audio, "Audio Mode");
 
                 ui.separator();
 
                 ui.horizontal(|ui| match &mut self.mode {
                     EditorMode::Rom => (),
                     EditorMode::Graphics => self.graphics_editor.draw_selector(ui),
-                    EditorMode::Sound => self.sounds_editor.draw_selector(ui),
+                    EditorMode::Audio => self.audio_editor.draw_selector(ui),
                 });
             });
 
@@ -109,7 +109,7 @@ impl Editor {
                 EditorMode::Graphics => self
                     .graphics_editor
                     .draw_contents(ui, &mut self.rom.graphics),
-                EditorMode::Sound => self.sounds_editor.draw_contents(ui, &mut self.rom.sounds),
+                EditorMode::Audio => self.audio_editor.draw_contents(ui, &mut self.rom.sounds),
             }
         });
     }
@@ -118,7 +118,7 @@ impl Editor {
         egui::TopBottomPanel::bottom("editor_bottom_panel").show(ctx, |ui| match self.mode {
             EditorMode::Rom => (),
             EditorMode::Graphics => self.graphics_editor.draw_bottom_panel(ui),
-            EditorMode::Sound => self.sounds_editor.draw_bottom_panel(ui),
+            EditorMode::Audio => self.audio_editor.draw_bottom_panel(ui),
         });
     }
 }
