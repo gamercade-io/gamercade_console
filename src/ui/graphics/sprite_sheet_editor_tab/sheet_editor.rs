@@ -174,8 +174,8 @@ fn try_load_sprites(
             .map(|(_, index)| *index);
 
         for color in image.pixels() {
-            if color.0[3] == 0 && no_alpha_color_index.is_some() {
-                new_sprite.push(no_alpha_color_index.unwrap())
+            if let (Some(no_alpha_color), 0) = (no_alpha_color_index, color.0[3]) {
+                new_sprite.push(no_alpha_color)
             } else if let Some(index) = colors.get(color) {
                 new_sprite.push(*index)
             } else {
