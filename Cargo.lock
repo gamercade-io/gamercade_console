@@ -196,6 +196,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "crossbeam-channel"
+version = "0.5.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c2dd04ddaf88237dc3b8d8f9a3c1004b506b54b3313403944054d23c0870c521"
+dependencies = [
+ "cfg-if",
+ "crossbeam-utils",
+]
+
+[[package]]
+name = "crossbeam-utils"
+version = "0.8.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "51887d4adc7b564537b15adcfb307936f8075dfcd5f00dde9a9f1d29383682bc"
+dependencies = [
+ "cfg-if",
+ "once_cell",
+]
+
+[[package]]
 name = "darling"
 version = "0.13.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -250,9 +270,10 @@ checksum = "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1"
 [[package]]
 name = "gamercade_audio"
 version = "0.1.0"
-source = "git+https://github.com/gamercade-io/gamercade_audio#952d53f6fcec6509f9f822fe7ddeeb597df32175"
+source = "git+https://github.com/gamercade-io/gamercade_audio#2b0f2c7cacbe55be501d9095054cddbf42fccb37"
 dependencies = [
  "arrayvec",
+ "crossbeam-channel",
  "rodio",
  "serde",
  "strum",
