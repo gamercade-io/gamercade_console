@@ -6,7 +6,7 @@ use gamercade_core::{Palette, PALETTE_COLORS};
 
 const ROWS_PER_PALETTE_PREVIEW: usize = 8;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum GraphicsEditorMode {
     Palette,
     SpriteSheet,
