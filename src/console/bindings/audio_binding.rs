@@ -23,5 +23,11 @@ macro_rules! derive_audio_api_binding {
     };
 }
 
-// TODO: Write this
-derive_audio_api_binding! {}
+derive_audio_api_binding! {
+    play_bgm(bgm_index: i32),
+    play_sfx(sfx_index: i32, channel: i32),
+    stop_bgm(),
+    stop_sfx(channel: i32),
+    bgm_is_playing(),
+    sfx_is_playing(channel: i32),
+}

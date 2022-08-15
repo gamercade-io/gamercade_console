@@ -1310,7 +1310,7 @@ dependencies = [
 [[package]]
 name = "gamercade_audio"
 version = "0.1.0"
-source = "git+https://github.com/gamercade-io/gamercade_audio#02dbf6f8945b44b693183180947b96cbc0e23429"
+source = "git+https://github.com/gamercade-io/gamercade_audio#abe16a47fd07669f83ed4947c6dc2715b4bbf3d3"
 dependencies = [
  "arrayvec",
  "crossbeam-channel",
@@ -1330,6 +1330,7 @@ dependencies = [
  "egui-winit",
  "egui_wgpu_backend",
  "fastrand",
+ "gamercade_audio",
  "gamercade_core",
  "ggrs",
  "hashbrown 0.12.3",

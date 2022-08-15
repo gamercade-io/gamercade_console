@@ -1,4 +1,4 @@
-use std::{fs, io::Read, net::SocketAddr, path::PathBuf, sync::Arc};
+use std::{fs, io::Read, net::SocketAddr, path::PathBuf};
 
 use egui::{Context, Slider};
 use gamercade_core::Rom;
@@ -40,7 +40,7 @@ impl Default for Gui {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum PlayMode {
     SinglePlayer,
     Networked,
@@ -207,11 +207,8 @@ impl Gui {
                                         &session_descriptor.player_types,
                                     ));
 
-                                    self.wasm_console = Some(WasmConsole::new(
-                                        Arc::new(rom),
-                                        seed,
-                                        session_descriptor,
-                                    ));
+                                    self.wasm_console =
+                                        Some(WasmConsole::new(rom, seed, session_descriptor));
                                 }
                             }
                         }
