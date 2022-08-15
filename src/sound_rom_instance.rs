@@ -35,7 +35,7 @@ impl Instrument {
 impl SoundRomInstance {
     /// Generates a new sound engine. This struct is used throughout the audio system.
     /// Performs some light logic to prepare the generation of sound sources.
-    pub fn initialize(rom: SoundRom) -> Self {
+    pub(crate) fn new(rom: SoundRom) -> Self {
         Self {
             songs: rom.songs,
             chains: rom.chains,

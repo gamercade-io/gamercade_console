@@ -3,13 +3,12 @@ use std::sync::Arc;
 use crossbeam_channel::Sender;
 
 use crate::{
-    InstrumentChannelType, PhraseId, SoundRomInstance, TrackerFlow, TrackerState,
-    PHRASE_MAX_ENTRIES,
+    ChainState, InstrumentChannelType, PhraseId, SoundRomInstance, TrackerFlow, PHRASE_MAX_ENTRIES,
 };
 
 #[derive(Debug)]
 pub struct PhrasePlayback {
-    pub(crate) engine: Arc<SoundRomInstance>,
+    pub(crate) rom: Arc<SoundRomInstance>,
     pub(crate) step_index: usize,
     pub(crate) phrase: Option<PhraseId>,
     pub(crate) sender: Sender<InstrumentChannelType>,
@@ -19,15 +18,14 @@ impl PhrasePlayback {
     pub(crate) fn new(
         phrase: Option<PhraseId>,
         sender: Sender<InstrumentChannelType>,
-        engine: &Arc<SoundRomInstance>,
+        rom: &Arc<SoundRomInstance>,
     ) -> Self {
         let mut out = Self {
             step_index: 0,
             phrase,
-            engine: engine.clone(),
+            rom: rom.clone(),
             sender,
         };
-
         out.notify_sources();
         out
     }
@@ -45,18 +43,18 @@ impl PhrasePlayback {
     /// instrument, frequency, effects, etc
     fn notify_sources(&mut self) {
         if let Some(phrase_id) = self.phrase {
-            if let Some(next_entry) = &self.engine[phrase_id].entries[self.step_index] {
-                let out_message = InstrumentChannelType::new(next_entry, &self.engine);
+            if let Some(next_entry) = &self.rom[phrase_id].entries[self.step_index] {
+                let out_message = InstrumentChannelType::new(next_entry, &self.rom);
                 self.sender.try_send(out_message).unwrap();
             }
         }
     }
 
-    /// Updates this phrase to match that of the passed in TrackerState
+    /// Updates this phrase to match that of the passed in ChainState
     /// Useful when trying to seek to an exact time.
-    pub(crate) fn set_from_tracker_state(&mut self, tracker_state: &TrackerState) {
-        self.phrase = tracker_state.phrase_id;
-        self.step_index = tracker_state.phrase_step_index;
+    pub(crate) fn set_from_chain_state(&mut self, chain_state: &ChainState) {
+        self.phrase = chain_state.phrase_id;
+        self.step_index = chain_state.phrase_step_index;
 
         self.notify_sources();
     }

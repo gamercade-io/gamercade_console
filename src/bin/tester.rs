@@ -1,13 +1,11 @@
-use std::{process, sync::Arc};
+use std::process;
 
 use arrayvec::ArrayVec;
-use rodio::OutputStream;
 
 use gamercade_audio::{
-    initialize_luts, Chain, ChainId, ChainPlayback, EnvelopeDefinition, InstrumentDefinition,
-    InstrumentId, InstrumentInstance, InstrumentInstanceType, PatchDefinition, Phrase, PhraseId,
-    Song, SongId, SongPlayback, SoundRom, SoundRomInstance, TrackerFlow, WavetableDefinition,
-    WavetableGenerator, WavetableWaveform, PHRASE_STEPS_PER_BEAT,
+    Chain, ChainId, EnvelopeDefinition, InstrumentDefinition, InstrumentId, PatchDefinition,
+    Phrase, PhraseId, Song, SongId, SoundEngine, SoundRom, WavetableDefinition, WavetableGenerator,
+    WavetableWaveform,
 };
 
 fn main() {
@@ -17,43 +15,10 @@ fn main() {
         process::exit(1);
     }));
 
-    // Initialization
-    initialize_luts();
-    let (_stream, stream_handle) = OutputStream::try_default().unwrap();
-
     let engine = test_engine();
-    let engine = Arc::new(engine);
-    let entries_per_second = 60.0 / engine[SongId(0)].bpm / PHRASE_STEPS_PER_BEAT as f32;
-    let entries_per_second = std::time::Duration::from_secs_f32(entries_per_second);
 
-    // Test with a single chain
-    let tracks = std::array::from_fn(|_| {
-        let (sender, receiver) = crossbeam_channel::bounded(1);
-        let instance = InstrumentInstance {
-            receiver,
-            instance_type: InstrumentInstanceType::from(&engine[InstrumentId(0)]),
-        };
-
-        stream_handle.play_raw(instance).unwrap();
-        ChainPlayback::new(None, sender, &engine)
-    });
-
-    let mut song = SongPlayback::new(Some(SongId(0)), tracks, &engine);
-
-    // Tracker thread
-    std::thread::spawn(move || loop {
-        std::thread::sleep(entries_per_second);
-
-        // println!("{:?}", BgmState::new(&song));
-        if TrackerFlow::Finished == song.update_tracker() {
-            song.set_song_id(Some(SongId(0)));
-        }
-
-        //println!("{:?}", TrackerState::new(&chain));
-        // if TrackerFlow::Finished == chain.update_tracker() {
-        //     chain.set_chain_id(Some(ChainId(1)));
-        // }
-    });
+    engine.play_bgm(Some(SongId(0)));
+    //engine.play_sfx(Some(ChainId(0)), 0);
 
     std::thread::sleep(std::time::Duration::from_secs_f32(25.0));
 }
@@ -61,7 +26,7 @@ fn main() {
 // Initialize our sound sources
 // This isn't the intended use case, only a temporary solution until
 // the editor gets audio support.
-fn test_engine() -> SoundRomInstance {
+fn test_engine() -> SoundEngine {
     let instruments = vec![
         InstrumentDefinition::FMSynth(PatchDefinition::default()),
         InstrumentDefinition::Wavetable(WavetableDefinition {
@@ -114,5 +79,5 @@ fn test_engine() -> SoundRomInstance {
         instruments: instruments.into_boxed_slice(),
     };
 
-    SoundRomInstance::initialize(rom)
+    SoundEngine::new(rom)
 }

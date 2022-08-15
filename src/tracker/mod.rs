@@ -11,6 +11,7 @@ pub use song::*;
 pub use tracker_states::*;
 
 pub const SONG_TRACK_CHANNELS: usize = 8;
+pub const SFX_CHANNELS: usize = 8;
 pub const EFFECT_COUNT: usize = 3;
 
 // Maximum allowed phrases in a chain

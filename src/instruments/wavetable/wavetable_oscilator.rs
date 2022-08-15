@@ -1,10 +1,15 @@
-use std::sync::Arc;
+use std::{mem::MaybeUninit, sync::Arc};
 
 use rodio::Source;
 
 use crate::{ActiveState, EnvelopeInstance, Oscillator, WavetableBitDepth};
 
 use super::WavetableDefinition;
+
+pub(crate) static mut NO_SOUND_DEFINITION: MaybeUninit<Arc<WavetableDefinition>> =
+    MaybeUninit::uninit();
+
+pub(crate) const NO_SOUND_SAMPLE_RATE: usize = 11_025; //44_100Khz / 4
 
 #[derive(Clone)]
 pub struct WavetableOscilator {
@@ -15,6 +20,16 @@ pub struct WavetableOscilator {
 }
 
 impl WavetableOscilator {
+    pub fn no_sound() -> Self {
+        let definition = unsafe { NO_SOUND_DEFINITION.assume_init_ref().clone() };
+        Self {
+            envelope: EnvelopeInstance::no_sound(),
+            definition,
+            oscillator: Oscillator::new(1),
+            active: ActiveState::Off,
+        }
+    }
+
     /// Generates a new WavetableOscilator
     pub fn new(definition: Arc<WavetableDefinition>) -> Self {
         Self {

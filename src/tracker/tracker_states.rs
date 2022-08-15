@@ -1,10 +1,17 @@
-use crate::{ChainId, ChainPlayback, PhraseId, SongId, SongPlayback, SONG_TRACK_CHANNELS};
+use crate::{
+    ChainId, ChainPlayback, PhraseId, SongId, SongPlayback, SFX_CHANNELS, SONG_TRACK_CHANNELS,
+};
+
+pub struct TrackerState {
+    pub bgm: BgmState,
+    pub sfx: [ChainState; SFX_CHANNELS],
+}
 
 #[derive(Debug, Clone)]
 pub struct BgmState {
     pub song_id: Option<SongId>,
     pub chain_index: usize,
-    pub trackers: [TrackerState; SONG_TRACK_CHANNELS],
+    pub trackers: [ChainState; SONG_TRACK_CHANNELS],
 }
 
 impl BgmState {
@@ -14,20 +21,20 @@ impl BgmState {
         Self {
             song_id: bgm.song,
             chain_index: bgm.chain_index,
-            trackers: from_fn(|i| TrackerState::new(&bgm.tracks[i])),
+            trackers: from_fn(|i| ChainState::new(&bgm.tracks[i])),
         }
     }
 }
 
 #[derive(Debug, Clone)]
-pub struct TrackerState {
+pub struct ChainState {
     pub chain_id: Option<ChainId>,
     pub chain_phrase_index: usize,
     pub phrase_id: Option<PhraseId>,
     pub phrase_step_index: usize,
 }
 
-impl TrackerState {
+impl ChainState {
     pub fn new(tracker: &ChainPlayback) -> Self {
         Self {
             chain_id: tracker.chain,

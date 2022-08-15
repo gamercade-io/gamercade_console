@@ -1,4 +1,6 @@
-use crate::{ActiveState, EnvelopeDefinition, EnvelopePhase, ExponentialRamp};
+use crate::{
+    ActiveState, EnvelopeDefinition, EnvelopePhase, ExponentialRamp, NO_SOUND_SAMPLE_RATE,
+};
 
 /// A running instance of an envelope.
 #[derive(Clone, Debug)]
@@ -9,6 +11,10 @@ pub struct EnvelopeInstance {
 }
 
 impl EnvelopeInstance {
+    pub fn no_sound() -> Self {
+        Self::new(&EnvelopeDefinition::default(), NO_SOUND_SAMPLE_RATE)
+    }
+
     /// Generates a new envelope with the given sample rate.
     pub fn new(definition: &EnvelopeDefinition, sample_rate: usize) -> Self {
         Self {

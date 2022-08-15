@@ -3,12 +3,12 @@ use std::sync::Arc;
 use crossbeam_channel::Sender;
 
 use crate::{
-    ChainId, InstrumentChannelType, PhrasePlayback, SoundRomInstance, TrackerFlow, TrackerState,
+    ChainId, ChainState, InstrumentChannelType, PhrasePlayback, SoundRomInstance, TrackerFlow,
 };
 
 #[derive(Debug)]
 pub struct ChainPlayback {
-    pub(crate) engine: Arc<SoundRomInstance>,
+    pub(crate) rom: Arc<SoundRomInstance>,
     pub(crate) phrase_index: usize,
     pub(crate) chain: Option<ChainId>,
     pub(crate) phrase_playback: PhrasePlayback,
@@ -18,13 +18,13 @@ impl ChainPlayback {
     pub fn new(
         chain: Option<ChainId>,
         sender: Sender<InstrumentChannelType>,
-        engine: &Arc<SoundRomInstance>,
+        rom: &Arc<SoundRomInstance>,
     ) -> Self {
         let mut out = Self {
-            engine: engine.clone(),
+            rom: rom.clone(),
             phrase_index: 0,
             chain,
-            phrase_playback: PhrasePlayback::new(None, sender, engine),
+            phrase_playback: PhrasePlayback::new(None, sender, rom),
         };
 
         out.set_chain_id(chain);
@@ -33,11 +33,11 @@ impl ChainPlayback {
 
     /// Updates this chain to match that of the passed in TrackerState
     /// Useful when trying to seek to an exact time.
-    pub fn set_from_tracker_state(&mut self, tracker_state: &TrackerState) {
-        self.chain = tracker_state.chain_id;
-        self.phrase_index = tracker_state.phrase_step_index;
+    pub(crate) fn set_from_chain_state(&mut self, chain_state: &ChainState) {
+        self.chain = chain_state.chain_id;
+        self.phrase_index = chain_state.phrase_step_index;
 
-        self.phrase_playback.set_from_tracker_state(tracker_state)
+        self.phrase_playback.set_from_chain_state(chain_state)
     }
 
     /// Sets the active chain ID for this playback
@@ -47,7 +47,7 @@ impl ChainPlayback {
         self.chain = chain;
         self.phrase_index = 0;
 
-        let phrase_id = chain.and_then(|chain| self.engine[chain].entries[0]);
+        let phrase_id = chain.and_then(|chain| self.rom[chain].entries[0]);
 
         self.phrase_playback.set_phrase_id(phrase_id);
     }
@@ -67,7 +67,7 @@ impl ChainPlayback {
         if let Some(chain) = self.chain {
             self.phrase_index += 1;
 
-            let next_phrase = self.engine[chain]
+            let next_phrase = self.rom[chain]
                 .entries
                 .get(self.phrase_index)
                 .and_then(|x| *x);

@@ -71,9 +71,9 @@ impl Default for Phrase {
 pub type InstrumentChannelType = PhraseEntry<f32, Instrument>;
 
 impl InstrumentChannelType {
-    pub fn new(entry: &PhraseStorageType, engine: &SoundRomInstance) -> Self {
+    pub fn new(entry: &PhraseStorageType, rom: &SoundRomInstance) -> Self {
         let note = notes::get_note(entry.note).frequency;
-        let instrument = engine[entry.instrument].clone();
+        let instrument = rom[entry.instrument].clone();
 
         Self {
             note,
