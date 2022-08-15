@@ -750,7 +750,7 @@ checksum = "ca0bae1fe9752cf7fd9b0064c674ae63f97b37bc714d745cbde0afb7ec4e6765"
 [[package]]
 name = "gamercade_audio"
 version = "0.1.0"
-source = "git+https://github.com/gamercade-io/gamercade_audio#abe16a47fd07669f83ed4947c6dc2715b4bbf3d3"
+source = "git+https://github.com/gamercade-io/gamercade_audio#395101e51a69ffc6be87804a9a656cb5af96f209"
 dependencies = [
  "arrayvec",
  "crossbeam-channel",
@@ -763,7 +763,7 @@ dependencies = [
 [[package]]
 name = "gamercade_core"
 version = "0.1.0"
-source = "git+https://github.com/gamercade-io/gamercade_core#4dea9fa158409fa4d157a0fac87c00287b492b5d"
+source = "git+https://github.com/gamercade-io/gamercade_core#5a24ac6e7c54955ef9e92b9308a4d71a92174512"
 dependencies = [
  "base64",
  "gamercade_audio",

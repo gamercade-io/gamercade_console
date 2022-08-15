@@ -11,6 +11,7 @@ impl From<&EditorSoundData> for SoundRom {
             chains: Default::default(),
             phrases: Default::default(),
             instruments: Default::default(),
+            sfx: Default::default(),
         }
     }
 }
