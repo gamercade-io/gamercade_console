@@ -3,8 +3,22 @@ use std::sync::Arc;
 use crossbeam_channel::Sender;
 
 use crate::{
-    ChainId, ChainState, InstrumentChannelType, PhrasePlayback, SoundRomInstance, TrackerFlow,
+    ChainId, ChainState, InstrumentChannelType, PhrasePlayback, SfxState, SoundRomInstance, Ticker,
+    TrackerFlow,
 };
+
+#[derive(Debug)]
+pub struct SfxPlayback {
+    pub(crate) chain_playback: ChainPlayback,
+    pub(crate) ticker: Arc<Ticker>,
+}
+
+impl SfxPlayback {
+    pub(crate) fn set_from_sfx_state(&mut self, state: &SfxState) {
+        self.chain_playback.set_from_chain_state(&state.chain_state);
+        self.ticker.write_from_state(&state.ticker);
+    }
+}
 
 #[derive(Debug)]
 pub struct ChainPlayback {
@@ -35,7 +49,7 @@ impl ChainPlayback {
     /// Useful when trying to seek to an exact time.
     pub(crate) fn set_from_chain_state(&mut self, chain_state: &ChainState) {
         self.chain = chain_state.chain_id;
-        self.phrase_index = chain_state.phrase_step_index;
+        self.phrase_index = chain_state.chain_phrase_index;
 
         self.phrase_playback.set_from_chain_state(chain_state)
     }

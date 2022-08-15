@@ -1,6 +1,8 @@
 use std::sync::Arc;
 
-use crate::{BgmState, ChainPlayback, SongId, SoundRomInstance, TrackerFlow, SONG_TRACK_CHANNELS};
+use crate::{
+    BgmState, ChainPlayback, SongId, SoundRomInstance, Ticker, TrackerFlow, SONG_TRACK_CHANNELS,
+};
 
 #[derive(Debug)]
 pub struct SongPlayback {
@@ -9,6 +11,7 @@ pub struct SongPlayback {
     pub(crate) tracks: [ChainPlayback; SONG_TRACK_CHANNELS],
     pub(crate) chain_states: [TrackerFlow; SONG_TRACK_CHANNELS],
     pub(crate) rom: Arc<SoundRomInstance>,
+    pub(crate) ticker: Arc<Ticker>,
 }
 
 fn default_chain_states() -> [TrackerFlow; SONG_TRACK_CHANNELS] {
@@ -20,6 +23,7 @@ impl SongPlayback {
         song: Option<SongId>,
         tracks: [ChainPlayback; SONG_TRACK_CHANNELS],
         rom: &Arc<SoundRomInstance>,
+        ticker: &Arc<Ticker>,
     ) -> Self {
         let mut out = Self {
             song,
@@ -27,6 +31,7 @@ impl SongPlayback {
             tracks,
             rom: rom.clone(),
             chain_states: default_chain_states(),
+            ticker: ticker.clone(),
         };
 
         out.set_song_id(song);
@@ -58,9 +63,10 @@ impl SongPlayback {
     pub(crate) fn set_from_song_state(&mut self, bgm_state: &BgmState) {
         self.song = bgm_state.song_id;
         self.chain_index = bgm_state.chain_index;
+        self.ticker.write_from_state(&bgm_state.bgm_ticker);
 
         bgm_state
-            .trackers
+            .chain_states
             .iter()
             .zip(self.tracks.iter_mut().zip(self.chain_states.iter_mut()))
             .for_each(|(next, (track, state))| {
