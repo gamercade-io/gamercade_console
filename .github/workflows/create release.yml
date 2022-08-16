@@ -43,7 +43,7 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: | 
           sudo apt-get update
-          sudo apt-get install build-essential librust-atk-sys-dev libgtk-3-dev gcc-multilib libpq-dev libxcb-shape0-dev libxcb-xfixes0-dev
+          sudo apt-get install build-essential librust-atk-sys-dev libgtk-3-dev gcc-multilib libpq-dev libxcb-shape0-dev libxcb-xfixes0-dev libasound2-dev portaudio19-dev libpulse-dev libdbus-1-dev 
           
       - name: Optimized build
         run: cargo build --release
