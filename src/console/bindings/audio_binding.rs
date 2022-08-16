@@ -26,8 +26,13 @@ macro_rules! derive_audio_api_binding {
 derive_audio_api_binding! {
     play_bgm(bgm_index: i32),
     play_sfx(sfx_index: i32, channel: i32),
+
+    bgm_is_active(),
+    channel_is_active(channel: i32),
+
     stop_bgm(),
-    stop_sfx(channel: i32),
-    bgm_is_playing(),
-    sfx_is_playing(channel: i32),
+    stop_channel(channel: i32),
+
+    play_note(note_id: i32, instrument_index: i32, channel: i32),
+    play_frequency(frequency: f32, instrument_index: i32, channel: i32),
 }

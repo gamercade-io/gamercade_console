@@ -228,14 +228,19 @@ impl Console for WasmConsole {
     }
 
     fn handle_requests(&mut self, requests: Vec<GGRSRequest<Self>>) {
+        // TODO: Figure out something to handle audio needing to
+        // roll back/forward
         for request in requests {
             match request {
                 GGRSRequest::SaveGameState { cell, frame } => {
+                    // TODO: Fire off request to sound thread
                     let state = self.generate_save_state();
+                    // TODO: Collect results from sound thread
                     cell.save(frame, Some(state), None);
                 }
                 GGRSRequest::LoadGameState { cell, .. } => {
                     let state = cell.load().expect("Failed to load game state");
+                    // TODO: Fire off sync to sound thread
                     self.load_save_state(state);
                 }
                 GGRSRequest::AdvanceFrame { inputs } => {
