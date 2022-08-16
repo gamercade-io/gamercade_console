@@ -1,12 +1,9 @@
-use std::sync::atomic::{AtomicBool, Ordering};
-
 use crossbeam_channel::{Receiver, TryRecvError};
 use rodio::Source;
 
 use crate::{Instrument, InstrumentChannelType, InstrumentKind, PatchInstance, WavetableOscilator};
 
 pub struct InstrumentInstance {
-    changed: AtomicBool,
     pub receiver: Receiver<InstrumentChannelType>,
     pub instance_type: InstrumentInstanceType,
 }
@@ -14,7 +11,6 @@ pub struct InstrumentInstance {
 impl InstrumentInstance {
     pub fn no_sound(receiver: Receiver<InstrumentChannelType>) -> Self {
         Self {
-            changed: AtomicBool::new(false),
             receiver,
             instance_type: InstrumentInstanceType::Wavetable(WavetableOscilator::no_sound()),
         }
@@ -32,7 +28,6 @@ impl Iterator for InstrumentInstance {
                     return None;
                 }
                 Ok(next) => {
-                    self.changed.store(true, Ordering::Relaxed);
                     self.instance_type.update_from_channel(next);
                 }
             }
