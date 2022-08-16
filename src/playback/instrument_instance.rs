@@ -1,17 +1,17 @@
-use crossbeam_channel::{Receiver, TryRecvError};
 use rodio::Source;
+use rtrb::{Consumer, PopError};
 
 use crate::{Instrument, InstrumentChannelType, InstrumentKind, PatchInstance, WavetableOscilator};
 
 pub struct InstrumentInstance {
-    pub receiver: Receiver<InstrumentChannelType>,
+    pub consumer: Consumer<InstrumentChannelType>,
     pub instance_type: InstrumentInstanceType,
 }
 
 impl InstrumentInstance {
-    pub fn no_sound(receiver: Receiver<InstrumentChannelType>) -> Self {
+    pub fn no_sound(consumer: Consumer<InstrumentChannelType>) -> Self {
         Self {
-            receiver,
+            consumer,
             instance_type: InstrumentInstanceType::Wavetable(WavetableOscilator::no_sound()),
         }
     }
@@ -22,11 +22,8 @@ impl Iterator for InstrumentInstance {
 
     fn next(&mut self) -> Option<Self::Item> {
         loop {
-            match self.receiver.try_recv() {
-                Err(TryRecvError::Empty) => break,
-                Err(TryRecvError::Disconnected) => {
-                    return None;
-                }
+            match self.consumer.pop() {
+                Err(PopError::Empty) => break,
                 Ok(next) => {
                     self.instance_type.update_from_channel(next);
                 }

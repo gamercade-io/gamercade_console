@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crossbeam_channel::Sender;
+use rtrb::Producer;
 
 use crate::{
     ChainState, InstrumentChannelType, PhraseId, SoundRomInstance, TrackerFlow, PHRASE_MAX_ENTRIES,
@@ -11,20 +11,20 @@ pub struct PhrasePlayback {
     pub(crate) rom: Arc<SoundRomInstance>,
     pub(crate) step_index: usize,
     pub(crate) phrase: Option<PhraseId>,
-    pub(crate) sender: Sender<InstrumentChannelType>,
+    pub(crate) producer: Producer<InstrumentChannelType>,
 }
 
 impl PhrasePlayback {
     pub(crate) fn new(
         phrase: Option<PhraseId>,
-        sender: Sender<InstrumentChannelType>,
+        producer: Producer<InstrumentChannelType>,
         rom: &Arc<SoundRomInstance>,
     ) -> Self {
         let mut out = Self {
             step_index: 0,
             phrase,
             rom: rom.clone(),
-            sender,
+            producer,
         };
         out.notify_sources();
         out
@@ -45,7 +45,7 @@ impl PhrasePlayback {
         if let Some(phrase_id) = self.phrase {
             if let Some(next_entry) = &self.rom[phrase_id].entries[self.step_index] {
                 let out_message = InstrumentChannelType::new(next_entry, &self.rom);
-                self.sender.try_send(out_message).unwrap();
+                self.producer.push(out_message).unwrap();
             }
         }
     }

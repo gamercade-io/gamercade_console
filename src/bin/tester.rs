@@ -15,7 +15,7 @@ fn main() {
         process::exit(1);
     }));
 
-    let engine = test_engine();
+    let mut engine = test_engine();
 
     engine.play_bgm(Some(SongId(0)));
     //engine.play_sfx(Some(ChainId(0)), 0);

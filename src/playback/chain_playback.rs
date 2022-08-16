@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crossbeam_channel::Sender;
+use rtrb::Producer;
 
 use crate::{
     ChainId, ChainState, InstrumentChannelType, PhrasePlayback, SfxState, SoundRomInstance, Ticker,
@@ -31,14 +31,14 @@ pub struct ChainPlayback {
 impl ChainPlayback {
     pub fn new(
         chain: Option<ChainId>,
-        sender: Sender<InstrumentChannelType>,
+        producer: Producer<InstrumentChannelType>,
         rom: &Arc<SoundRomInstance>,
     ) -> Self {
         let mut out = Self {
             rom: rom.clone(),
             phrase_index: 0,
             chain,
-            phrase_playback: PhrasePlayback::new(None, sender, rom),
+            phrase_playback: PhrasePlayback::new(None, producer, rom),
         };
 
         out.set_chain_id(chain);

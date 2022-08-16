@@ -3,8 +3,8 @@ use std::sync::Arc;
 use std::time::{Duration, Instant};
 use std::{array, thread};
 
-use crossbeam_channel::{Receiver, Sender};
 use rodio::OutputStream;
+use rtrb::{Consumer, Producer, RingBuffer};
 
 use crate::{
     initialize_globals, BgmState, ChainPlayback, InstrumentInstance, Sfx, SfxPlayback, SfxState,
@@ -14,7 +14,7 @@ use crate::{
 
 pub struct SoundEngine {
     pub rom: Arc<SoundRomInstance>,
-    sender: Sender<TickerCommand>,
+    producer: Producer<TickerCommand>,
     _stream: OutputStream,
 }
 
@@ -26,25 +26,25 @@ impl SoundEngine {
         // Build the RomInstance
         let rom = Arc::new(SoundRomInstance::new(rom));
 
-        let (sender, _stream) = spawn_ticker_runner(&rom);
+        let (producer, _stream) = spawn_ticker_runner(&rom);
 
         Self {
             rom,
-            sender,
+            producer,
             _stream,
         }
     }
 
     /// Plays the Bgm. If None is passed, instead will mute the bgm.
-    pub fn play_bgm(&self, song: Option<SongId>) {
-        self.sender.try_send(TickerCommand::PlayBgm(song)).unwrap();
+    pub fn play_bgm(&mut self, song: Option<SongId>) {
+        self.producer.push(TickerCommand::PlayBgm(song)).unwrap();
     }
 
     /// Plays the SFX on the given channel. If None is passed,
     /// instead will mute the channel.
-    pub fn play_sfx(&self, sfx: Option<Sfx>, channel: usize) {
-        self.sender
-            .try_send(TickerCommand::PlaySfx {
+    pub fn play_sfx(&mut self, sfx: Option<Sfx>, channel: usize) {
+        self.producer
+            .push(TickerCommand::PlaySfx {
                 index: channel,
                 sfx,
             })
@@ -53,32 +53,32 @@ impl SoundEngine {
 
     /// Sets the entire audio thread to the passed in state. Useful to
     /// reset all sounds to a specific point in time
-    pub fn set_to_state(&self, full_state: TrackerState) {
-        self.sender
-            .try_send(TickerCommand::TrackerState(Box::new(full_state)))
+    pub fn set_to_state(&mut self, full_state: TrackerState) {
+        self.producer
+            .push(TickerCommand::TrackerState(Box::new(full_state)))
             .unwrap();
     }
 
     /// Sets the bgm audio to the passed in state. Useful to
     /// reset to a specific point in time
-    pub fn set_to_bgm_state(&self, bgm_state: BgmState) {
-        self.sender
-            .try_send(TickerCommand::BgmState(Box::new(bgm_state)))
+    pub fn set_to_bgm_state(&mut self, bgm_state: BgmState) {
+        self.producer
+            .push(TickerCommand::BgmState(Box::new(bgm_state)))
             .unwrap();
     }
 
     /// Sets the sfx audio to the passed in state. Useful to
     /// reset to a specific point in time
-    pub fn set_to_sfx_state(&self, sfx_state: SfxState, index: usize) {
-        self.sender
-            .try_send(TickerCommand::SfxState { index, sfx_state })
+    pub fn set_to_sfx_state(&mut self, sfx_state: SfxState, index: usize) {
+        self.producer
+            .push(TickerCommand::SfxState { index, sfx_state })
             .unwrap();
     }
 }
 
 impl Drop for SoundEngine {
     fn drop(&mut self) {
-        self.sender.try_send(TickerCommand::Shutdown).unwrap();
+        self.producer.push(TickerCommand::Shutdown).unwrap();
     }
 }
 
@@ -98,7 +98,7 @@ enum TickerCommand {
 
 struct TickerRunner {
     rom: Arc<SoundRomInstance>,
-    receiver: Receiver<TickerCommand>,
+    consumer: Consumer<TickerCommand>,
     bgm: SongPlayback,
     sfx: [SfxPlayback; SFX_CHANNELS],
     ticker_set: TickerSet,
@@ -177,7 +177,7 @@ impl TickerRunner {
 
         'ticker: loop {
             // Handle incoming messages
-            while let Ok(msg) = self.receiver.try_recv() {
+            while let Ok(msg) = self.consumer.pop() {
                 match msg {
                     TickerCommand::PlayBgm(song) => self.handle_play_bgm(song),
                     TickerCommand::PlaySfx { index, sfx } => self.handle_play_sfx(sfx, index),
@@ -254,8 +254,8 @@ impl TickerRunner {
     }
 }
 
-fn spawn_ticker_runner(rom: &Arc<SoundRomInstance>) -> (Sender<TickerCommand>, OutputStream) {
-    let (sender, receiver) = crossbeam_channel::bounded((SFX_CHANNELS + SONG_TRACK_CHANNELS) * 2);
+fn spawn_ticker_runner(rom: &Arc<SoundRomInstance>) -> (Producer<TickerCommand>, OutputStream) {
+    let (producer, consumer) = RingBuffer::new((SFX_CHANNELS + SONG_TRACK_CHANNELS) * 2);
     let (stream, stream_handle) = OutputStream::try_default().unwrap();
 
     let ticker_set = TickerSet::default();
@@ -263,20 +263,20 @@ fn spawn_ticker_runner(rom: &Arc<SoundRomInstance>) -> (Sender<TickerCommand>, O
 
     // Prepare the Bgm Chains
     let build_bgm_chains = array::from_fn(|_| {
-        let (sender, receiver) = crossbeam_channel::bounded(1);
-        let instance = InstrumentInstance::no_sound(receiver);
+        let (producer, consumer) = RingBuffer::new(1);
+        let instance = InstrumentInstance::no_sound(consumer);
 
         stream_handle.play_raw(instance).unwrap();
-        ChainPlayback::new(None, sender, rom)
+        ChainPlayback::new(None, producer, rom)
     });
 
     let sfx = array::from_fn(|_| {
-        let (sender, receiver) = crossbeam_channel::bounded(1);
-        let instance = InstrumentInstance::no_sound(receiver);
+        let (producer, consumer) = RingBuffer::new(1);
+        let instance = InstrumentInstance::no_sound(consumer);
 
         stream_handle.play_raw(instance).unwrap();
         SfxPlayback {
-            chain_playback: ChainPlayback::new(None, sender, rom),
+            chain_playback: ChainPlayback::new(None, producer, rom),
             ticker: ticker_iter.next().unwrap().clone(),
         }
     });
@@ -285,11 +285,11 @@ fn spawn_ticker_runner(rom: &Arc<SoundRomInstance>) -> (Sender<TickerCommand>, O
         bgm: SongPlayback::new(None, build_bgm_chains, rom, ticker_iter.next().unwrap()),
         sfx,
         rom: rom.clone(),
-        receiver,
+        consumer,
         ticker_set,
     };
 
     thread::spawn(|| runner.run());
 
-    (sender, stream)
+    (producer, stream)
 }
