@@ -1,80 +1,52 @@
 # Gamercade Console
 
-A wasm powered Fantasy Console.
+A Wasm powered Fantasy Console.
 
 Learn more about [Gamercade](https://gamercade.io), or head over to the the other related projects such as:
 
-[Gamercade Console](https://github.com/gamercade-io/gamercade_console)
-
-[Gamercade Editor](https://github.com/gamercade-io/gamercade_editor)
-
-[Gamercade Core](https://github.com/gamercade-io/gamercade_core)
-
-[Gamercade Site](https://github.com/gamercade-io/gamercade_site)
-
-```
-Keyboard Controls:
-Left Analog Stick:
-Up: W
-Down: S
-Left: A
-Right: D
-L3 / Click: X
-
-Right Analog Stick:
-Up: T
-Down: G
-Left: F
-Right: H
-R3 / Click : B
-
-Left Bumper (L1): E
-Left Analog (L2): Q
-
-Right Bumper (R1): R
-Right Analog (L2): Y
-
-Digital Pad:
-Up: Up Arrow
-Down: Down Arrow
-Left: Left Arrow
-Right: Right Arrow
-
-Buttons:
-A Button: U
-B Button: I
-C Button: J
-D Button: K
-Start: 5
-Select: 6
-```
+- [Gamercade Console](https://github.com/gamercade-io/gamercade_console)
+- [Gamercade Editor](https://github.com/gamercade-io/gamercade_editor)
+- [Gamercade Core](https://github.com/gamercade-io/gamercade_core)
+- [Gamercade Site](https://github.com/gamercade-io/gamercade_site)
+- [Gamercade Audio](https://github.com/gamercade-io/gamercade_audio)
 
 ## Quick Start:
+
+In order to write a game, you need expose these four functions in the language of your choice:
+
 ```
 Required Functions:
 init() - Called once when initializing the game
-
 update() - Called once every frame, before draw.
-
 draw() - Called once every frame, after update.
-
 ```
 
-Potential Future Additions: 
-1. Mouse/Cursor API? for UI with emulation.
-1. "UserApi" for things like player names, avatar, meta-data outside the game.
-1. Full screen shaders: Bloom, scanlines, etc
+Then, compile it to Wasm. You must then bundle your game with any related art assets via the [Gamercade Editor](https://github.com/gamercade-io/gamercade_editor).
 
-How to build WASM Projects:
-cargo build --release --target wasm32-unknown-unknown
+## Steps to Bundle & Export a game:
 
-If WGPU errors occur, set WGPU_BACKEND=gl via
+1. Open the Editor.
+2. On the File menu, click "Select game .wasm." Find and locate your previously exported .wasm file.
+3. On the File menu, click "Export game" and export.
+
+You can now play the game by opening it up via the Console.
+
+## Default Controls:
+
+| **Control** | **Key** | &#124; | **Control** | **Key** | &#124; | **Control** | **Key** | &#124; | **Control** | **Key** | |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| _Left Analog Up_ | **W** | &#124; | _Right Analog Up_ | **T**| &#124; | _D-Pad Up_ | **Up Arrow** | &#124; | _A Button_ | **U** |
+| _Left Analog Down_ | **S** | &#124; | _Right Analog Down_ | **G** | &#124; | _D-Pad Down_ | **Down Arrow** | &#124; | _B Button_ | **I** |
+| _Left Analog Left_ | **A** | &#124; | _Right Analog Left_ | **F** | &#124; | _D-Pad Left_ | **Left Arrow** | &#124; | _C Button_ | **J** |
+| _Left Analog Right_ | **D** | &#124; | _Right Analog Right_ | **H** | &#124; | _D-Pad Right_ | **Right Arrow** | &#124; | _D Button_ | **K** |
+| _Left Analog L3 / Click_ | **X** | &#124; | _Right Analog R3 / Click_ | **B** | &#124;| _Start_ | **5** | &#124; | _Select_ | **6** |
+| _Left Bumper (L1)_ | **E** | &#124; | _Left Analog (L2)_ | **Q** | &#124; | _Right Bumper (R1)_ | **R** | &#124; | _Right Analog (L2)_ | **Y** |
+
+## WGPU Error
+
+If WGPU errors occur, try to set `WGPU_BACKEND` environment variable to `gl` via (platform dependent):
 
 > export WGPU_BACKEND=gl
-
-Showcase Projects TODOs:
-Controller Debug - Showcase all controls for local player
-Blasters - Twin stick shooter, Showcase two analog stick usage
 
 ## License
 
