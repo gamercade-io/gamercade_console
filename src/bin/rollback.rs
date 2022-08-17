@@ -18,7 +18,7 @@ use rtrb::RingBuffer;
 const SAMPLE_RATE: u32 = 48_000; // hard coded to my system
 const FPS: u32 = 30;
 const BUFFER_LENGTH: usize = (SAMPLE_RATE / FPS) as usize;
-const BUFFER_SPLIT: usize = 60;
+const BUFFER_SPLIT: usize = 8;
 
 pub fn main() {
     let device = default_host().default_output_device().unwrap();
