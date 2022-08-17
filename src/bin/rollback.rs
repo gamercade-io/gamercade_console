@@ -1,7 +1,4 @@
-use std::{
-    sync::Arc,
-    time::{Duration, Instant},
-};
+use std::{sync::Arc, time::Duration};
 
 use gamercade_audio::{
     EnvelopeDefinition, WavetableDefinition, WavetableGenerator, WavetableOscilator,
@@ -18,9 +15,10 @@ use rodio::{
 };
 use rtrb::RingBuffer;
 
-const SAMPLE_RATE: u32 = 48_000; // hard coded to my system 
+const SAMPLE_RATE: u32 = 48_000; // hard coded to my system
 const FPS: u32 = 30;
 const BUFFER_LENGTH: usize = (SAMPLE_RATE / FPS) as usize;
+const BUFFER_SPLIT: usize = 60;
 
 pub fn main() {
     let device = default_host().default_output_device().unwrap();
@@ -34,7 +32,8 @@ pub fn main() {
     println!("sample rate: {:?}", supported_config.sample_rate());
     let config = StreamConfig::from(supported_config);
 
-    let (mut producer, mut consumer) = RingBuffer::new(BUFFER_LENGTH * 3); // enough to store 3 game frames
+    let (mut producer, mut consumer) =
+        RingBuffer::new(BUFFER_LENGTH + (BUFFER_LENGTH / BUFFER_SPLIT)); // enough to store 1 + an extra "mini_buffer" worth of audio
 
     let mut osci = osci();
     osci.set_frequency(400.0);
@@ -61,32 +60,27 @@ pub fn main() {
         )
         .unwrap();
 
-    #[derive(PartialEq, Eq)]
-    enum WriterState {
-        Writing,
-        FrameComplete,
-    }
-
     std::thread::spawn(move || {
         let mut audio_frames = 0;
-        let mut state = WriterState::Writing;
-        let mut prev = Instant::now();
+        let mut sections = 0;
+
         loop {
-            if producer.is_full() || state == WriterState::FrameComplete {
-                //print!("full or done");
+            if producer.is_full() {
+                std::thread::sleep(Duration::from_secs_f32(
+                    1.0 / FPS as f32 / BUFFER_SPLIT as f32,
+                ));
             } else {
                 producer.push(osci.tick()).unwrap();
                 audio_frames += 1;
-                if audio_frames == BUFFER_LENGTH {
-                    println!("wrote a frame, save state");
-                    audio_frames = 0;
-                    state = WriterState::FrameComplete;
-                }
-            }
+                if audio_frames == BUFFER_LENGTH / BUFFER_SPLIT {
+                    sections += 1;
 
-            if Instant::now().duration_since(prev) >= Duration::from_secs_f32(1.0 / FPS as f32) {
-                state = WriterState::Writing;
-                prev = Instant::now();
+                    if sections == BUFFER_SPLIT {
+                        sections = 0;
+                        println!("wrote a frame, save state");
+                    }
+                    audio_frames = 0;
+                }
             }
         }
     });
