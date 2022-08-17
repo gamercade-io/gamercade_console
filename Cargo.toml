@@ -13,6 +13,10 @@ default-run = "tester"
 name = "tester"
 path = "src/bin/tester.rs"
 
+[[bin]]
+name = "rollback"
+path = "src/bin/rollback.rs"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
