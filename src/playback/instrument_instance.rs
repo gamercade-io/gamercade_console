@@ -30,7 +30,7 @@ impl Iterator for InstrumentInstance {
             }
         }
 
-        self.instance_type.next()
+        Iterator::next(&mut self.instance_type)
     }
 }
 
@@ -52,7 +52,7 @@ impl Source for InstrumentInstance {
     }
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub enum InstrumentInstanceType {
     Wavetable(WavetableOscilator),
     FMSynth(Box<PatchInstance>),

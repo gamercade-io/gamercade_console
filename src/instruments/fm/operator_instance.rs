@@ -46,7 +46,7 @@ impl OperatorInstance {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct OperatorInstanceBundle {
     pub operators: [OperatorInstance; OPERATOR_COUNT],
 }

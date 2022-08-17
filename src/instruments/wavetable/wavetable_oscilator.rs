@@ -11,7 +11,7 @@ pub(crate) static mut NO_SOUND_DEFINITION: MaybeUninit<Arc<WavetableDefinition>>
 
 pub(crate) const NO_SOUND_SAMPLE_RATE: usize = 11_025; //44_100Khz / 4
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct WavetableOscilator {
     definition: Arc<WavetableDefinition>,
     envelope: EnvelopeInstance,

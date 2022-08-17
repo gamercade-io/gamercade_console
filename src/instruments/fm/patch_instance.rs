@@ -7,7 +7,7 @@ use crate::{
     OPERATOR_COUNT,
 };
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct PatchInstance {
     operators: OperatorInstanceBundle,
     definition: Arc<PatchDefinition>,
