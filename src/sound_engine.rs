@@ -3,7 +3,9 @@ use std::sync::Arc;
 use std::time::{Duration, Instant};
 use std::{array, thread};
 
-use rodio::OutputStream;
+use rodio::cpal::default_host;
+use rodio::cpal::traits::HostTrait;
+use rodio::{DeviceTrait, OutputStream};
 use rtrb::{Consumer, Producer, RingBuffer};
 
 use crate::{
@@ -258,13 +260,22 @@ fn spawn_ticker_runner(rom: &Arc<SoundRomInstance>) -> (Producer<TickerCommand>,
     let (producer, consumer) = RingBuffer::new((SFX_CHANNELS + SONG_TRACK_CHANNELS) * 2);
     let (stream, stream_handle) = OutputStream::try_default().unwrap();
 
+    let device = default_host().default_output_device().unwrap();
+    let supported_config = device
+        .supported_output_configs()
+        .unwrap()
+        .next()
+        .unwrap()
+        .with_max_sample_rate();
+    let output_sample_rate = supported_config.sample_rate().0 as usize;
+
     let ticker_set = TickerSet::default();
     let mut ticker_iter = ticker_set.set.iter();
 
     // Prepare the Bgm Chains
     let build_bgm_chains = array::from_fn(|_| {
         let (producer, consumer) = RingBuffer::new(1);
-        let instance = InstrumentInstance::no_sound(consumer);
+        let instance = InstrumentInstance::no_sound(consumer, output_sample_rate);
 
         stream_handle.play_raw(instance).unwrap();
         ChainPlayback::new(None, producer, rom)
@@ -272,7 +283,7 @@ fn spawn_ticker_runner(rom: &Arc<SoundRomInstance>) -> (Producer<TickerCommand>,
 
     let sfx = array::from_fn(|_| {
         let (producer, consumer) = RingBuffer::new(1);
-        let instance = InstrumentInstance::no_sound(consumer);
+        let instance = InstrumentInstance::no_sound(consumer, output_sample_rate);
 
         stream_handle.play_raw(instance).unwrap();
         SfxPlayback {

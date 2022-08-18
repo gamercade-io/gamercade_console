@@ -3,7 +3,9 @@
 pub struct Oscillator {
     index: f32,
     index_increment: f32,
-    phase_length: f32,
+    table_length: f32,
+    pub(crate) source_sample_rate: usize,
+    pub(crate) output_sample_rate: usize,
 }
 
 /// The Trigger or Key state for the sound source.
@@ -16,17 +18,24 @@ pub enum ActiveState {
 
 impl Oscillator {
     /// Generates a new Oscillator with the default value.
-    pub(crate) fn new(phase_length: usize) -> Self {
+    pub(crate) fn new(
+        table_length: usize,
+        source_sample_rate: usize,
+        output_sample_rate: usize,
+    ) -> Self {
         Self {
             index: 0.0,
             index_increment: 0.0,
-            phase_length: phase_length as f32,
+            table_length: table_length as f32,
+            source_sample_rate,
+            output_sample_rate,
         }
     }
 
     /// Sets the frequency of the oscillator
-    pub(crate) fn set_frequency(&mut self, frequency: f32, output_sample_rate: usize) {
-        self.index_increment = (frequency * self.phase_length) / output_sample_rate as f32;
+    pub(crate) fn set_frequency(&mut self, frequency: f32) {
+        let increment = frequency * self.table_length;
+        self.index_increment = increment / self.output_sample_rate as f32;
     }
 
     /// Returns the modulation amount for this oscillator. Used with FM Synth
@@ -39,7 +48,7 @@ impl Oscillator {
     pub(crate) fn tick(&mut self) -> f32 {
         let out = self.index;
         self.index += self.index_increment;
-        self.index %= self.phase_length;
+        self.index %= self.table_length;
         out
     }
 }

@@ -16,25 +16,28 @@ use rodio::{
 use rtrb::{Consumer, Producer, RingBuffer};
 use spin_sleep::LoopHelper;
 
-const SAMPLE_RATE: u32 = 48_000; // hard coded to my system
-const FPS: u32 = 60;
-const BUFFER_LENGTH: usize = (SAMPLE_RATE / FPS) as usize;
+const SOURCE_SAMPLE_RATE: usize = 48_00; // hard coded to my system
+const FPS: usize = 60;
+// const BUFFER_LENGTH: usize = (SOURCE_SAMPLE_RATE / FPS) as usize;
 
 // enough to store 1 full "game frame" of audio
-fn ring_buf<T>() -> (Producer<T>, Consumer<T>) {
-    RingBuffer::new(BUFFER_LENGTH)
+fn ring_buf<T>(len: usize) -> (Producer<T>, Consumer<T>) {
+    RingBuffer::new(len)
 }
 
-fn osci() -> WavetableOscilator {
-    WavetableOscilator::new(Arc::new(WavetableDefinition {
-        data: WavetableGenerator {
-            waveform: WavetableWaveform::Sine,
-            size: 64,
-        }
-        .generate(),
-        envelope: EnvelopeDefinition::interesting(),
-        sample_rate: SAMPLE_RATE as usize,
-    }))
+fn osci(output_sample_rate: usize) -> WavetableOscilator {
+    WavetableOscilator::new(
+        Arc::new(WavetableDefinition {
+            data: WavetableGenerator {
+                waveform: WavetableWaveform::Sine,
+                size: 64,
+            }
+            .generate(),
+            envelope: EnvelopeDefinition::interesting(),
+            sample_rate: SOURCE_SAMPLE_RATE,
+        }),
+        output_sample_rate,
+    )
 }
 
 pub fn main() {
@@ -52,20 +55,23 @@ pub fn main() {
         .next()
         .unwrap()
         .with_max_sample_rate();
-    println!("sample rate: {:?}", supported_config.sample_rate());
+    let output_sample_rate = supported_config.sample_rate().0 as usize;
+    println!("sample rate: {:?}", output_sample_rate);
     let config = StreamConfig::from(supported_config);
+
+    let output_buffer_len = output_sample_rate / FPS;
 
     // Produces buffers full of "frames"
     let (mut buffer_producer, mut buffer_consumer) = RingBuffer::new(2);
-    let (mut producer, mut consumer) = ring_buf();
+    let (mut producer, mut consumer) = ring_buf(output_buffer_len);
 
     // Write silence for testing
     producer
-        .write_chunk_uninit(BUFFER_LENGTH)
+        .write_chunk_uninit(output_buffer_len)
         .unwrap()
         .fill_from_iter(Some(0.0).iter().cycle().cloned());
 
-    let mut osci = osci();
+    let mut osci = osci(output_sample_rate);
     osci.set_frequency(400.0);
     osci.trigger();
 
@@ -89,7 +95,7 @@ pub fn main() {
                     }
 
                     // We are done reading one "game frame" of sound
-                    if frames_read == BUFFER_LENGTH {
+                    if frames_read == output_buffer_len {
                         match buffer_consumer.pop() {
                             Err(_) => println!("no next frame prepared"),
                             Ok(next_buffer) => consumer = next_buffer,
@@ -115,11 +121,11 @@ pub fn main() {
         loop {
             if !buffer_producer.is_full() {
                 // Allocate a new buffer for the next frame
-                let (mut new_producer, new_consumer) = ring_buf();
+                let (mut new_producer, new_consumer) = ring_buf(output_buffer_len);
                 buffer_producer.push(new_consumer).unwrap();
 
                 // Write 1 game frame worth of audio into the buffer
-                let mut chunk = new_producer.write_chunk_uninit(BUFFER_LENGTH).unwrap();
+                let mut chunk = new_producer.write_chunk_uninit(output_buffer_len).unwrap();
                 let (out, _) = chunk.as_mut_slices();
                 out.iter_mut().for_each(|item| {
                     item.write(osci.tick());

@@ -1,27 +1,26 @@
 use crate::{
     ActiveState, EnvelopeInstance, FMWaveform, OperatorDefinition, OperatorDefinitionBundle,
-    Oscillator, FM_OUTPUT_SAMPLE_RATE, LUT_FULL_LEN, OPERATOR_COUNT,
+    Oscillator, LUT_FULL_LEN, OPERATOR_COUNT,
 };
 
 #[derive(Debug, Clone)]
 pub struct OperatorInstance {
-    oscillator: Oscillator,
+    pub oscillator: Oscillator,
     envelope: EnvelopeInstance,
 }
 
 impl OperatorInstance {
     /// Constructs a new operator instance based on the passed in definition
-    pub fn new(source: &OperatorDefinition) -> Self {
+    pub fn new(source: &OperatorDefinition, output_sample_rate: usize) -> Self {
         Self {
-            oscillator: Oscillator::new(LUT_FULL_LEN),
-            envelope: EnvelopeInstance::new(&source.envlope_definition, FM_OUTPUT_SAMPLE_RATE),
+            oscillator: Oscillator::new(LUT_FULL_LEN, output_sample_rate, output_sample_rate),
+            envelope: EnvelopeInstance::new(&source.envlope_definition, output_sample_rate),
         }
     }
 
     /// Sets the frequency
     pub fn set_frequency(&mut self, frequency: f32) {
-        self.oscillator
-            .set_frequency(frequency, FM_OUTPUT_SAMPLE_RATE);
+        self.oscillator.set_frequency(frequency);
     }
 
     /// Get's the current sample value including any modulation and
@@ -52,9 +51,11 @@ pub struct OperatorInstanceBundle {
 }
 
 impl OperatorInstanceBundle {
-    pub fn new(source: &OperatorDefinitionBundle) -> Self {
+    pub fn new(source: &OperatorDefinitionBundle, output_sample_rate: usize) -> Self {
         Self {
-            operators: std::array::from_fn(|index| OperatorInstance::new(&source.operators[index])),
+            operators: std::array::from_fn(|index| {
+                OperatorInstance::new(&source.operators[index], output_sample_rate)
+            }),
         }
     }
 }

@@ -36,7 +36,7 @@ fn test_engine() -> SoundEngine {
             }
             .generate(),
             envelope: EnvelopeDefinition::interesting(),
-            sample_rate: 44_100, //44.1 khz
+            sample_rate: 44_100, //44_100, //44.1 khz
         }),
     ];
 

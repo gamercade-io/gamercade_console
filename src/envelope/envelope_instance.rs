@@ -16,10 +16,10 @@ impl EnvelopeInstance {
     }
 
     /// Generates a new envelope with the given sample rate.
-    pub fn new(definition: &EnvelopeDefinition, sample_rate: usize) -> Self {
+    pub fn new(definition: &EnvelopeDefinition, output_sample_rate: usize) -> Self {
         Self {
             definition: definition.clone(),
-            ramp: ExponentialRamp::new(sample_rate),
+            ramp: ExponentialRamp::new(output_sample_rate),
             state: EnvelopePhase::Off,
         }
     }

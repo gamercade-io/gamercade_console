@@ -17,7 +17,6 @@ pub use patch_definition::*;
 pub use patch_instance::*;
 
 pub const OPERATOR_COUNT: usize = 4;
-pub const FM_OUTPUT_SAMPLE_RATE: usize = 44_100; // 44.1 khz
 pub const FM_AMPLIFICATION: f32 = 25.0;
 pub const LUT_QUARTER_LEN: usize = 256;
 pub const LUT_FULL_LEN: usize = LUT_QUARTER_LEN * 4;

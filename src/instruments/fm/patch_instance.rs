@@ -1,7 +1,5 @@
 use std::sync::Arc;
 
-use rodio::Source;
-
 use crate::{
     ActiveState, ModulatedBy, OperatorInstanceBundle, PatchDefinition, FM_AMPLIFICATION,
     OPERATOR_COUNT,
@@ -16,9 +14,9 @@ pub struct PatchInstance {
 }
 
 impl PatchInstance {
-    pub fn new(definition: Arc<PatchDefinition>) -> Self {
+    pub fn new(definition: Arc<PatchDefinition>, output_sample_rate: usize) -> Self {
         Self {
-            operators: OperatorInstanceBundle::new(&definition.operators),
+            operators: OperatorInstanceBundle::new(&definition.operators, output_sample_rate),
             definition,
             feedback: [0.0; 2],
             active: ActiveState::Off,
@@ -108,30 +106,34 @@ impl PatchInstance {
 
         final_output / FM_AMPLIFICATION
     }
-}
 
-impl Iterator for PatchInstance {
-    type Item = f32;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        Some(self.tick())
+    pub(crate) fn output_sample_rate(&self) -> usize {
+        self.operators.operators[0].oscillator.output_sample_rate
     }
 }
 
-impl Source for PatchInstance {
-    fn current_frame_len(&self) -> Option<usize> {
-        None
-    }
+// impl Iterator for PatchInstance {
+//     type Item = f32;
 
-    fn channels(&self) -> u16 {
-        1
-    }
+//     fn next(&mut self) -> Option<Self::Item> {
+//         Some(self.tick())
+//     }
+// }
 
-    fn sample_rate(&self) -> u32 {
-        crate::FM_OUTPUT_SAMPLE_RATE as u32
-    }
+// impl Source for PatchInstance {
+//     fn current_frame_len(&self) -> Option<usize> {
+//         None
+//     }
 
-    fn total_duration(&self) -> Option<std::time::Duration> {
-        None
-    }
-}
+//     fn channels(&self) -> u16 {
+//         1
+//     }
+
+//     fn sample_rate(&self) -> u32 {
+//         self.operators.operators[0].oscillator.output_sample_rate as u32
+//     }
+
+//     fn total_duration(&self) -> Option<std::time::Duration> {
+//         None
+//     }
+// }

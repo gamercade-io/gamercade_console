@@ -5,7 +5,7 @@ const OVERSHOOT: f32 = 1.001;
 /// An exponential ramp which, when ticked, travels from one value to the target one.
 #[derive(Clone, Debug)]
 pub struct ExponentialRamp {
-    sample_rate: usize,
+    output_sample_rate: usize,
     value: f32,              // The current value
     target_value: f32,       // The "end" value
     overshoot_value: f32,    // The "overshoot" value since we are dealing a small margin of error
@@ -15,9 +15,9 @@ pub struct ExponentialRamp {
 
 impl ExponentialRamp {
     /// Generates a new exponential ramp with the default values of 0.
-    pub fn new(sample_rate: usize) -> Self {
+    pub fn new(output_sample_rate: usize) -> Self {
         Self {
-            sample_rate,
+            output_sample_rate,
             value: 0.0,
             target_value: 0.0,
             overshoot_value: 0.0,
@@ -82,7 +82,10 @@ impl ExponentialRamp {
         self.decaying_increment = self.value - self.overshoot_value;
 
         let time = (-1.0 * time) / (1.0 - OVERSHOOT.recip()).ln();
-        self.multiplier = f32::powf(f32::exp(-1.0 / time), (self.sample_rate as f32).recip());
+        self.multiplier = f32::powf(
+            f32::exp(-1.0 / time),
+            (self.output_sample_rate as f32).recip(),
+        );
     }
 
     /// Ticks the ramp, advancing it forward once and returing the resulting value.

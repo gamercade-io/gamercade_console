@@ -1,7 +1,5 @@
 use std::{mem::MaybeUninit, sync::Arc};
 
-use rodio::Source;
-
 use crate::{ActiveState, EnvelopeInstance, Oscillator, WavetableBitDepth};
 
 use super::WavetableDefinition;
@@ -15,7 +13,7 @@ pub(crate) const NO_SOUND_SAMPLE_RATE: usize = 11_025; //44_100Khz / 4
 pub struct WavetableOscilator {
     definition: Arc<WavetableDefinition>,
     envelope: EnvelopeInstance,
-    oscillator: Oscillator,
+    pub(crate) oscillator: Oscillator,
     active: ActiveState,
 }
 
@@ -25,16 +23,20 @@ impl WavetableOscilator {
         Self {
             envelope: EnvelopeInstance::no_sound(),
             definition,
-            oscillator: Oscillator::new(1),
+            oscillator: Oscillator::new(1, NO_SOUND_SAMPLE_RATE, NO_SOUND_SAMPLE_RATE),
             active: ActiveState::Off,
         }
     }
 
     /// Generates a new WavetableOscilator
-    pub fn new(definition: Arc<WavetableDefinition>) -> Self {
+    pub fn new(definition: Arc<WavetableDefinition>, output_sample_rate: usize) -> Self {
         Self {
-            envelope: EnvelopeInstance::new(&definition.envelope, definition.sample_rate),
-            oscillator: Oscillator::new(definition.len()),
+            envelope: EnvelopeInstance::new(&definition.envelope, output_sample_rate),
+            oscillator: Oscillator::new(
+                definition.len(),
+                definition.sample_rate,
+                output_sample_rate,
+            ),
             definition,
             active: ActiveState::Off,
         }
@@ -42,8 +44,7 @@ impl WavetableOscilator {
 
     /// Sets the frequency
     pub fn set_frequency(&mut self, frequency: f32) {
-        self.oscillator
-            .set_frequency(frequency, self.definition.sample_rate);
+        self.oscillator.set_frequency(frequency);
     }
 
     /// Get's the current sample value
@@ -84,28 +85,28 @@ impl WavetableOscilator {
     }
 }
 
-impl Iterator for WavetableOscilator {
-    type Item = f32;
+// impl Iterator for WavetableOscilator {
+//     type Item = f32;
 
-    fn next(&mut self) -> Option<f32> {
-        Some(self.tick())
-    }
-}
+//     fn next(&mut self) -> Option<f32> {
+//         Some(self.tick())
+//     }
+// }
 
-impl Source for WavetableOscilator {
-    fn channels(&self) -> u16 {
-        1
-    }
+// impl Source for WavetableOscilator {
+//     fn channels(&self) -> u16 {
+//         1
+//     }
 
-    fn sample_rate(&self) -> u32 {
-        self.definition.sample_rate as u32
-    }
+//     fn sample_rate(&self) -> u32 {
+//         self.oscillator.output_sample_rate as u32
+//     }
 
-    fn current_frame_len(&self) -> Option<usize> {
-        None
-    }
+//     fn current_frame_len(&self) -> Option<usize> {
+//         None
+//     }
 
-    fn total_duration(&self) -> Option<std::time::Duration> {
-        None
-    }
-}
+//     fn total_duration(&self) -> Option<std::time::Duration> {
+//         None
+//     }
+// }
