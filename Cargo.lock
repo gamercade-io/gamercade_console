@@ -1410,9 +1410,9 @@ dependencies = [
 
 [[package]]
 name = "ggrs"
-version = "0.9.1"
+version = "0.9.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8bbd6c40aa646c31c21c4a0010edda595a601419bab7b8a909823d7acbeb4c40"
+checksum = "e8ae0192e9cd5eec3ca8f4bcebb18ddef607efcc3cbcb5289d20bc5ab44b8c85"
 dependencies = [
  "bincode",
  "bitfield-rle",
