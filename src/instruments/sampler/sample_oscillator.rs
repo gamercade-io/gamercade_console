@@ -38,10 +38,13 @@ impl SampleOscillator {
     /// Sets the frequency of the oscillator. If passed
     /// a None, it will revert the play rate back to the default one of the sample.
     pub(crate) fn set_frequency(&mut self, frequency: Option<f32>) {
-        // TODO!
-        todo!()
-        // let increment = frequency * self.table_length;
-        // self.index_increment = increment / self.output_sample_rate as f32;
+        let sample_rate_ratio = self.input_sample_rate as f32 / self.output_sample_rate as f32;
+
+        if let (Some(base_frequency), Some(new_frequency)) = (self.sample_frequency, frequency) {
+            self.index_increment = (new_frequency / base_frequency) / sample_rate_ratio
+        } else {
+            self.index_increment = sample_rate_ratio;
+        }
     }
 
     /// Sets this oscillator to match the requirements of the passed
