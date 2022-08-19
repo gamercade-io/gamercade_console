@@ -1,11 +1,11 @@
 use crate::{
     ActiveState, EnvelopeInstance, FMWaveform, OperatorDefinition, OperatorDefinitionBundle,
-    Oscillator, LUT_FULL_LEN, OPERATOR_COUNT,
+    WavetableOscillator, LUT_FULL_LEN, OPERATOR_COUNT,
 };
 
 #[derive(Debug, Clone)]
 pub struct OperatorInstance {
-    pub oscillator: Oscillator,
+    pub oscillator: WavetableOscillator,
     envelope: EnvelopeInstance,
 }
 
@@ -13,7 +13,7 @@ impl OperatorInstance {
     /// Constructs a new operator instance based on the passed in definition
     pub fn new(source: &OperatorDefinition, output_sample_rate: usize) -> Self {
         Self {
-            oscillator: Oscillator::new(LUT_FULL_LEN, output_sample_rate, output_sample_rate),
+            oscillator: WavetableOscillator::new(LUT_FULL_LEN, output_sample_rate),
             envelope: EnvelopeInstance::new(&source.envlope_definition, output_sample_rate),
         }
     }

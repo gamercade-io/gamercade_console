@@ -7,7 +7,6 @@ use crate::EnvelopeDefinition;
 pub struct WavetableDefinition {
     pub data: Box<[WavetableBitDepth]>,
     pub envelope: EnvelopeDefinition,
-    pub sample_rate: usize,
 }
 
 impl WavetableDefinition {

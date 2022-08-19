@@ -1,7 +1,7 @@
 use rodio::Source;
 use rtrb::{Consumer, PopError};
 
-use crate::{Instrument, InstrumentChannelType, InstrumentKind, PatchInstance, WavetableOscilator};
+use crate::{Instrument, InstrumentChannelType, InstrumentKind, PatchInstance, WavetableInstance};
 
 pub struct InstrumentInstance {
     pub consumer: Consumer<InstrumentChannelType>,
@@ -13,7 +13,9 @@ impl InstrumentInstance {
     pub fn no_sound(consumer: Consumer<InstrumentChannelType>, output_sample_rate: usize) -> Self {
         Self {
             consumer,
-            instance_type: InstrumentInstanceType::Wavetable(WavetableOscilator::no_sound()),
+            instance_type: InstrumentInstanceType::Wavetable(WavetableInstance::no_sound(
+                output_sample_rate,
+            )),
             output_sample_rate,
         }
     }
@@ -57,7 +59,7 @@ impl Source for InstrumentInstance {
 
 #[derive(Debug, Clone)]
 pub enum InstrumentInstanceType {
-    Wavetable(WavetableOscilator),
+    Wavetable(WavetableInstance),
     FMSynth(Box<PatchInstance>),
 }
 
@@ -65,7 +67,7 @@ impl InstrumentInstanceType {
     pub(crate) fn from_instrument(source: &Instrument, output_sample_rate: usize) -> Self {
         match source {
             Instrument::Wavetable(wavetable) => InstrumentInstanceType::Wavetable(
-                WavetableOscilator::new(wavetable.clone(), output_sample_rate),
+                WavetableInstance::new(wavetable.clone(), output_sample_rate),
             ),
             Instrument::FMSynth(fm_synth) => InstrumentInstanceType::FMSynth(Box::new(
                 PatchInstance::new(fm_synth.clone(), output_sample_rate),

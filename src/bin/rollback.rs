@@ -1,7 +1,7 @@
 use std::{process, sync::Arc, time::Duration};
 
 use gamercade_audio::{
-    EnvelopeDefinition, WavetableDefinition, WavetableGenerator, WavetableOscilator,
+    EnvelopeDefinition, WavetableDefinition, WavetableGenerator, WavetableInstance,
     WavetableWaveform,
 };
 
@@ -16,7 +16,6 @@ use rodio::{
 use rtrb::{Consumer, Producer, RingBuffer};
 use spin_sleep::LoopHelper;
 
-const SOURCE_SAMPLE_RATE: usize = 48_00; // hard coded to my system
 const FPS: usize = 60;
 // const BUFFER_LENGTH: usize = (SOURCE_SAMPLE_RATE / FPS) as usize;
 
@@ -25,8 +24,8 @@ fn ring_buf<T>(len: usize) -> (Producer<T>, Consumer<T>) {
     RingBuffer::new(len)
 }
 
-fn osci(output_sample_rate: usize) -> WavetableOscilator {
-    WavetableOscilator::new(
+fn osci(output_sample_rate: usize) -> WavetableInstance {
+    WavetableInstance::new(
         Arc::new(WavetableDefinition {
             data: WavetableGenerator {
                 waveform: WavetableWaveform::Sine,
@@ -34,7 +33,6 @@ fn osci(output_sample_rate: usize) -> WavetableOscilator {
             }
             .generate(),
             envelope: EnvelopeDefinition::interesting(),
-            sample_rate: SOURCE_SAMPLE_RATE,
         }),
         output_sample_rate,
     )
@@ -72,7 +70,7 @@ pub fn main() {
         .fill_from_iter(Some(0.0).iter().cycle().cloned());
 
     let mut osci = osci(output_sample_rate);
-    osci.set_frequency(400.0);
+    osci.set_frequency(440.0);
     osci.trigger();
 
     let mut frames_read = 0;

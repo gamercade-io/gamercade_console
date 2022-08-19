@@ -1,6 +1,6 @@
 use std::{mem::MaybeUninit, sync::Arc};
 
-use crate::{ActiveState, EnvelopeInstance, Oscillator, WavetableBitDepth};
+use crate::{ActiveState, EnvelopeInstance, WavetableBitDepth, WavetableOscillator};
 
 use super::WavetableDefinition;
 
@@ -10,20 +10,20 @@ pub(crate) static mut NO_SOUND_DEFINITION: MaybeUninit<Arc<WavetableDefinition>>
 pub(crate) const NO_SOUND_SAMPLE_RATE: usize = 11_025; //44_100Khz / 4
 
 #[derive(Clone, Debug)]
-pub struct WavetableOscilator {
+pub struct WavetableInstance {
     definition: Arc<WavetableDefinition>,
     envelope: EnvelopeInstance,
-    pub(crate) oscillator: Oscillator,
+    pub(crate) oscillator: WavetableOscillator,
     active: ActiveState,
 }
 
-impl WavetableOscilator {
-    pub fn no_sound() -> Self {
+impl WavetableInstance {
+    pub fn no_sound(output_sample_rate: usize) -> Self {
         let definition = unsafe { NO_SOUND_DEFINITION.assume_init_ref().clone() };
         Self {
             envelope: EnvelopeInstance::no_sound(),
             definition,
-            oscillator: Oscillator::new(1, NO_SOUND_SAMPLE_RATE, NO_SOUND_SAMPLE_RATE),
+            oscillator: WavetableOscillator::new(1, output_sample_rate),
             active: ActiveState::Off,
         }
     }
@@ -32,11 +32,7 @@ impl WavetableOscilator {
     pub fn new(definition: Arc<WavetableDefinition>, output_sample_rate: usize) -> Self {
         Self {
             envelope: EnvelopeInstance::new(&definition.envelope, output_sample_rate),
-            oscillator: Oscillator::new(
-                definition.len(),
-                definition.sample_rate,
-                output_sample_rate,
-            ),
+            oscillator: WavetableOscillator::new(definition.len(), output_sample_rate),
             definition,
             active: ActiveState::Off,
         }

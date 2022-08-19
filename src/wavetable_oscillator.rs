@@ -1,10 +1,9 @@
 /// A wavetable oscillator. Returns table indices.
 #[derive(Debug, Clone)]
-pub struct Oscillator {
+pub struct WavetableOscillator {
     index: f32,
     index_increment: f32,
     table_length: f32,
-    pub(crate) source_sample_rate: usize,
     pub(crate) output_sample_rate: usize,
 }
 
@@ -16,18 +15,13 @@ pub enum ActiveState {
     Trigger,
 }
 
-impl Oscillator {
-    /// Generates a new Oscillator with the default value.
-    pub(crate) fn new(
-        table_length: usize,
-        source_sample_rate: usize,
-        output_sample_rate: usize,
-    ) -> Self {
+impl WavetableOscillator {
+    /// Generates a new WavetableOscillator with the default value.
+    pub(crate) fn new(table_length: usize, output_sample_rate: usize) -> Self {
         Self {
             index: 0.0,
             index_increment: 0.0,
             table_length: table_length as f32,
-            source_sample_rate,
             output_sample_rate,
         }
     }
