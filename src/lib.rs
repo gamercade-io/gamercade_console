@@ -7,7 +7,6 @@ mod sound_engine2;
 mod sound_rom;
 mod sound_rom_instance;
 mod tracker;
-mod wavetable_oscillator;
 
 pub use envelope::*;
 pub use instruments::*;
@@ -18,7 +17,6 @@ pub use sound_engine2::*;
 pub use sound_rom::*;
 pub use sound_rom_instance::*;
 pub use tracker::*;
-pub use wavetable_oscillator::*;
 
 fn initialize_globals() {
     init_fm_lut();

@@ -2,7 +2,7 @@ use std::{ops::Index, sync::Arc};
 
 use crate::{
     Chain, ChainId, InstrumentDefinition, InstrumentId, InstrumentKind, PatchDefinition, Phrase,
-    PhraseId, Song, SongId, SoundRom, WavetableDefinition,
+    PhraseId, SampleDefinition, Song, SongId, SoundRom, WavetableDefinition,
 };
 
 /// An engine loaded in memory, ready to use.
@@ -20,6 +20,7 @@ pub struct SoundRomInstance {
 pub enum Instrument {
     Wavetable(Arc<WavetableDefinition>),
     FMSynth(Arc<PatchDefinition>),
+    Sampler(Arc<SampleDefinition>),
 }
 
 impl Instrument {
@@ -28,6 +29,7 @@ impl Instrument {
         match self {
             Instrument::Wavetable(_) => InstrumentKind::Wavetable,
             Instrument::FMSynth(_) => InstrumentKind::FMSynth,
+            Instrument::Sampler(_) => InstrumentKind::Sampler,
         }
     }
 }
@@ -47,6 +49,7 @@ impl SoundRomInstance {
                         Instrument::Wavetable(Arc::new(wavetable_def))
                     }
                     InstrumentDefinition::FMSynth(fm_def) => Instrument::FMSynth(Arc::new(fm_def)),
+                    InstrumentDefinition::Sampler(sample) => Instrument::Sampler(Arc::new(sample)),
                 })
                 .collect::<Vec<_>>()
                 .into_boxed_slice(),

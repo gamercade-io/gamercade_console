@@ -1,7 +1,10 @@
 use rodio::Source;
 use rtrb::{Consumer, PopError};
 
-use crate::{Instrument, InstrumentChannelType, InstrumentKind, PatchInstance, WavetableInstance};
+use crate::{
+    Instrument, InstrumentChannelType, InstrumentKind, PatchInstance, SamplerInstance,
+    WavetableInstance,
+};
 
 pub struct InstrumentInstance {
     pub consumer: Consumer<InstrumentChannelType>,
@@ -61,6 +64,7 @@ impl Source for InstrumentInstance {
 pub enum InstrumentInstanceType {
     Wavetable(WavetableInstance),
     FMSynth(Box<PatchInstance>),
+    Sampler(SamplerInstance),
 }
 
 impl InstrumentInstanceType {
@@ -72,6 +76,9 @@ impl InstrumentInstanceType {
             Instrument::FMSynth(fm_synth) => InstrumentInstanceType::FMSynth(Box::new(
                 PatchInstance::new(fm_synth.clone(), output_sample_rate),
             )),
+            Instrument::Sampler(sample) => {
+                InstrumentInstanceType::Sampler(SamplerInstance::new(sample, output_sample_rate))
+            }
         }
     }
 
@@ -93,6 +100,10 @@ impl InstrumentInstanceType {
                 fm.set_frequency(entry.note);
                 fm.trigger();
             }
+            InstrumentInstanceType::Sampler(sampler) => {
+                sampler.set_frequency(entry.note);
+                sampler.trigger();
+            }
         }
     }
 
@@ -100,6 +111,7 @@ impl InstrumentInstanceType {
         match self {
             InstrumentInstanceType::Wavetable(_) => InstrumentKind::Wavetable,
             InstrumentInstanceType::FMSynth(_) => InstrumentKind::FMSynth,
+            InstrumentInstanceType::Sampler(_) => InstrumentKind::Sampler,
         }
     }
 }
@@ -125,6 +137,7 @@ impl Iterator for InstrumentInstanceType {
             match self {
                 InstrumentInstanceType::Wavetable(wave) => wave.tick(),
                 InstrumentInstanceType::FMSynth(fm) => fm.tick(),
+                InstrumentInstanceType::Sampler(sampler) => sampler.tick(),
             } * 0.15,
         )
     }
@@ -143,6 +156,7 @@ impl Source for InstrumentInstanceType {
         match self {
             InstrumentInstanceType::Wavetable(wave) => wave.oscillator.output_sample_rate as u32,
             InstrumentInstanceType::FMSynth(fm) => fm.output_sample_rate() as u32,
+            InstrumentInstanceType::Sampler(sample) => sample.oscillator.output_sample_rate as u32,
         }
     }
 

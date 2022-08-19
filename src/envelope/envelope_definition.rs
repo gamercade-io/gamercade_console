@@ -39,6 +39,19 @@ impl Default for EnvelopeDefinition {
 }
 
 impl EnvelopeDefinition {
+    /// Silence
+    pub fn silence() -> Self {
+        Self {
+            total_level: 0,
+            sustain_level: 0,
+
+            attack_time: 0,
+            decay_attack_time: 0,
+            decay_sustain_time: 0,
+            release_time: 0,
+        }
+    }
+
     /// A slightly more interesting envelope compared to the default one.
     pub fn interesting() -> Self {
         Self {

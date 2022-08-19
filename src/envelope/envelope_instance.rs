@@ -35,7 +35,16 @@ impl EnvelopeInstance {
             self.ramp.tick()
         } else {
             match self.state {
-                EnvelopePhase::Off => 0.0,
+                EnvelopePhase::Off => {
+                    if ActiveState::On == active {
+                        self.state = EnvelopePhase::Attack;
+                        self.ramp
+                            .set_from_envelope(EnvelopePhase::Attack, &self.definition);
+                        self.ramp.tick()
+                    } else {
+                        0.0
+                    }
+                }
                 EnvelopePhase::Attack | EnvelopePhase::Decay | EnvelopePhase::Release => {
                     let out = self.ramp.tick();
 

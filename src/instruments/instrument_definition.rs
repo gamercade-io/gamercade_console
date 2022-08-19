@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{PatchDefinition, WavetableDefinition};
+use crate::{PatchDefinition, SampleDefinition, WavetableDefinition};
 
 /// Newtype Instrument Identifier
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
@@ -11,4 +11,5 @@ pub struct InstrumentId(pub usize);
 pub enum InstrumentDefinition {
     Wavetable(WavetableDefinition),
     FMSynth(PatchDefinition),
+    Sampler(SampleDefinition),
 }

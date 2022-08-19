@@ -7,14 +7,6 @@ pub struct WavetableOscillator {
     pub(crate) output_sample_rate: usize,
 }
 
-/// The Trigger or Key state for the sound source.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ActiveState {
-    Off,
-    On,
-    Trigger,
-}
-
 impl WavetableOscillator {
     /// Generates a new WavetableOscillator with the default value.
     pub(crate) fn new(table_length: usize, output_sample_rate: usize) -> Self {

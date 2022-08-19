@@ -252,6 +252,7 @@ name = "gamercade_audio"
 version = "0.1.0"
 dependencies = [
  "arrayvec",
+ "hound",
  "rodio",
  "rtrb",
  "serde",

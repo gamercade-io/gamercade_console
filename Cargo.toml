@@ -17,6 +17,10 @@ path = "src/bin/tester.rs"
 name = "rollback"
 path = "src/bin/rollback.rs"
 
+[[bin]]
+name = "sample"
+path = "src/bin/sample.rs"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
@@ -27,3 +31,6 @@ arrayvec = { version = "0.7.2", features = ["serde"] }
 tinystr = "0.6.1"
 rtrb = "0.2.2"
 spin_sleep = "1.1.1"
+
+# for .wav
+hound = "3.4.0"
