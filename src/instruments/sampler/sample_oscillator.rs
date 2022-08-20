@@ -41,7 +41,7 @@ impl SampleOscillator {
         let sample_rate_ratio = self.input_sample_rate as f32 / self.output_sample_rate as f32;
 
         if let (Some(base_frequency), Some(new_frequency)) = (self.sample_frequency, frequency) {
-            self.index_increment = (new_frequency / base_frequency) / sample_rate_ratio
+            self.index_increment = (new_frequency / base_frequency) * sample_rate_ratio
         } else {
             self.index_increment = sample_rate_ratio;
         }

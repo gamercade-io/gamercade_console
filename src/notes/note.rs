@@ -21,7 +21,7 @@ static mut NOTES_LUT: MaybeUninit<[Note; TOTAL_NOTES_COUNT]> = MaybeUninit::unin
 const FIRST_NOTE_OFFSET: usize = 2;
 
 /// Initializes the notes LUT
-pub(crate) fn initialize_notes() {
+pub fn initialize_notes() {
     let mut octave_iter = Octave::iter().peekable(); //Start at 1
     let mut name_iter = NoteName::iter().cycle(); // Start at A
 
@@ -50,7 +50,7 @@ pub(crate) fn initialize_notes() {
 }
 
 /// Get's a note for the given index
-pub(crate) fn get_note(index: NoteId) -> &'static Note {
+pub fn get_note(index: NoteId) -> &'static Note {
     unsafe {
         let notes = NOTES_LUT.assume_init_ref();
         &notes[index.0]

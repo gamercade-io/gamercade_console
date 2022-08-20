@@ -21,6 +21,10 @@ path = "src/bin/rollback.rs"
 name = "sample"
 path = "src/bin/sample.rs"
 
+[[bin]]
+name = "pitched"
+path = "src/bin/pitched.rs"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
