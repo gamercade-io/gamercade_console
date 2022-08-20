@@ -2,13 +2,15 @@ mod chain;
 mod effect;
 mod phrase;
 mod song;
-mod tracker_states;
+mod tracker_flow;
+mod tracker_oscillator;
 
 pub use chain::*;
 pub use effect::*;
 pub use phrase::*;
 pub use song::*;
-pub use tracker_states::*;
+pub use tracker_flow::*;
+pub(crate) use tracker_oscillator::*;
 
 pub const SONG_TRACK_CHANNELS: usize = 8;
 pub const SFX_CHANNELS: usize = 8;

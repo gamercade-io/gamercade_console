@@ -1,26 +1,7 @@
 use std::sync::Arc;
 
-use rtrb::Producer;
-
-use crate::{
-    ChainId, ChainState, InstrumentChannelType, PhrasePlayback, SfxState, SoundRomInstance, Ticker,
-    TrackerFlow,
-};
-
-#[derive(Debug)]
-pub struct SfxPlayback {
-    pub(crate) chain_playback: ChainPlayback,
-    pub(crate) ticker: Arc<Ticker>,
-}
-
-impl SfxPlayback {
-    pub(crate) fn set_from_sfx_state(&mut self, state: &SfxState) {
-        self.chain_playback.set_from_chain_state(&state.chain_state);
-        self.ticker.write_from_state(&state.ticker);
-    }
-}
-
-#[derive(Debug)]
+use crate::{ChainId, InstrumentInstance, PhrasePlayback, SoundRomInstance, TrackerFlow};
+#[derive(Debug, Clone)]
 pub struct ChainPlayback {
     pub(crate) rom: Arc<SoundRomInstance>,
     pub(crate) phrase_index: usize,
@@ -31,32 +12,23 @@ pub struct ChainPlayback {
 impl ChainPlayback {
     pub fn new(
         chain: Option<ChainId>,
-        producer: Producer<InstrumentChannelType>,
         rom: &Arc<SoundRomInstance>,
+        instrument: InstrumentInstance,
     ) -> Self {
         let mut out = Self {
             rom: rom.clone(),
             phrase_index: 0,
             chain,
-            phrase_playback: PhrasePlayback::new(None, producer, rom),
+            phrase_playback: PhrasePlayback::new(None, rom, instrument),
         };
 
         out.set_chain_id(chain);
         out
     }
 
-    /// Updates this chain to match that of the passed in TrackerState
-    /// Useful when trying to seek to an exact time.
-    pub(crate) fn set_from_chain_state(&mut self, chain_state: &ChainState) {
-        self.chain = chain_state.chain_id;
-        self.phrase_index = chain_state.chain_phrase_index;
-
-        self.phrase_playback.set_from_chain_state(chain_state)
-    }
-
     /// Sets the active chain ID for this playback
-    /// and notifies the sound thread. This will additionally
-    /// set the reset phrase index to zero.
+    /// and potentially affect the nested instrument.
+    /// This will additionally set the reset phrase index to zero.
     pub fn set_chain_id(&mut self, chain: Option<ChainId>) {
         self.chain = chain;
         self.phrase_index = 0;
@@ -71,7 +43,7 @@ impl ChainPlayback {
     /// within the chain
     pub fn update_tracker(&mut self) -> TrackerFlow {
         match self.phrase_playback.update_tracker() {
-            TrackerFlow::Continue => TrackerFlow::Continue,
+            TrackerFlow::Advance => TrackerFlow::Advance,
             TrackerFlow::Finished => self.next_step(),
         }
     }
@@ -88,7 +60,7 @@ impl ChainPlayback {
 
             if next_phrase.is_some() {
                 self.phrase_playback.set_phrase_id(next_phrase);
-                TrackerFlow::Continue
+                TrackerFlow::Advance
             } else {
                 TrackerFlow::Finished
             }

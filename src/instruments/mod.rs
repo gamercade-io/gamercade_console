@@ -1,11 +1,13 @@
 mod fm;
 mod instrument_definition;
+mod instrument_instance;
 mod sampler;
 mod wavetable;
 mod wavetable_oscillator;
 
 pub use fm::*;
 pub use instrument_definition::*;
+pub use instrument_instance::*;
 pub use sampler::*;
 pub use wavetable::*;
 pub use wavetable_oscillator::*;

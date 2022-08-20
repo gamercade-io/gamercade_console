@@ -3,7 +3,6 @@ mod instruments;
 mod notes;
 mod playback;
 mod sound_engine;
-mod sound_engine2;
 mod sound_rom;
 mod sound_rom_instance;
 mod tracker;
@@ -13,12 +12,11 @@ pub use instruments::*;
 pub use notes::*;
 pub use playback::*;
 pub use sound_engine::*;
-pub use sound_engine2::*;
 pub use sound_rom::*;
 pub use sound_rom_instance::*;
 pub use tracker::*;
 
-fn initialize_globals() {
+pub fn initialize_globals() {
     init_fm_lut();
     initialize_notes();
     unsafe {

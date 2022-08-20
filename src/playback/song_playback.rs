@@ -1,21 +1,23 @@
 use std::sync::Arc;
 
 use crate::{
-    BgmState, ChainPlayback, SongId, SoundRomInstance, Ticker, TrackerFlow, SONG_TRACK_CHANNELS,
+    ChainPlayback, SongId, SoundRomInstance, TrackerFlow, TrackerOscillator, TrackerOscillatorFlow,
+    SONG_TRACK_CHANNELS,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SongPlayback {
     pub(crate) song: Option<SongId>,
     pub(crate) chain_index: usize, // The current location in the song
     pub(crate) tracks: [ChainPlayback; SONG_TRACK_CHANNELS],
     pub(crate) chain_states: [TrackerFlow; SONG_TRACK_CHANNELS],
     pub(crate) rom: Arc<SoundRomInstance>,
-    pub(crate) ticker: Arc<Ticker>,
+
+    oscillator: TrackerOscillator,
 }
 
 fn default_chain_states() -> [TrackerFlow; SONG_TRACK_CHANNELS] {
-    std::array::from_fn(|_| TrackerFlow::Continue)
+    std::array::from_fn(|_| TrackerFlow::Advance)
 }
 
 impl SongPlayback {
@@ -23,7 +25,7 @@ impl SongPlayback {
         song: Option<SongId>,
         tracks: [ChainPlayback; SONG_TRACK_CHANNELS],
         rom: &Arc<SoundRomInstance>,
-        ticker: &Arc<Ticker>,
+        output_sample_rate: usize,
     ) -> Self {
         let mut out = Self {
             song,
@@ -31,11 +33,24 @@ impl SongPlayback {
             tracks,
             rom: rom.clone(),
             chain_states: default_chain_states(),
-            ticker: ticker.clone(),
+            oscillator: TrackerOscillator::new(output_sample_rate),
         };
 
         out.set_song_id(song);
         out
+    }
+
+    pub(crate) fn tick(&mut self) -> [f32; SONG_TRACK_CHANNELS] {
+        match self.oscillator.tick() {
+            TrackerOscillatorFlow::Continue => (),
+            TrackerOscillatorFlow::UpdateTracker => {
+                self.update_tracker(); //TODO: Should we handle this output?
+            }
+        };
+
+        let mut iter = self.tracks.iter_mut();
+
+        std::array::from_fn(|_| iter.next().unwrap().phrase_playback.instrument.tick())
     }
 
     /// Sets this playback to play specified Song Id.
@@ -47,7 +62,9 @@ impl SongPlayback {
         // If the song is valid, update all chains to
         // use the correct indices and data
         if let Some(song) = song {
-            let next_chain = self.rom[song].tracks[0];
+            let song = &self.rom[song];
+            self.oscillator.reset_bpm(song.bpm);
+            let next_chain = song.tracks[0];
             self.chain_states = default_chain_states();
             self.tracks
                 .iter_mut()
@@ -56,23 +73,6 @@ impl SongPlayback {
                     track.set_chain_id(*next);
                 });
         }
-    }
-
-    /// Updates this song to match that of the passed in BgmState
-    /// Useful when trying to seek to an exact time.
-    pub(crate) fn set_from_song_state(&mut self, bgm_state: &BgmState) {
-        self.song = bgm_state.song_id;
-        self.chain_index = bgm_state.chain_index;
-        self.ticker.write_from_state(&bgm_state.bgm_ticker);
-
-        bgm_state
-            .chain_states
-            .iter()
-            .zip(self.tracks.iter_mut().zip(self.chain_states.iter_mut()))
-            .for_each(|(next, (track, state))| {
-                *state = TrackerFlow::Continue;
-                track.set_from_chain_state(next);
-            });
     }
 
     /// Calls update_tracker on each chain playback,
@@ -85,7 +85,7 @@ impl SongPlayback {
             .iter_mut()
             .zip(self.chain_states.iter_mut())
             .for_each(|(tracker, state)| {
-                if TrackerFlow::Continue == *state {
+                if TrackerFlow::Advance == *state {
                     *state = tracker.update_tracker()
                 }
             });
@@ -97,7 +97,7 @@ impl SongPlayback {
         {
             self.next_step()
         } else {
-            TrackerFlow::Continue
+            TrackerFlow::Advance
         }
     }
 
@@ -123,11 +123,11 @@ impl SongPlayback {
             .iter_mut()
             .zip(self.chain_states.iter().zip(next_chain.iter()))
             .for_each(|(track, (state, next))| {
-                if TrackerFlow::Continue == *state {
+                if TrackerFlow::Advance == *state {
                     track.set_chain_id(*next)
                 }
             });
 
-        TrackerFlow::Continue
+        TrackerFlow::Advance
     }
 }

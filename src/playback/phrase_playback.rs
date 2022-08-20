@@ -1,32 +1,31 @@
 use std::sync::Arc;
 
-use rtrb::Producer;
-
 use crate::{
-    ChainState, InstrumentChannelType, PhraseId, SoundRomInstance, TrackerFlow, PHRASE_MAX_ENTRIES,
+    InstrumentChannelType, InstrumentInstance, PhraseId, SoundRomInstance, TrackerFlow,
+    PHRASE_MAX_ENTRIES,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct PhrasePlayback {
     pub(crate) rom: Arc<SoundRomInstance>,
     pub(crate) step_index: usize,
     pub(crate) phrase: Option<PhraseId>,
-    pub(crate) producer: Producer<InstrumentChannelType>,
+    pub(crate) instrument: InstrumentInstance,
 }
 
 impl PhrasePlayback {
     pub(crate) fn new(
         phrase: Option<PhraseId>,
-        producer: Producer<InstrumentChannelType>,
         rom: &Arc<SoundRomInstance>,
+        instrument: InstrumentInstance,
     ) -> Self {
         let mut out = Self {
             step_index: 0,
             phrase,
             rom: rom.clone(),
-            producer,
+            instrument,
         };
-        out.notify_sources();
+        out.update_instrument();
         out
     }
 
@@ -36,27 +35,17 @@ impl PhrasePlayback {
         self.phrase = phrase;
         self.step_index = 0;
 
-        self.notify_sources();
+        self.update_instrument();
     }
 
-    /// Notifies sound thread of any updates to
-    /// instrument, frequency, effects, etc
-    fn notify_sources(&mut self) {
+    /// Updates the instrument with new frequency, effects, id etc
+    fn update_instrument(&mut self) {
         if let Some(phrase_id) = self.phrase {
             if let Some(next_entry) = &self.rom[phrase_id].entries[self.step_index] {
-                let out_message = InstrumentChannelType::new(next_entry, &self.rom);
-                self.producer.push(out_message).unwrap();
+                self.instrument
+                    .update_from_tracker(&InstrumentChannelType::new(next_entry, &self.rom))
             }
         }
-    }
-
-    /// Updates this phrase to match that of the passed in ChainState
-    /// Useful when trying to seek to an exact time.
-    pub(crate) fn set_from_chain_state(&mut self, chain_state: &ChainState) {
-        self.phrase = chain_state.phrase_id;
-        self.step_index = chain_state.phrase_step_index;
-
-        self.notify_sources();
     }
 
     /// Increments the index and notifies the sound thread
@@ -67,8 +56,8 @@ impl PhrasePlayback {
             self.step_index = 0;
             TrackerFlow::Finished
         } else {
-            self.notify_sources();
-            TrackerFlow::Continue
+            self.update_instrument();
+            TrackerFlow::Advance
         }
     }
 }
