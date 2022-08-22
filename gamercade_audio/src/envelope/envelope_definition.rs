@@ -39,6 +39,18 @@ impl Default for EnvelopeDefinition {
 }
 
 impl EnvelopeDefinition {
+    pub fn always_on() -> Self {
+        Self {
+            total_level: EnvelopeType::MAX,
+            sustain_level: EnvelopeType::MAX,
+
+            attack_time: 0,
+            decay_attack_time: EnvelopeType::MAX,
+            decay_sustain_time: EnvelopeType::MAX,
+            release_time: EnvelopeType::MAX,
+        }
+    }
+
     /// Silence
     pub fn silence() -> Self {
         Self {

@@ -1,15 +1,15 @@
 pub trait AudioApi {
-    fn play_bgm(&self, bgm_index: i32);
-    fn play_sfx(&self, sfx_index: i32, channel: i32);
+    fn play_bgm(&mut self, bgm_index: i32);
+    fn play_sfx(&mut self, sfx_index: i32, channel: i32);
 
     fn bgm_is_active(&self) -> i32;
     fn channel_is_active(&self, channel: i32) -> i32;
 
-    fn stop_bgm(&self);
-    fn stop_channel(&self, channel: i32);
+    fn stop_bgm(&mut self);
+    fn stop_channel(&mut self, channel: i32);
 
-    fn play_note(&self, note_id: i32, instrument_index: i32, channel: i32);
-    fn play_frequency(&self, frequency: f32, instrument_index: i32, channel: i32);
+    fn play_note(&mut self, note_id: i32, instrument_index: i32, channel: i32);
+    fn play_frequency(&mut self, frequency: f32, instrument_index: i32, channel: i32);
 }
 
 macro_rules! derive_bind_audio_api {

@@ -39,6 +39,7 @@ impl Contexts {
         seed: u64,
         session: SessionDescriptor,
         sound_rom: &Arc<SoundRomInstance>,
+        output_sample_rate: usize,
     ) -> Self {
         Self {
             draw_context: DrawContext::new(rom.clone()),
@@ -48,7 +49,7 @@ impl Contexts {
             graphics_parameter_context: GraphicsParameterContext::default(),
             text_context: TextContext::default(),
             multiplayer_context: MultiplayerContext::new(session),
-            audio_context: AudioContext::new(sound_rom),
+            audio_context: AudioContext::new(sound_rom, output_sample_rate),
         }
     }
 }

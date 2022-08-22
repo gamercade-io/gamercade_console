@@ -7,9 +7,9 @@ use crate::{
 
 #[derive(Debug, Clone)]
 pub struct SongPlayback {
-    pub(crate) song: Option<SongId>,
+    pub song: Option<SongId>,
     pub(crate) chain_index: usize, // The current location in the song
-    pub(crate) tracks: [ChainPlayback; SONG_TRACK_CHANNELS],
+    pub tracks: [ChainPlayback; SONG_TRACK_CHANNELS],
     pub(crate) chain_states: [TrackerFlow; SONG_TRACK_CHANNELS],
     pub(crate) rom: Arc<SoundRomInstance>,
 
@@ -121,11 +121,10 @@ impl SongPlayback {
 
         self.tracks
             .iter_mut()
-            .zip(self.chain_states.iter().zip(next_chain.iter()))
+            .zip(self.chain_states.iter_mut().zip(next_chain.iter()))
             .for_each(|(track, (state, next))| {
-                if TrackerFlow::Advance == *state {
-                    track.set_chain_id(*next)
-                }
+                *state = TrackerFlow::Advance;
+                track.set_chain_id(*next);
             });
 
         TrackerFlow::Advance

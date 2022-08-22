@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use super::effect::Effect;
 use crate::{
-    name_octave_to_index, notes, Instrument, InstrumentId, NoteId, NoteName, Octave,
+    name_octave_to_index, notes, InstrumentDefinition, InstrumentId, NoteId, NoteName, Octave,
     PhraseVolumeType, SoundRomInstance, EFFECT_COUNT, PHRASE_MAX_ENTRIES,
 };
 
@@ -68,7 +68,7 @@ impl Default for Phrase {
     }
 }
 
-pub type InstrumentChannelType = PhraseEntry<f32, Instrument>;
+pub type InstrumentChannelType = PhraseEntry<f32, InstrumentDefinition>;
 
 impl InstrumentChannelType {
     pub fn new(entry: &PhraseStorageType, rom: &SoundRomInstance) -> Self {

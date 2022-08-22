@@ -16,7 +16,9 @@ pub use sound_rom::*;
 pub use sound_rom_instance::*;
 pub use tracker::*;
 
-pub fn initialize_globals() {
+pub const MAX_ROLLBACK_SOUNDS: usize = 8;
+
+fn initialize_globals() {
     init_fm_lut();
     initialize_notes();
     unsafe {

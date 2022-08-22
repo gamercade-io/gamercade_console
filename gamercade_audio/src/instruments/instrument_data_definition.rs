@@ -8,7 +8,7 @@ pub struct InstrumentId(pub usize);
 
 /// The types of instruments the tracker can use
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum InstrumentDefinition {
+pub enum InstrumentDataDefinition {
     Wavetable(WavetableDefinition),
     FMSynth(PatchDefinition),
     Sampler(SampleDefinition),

@@ -41,7 +41,7 @@ wasmtime = { version = "0.39.1", features = ["cranelift"] }
 fastrand = "1.8.0"
 
 # Audio
-
+cpal = "0.13.5"
 
 # Networking
 ggrs = "0.9.2"

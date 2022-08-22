@@ -1,5 +1,6 @@
 use std::net::SocketAddr;
 
+use gamercade_audio::SoundEngineData;
 use ggrs::{Config, PlayerType};
 use wasmtime::Global;
 
@@ -11,6 +12,7 @@ pub struct WasmConsoleState {
     pub(crate) previous_buttons: Box<[Buttons]>,
     pub(crate) memories: Vec<Vec<u8>>,
     pub(crate) mutable_globals: Vec<Global>,
+    pub(crate) sound_engine_data: SoundEngineData,
 }
 
 pub struct SaveStateDefinition {

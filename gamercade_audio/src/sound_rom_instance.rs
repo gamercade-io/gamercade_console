@@ -1,37 +1,33 @@
 use std::{ops::Index, sync::Arc};
 
 use crate::{
-    Chain, ChainId, InstrumentDefinition, InstrumentId, InstrumentKind, PatchDefinition, Phrase,
-    PhraseId, SampleDefinition, Song, SongId, SoundRom, WavetableDefinition,
+    Chain, ChainId, InstrumentDataDefinition, InstrumentId, PatchDefinition, Phrase, PhraseId,
+    SampleDefinition, Sfx, Song, SongId, SoundRom, WavetableDefinition,
 };
 
 /// An engine loaded in memory, ready to use.
 #[derive(Debug)]
 pub struct SoundRomInstance {
-    songs: Box<[Song]>,
-    chains: Box<[Chain]>,
-    phrases: Box<[Phrase]>,
-    instrument_bank: Box<[Instrument]>,
+    pub songs: Box<[Song]>,
+    pub chains: Box<[Chain]>,
+    pub phrases: Box<[Phrase]>,
+    pub instrument_bank: Box<[InstrumentDefinition]>,
+    pub sfx: Box<[Sfx]>,
 }
 
 /// An instrument stored in memory, ready to generate the pieces
 /// needed to produce sounds.
 #[derive(Clone, Debug)]
-pub enum Instrument {
+pub struct InstrumentDefinition {
+    pub id: usize,
+    pub kind: InstrumentDefinitionKind,
+}
+
+#[derive(Clone, Debug)]
+pub enum InstrumentDefinitionKind {
     Wavetable(Arc<WavetableDefinition>),
     FMSynth(Arc<PatchDefinition>),
     Sampler(Arc<SampleDefinition>),
-}
-
-impl Instrument {
-    /// Returns the kind of the instrument
-    pub fn get_type(&self) -> InstrumentKind {
-        match self {
-            Instrument::Wavetable(_) => InstrumentKind::Wavetable,
-            Instrument::FMSynth(_) => InstrumentKind::FMSynth,
-            Instrument::Sampler(_) => InstrumentKind::Sampler,
-        }
-    }
 }
 
 impl SoundRomInstance {
@@ -44,15 +40,24 @@ impl SoundRomInstance {
             phrases: rom.phrases.clone(),
             instrument_bank: Vec::from(rom.instruments.clone())
                 .into_iter()
-                .map(|instrument| match instrument {
-                    InstrumentDefinition::Wavetable(wavetable_def) => {
-                        Instrument::Wavetable(Arc::new(wavetable_def))
-                    }
-                    InstrumentDefinition::FMSynth(fm_def) => Instrument::FMSynth(Arc::new(fm_def)),
-                    InstrumentDefinition::Sampler(sample) => Instrument::Sampler(Arc::new(sample)),
+                .enumerate()
+                .map(|(index, instrument)| {
+                    let kind = match instrument {
+                        InstrumentDataDefinition::Wavetable(wavetable_def) => {
+                            InstrumentDefinitionKind::Wavetable(Arc::new(wavetable_def))
+                        }
+                        InstrumentDataDefinition::FMSynth(fm_def) => {
+                            InstrumentDefinitionKind::FMSynth(Arc::new(fm_def))
+                        }
+                        InstrumentDataDefinition::Sampler(sample) => {
+                            InstrumentDefinitionKind::Sampler(Arc::new(sample))
+                        }
+                    };
+                    InstrumentDefinition { id: index, kind }
                 })
                 .collect::<Vec<_>>()
                 .into_boxed_slice(),
+            sfx: rom.sfx.clone(),
         }
     }
 }
@@ -82,7 +87,7 @@ impl Index<PhraseId> for SoundRomInstance {
 }
 
 impl Index<InstrumentId> for SoundRomInstance {
-    type Output = Instrument;
+    type Output = InstrumentDefinition;
 
     fn index(&self, index: InstrumentId) -> &Self::Output {
         &self.instrument_bank[index.0]

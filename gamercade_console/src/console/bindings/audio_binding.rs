@@ -13,8 +13,8 @@ macro_rules! derive_audio_api_binding {
                         self.func_wrap(
                             "env",
                             stringify!($ident),
-                            |caller: Caller<'_, Contexts>, $($name: $args,)*| {
-                                caller.data().audio_context.$ident($($name as $args,)*)
+                            |mut caller: Caller<'_, Contexts>, $($name: $args,)*| {
+                                caller.data_mut().audio_context.$ident($($name as $args,)*)
                         }).unwrap();
                     }
                 )*

@@ -20,6 +20,7 @@ pub struct WasmConsole {
     pub(crate) functions: Functions,
     pub(crate) instance: Instance,
     pub(crate) state_definition: SaveStateDefinition,
+    pub(crate) sound_engine: SoundEngine,
 }
 
 #[derive(Clone)]
@@ -68,14 +69,15 @@ impl Functions {
 impl WasmConsole {
     pub fn new(rom: Rom, seed: u64, session: SessionDescriptor) -> Self {
         // Initialize sound output
-        // TODO: Update this with the latest changes
-        //let sound_engine = SoundEngine::new(&rom.sounds);
 
         let rom = Arc::new(rom);
         let sound_rom = Arc::new(SoundRomInstance::new(&rom.sounds));
 
+        let sound_engine = SoundEngine::new(rom.frame_rate.frames_per_second(), &sound_rom);
+        let output_sample_rate = sound_engine.output_sample_rate();
+
         // Initialize the contexts
-        let contexts = Contexts::new(&rom, seed, session, &sound_rom);
+        let contexts = Contexts::new(&rom, seed, session, &sound_rom, output_sample_rate);
         let engine = Engine::default();
         let module = Module::new(&engine, &rom.code).unwrap();
         let mut linker = Linker::new(&engine);
@@ -116,6 +118,7 @@ impl WasmConsole {
             instance,
             state_definition,
             store,
+            sound_engine,
         };
 
         out.call_init();
@@ -154,10 +157,13 @@ impl WasmConsole {
             .map(|name| self.instance.get_global(&mut self.store, name).unwrap())
             .collect();
 
+        let sound_engine_data = self.store.data().audio_context.sound_engine_data.clone();
+
         WasmConsoleState {
             previous_buttons,
             memories,
             mutable_globals,
+            sound_engine_data,
         }
     }
 
@@ -166,7 +172,12 @@ impl WasmConsole {
             previous_buttons,
             memories,
             mutable_globals,
+            sound_engine_data,
         } = state;
+
+        // Notify the sound thread ASAP of the new sound states:
+        self.sound_engine.sync_audio_thread(&sound_engine_data);
+        self.store.data_mut().audio_context.sound_engine_data = sound_engine_data;
 
         previous_buttons
             .iter()
@@ -198,7 +209,7 @@ impl WasmConsole {
                     .unwrap()
                     .set(&mut self.store, val)
                     .unwrap()
-            })
+            });
     }
 }
 
@@ -230,14 +241,10 @@ impl Console for WasmConsole {
     }
 
     fn handle_requests(&mut self, requests: Vec<GGRSRequest<Self>>) {
-        // TODO: Figure out something to handle audio needing to
-        // roll back/forward
         for request in requests {
             match request {
                 GGRSRequest::SaveGameState { cell, frame } => {
-                    // TODO: Fire off request to sound thread
                     let state = self.generate_save_state();
-                    // TODO: Collect results from sound thread
                     cell.save(frame, Some(state), None);
                 }
                 GGRSRequest::LoadGameState { cell, .. } => {
@@ -259,6 +266,10 @@ impl Console for WasmConsole {
 
                     // Call update
                     self.call_update();
+
+                    // Advance the audio data locally
+                    self.sound_engine
+                        .fast_forward(&mut self.store.data_mut().audio_context.sound_engine_data);
 
                     // Advance the input data
                     self.store
