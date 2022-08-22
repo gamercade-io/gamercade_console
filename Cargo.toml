@@ -1,13 +1,10 @@
-[package]
-name = "gamercade_rs"
-version = "0.1.1"
-edition = "2021"
-license = "MIT OR Apache-2.0"
-description = "A safe wrapper around Gamercade's Raw Api"
-homepage = "https://gamercade.io"
-repository = "https://github.com/gamercade-io/gamercade_rs"
-keywords = ["gamedev"]
+[workspace]
+resolver = "2"
 
-[dependencies]
-paste = "1.0.7"
-gamercade_core = "0.1.0"
+members = [
+    "gamercade_audio",
+    "gamercade_console",
+    "gamercade_core",
+    "gamercade_editor",
+    "gamercade_rs"
+]
