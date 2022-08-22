@@ -4,14 +4,14 @@ A Wasm powered Fantasy Console.
 
 Learn more about [Gamercade](https://gamercade.io).
 
-This is the main workspace crate. Consider viewing the inner crates for more information about the project
+This is the main workspace crate. Consider viewing the inner crates for more information about the project. Each of them has their own readme.
 
-- gamercade_audio - For all gamercade audio related things.
-- gamercade_console - The console used to play games.
-- gamercade_core - Core shared types and functionality.
-- gamercade_editor - The editor used to bundle WASM code with assets.
-- gamercade_rs - A safe wrapper around the raw Api.
-- gamercade_tools - Useful assorted tools
+- `gamercade_audio` - For all gamercade audio related things.
+- `gamercade_console` - The console used to run & play games.
+- `gamercade_core` - Core shared types and functionality.
+- `gamercade_editor` - The editor used to bundle WASM code with assets.
+- `gamercade_rs` - A safe wrapper around the raw Api.
+- `gamercade_tools` - Useful assorted tools.
 
 ## License
 

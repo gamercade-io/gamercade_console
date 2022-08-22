@@ -12,6 +12,6 @@ repository = "https://github.com/gamercade-io/gamercade_rs"
 [dependencies]
 gamercade_audio = { path = "../gamercade_audio" }
 
-serde = { version = "1.0.143", features = ["derive"] }
+serde = { version = "1.0.144", features = ["derive"] }
 serde-big-array = "0.4.1"
 base64 = "0.13.0"

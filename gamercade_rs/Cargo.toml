@@ -9,5 +9,5 @@ repository = "https://github.com/gamercade-io/gamercade_rs"
 keywords = ["gamedev"]
 
 [dependencies]
-paste = "1.0.7"
+paste = "1.0.8"
 gamercade_core = { path = "../gamercade_core" }
