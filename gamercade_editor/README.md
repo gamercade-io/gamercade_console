@@ -2,6 +2,8 @@
 
 Editor functionality for Gamercade and related projects.
 
+The editor is the only way to output the `.gcrom` files used by the editor. This is done by bundling raw `.wasm` output files with the game's art and sound assets.
+
 Learn more about [Gamercade](https://gamercade.io).
 ## License
 
