@@ -1529,6 +1529,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "gamercade_tools"
+version = "0.1.0"
+dependencies = [
+ "gamercade_core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "gdk-pixbuf-sys"
 version = "0.15.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"

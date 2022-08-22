@@ -2,19 +2,6 @@
 name = "gamercade_editor"
 version = "0.1.0"
 edition = "2021"
-default-run = "gamercade_editor"
-
-[[bin]]
-name = "gamercade_editor"
-path = "src/main.rs"
-
-[[bin]]
-name = "4bit_color"
-path = "src/bin/4bit_color.rs"
-
-[[bin]]
-name = "5r5g4b_color"
-path = "src/bin/5r5g4b_color.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
