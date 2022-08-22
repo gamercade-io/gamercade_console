@@ -44,7 +44,7 @@ fastrand = "1.8.0"
 
 
 # Networking
-ggrs = "0.9.1"
+ggrs = "0.9.2"
 
 # File Picker Dialog
 rfd = "0.9.1"
