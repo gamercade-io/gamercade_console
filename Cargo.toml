@@ -1,48 +1,11 @@
 [workspace]
 resolver = "2"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
-# GC Dependencies
-gamercade_core = { git = "https://github.com/gamercade-io/gamercade_core" }
-gamercade_audio = { git = "https://github.com/gamercade-io/gamercade_audio" }
-
-# General Improvements
-hashbrown = "0.12.3"
-bytemuck = "1.11.0"
-parking_lot = "0.12.1"
-
-# Windowing & Graphics
-winit = "0.26.1"
-pixels = "0.9.0"
-winit_input_helper = "0.12.0"
-
-# GUI Stuff
-egui = "0.17"
-egui_wgpu_backend = "0.17"
-egui-winit = "0.17"
-
-# Macros & Helpers
-strum = { version = "0.24.1", features = ["derive"] }
-paste = "1.0.7"
-
-# Serialization / File Loading etc
-bincode = "1.3.3"
-serde = { version = "1.0.141", features = ["derive"] }
-zstd = "0.11"
-
-# Scripting
-wasmtime = { version = "0.39.1", features = ["cranelift"] }
-
-# Random
-fastrand = "1.8.0"
-
-# Audio
-
-
-# Networking
-ggrs = "0.9.1"
-
-# File Picker Dialog
-rfd = "0.9.1"
+members = [
+    "gamercade_audio",
+    "gamercade_console",
+    "gamercade_core",
+    "gamercade_editor",
+    "gamercade_rs",
+    "gamercade_tools",
+]
