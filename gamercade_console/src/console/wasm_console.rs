@@ -68,6 +68,7 @@ impl Functions {
 impl WasmConsole {
     pub fn new(rom: Rom, seed: u64, session: SessionDescriptor) -> Self {
         // Initialize sound output
+        // TODO: Update this with the latest changes
         //let sound_engine = SoundEngine::new(&rom.sounds);
 
         let rom = Arc::new(rom);
