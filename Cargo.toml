@@ -1,6 +1,17 @@
-[workspace]
-resolver = "2"
+[package]
+name = "gamercade_core"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "Core functionality for Gamercade and related projects"
+homepage = "https://gamercade.io"
+repository = "https://github.com/gamercade-io/gamercade_rs"
 
-members = [
-    "gamercade_console",
-]
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+gamercade_audio = { git = "https://github.com/gamercade-io/gamercade_audio" }
+
+serde = { version = "1.0.143", features = ["derive"] }
+serde-big-array = "0.4.1"
+base64 = "0.13.0"
