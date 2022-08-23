@@ -8,8 +8,8 @@ use cpal::{
 use rtrb::{Producer, RingBuffer};
 
 use crate::{
-    ChainPlayback, InstrumentInstance, Sfx, SfxPlayback, SongId, SongPlayback, SoundRomInstance,
-    MAX_ROLLBACK_SOUNDS, SFX_CHANNELS, SONG_TRACK_CHANNELS, initialize_globals,
+    initialize_globals, ChainPlayback, InstrumentInstance, Sfx, SfxPlayback, SongId, SongPlayback,
+    SoundRomInstance, MAX_ROLLBACK_SOUNDS, SFX_CHANNELS, SONG_TRACK_CHANNELS,
 };
 
 #[derive(Clone)]

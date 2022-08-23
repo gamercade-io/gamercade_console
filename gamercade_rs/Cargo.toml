@@ -11,3 +11,4 @@ keywords = ["gamedev"]
 [dependencies]
 paste = "1.0.8"
 gamercade_core = { path = "../gamercade_core" }
+gamercade_audio = { path = "../gamercade_audio" }
