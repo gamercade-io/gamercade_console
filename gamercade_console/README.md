@@ -6,7 +6,7 @@ Learn more about [Gamercade](https://gamercade.io).
 
 ## Quick Start:
 
-In order to write a game, you need expose these four functions in the language of your choice:
+In order to write a game, you need expose these three functions in the language of your choice:
 
 ```
 Required Functions:
