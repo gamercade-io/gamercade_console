@@ -1,4 +1,4 @@
-use egui::Ui;
+use eframe::egui::Ui;
 
 #[derive(Debug, Clone, Default)]
 pub struct SpriteEditor {}

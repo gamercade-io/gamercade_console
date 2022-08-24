@@ -1,4 +1,4 @@
-use egui::Ui;
+use eframe::egui::Ui;
 
 use crate::editor_data::EditorSoundData;
 

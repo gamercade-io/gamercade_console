@@ -1,4 +1,6 @@
-use egui::{Color32, ColorImage, Image, Slider, TextureHandle, TextureId, Ui, Vec2};
+use eframe::egui::{
+    Color32, ColorImage, Image, Slider, TextureFilter, TextureHandle, TextureId, Ui, Vec2,
+};
 
 use super::{PaletteEditor, SpriteEditor, SpriteSheetEditor};
 use crate::editor_data::EditorGraphicsData;
@@ -56,6 +58,7 @@ impl GraphicsEditor {
                 ui.ctx().load_texture(
                     "default palette texture",
                     ColorImage::from_rgba_unmultiplied([1, 1], &[255, 255, 255, 255]),
+                    TextureFilter::Nearest,
                 )
             })
             .id();

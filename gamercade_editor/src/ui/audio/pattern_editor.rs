@@ -1,4 +1,4 @@
-use egui::Ui;
+use eframe::egui::Ui;
 
 #[derive(Clone, Debug, Default)]
 pub struct PatternEditor {}
