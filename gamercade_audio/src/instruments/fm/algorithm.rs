@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use super::OPERATOR_COUNT;
+use crate::OPERATOR_COUNT;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub enum ModulatedBy {

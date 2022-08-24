@@ -1,5 +1,6 @@
 mod fm;
 mod instrument_definition;
+#[cfg(feature = "playback")]
 mod instrument_instance;
 mod sampler;
 mod wavetable;
@@ -7,6 +8,7 @@ mod wavetable_oscillator;
 
 pub use fm::*;
 pub use instrument_definition::*;
+#[cfg(feature = "playback")]
 pub use instrument_instance::*;
 pub use sampler::*;
 pub use wavetable::*;

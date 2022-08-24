@@ -11,7 +11,7 @@ pub use exponential_ramp::*;
 pub use linear_ramp::*;
 
 /// Max length in seconds, ~4.25mins.
-pub const ENVELOPE_TIME_SCALE: f32 = 256.0;
+pub(crate) const ENVELOPE_TIME_SCALE: f32 = 256.0;
 
 /// The integer type used to store envelopes.
 pub type EnvelopeType = u16;

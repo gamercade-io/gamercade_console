@@ -34,6 +34,7 @@ impl LinearRamp {
         self.value = value;
     }
 
+    #[allow(dead_code)]
     pub(crate) fn tick(&mut self) -> f32 {
         if !self.is_finished() {
             if self.remaining_ticks == 1 {
