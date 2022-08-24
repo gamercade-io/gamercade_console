@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use gamercade_audio::{SongId, SONG_TRACK_CHANNELS};
+use gamercade_audio::{SongId, SONG_TRACK_CHANNELS, TOTAL_NOTES_COUNT};
 use gamercade_sound_engine::{SoundEngineData, SoundRomInstance};
 
 use crate::api::AudioApi;
@@ -8,6 +8,7 @@ use crate::api::AudioApi;
 pub struct AudioContext {
     sound_rom: Arc<SoundRomInstance>,
     pub sound_engine_data: SoundEngineData,
+    pub changed: bool,
 }
 
 impl AudioContext {
@@ -15,6 +16,7 @@ impl AudioContext {
         Self {
             sound_rom: sound_rom.clone(),
             sound_engine_data: SoundEngineData::new(output_sample_rate, sound_rom),
+            changed: false,
         }
     }
 }
@@ -68,11 +70,28 @@ impl AudioApi for AudioContext {
         }
     }
 
-    fn play_note(&mut self, _note_id: i32, _instrument_index: i32, _channel: i32) {
+    fn play_note(&mut self, note_id: i32, instrument_index: i32, channel: i32) {
+        let valid_note = note_id >= 0 && note_id < TOTAL_NOTES_COUNT as i32;
+
+        let instrument_index = usize::try_from(instrument_index);
+        let channel = usize::try_from(channel);
+
+        if valid_note && instrument_index.is_ok() && channel.is_ok() {
+            let _instrument_index = instrument_index.unwrap();
+            let _channel = channel.unwrap();
+
+            // TODO: Play note
+        };
+
         println!("TODO: play_note is not implemented");
     }
 
-    fn play_frequency(&mut self, _frequency: f32, _instrument_index: i32, _channel: i32) {
+    fn play_frequency(&mut self, _frequency: f32, instrument_index: i32, channel: i32) {
+        if let (Ok(_instrument_index), Ok(_channel)) =
+            (usize::try_from(instrument_index), usize::try_from(channel))
+        {
+            // TODO: Play frequency
+        }
         println!("TODO: play_frequency is not implemented");
     }
 }

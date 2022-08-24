@@ -85,9 +85,12 @@ impl SoundEngine {
                 move |frames: &mut [f32], _: &cpal::OutputCallbackInfo| {
                     // react to stream events and read or write stream data here.
                     frames.chunks_exact_mut(2).for_each(|frame| {
-                        if let Ok(next_data) = consumer.pop() {
+                        // TODO: Maybe add some logic to shift
+                        // the read index forward/backward due to
+                        // delays in threading/CPU, to reduce clicking
+                        while let Ok(next_data) = consumer.pop() {
                             data = next_data
-                        };
+                        }
 
                         let bgm_frame = data.bgm.tick().iter().sum::<f32>();
                         let sfx_frame = data.sfx.iter_mut().map(|sfx| sfx.tick()).sum::<f32>();

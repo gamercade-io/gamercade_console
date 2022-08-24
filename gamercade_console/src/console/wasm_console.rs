@@ -271,6 +271,13 @@ impl Console for WasmConsole {
                     // Call update
                     self.call_update();
 
+                    // Sound changed, update the output
+                    if self.store.data_mut().audio_context.changed {
+                        self.sound_engine
+                            .sync_audio_thread(&self.store.data().audio_context.sound_engine_data);
+                        self.store.data_mut().audio_context.changed = false;
+                    }
+
                     // Advance the audio data locally
                     self.sound_engine
                         .fast_forward(&mut self.store.data_mut().audio_context.sound_engine_data);
