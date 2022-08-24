@@ -7,8 +7,6 @@ description = "Audio functionality for Gamercade and related projects"
 homepage = "https://gamercade.io"
 repository = "https://github.com/gamercade-io/gamercade_audio"
 
-default-run = "audio_test"
-
 [[bin]]
 name = "audio_test"
 path = "src/bin/audio_test.rs"
