@@ -114,6 +114,8 @@ impl SoundEngine {
                         // TODO: Maybe add some logic to shift
                         // the read index forward/backward due to
                         // delays in threading/CPU, to reduce clicking
+                        // Will probably need to tick() the sound sources
+                        // to catch them up
                         while let Ok(next_data) = consumer.pop() {
                             data = next_data
                         }
