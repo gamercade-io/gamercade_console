@@ -1,4 +1,4 @@
-use egui::{ScrollArea, TextureId, Ui};
+use eframe::egui::{ScrollArea, TextureId, Ui};
 use hashbrown::HashSet;
 
 use crate::{

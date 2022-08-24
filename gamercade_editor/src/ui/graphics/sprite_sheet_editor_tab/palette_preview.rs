@@ -1,4 +1,4 @@
-use egui::{TextureId, Ui};
+use eframe::egui::{TextureId, Ui};
 
 use crate::{editor_data::EditorPalette, ui::draw_palette_preview};
 

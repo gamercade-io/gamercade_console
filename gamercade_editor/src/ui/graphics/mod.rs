@@ -3,6 +3,7 @@ mod palette_editor_tab;
 mod sprite_editor_tab;
 mod sprite_sheet_editor_tab;
 
+use eframe::egui::TextureFilter;
 pub use graphics_editor::*;
 pub use palette_editor_tab::*;
 pub use sprite_editor_tab::*;
@@ -63,18 +64,18 @@ pub(crate) fn import_many_images_dialog(title: &str) -> Result<Vec<image::RgbaIm
 }
 
 pub(crate) fn load_buffered_image<'a>(
-    ui: &mut egui::Ui,
-    handle: &'a mut Option<egui::TextureHandle>,
+    ui: &mut eframe::egui::Ui,
+    handle: &'a mut Option<eframe::egui::TextureHandle>,
     label: &'a str,
-    rgb: egui::ColorImage,
-) -> &'a egui::TextureHandle {
+    rgb: eframe::egui::ColorImage,
+) -> &'a eframe::egui::TextureHandle {
     match handle {
         Some(handle) => {
-            handle.set(rgb);
+            handle.set(rgb, TextureFilter::Nearest);
             handle
         }
         None => {
-            *handle = Some(ui.ctx().load_texture(label, rgb));
+            *handle = Some(ui.ctx().load_texture(label, rgb, TextureFilter::Nearest));
             handle.as_ref().unwrap()
         }
     }

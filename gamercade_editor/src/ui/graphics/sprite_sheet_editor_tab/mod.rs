@@ -12,7 +12,7 @@ use sheet_list::SheetList;
 use sheet_settings::SheetSettings;
 
 // Externals
-use egui::{TextureId, Ui};
+use eframe::egui::{TextureId, Ui};
 
 use super::PaletteEditor;
 use crate::editor_data::EditorGraphicsData;

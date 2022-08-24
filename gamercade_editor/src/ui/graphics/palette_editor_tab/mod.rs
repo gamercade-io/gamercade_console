@@ -11,7 +11,7 @@ use palette_viewer::PaletteViewer;
 use sprite_preview::SpritePreview;
 
 // Externals
-use egui::{SidePanel, TextureId, TopBottomPanel, Ui};
+use eframe::egui::{SidePanel, TextureId, TopBottomPanel, Ui};
 
 use super::SpriteSheetEditor;
 use crate::editor_data::EditorGraphicsData;
