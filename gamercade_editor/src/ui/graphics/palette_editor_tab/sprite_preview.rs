@@ -1,4 +1,4 @@
-use egui::{ColorImage, Image, ScrollArea, TextureHandle, Ui, Vec2};
+use eframe::egui::{ColorImage, Image, ScrollArea, TextureHandle, Ui, Vec2};
 use gamercade_core::{ColorIndex, Palette, SpriteIndex, SpriteSheet};
 
 use crate::ui::load_buffered_image;

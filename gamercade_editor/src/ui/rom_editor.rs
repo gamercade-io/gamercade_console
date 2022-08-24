@@ -1,4 +1,4 @@
-use egui::Ui;
+use eframe::egui::{self, Ui};
 use gamercade_core::{FrameRate, Resolution};
 
 use crate::editor_data::EditorRom;

@@ -1,6 +1,6 @@
 use std::{fs, io::Write, path::PathBuf};
 
-use egui::{self, menu, Context};
+use eframe::egui::{self, menu, Context};
 use rfd::FileDialog;
 
 use crate::editor_data::EditorRom;
@@ -35,6 +35,14 @@ impl Default for Editor {
             audio_editor: AudioEditor::default(),
             wasm_path: None,
         }
+    }
+}
+
+impl eframe::App for Editor {
+    fn update(&mut self, ctx: &eframe::egui::Context, _frame: &mut eframe::Frame) {
+        self.draw_menu_panel(ctx);
+        self.draw_bottom_panel(ctx);
+        self.draw_central_panel(ctx);
     }
 }
 
