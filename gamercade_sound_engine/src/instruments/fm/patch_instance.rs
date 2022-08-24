@@ -1,9 +1,8 @@
 use std::sync::Arc;
 
-use crate::{
-    ActiveState, ModulatedBy, OperatorInstanceBundle, PatchDefinition, FM_AMPLIFICATION,
-    OPERATOR_COUNT,
-};
+use gamercade_audio::{ModulatedBy, PatchDefinition, OPERATOR_COUNT};
+
+use crate::{ActiveState, OperatorInstanceBundle, FM_AMPLIFICATION};
 
 #[derive(Clone, Debug)]
 pub struct PatchInstance {
@@ -111,29 +110,3 @@ impl PatchInstance {
         self.operators.operators[0].oscillator.output_sample_rate
     }
 }
-
-// impl Iterator for PatchInstance {
-//     type Item = f32;
-
-//     fn next(&mut self) -> Option<Self::Item> {
-//         Some(self.tick())
-//     }
-// }
-
-// impl Source for PatchInstance {
-//     fn current_frame_len(&self) -> Option<usize> {
-//         None
-//     }
-
-//     fn channels(&self) -> u16 {
-//         1
-//     }
-
-//     fn sample_rate(&self) -> u32 {
-//         self.operators.operators[0].oscillator.output_sample_rate as u32
-//     }
-
-//     fn total_duration(&self) -> Option<std::time::Duration> {
-//         None
-//     }
-// }

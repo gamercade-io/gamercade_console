@@ -1,9 +1,8 @@
 use std::sync::Arc;
 
-use crate::{
-    InstrumentChannelType, InstrumentInstance, PhraseId, SoundRomInstance, TrackerFlow,
-    PHRASE_MAX_ENTRIES,
-};
+use gamercade_audio::{PhraseId, PHRASE_MAX_ENTRIES};
+
+use crate::{new_instrument_channel_message, InstrumentInstance, SoundRomInstance, TrackerFlow};
 
 #[derive(Debug, Clone)]
 pub struct PhrasePlayback {
@@ -43,7 +42,7 @@ impl PhrasePlayback {
         if let Some(phrase_id) = self.phrase {
             if let Some(next_entry) = &self.rom[phrase_id].entries[self.step_index] {
                 self.instrument
-                    .update_from_tracker(&InstrumentChannelType::new(next_entry, &self.rom))
+                    .update_from_tracker(&new_instrument_channel_message(next_entry, &self.rom))
             }
         }
     }

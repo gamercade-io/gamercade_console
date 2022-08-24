@@ -1,6 +1,8 @@
+use gamercade_audio::{get_note, PhraseEntry, PhraseStorageType};
+
 use crate::{
-    InstrumentChannelType, InstrumentDefinition, InstrumentDefinitionKind, PatchInstance,
-    SamplerInstance, WavetableInstance,
+    InstrumentDefinition, InstrumentDefinitionKind, PatchInstance, SamplerInstance,
+    SoundRomInstance, WavetableInstance,
 };
 
 #[derive(Debug, Clone)]
@@ -14,6 +16,23 @@ pub enum InstrumentInstanceKind {
     Wavetable(WavetableInstance),
     FMSynth(Box<PatchInstance>),
     Sampler(SamplerInstance),
+}
+
+pub type InstrumentChannelType = PhraseEntry<f32, InstrumentDefinition>;
+
+pub fn new_instrument_channel_message(
+    entry: &PhraseStorageType,
+    rom: &SoundRomInstance,
+) -> InstrumentChannelType {
+    let note = get_note(entry.note).frequency;
+    let instrument = rom[entry.instrument].clone();
+
+    InstrumentChannelType {
+        note,
+        volume: entry.volume,
+        instrument,
+        effects: entry.effects.clone(),
+    }
 }
 
 impl InstrumentInstance {

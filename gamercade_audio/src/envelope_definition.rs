@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
-use crate::EnvelopeType;
+/// The integer type used to store envelopes.
+pub type EnvelopeType = u16;
 
 /// Definition of an Envelope. Controls the ADSR and volume levels.
 #[derive(Clone, Debug, Serialize, Deserialize)]

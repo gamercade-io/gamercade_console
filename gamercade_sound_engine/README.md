@@ -1,8 +1,8 @@
-# Gamercade Audio
+# Gamercade Sound Engine
 
 Learn more about [Gamercade](https://gamercade.io).
 
-The main audio crate for Gamercade. This crate is responsible for all things sound and data related. Including storage of sound types and samples and the algorithms used to synthesize the different kinds of sounds supported by the console.
+The main audio crate for Gamercade's audio playback. Closely related to `gamercade_audio`. This crate is responsible for all things related to actual sound playback. 
 
 ## License
 

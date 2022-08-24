@@ -1,9 +1,11 @@
 use std::{ops::Index, sync::Arc};
 
-use crate::{
+use gamercade_audio::{
     Chain, ChainId, InstrumentDataDefinition, InstrumentId, PatchDefinition, Phrase, PhraseId,
-    SampleDefinition, Sfx, Song, SongId, SoundRom, WavetableDefinition,
+    SampleDefinition, Song, SoundRom,
 };
+
+use crate::{Sfx, SongId, WavetableDefinition};
 
 /// An engine loaded in memory, ready to use.
 #[derive(Debug)]

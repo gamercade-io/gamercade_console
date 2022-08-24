@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use gamercade_audio::{SoundEngine, SoundRomInstance};
+use gamercade_sound_engine::{SoundEngine, SoundRomInstance};
 use ggrs::GGRSRequest;
 use wasmtime::{Engine, ExternType, Instance, Linker, Module, Mutability, Store, TypedFunc};
 
@@ -67,13 +67,17 @@ impl Functions {
 }
 
 impl WasmConsole {
-    pub fn new(rom: Rom, seed: u64, session: SessionDescriptor) -> Self {
+    pub fn new(rom: Rom, seed: u64, session: SessionDescriptor, max_prediction: usize) -> Self {
         // Initialize sound output
 
         let rom = Arc::new(rom);
         let sound_rom = Arc::new(SoundRomInstance::new(&rom.sounds));
 
-        let sound_engine = SoundEngine::new(rom.frame_rate.frames_per_second(), &sound_rom);
+        let sound_engine = SoundEngine::new(
+            rom.frame_rate.frames_per_second(),
+            &sound_rom,
+            max_prediction,
+        );
         let output_sample_rate = sound_engine.output_sample_rate();
 
         // Initialize the contexts

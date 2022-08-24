@@ -1,6 +1,8 @@
 use std::sync::Arc;
 
-use crate::{ActiveState, EnvelopeInstance, SampleBitDepth, SampleDefinition, SampleOscillator};
+use gamercade_audio::{SampleBitDepth, SampleDefinition};
+
+use crate::{ActiveState, EnvelopeInstance, SampleOscillator};
 
 #[derive(Debug, Clone)]
 pub struct SamplerInstance {

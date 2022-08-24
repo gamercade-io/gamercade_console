@@ -1,4 +1,6 @@
-use crate::{EnvelopeDefinition, EnvelopePhase, EnvelopeType, ENVELOPE_TIME_SCALE};
+use gamercade_audio::EnvelopeType;
+
+use crate::{EnvelopeDefinition, EnvelopePhase, ENVELOPE_TIME_SCALE};
 
 const OVERSHOOT: f32 = 1.001;
 

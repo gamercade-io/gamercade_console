@@ -1,0 +1,24 @@
+[package]
+name = "gamercade_sound_engine"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "Sound Engine functionality for Gamercade and related projects"
+homepage = "https://gamercade.io"
+repository = "https://github.com/gamercade-io/gamercade_console"
+
+[[bin]]
+name = "audio_test"
+path = "src/bin/audio_test.rs"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+gamercade_audio = { path = "../gamercade_audio/" }
+
+cpal = "0.13.5"
+arrayvec = { version = "0.7.2", features = ["serde"] }
+rtrb = "0.2.2"
+
+# for .wav
+hound = "3.4.0"

@@ -1,6 +1,8 @@
-use crate::{
-    ActiveState, EnvelopeDefinition, EnvelopePhase, ExponentialRamp, NO_SOUND_SAMPLE_RATE,
-};
+use crate::{ActiveState, EnvelopePhase, ExponentialRamp};
+use gamercade_audio::EnvelopeDefinition;
+
+/// Max length in seconds, ~4.25mins.
+pub(crate) const ENVELOPE_TIME_SCALE: f32 = 256.0;
 
 /// A running instance of an envelope.
 #[derive(Clone, Debug)]
@@ -11,8 +13,8 @@ pub struct EnvelopeInstance {
 }
 
 impl EnvelopeInstance {
-    pub fn no_sound() -> Self {
-        Self::new(&EnvelopeDefinition::default(), NO_SOUND_SAMPLE_RATE)
+    pub fn no_sound(output_sample_rate: usize) -> Self {
+        Self::new(&EnvelopeDefinition::default(), output_sample_rate)
     }
 
     /// Generates a new envelope with the given sample rate.

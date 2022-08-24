@@ -143,6 +143,6 @@ impl Algorithm {
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct AlgorithmDefinition {
-    pub(crate) carriers: [bool; OPERATOR_COUNT],
-    pub(crate) modulators: [ModulatedBy; OPERATOR_COUNT - 1],
+    pub carriers: [bool; OPERATOR_COUNT],
+    pub modulators: [ModulatedBy; OPERATOR_COUNT - 1],
 }

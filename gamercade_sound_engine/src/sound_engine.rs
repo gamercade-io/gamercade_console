@@ -8,10 +8,10 @@ use cpal::{
 use rtrb::{Producer, RingBuffer};
 
 use crate::{
-    initialize_globals, ChainPlayback, InstrumentInstance, Sfx, SfxPlayback, SongId, SongPlayback,
-    SoundRomInstance, MAX_ROLLBACK_SOUNDS, SFX_CHANNELS, SONG_TRACK_CHANNELS,
+    initialize_globals, ChainPlayback, InstrumentInstance, SfxPlayback, SongPlayback,
+    SoundRomInstance,
 };
-
+pub use gamercade_audio::{Sfx, SongId, SFX_CHANNELS, SONG_TRACK_CHANNELS};
 #[derive(Clone)]
 pub struct SoundEngineData {
     pub bgm: SongPlayback,
@@ -62,7 +62,7 @@ impl SoundEngine {
         self.output_sample_rate
     }
 
-    pub fn new(fps: usize, rom: &Arc<SoundRomInstance>) -> Self {
+    pub fn new(fps: usize, rom: &Arc<SoundRomInstance>, max_rollback_frames: usize) -> Self {
         initialize_globals();
         let device = default_host().default_output_device().unwrap();
 
@@ -76,7 +76,7 @@ impl SoundEngine {
         let config = StreamConfig::from(supported_config);
 
         let sound_frames_per_render_frame = output_sample_rate / fps;
-        let (producer, mut consumer) = RingBuffer::new(MAX_ROLLBACK_SOUNDS);
+        let (producer, mut consumer) = RingBuffer::new(max_rollback_frames);
         let mut data = SoundEngineData::new(output_sample_rate, rom);
 
         let stream = device

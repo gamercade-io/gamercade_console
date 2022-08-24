@@ -1,13 +1,11 @@
 use std::{mem::MaybeUninit, sync::Arc};
 
-use crate::{ActiveState, EnvelopeInstance, WavetableBitDepth, WavetableOscillator};
+use gamercade_audio::{WavetableBitDepth, WavetableDefinition};
 
-use super::WavetableDefinition;
+use crate::{ActiveState, EnvelopeInstance, WavetableOscillator};
 
 pub(crate) static mut NO_SOUND_DEFINITION: MaybeUninit<Arc<WavetableDefinition>> =
     MaybeUninit::uninit();
-
-pub(crate) const NO_SOUND_SAMPLE_RATE: usize = 11_025; //44_100Khz / 4
 
 #[derive(Clone, Debug)]
 pub struct WavetableInstance {
@@ -21,7 +19,7 @@ impl WavetableInstance {
     pub fn no_sound(output_sample_rate: usize) -> Self {
         let definition = unsafe { NO_SOUND_DEFINITION.assume_init_ref().clone() };
         Self {
-            envelope: EnvelopeInstance::no_sound(),
+            envelope: EnvelopeInstance::no_sound(output_sample_rate),
             definition,
             oscillator: WavetableOscillator::new(1, output_sample_rate),
             active: ActiveState::Off,
@@ -80,29 +78,3 @@ impl WavetableInstance {
         self.active = ActiveState::Trigger;
     }
 }
-
-// impl Iterator for WavetableOscilator {
-//     type Item = f32;
-
-//     fn next(&mut self) -> Option<f32> {
-//         Some(self.tick())
-//     }
-// }
-
-// impl Source for WavetableOscilator {
-//     fn channels(&self) -> u16 {
-//         1
-//     }
-
-//     fn sample_rate(&self) -> u32 {
-//         self.oscillator.output_sample_rate as u32
-//     }
-
-//     fn current_frame_len(&self) -> Option<usize> {
-//         None
-//     }
-
-//     fn total_duration(&self) -> Option<std::time::Duration> {
-//         None
-//     }
-// }

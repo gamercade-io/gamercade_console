@@ -12,7 +12,7 @@ use std::sync::Arc;
 use audio_context::*;
 use data_context::DataContext;
 use draw_context::DrawContext;
-use gamercade_audio::SoundRomInstance;
+use gamercade_sound_engine::SoundRomInstance;
 use graphics_parameter_context::GraphicsParameterContext;
 use input_context::InputContext;
 use multiplayer_context::MultiplayerContext;

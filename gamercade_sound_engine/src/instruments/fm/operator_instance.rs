@@ -1,7 +1,6 @@
-use crate::{
-    ActiveState, EnvelopeInstance, FMWaveform, OperatorDefinition, OperatorDefinitionBundle,
-    WavetableOscillator, LUT_FULL_LEN, OPERATOR_COUNT,
-};
+use gamercade_audio::{FMWaveform, OperatorDefinition, OperatorDefinitionBundle, OPERATOR_COUNT};
+
+use crate::{ActiveState, EnvelopeInstance, WavetableOscillator, LUT_FULL_LEN};
 
 #[derive(Debug, Clone)]
 pub struct OperatorInstance {
@@ -27,6 +26,7 @@ impl OperatorInstance {
     /// interpolates between the next sample.
     /// Also ticks the operator.
     pub fn tick(&mut self, waveform: FMWaveform, modulation: f32, active: ActiveState) -> f32 {
+        use crate::lookup;
         let index = self.oscillator.tick() + self.oscillator.modulation(modulation);
 
         let next_weight = index.fract();
@@ -35,8 +35,8 @@ impl OperatorInstance {
         let index = index as usize % LUT_FULL_LEN;
         let next = (index + 1) % LUT_FULL_LEN;
 
-        let index = waveform.lookup(index);
-        let next = waveform.lookup(next);
+        let index = lookup(waveform, index);
+        let next = lookup(waveform, next);
 
         let output = (index * index_weight) + (next * next_weight);
         let envelope = self.envelope.tick(active);

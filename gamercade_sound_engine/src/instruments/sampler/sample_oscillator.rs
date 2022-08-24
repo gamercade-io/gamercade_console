@@ -1,4 +1,4 @@
-use super::SampleDefinition;
+use gamercade_audio::SampleDefinition;
 
 #[derive(Debug, Clone)]
 pub struct SampleOscillator {

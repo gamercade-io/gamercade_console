@@ -201,14 +201,23 @@ impl Gui {
 
                                     let seed = u64::from_str_radix(&self.seed, 16).unwrap();
 
-                                    *session = Some(init_session(
-                                        &rom,
-                                        port,
-                                        &session_descriptor.player_types,
-                                    ));
+                                    let (max_prediction, new_session) = {
+                                        let new_session = init_session(
+                                            &rom,
+                                            port,
+                                            &session_descriptor.player_types,
+                                        );
+                                        (new_session.max_prediction(), new_session)
+                                    };
 
-                                    self.wasm_console =
-                                        Some(WasmConsole::new(rom, seed, session_descriptor));
+                                    *session = Some(new_session);
+
+                                    self.wasm_console = Some(WasmConsole::new(
+                                        rom,
+                                        seed,
+                                        session_descriptor,
+                                        max_prediction,
+                                    ));
                                 }
                             }
                         }

@@ -1,6 +1,6 @@
 use std::net::SocketAddr;
 
-use gamercade_audio::SoundEngineData;
+use gamercade_sound_engine::SoundEngineData;
 use ggrs::{Config, PlayerType};
 use wasmtime::Global;
 

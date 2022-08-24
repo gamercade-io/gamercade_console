@@ -24,7 +24,6 @@ impl WavetableOscillator {
         self.index_increment = increment / self.output_sample_rate as f32;
     }
 
-    #[cfg(feature = "playback")]
     /// Returns the modulation amount for this oscillator. Used with FM Synth
     pub(crate) fn modulation(&self, modulation: f32) -> f32 {
         modulation * self.index_increment

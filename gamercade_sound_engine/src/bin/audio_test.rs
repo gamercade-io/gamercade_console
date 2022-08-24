@@ -3,9 +3,10 @@ use std::{process, sync::Arc, time::Duration};
 use arrayvec::ArrayVec;
 use gamercade_audio::{
     Chain, ChainId, EnvelopeDefinition, InstrumentDataDefinition, InstrumentId, PatchDefinition,
-    Phrase, PhraseId, SampleBitDepth, SampleDefinition, Song, SongId, SoundEngine, SoundEngineData,
-    SoundRom, SoundRomInstance, WavetableDefinition, WavetableGenerator, WavetableWaveform,
+    Phrase, PhraseId, SampleBitDepth, SampleDefinition, Song, SongId, SoundRom,
+    WavetableDefinition, WavetableGenerator, WavetableWaveform,
 };
+use gamercade_sound_engine::{SoundEngine, SoundEngineData, SoundRomInstance};
 use hound::WavReader;
 
 const FPS: usize = 60;
@@ -19,7 +20,7 @@ pub fn main() {
 
     let test_rom = Arc::new(test_rom());
 
-    let mut engine = SoundEngine::new(FPS, &test_rom);
+    let mut engine = SoundEngine::new(FPS, &test_rom, 8);
     let output_sample_rate = engine.output_sample_rate();
     let mut data = SoundEngineData::new(output_sample_rate, &test_rom);
 

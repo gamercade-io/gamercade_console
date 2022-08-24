@@ -7,23 +7,11 @@ description = "Audio functionality for Gamercade and related projects"
 homepage = "https://gamercade.io"
 repository = "https://github.com/gamercade-io/gamercade_audio"
 
-[[bin]]
-name = "audio_test"
-path = "src/bin/audio_test.rs"
-
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-cpal = { version = "0.13.5", optional = true }
 serde = { version = "1.0.144", features = ["derive"] }
 strum = { version = "0.24.1", features = ["derive"] }
 arrayvec = { version = "0.7.2", features = ["serde"] }
 tinystr = "0.6.1"
 rtrb = "0.2.2"
-spin_sleep = "1.1.1"
-
-# for .wav
-hound = "3.4.0"
-
-[features]
-playback = ["dep:cpal"]

@@ -1,6 +1,9 @@
 use std::sync::Arc;
 
-use crate::{ChainId, InstrumentInstance, PhrasePlayback, SoundRomInstance, TrackerFlow};
+use gamercade_audio::ChainId;
+
+use crate::{InstrumentInstance, PhrasePlayback, SoundRomInstance, TrackerFlow};
+
 #[derive(Debug, Clone)]
 pub struct ChainPlayback {
     pub(crate) rom: Arc<SoundRomInstance>,

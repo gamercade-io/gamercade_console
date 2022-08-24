@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
-use gamercade_audio::{SongId, SoundEngineData, SoundRomInstance, SONG_TRACK_CHANNELS};
+use gamercade_audio::{SongId, SONG_TRACK_CHANNELS};
+use gamercade_sound_engine::{SoundEngineData, SoundRomInstance};
 
 use crate::api::AudioApi;
 

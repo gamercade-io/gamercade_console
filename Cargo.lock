@@ -1648,11 +1648,8 @@ name = "gamercade_audio"
 version = "0.1.0"
 dependencies = [
  "arrayvec 0.7.2",
- "cpal",
- "hound",
  "rtrb",
  "serde",
- "spin_sleep",
  "strum",
  "tinystr",
 ]
@@ -1670,6 +1667,7 @@ dependencies = [
  "fastrand",
  "gamercade_audio",
  "gamercade_core",
+ "gamercade_sound_engine",
  "ggrs",
  "hashbrown 0.12.3",
  "parking_lot 0.12.1",
@@ -1702,6 +1700,7 @@ dependencies = [
  "eframe",
  "gamercade_audio",
  "gamercade_core",
+ "gamercade_sound_engine",
  "hashbrown 0.12.3",
  "image",
  "rfd",
@@ -1716,6 +1715,17 @@ version = "0.1.1"
 dependencies = [
  "gamercade_core",
  "paste",
+]
+
+[[package]]
+name = "gamercade_sound_engine"
+version = "0.1.0"
+dependencies = [
+ "arrayvec 0.7.2",
+ "cpal",
+ "gamercade_audio",
+ "hound",
+ "rtrb",
 ]
 
 [[package]]
@@ -3562,16 +3572,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f6002a767bff9e83f8eeecf883ecb8011875a21ae8da43bffb817a57e78cc09"
 dependencies = [
  "lock_api",
-]
-
-[[package]]
-name = "spin_sleep"
-version = "1.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cafa7900db085f4354dbc7025e25d7a839a14360ea13b5fc4fd717f2d3b23134"
-dependencies = [
- "once_cell",
- "winapi",
 ]
 
 [[package]]
