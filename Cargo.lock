@@ -1714,7 +1714,6 @@ dependencies = [
 name = "gamercade_rs"
 version = "0.1.1"
 dependencies = [
- "gamercade_audio",
  "gamercade_core",
  "paste",
 ]

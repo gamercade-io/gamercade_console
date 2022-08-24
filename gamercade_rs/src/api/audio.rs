@@ -1,5 +1,5 @@
 use crate::raw;
-use gamercade_audio::{SFX_CHANNELS, TOTAL_NOTES_COUNT};
+use gamercade_core::{SFX_CHANNELS, TOTAL_NOTES_COUNT};
 
 /// Starts playing the passed in BGM index.
 /// If a song is already playing, it will stop.
