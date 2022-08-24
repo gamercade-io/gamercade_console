@@ -10,14 +10,19 @@ mod tracker;
 pub use envelope::*;
 pub use instruments::*;
 pub use notes::*;
-pub use playback::*;
-pub use sound_engine::*;
 pub use sound_rom::*;
-pub use sound_rom_instance::*;
 pub use tracker::*;
+
+#[cfg(feature = "playback")]
+pub use playback::*;
+#[cfg(feature = "playback")]
+pub use sound_engine::*;
+#[cfg(feature = "playback")]
+pub use sound_rom_instance::*;
 
 pub const MAX_ROLLBACK_SOUNDS: usize = 8;
 
+#[cfg(feature = "playback")]
 fn initialize_globals() {
     init_fm_lut();
     initialize_notes();
