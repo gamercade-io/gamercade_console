@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use gamercade_audio::{SongId, SONG_TRACK_CHANNELS, TOTAL_NOTES_COUNT};
+use gamercade_audio::{SongId, SFX_CHANNELS, SONG_TRACK_CHANNELS, TOTAL_NOTES_COUNT};
 use gamercade_sound_engine::{SoundEngineData, SoundRomInstance};
 
 use crate::api::AudioApi;
@@ -40,6 +40,8 @@ impl AudioApi for AudioContext {
         }
     }
 
+    // TODO: Improve this to check if the state is actually playing a sound or not,
+    // parhaps via TrackerFlow
     fn bgm_is_active(&self) -> i32 {
         if self.sound_engine_data.bgm.song.is_some() {
             1
@@ -48,6 +50,8 @@ impl AudioApi for AudioContext {
         }
     }
 
+    // TODO: Improve this to actually check if the channel is playing a sound or not,
+    // perhals via TrackerFlow
     fn channel_is_active(&self, channel: i32) -> i32 {
         if let Ok(channel) = usize::try_from(channel) {
             if channel < SONG_TRACK_CHANNELS {
@@ -59,13 +63,13 @@ impl AudioApi for AudioContext {
     }
 
     fn stop_bgm(&mut self) {
-        println!("TODO: stop_bgm is not implemented");
+        self.sound_engine_data.play_bgm(None);
     }
 
     fn stop_channel(&mut self, channel: i32) {
         if let Ok(channel) = usize::try_from(channel) {
             if channel < SONG_TRACK_CHANNELS {
-                println!("TODO: stop_channel is not implemented");
+                self.sound_engine_data.play_sfx(None, channel)
             }
         }
     }
@@ -76,22 +80,22 @@ impl AudioApi for AudioContext {
         let instrument_index = usize::try_from(instrument_index);
         let channel = usize::try_from(channel);
 
-        if valid_note && instrument_index.is_ok() && channel.is_ok() {
-            let _instrument_index = instrument_index.unwrap();
-            let _channel = channel.unwrap();
-
-            // TODO: Play note
+        if let (true, Ok(instrument_index), Ok(channel)) = (valid_note, instrument_index, channel) {
+            if channel < SFX_CHANNELS {
+                self.sound_engine_data
+                    .play_note(note_id, instrument_index, channel);
+            }
         };
-
-        println!("TODO: play_note is not implemented");
     }
 
-    fn play_frequency(&mut self, _frequency: f32, instrument_index: i32, channel: i32) {
-        if let (Ok(_instrument_index), Ok(_channel)) =
+    fn play_frequency(&mut self, frequency: f32, instrument_index: i32, channel: i32) {
+        if let (Ok(instrument_index), Ok(channel)) =
             (usize::try_from(instrument_index), usize::try_from(channel))
         {
-            // TODO: Play frequency
+            if channel < SFX_CHANNELS {
+                self.sound_engine_data
+                    .play_frequency(frequency, instrument_index, channel);
+            }
         }
-        println!("TODO: play_frequency is not implemented");
     }
 }

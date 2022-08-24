@@ -16,6 +16,7 @@ pub use gamercade_audio::{Sfx, SongId, SFX_CHANNELS, SONG_TRACK_CHANNELS};
 pub struct SoundEngineData {
     pub bgm: SongPlayback,
     pub sfx: [SfxPlayback; SFX_CHANNELS],
+    rom: Arc<SoundRomInstance>,
 }
 
 impl SoundEngineData {
@@ -36,6 +37,7 @@ impl SoundEngineData {
                     output_sample_rate,
                 )
             }),
+            rom: rom.clone(),
         }
     }
 
@@ -47,6 +49,30 @@ impl SoundEngineData {
     /// Sets the Sfx to be played. If None is passed in, the sfx will be stopped.
     pub fn play_sfx(&mut self, sfx: Option<Sfx>, channel: usize) {
         self.sfx[channel].set_sfx_id(sfx);
+    }
+
+    pub fn play_note(&mut self, note: i32, instrument_index: usize, channel: usize) {
+        let instrument = self.rom.instrument_bank.get(instrument_index);
+        let channel = self.sfx.get_mut(channel);
+
+        if let (Some(instrument), Some(channel)) = (instrument, channel) {
+            let target = &mut channel.chain_playback.phrase_playback.instrument;
+            target.update_from_instrument(instrument);
+            target.set_active(true);
+            target.set_note(note);
+        }
+    }
+
+    pub fn play_frequency(&mut self, frequency: f32, instrument_index: usize, channel: usize) {
+        let instrument = self.rom.instrument_bank.get(instrument_index);
+        let channel = self.sfx.get_mut(channel);
+
+        if let (Some(instrument), Some(channel)) = (instrument, channel) {
+            let target = &mut channel.chain_playback.phrase_playback.instrument;
+            target.update_from_instrument(instrument);
+            target.set_active(true);
+            target.set_frequency(frequency);
+        }
     }
 }
 

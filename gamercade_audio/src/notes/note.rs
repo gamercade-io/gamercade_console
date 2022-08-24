@@ -10,6 +10,20 @@ use crate::{NoteName, Octave, TOTAL_NOTES_COUNT};
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct NoteId(pub usize);
 
+impl TryFrom<i32> for NoteId {
+    type Error = &'static str;
+
+    fn try_from(value: i32) -> Result<Self, Self::Error> {
+        if let Ok(note_id) = usize::try_from(value) {
+            if note_id < TOTAL_NOTES_COUNT {
+                return Ok(NoteId(note_id));
+            }
+        }
+
+        Err("invalid note id")
+    }
+}
+
 /// A representation of a musical note
 #[derive(Debug, Clone)]
 pub struct Note {

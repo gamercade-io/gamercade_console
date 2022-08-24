@@ -1,4 +1,4 @@
-use gamercade_audio::{get_note, PhraseEntry, PhraseStorageType};
+use gamercade_audio::{get_note, NoteId, PhraseEntry, PhraseStorageType};
 
 use crate::{
     InstrumentDefinition, InstrumentDefinitionKind, PatchInstance, SamplerInstance,
@@ -103,6 +103,34 @@ impl InstrumentInstance {
             InstrumentInstanceKind::Wavetable(wv) => wv.tick(),
             InstrumentInstanceKind::FMSynth(fm) => fm.tick(),
             InstrumentInstanceKind::Sampler(sm) => sm.tick(),
+        }
+    }
+
+    pub(crate) fn set_active(&mut self, active: bool) {
+        match &mut self.kind {
+            InstrumentInstanceKind::Wavetable(wv) => wv.set_active(active),
+            InstrumentInstanceKind::FMSynth(fm) => fm.set_active(active),
+            InstrumentInstanceKind::Sampler(sm) => sm.set_active(active),
+        }
+    }
+
+    pub(crate) fn set_note(&mut self, note_id: i32) {
+        if let Ok(note) = NoteId::try_from(note_id) {
+            let frequency = gamercade_audio::get_note(note).frequency;
+
+            match &mut self.kind {
+                InstrumentInstanceKind::Wavetable(wv) => wv.set_frequency(frequency),
+                InstrumentInstanceKind::FMSynth(fm) => fm.set_frequency(frequency),
+                InstrumentInstanceKind::Sampler(sm) => sm.set_frequency(frequency),
+            }
+        }
+    }
+
+    pub(crate) fn set_frequency(&mut self, frequency: f32) {
+        match &mut self.kind {
+            InstrumentInstanceKind::Wavetable(wv) => wv.set_frequency(frequency),
+            InstrumentInstanceKind::FMSynth(fm) => fm.set_frequency(frequency),
+            InstrumentInstanceKind::Sampler(sm) => sm.set_frequency(frequency),
         }
     }
 }
