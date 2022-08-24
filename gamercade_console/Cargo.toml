@@ -47,4 +47,4 @@ cpal = "0.13.5"
 ggrs = "0.9.2"
 
 # File Picker Dialog
-rfd = "0.9.1"
+rfd = "0.10.0"

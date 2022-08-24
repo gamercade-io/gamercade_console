@@ -3,9 +3,12 @@ use serde::{Deserialize, Serialize};
 
 use super::effect::Effect;
 use crate::{
-    name_octave_to_index, notes, InstrumentDefinition, InstrumentId, NoteId, NoteName, Octave,
-    PhraseVolumeType, SoundRomInstance, EFFECT_COUNT, PHRASE_MAX_ENTRIES,
+    name_octave_to_index, InstrumentId, NoteId, NoteName, Octave, PhraseVolumeType, EFFECT_COUNT,
+    PHRASE_MAX_ENTRIES, InstrumentDataDefinition,
 };
+
+#[cfg(feature = "playback")]
+use crate::{Instrument, SoundRomInstance};
 
 /// Newtype Chain Identifier
 #[derive(Debug, Copy, Clone, Serialize, Deserialize)]
@@ -68,11 +71,13 @@ impl Default for Phrase {
     }
 }
 
-pub type InstrumentChannelType = PhraseEntry<f32, InstrumentDefinition>;
+#[cfg(feature = "playback")]
+pub type InstrumentChannelType = PhraseEntry<f32, InstrumentDataDefinition>;
 
+#[cfg(feature = "playback")]
 impl InstrumentChannelType {
     pub fn new(entry: &PhraseStorageType, rom: &SoundRomInstance) -> Self {
-        let note = notes::get_note(entry.note).frequency;
+        let note = crate::notes::get_note(entry.note).frequency;
         let instrument = rom[entry.instrument].clone();
 
         Self {

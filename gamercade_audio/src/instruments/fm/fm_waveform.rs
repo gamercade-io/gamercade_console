@@ -1,7 +1,4 @@
-use std::{
-    f32::consts::{PI, TAU},
-    mem::MaybeUninit,
-};
+use std::mem::MaybeUninit;
 
 use serde::{Deserialize, Serialize};
 
@@ -9,7 +6,9 @@ use crate::{LUT_FULL_LEN, LUT_QUARTER_LEN};
 
 static mut SIN_LUT: MaybeUninit<[f32; LUT_QUARTER_LEN]> = MaybeUninit::uninit();
 
+#[cfg(feature = "playback")]
 pub(crate) fn init_fm_lut() {
+    use std::f32::consts::{PI, TAU};
     unsafe {
         SIN_LUT.write(std::array::from_fn(|index| {
             let phase = (TAU * index as f32) / LUT_FULL_LEN as f32;
