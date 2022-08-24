@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 # GC Dependencies
 gamercade_core = { path = "../gamercade_core" }
-gamercade_audio = { path = "../gamercade_audio" }
+gamercade_audio = { path = "../gamercade_audio", features = ["playback"] }
 
 # General Improvements
 hashbrown = "0.12.3"
