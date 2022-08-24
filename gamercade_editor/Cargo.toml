@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 # Gamercade Dependencies
 gamercade_core = { path = "../gamercade_core" }
-gamercade_audio = { path = "../gamercade_audio" }
+gamercade_audio = { path = "../gamercade_audio", features = ["playback"] }
 
 # Serialization
 serde = { version = "1.0.144", features = ["derive"] }
