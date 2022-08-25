@@ -35,6 +35,7 @@ extern "C" {
     pub fn clear_screen(graphics_parameters: i32);
     pub fn set_pixel(graphics_parameters: i32, x: i32, y: i32);
     pub fn circle(graphics_parameters: i32, x: i32, y: i32, radius: i32);
+    pub fn circle_filled(graphics_parameters: i32, x: i32, y: i32, radius: i32);
     pub fn rect(graphics_parameters: i32, x: i32, y: i32, width: i32, height: i32);
     pub fn rect_filled(graphics_parameters: i32, x: i32, y: i32, width: i32, height: i32);
     pub fn line(graphics_parameters: i32, x0: i32, y0: i32, x1: i32, y1: i32);

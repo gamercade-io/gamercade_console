@@ -205,6 +205,59 @@ impl DrawApi for DrawContext {
             self.set_pixel_safe(XCord(x0 - y as usize), YCord(y0 - x as usize), color);
         }
     }
+
+    fn circle_filled(&mut self, graphics_parameters: i32, x: i32, y: i32, radius: i32) {
+        let top = self.validate_y(y - radius);
+        let bottom = self.validate_y(y + radius);
+        let left = self.validate_x(x - radius);
+        let right = self.validate_x(x + radius);
+
+        let GraphicsParameters {
+            color_index,
+            palette_index,
+            ..
+        } = graphics_parameters.into();
+
+        let color = match self.rom.graphics.palette(palette_index) {
+            Some(palette) => palette[color_index],
+            None => return,
+        };
+
+        if top.is_err() || bottom.is_err() || left.is_err() || right.is_err() {
+            return;
+        }
+
+        let x0 = x as usize;
+        let y0 = y as usize;
+
+        let mut f = 1 - radius;
+        let mut ddf_x = 0;
+        let mut ddf_y = -2 * radius;
+        let mut x = 0;
+        let mut y = radius;
+
+        self.set_pixel_safe(XCord(x0 as usize), YCord(y0 as usize), color);
+
+        while x < y {
+            if f >= 0 {
+                y -= 1;
+                ddf_y += 2;
+                f += ddf_y;
+            };
+
+            x += 1;
+            ddf_x += 2;
+            f += ddf_x + 1;
+            self.draw_line_horizontal(x0 as i32 - x, x0 as i32 + x, y0 as i32 + y, color);
+            self.draw_line_horizontal(x0 as i32 - x, x0 as i32 + x, y0 as i32 - y, color);
+            self.draw_line_horizontal(x0 as i32 - y, x0 as i32 + y, y0 as i32 + x, color);
+            self.draw_line_horizontal(x0 as i32 - y, x0 as i32 + y, y0 as i32 - x, color);
+            self.draw_line_vertical(x0 as i32 - y, y0 as i32 - x, y0 as i32 + x, color);
+            self.draw_line_vertical(x0 as i32 + y, y0 as i32 - x, y0 as i32 + x, color);
+            self.draw_line_vertical(x0 as i32 - x, y0 as i32 - x, y0 as i32 + x, color);
+            self.draw_line_vertical(x0 as i32 + x, y0 as i32 - x, y0 as i32 + x, color);
+        }
+    }
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
