@@ -7,7 +7,7 @@ edition = "2021"
 
 [[bin]]
 name = "console"
-path = "src/console.rs"
+path = "src/main.rs"
 
 [dependencies]
 # GC Dependencies
