@@ -74,6 +74,15 @@ impl SoundEngineData {
             target.set_frequency(frequency);
         }
     }
+
+    pub(crate) fn fast_forward(&mut self, frames: usize) {
+        (0..frames).for_each(|_| {
+            self.bgm.tick();
+            self.sfx.iter_mut().for_each(|sfx| {
+                sfx.tick();
+            });
+        });
+    }
 }
 
 pub struct SoundEngine {
@@ -111,13 +120,8 @@ impl SoundEngine {
                 move |frames: &mut [f32], _: &cpal::OutputCallbackInfo| {
                     // react to stream events and read or write stream data here.
                     frames.chunks_exact_mut(2).for_each(|frame| {
-                        // TODO: Maybe add some logic to shift
-                        // the read index forward/backward due to
-                        // delays in threading/CPU, to reduce clicking
-                        // Will probably need to tick() the sound sources
-                        // to catch them up
                         while let Ok(next_data) = consumer.pop() {
-                            data = next_data
+                            data = next_data;
                         }
 
                         let bgm_frame = data.bgm.tick().iter().sum::<f32>();
@@ -149,12 +153,7 @@ impl SoundEngine {
     /// Fast-forwards the the SoundEngineData by generating one frame worth samples
     /// This keeps it somewhat in sync with the audio that's actually being played
     pub fn fast_forward(&mut self, data: &mut SoundEngineData) {
-        (0..self.sound_frames_per_render_frame).for_each(|_| {
-            data.bgm.tick();
-            data.sfx.iter_mut().for_each(|sfx| {
-                sfx.tick();
-            });
-        });
+        data.fast_forward(self.sound_frames_per_render_frame);
     }
 
     pub fn sync_audio_thread(&mut self, data: &SoundEngineData) {

@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use gamercade_sound_engine::{SoundEngine, SoundRomInstance};
+use gamercade_sound_engine::{SoundEngine, SoundEngineData, SoundRomInstance};
 use ggrs::GGRSRequest;
 use wasmtime::{Engine, ExternType, Instance, Linker, Module, Mutability, Store, TypedFunc};
 
@@ -21,6 +21,7 @@ pub struct WasmConsole {
     pub(crate) instance: Instance,
     pub(crate) state_definition: SaveStateDefinition,
     pub(crate) sound_engine: SoundEngine,
+    pub(crate) audio_out: SoundEngineData,
 }
 
 #[derive(Clone)]
@@ -116,6 +117,8 @@ impl WasmConsole {
             mutable_globals,
         };
 
+        let audio_out = store.data().audio_context.sound_engine_data.clone();
+
         let mut out = Self {
             rom,
             functions,
@@ -123,6 +126,7 @@ impl WasmConsole {
             state_definition,
             store,
             sound_engine,
+            audio_out,
         };
 
         out.call_init();
@@ -179,9 +183,9 @@ impl WasmConsole {
             sound_engine_data,
         } = state;
 
-        // Notify the sound thread ASAP of the new sound states:
-        self.sound_engine.sync_audio_thread(&sound_engine_data);
-        self.store.data_mut().audio_context.sound_engine_data = sound_engine_data;
+        let audio_context = &mut self.store.data_mut().audio_context;
+        audio_context.sound_engine_data = sound_engine_data;
+        audio_context.changed = true;
 
         previous_buttons
             .iter()
@@ -214,6 +218,13 @@ impl WasmConsole {
                     .set(&mut self.store, val)
                     .unwrap()
             });
+    }
+
+    pub(crate) fn sync_audio(&mut self) {
+        if self.store.data_mut().audio_context.changed {
+            self.sound_engine.sync_audio_thread(&self.audio_out);
+            self.store.data_mut().audio_context.changed = false;
+        }
     }
 }
 
@@ -253,7 +264,6 @@ impl Console for WasmConsole {
                 }
                 GGRSRequest::LoadGameState { cell, .. } => {
                     let state = cell.load().expect("Failed to load game state");
-                    // TODO: Fire off sync to sound thread
                     self.load_save_state(state);
                 }
                 GGRSRequest::AdvanceFrame { inputs } => {
@@ -271,12 +281,8 @@ impl Console for WasmConsole {
                     // Call update
                     self.call_update();
 
-                    // Sound changed, update the output
-                    if self.store.data_mut().audio_context.changed {
-                        self.sound_engine
-                            .sync_audio_thread(&self.store.data().audio_context.sound_engine_data);
-                        self.store.data_mut().audio_context.changed = false;
-                    }
+                    // Store the "output audio" for when we need to render later
+                    self.audio_out = self.store.data().audio_context.sound_engine_data.clone();
 
                     // Advance the audio data locally
                     self.sound_engine
