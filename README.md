@@ -11,6 +11,7 @@ This is the main workspace crate. Consider viewing the inner crates for more inf
 - `gamercade_core` - Core shared types and functionality.
 - `gamercade_editor` - The editor used to bundle WASM code with assets.
 - `gamercade_rs` - A safe wrapper around the raw Api.
+- `gamercade_sound_engine` - Closely related to gamercade_audio, responsible for actual sound output.
 - `gamercade_tools` - Useful assorted tools.
 
 ## Minimum Supported Rust Version
@@ -33,7 +34,7 @@ A template example project is available at: [rust_template](https://github.com/g
 ### Bundling A Game with the Editor - How to create a .gcrom file
 
 1. With your game `.wasm` already built from the previous step...
-1. Run the editor. This can be done from source via `cargo run --bin gamercade_editor`
+1. Run the editor. This can be done from source via `cargo run --bin editor`
 1. On the File menu, click "Select game .wasm." Find and locate your previously exported `.wasm` file.
 1. On the File menu, click "Export game" and export.
 1. Save the `.gcrom` file in the location of your choice.
@@ -41,7 +42,7 @@ A template example project is available at: [rust_template](https://github.com/g
 ### Running a Game with the Console - How to run a .gcrom file
 
 1. With a `.gcrom` available to play from the previous step...
-1. Run the console. This can be done from source via `cargo run --bin gamercade_console`
+1. Run the console. This can be done from source via `cargo run --bin console`
 1. The console will run with the Main Menu already opened. You can open and close it with the `Spacebar`.
 1. Press the "Select Game" button to open the file dialog.
 1. Select the `.gcrom` file you wish to run, and click open.

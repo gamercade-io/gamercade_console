@@ -5,6 +5,10 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[[bin]]
+name = "editor"
+path = "src/main.rs"
+
 [dependencies]
 # Gamercade Dependencies
 gamercade_core = { path = "../gamercade_core" }
