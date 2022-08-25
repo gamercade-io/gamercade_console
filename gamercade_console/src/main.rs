@@ -121,6 +121,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         }
                     }
 
+                    // If sound changed, update the output
+                    console.sync_audio();
+
                     // Render the game
                     console.call_draw();
                     console.blit(pixels.get_frame());

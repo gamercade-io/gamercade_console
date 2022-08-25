@@ -15,6 +15,7 @@ pub mod api;
 
 /// Re-exports the entire Api for convenience, that can be glob imported via `use gamercade_rs::prelude::*`.
 pub mod prelude {
+    pub use crate::api::audio::*;
     pub use crate::api::data::*;
     pub use crate::api::draw::*;
     pub use crate::api::input::*;

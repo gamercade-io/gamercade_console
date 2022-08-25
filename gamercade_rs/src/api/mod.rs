@@ -1,3 +1,6 @@
+/// Functions related to getting sound engine state, or playing and stopping music or sfx.
+pub mod audio;
+
 /// Functions and queries for gathering data about the game ROM itself.
 pub mod data;
 

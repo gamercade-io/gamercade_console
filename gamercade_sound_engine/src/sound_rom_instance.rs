@@ -1,0 +1,97 @@
+use std::{ops::Index, sync::Arc};
+
+use gamercade_audio::{
+    Chain, ChainId, InstrumentDataDefinition, InstrumentId, PatchDefinition, Phrase, PhraseId,
+    SampleDefinition, Song, SoundRom,
+};
+
+use crate::{Sfx, SongId, WavetableDefinition};
+
+/// An engine loaded in memory, ready to use.
+#[derive(Debug)]
+pub struct SoundRomInstance {
+    pub songs: Box<[Song]>,
+    pub chains: Box<[Chain]>,
+    pub phrases: Box<[Phrase]>,
+    pub instrument_bank: Box<[InstrumentDefinition]>,
+    pub sfx: Box<[Sfx]>,
+}
+
+/// An instrument stored in memory, ready to generate the pieces
+/// needed to produce sounds.
+#[derive(Clone, Debug)]
+pub struct InstrumentDefinition {
+    pub id: usize,
+    pub kind: InstrumentDefinitionKind,
+}
+
+#[derive(Clone, Debug)]
+pub enum InstrumentDefinitionKind {
+    Wavetable(Arc<WavetableDefinition>),
+    FMSynth(Arc<PatchDefinition>),
+    Sampler(Arc<SampleDefinition>),
+}
+
+impl SoundRomInstance {
+    /// Generates a new sound engine. This struct is used throughout the audio system.
+    /// Performs some light logic to prepare the generation of sound sources.
+    pub fn new(rom: &SoundRom) -> Self {
+        Self {
+            songs: rom.songs.clone(),
+            chains: rom.chains.clone(),
+            phrases: rom.phrases.clone(),
+            instrument_bank: Vec::from(rom.instruments.clone())
+                .into_iter()
+                .enumerate()
+                .map(|(index, instrument)| {
+                    let kind = match instrument {
+                        InstrumentDataDefinition::Wavetable(wavetable_def) => {
+                            InstrumentDefinitionKind::Wavetable(Arc::new(wavetable_def))
+                        }
+                        InstrumentDataDefinition::FMSynth(fm_def) => {
+                            InstrumentDefinitionKind::FMSynth(Arc::new(fm_def))
+                        }
+                        InstrumentDataDefinition::Sampler(sample) => {
+                            InstrumentDefinitionKind::Sampler(Arc::new(sample))
+                        }
+                    };
+                    InstrumentDefinition { id: index, kind }
+                })
+                .collect::<Vec<_>>()
+                .into_boxed_slice(),
+            sfx: rom.sfx.clone(),
+        }
+    }
+}
+
+impl Index<SongId> for SoundRomInstance {
+    type Output = Song;
+
+    fn index(&self, index: SongId) -> &Self::Output {
+        &self.songs[index.0]
+    }
+}
+
+impl Index<ChainId> for SoundRomInstance {
+    type Output = Chain;
+
+    fn index(&self, index: ChainId) -> &Self::Output {
+        &self.chains[index.0]
+    }
+}
+
+impl Index<PhraseId> for SoundRomInstance {
+    type Output = Phrase;
+
+    fn index(&self, index: PhraseId) -> &Self::Output {
+        &self.phrases[index.0]
+    }
+}
+
+impl Index<InstrumentId> for SoundRomInstance {
+    type Output = InstrumentDefinition;
+
+    fn index(&self, index: InstrumentId) -> &Self::Output {
+        &self.instrument_bank[index.0]
+    }
+}

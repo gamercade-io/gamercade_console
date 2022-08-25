@@ -12,7 +12,7 @@ use std::sync::Arc;
 use audio_context::*;
 use data_context::DataContext;
 use draw_context::DrawContext;
-use gamercade_audio::SoundRomInstance;
+use gamercade_sound_engine::SoundRomInstance;
 use graphics_parameter_context::GraphicsParameterContext;
 use input_context::InputContext;
 use multiplayer_context::MultiplayerContext;
@@ -39,6 +39,7 @@ impl Contexts {
         seed: u64,
         session: SessionDescriptor,
         sound_rom: &Arc<SoundRomInstance>,
+        output_sample_rate: usize,
     ) -> Self {
         Self {
             draw_context: DrawContext::new(rom.clone()),
@@ -48,7 +49,7 @@ impl Contexts {
             graphics_parameter_context: GraphicsParameterContext::default(),
             text_context: TextContext::default(),
             multiplayer_context: MultiplayerContext::new(session),
-            audio_context: AudioContext::new(sound_rom),
+            audio_context: AudioContext::new(sound_rom, output_sample_rate),
         }
     }
 }

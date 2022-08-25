@@ -1,15 +1,19 @@
 use std::ops::Index;
 
+use arrayvec::ArrayVec;
 use serde::{Deserialize, Serialize};
 
-use crate::{Chain, ChainId, InstrumentDefinition, InstrumentId, Phrase, PhraseId, Song, SongId};
+use crate::{
+    Chain, ChainId, EnvelopeDefinition, InstrumentDataDefinition, InstrumentId, Phrase, PhraseId,
+    Song, SongId, WavetableDefinition, WavetableGenerator, WavetableWaveform,
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SoundRom {
     pub songs: Box<[Song]>,
     pub chains: Box<[Chain]>,
     pub phrases: Box<[Phrase]>,
-    pub instruments: Box<[InstrumentDefinition]>,
+    pub instruments: Box<[InstrumentDataDefinition]>,
     pub sfx: Box<[Sfx]>,
 }
 
@@ -24,12 +28,32 @@ pub struct Sfx {
 
 impl Default for SoundRom {
     fn default() -> Self {
+        let default_sine_wave = InstrumentDataDefinition::Wavetable(WavetableDefinition {
+            data: WavetableGenerator {
+                waveform: WavetableWaveform::Sine,
+                size: 64,
+            }
+            .generate(),
+            envelope: EnvelopeDefinition::interesting(),
+        });
+
+        let default_phrase = Phrase::c_scale(InstrumentId(0));
+
+        let default_chain = Chain {
+            entries: ArrayVec::from_iter(Some(Some(PhraseId(0)))),
+        };
+
+        let default_sfx = Sfx {
+            bpm: 120.0,
+            chain: ChainId(0),
+        };
+
         Self {
             songs: vec![].into_boxed_slice(),
-            chains: vec![].into_boxed_slice(),
-            phrases: vec![].into_boxed_slice(),
-            instruments: vec![].into_boxed_slice(),
-            sfx: vec![].into_boxed_slice(),
+            chains: vec![default_chain].into_boxed_slice(),
+            phrases: vec![default_phrase].into_boxed_slice(),
+            instruments: vec![default_sine_wave].into_boxed_slice(),
+            sfx: vec![default_sfx].into_boxed_slice(),
         }
     }
 }
@@ -59,7 +83,7 @@ impl Index<PhraseId> for SoundRom {
 }
 
 impl Index<InstrumentId> for SoundRom {
-    type Output = InstrumentDefinition;
+    type Output = InstrumentDataDefinition;
 
     fn index(&self, index: InstrumentId) -> &Self::Output {
         &self.instruments[index.0]

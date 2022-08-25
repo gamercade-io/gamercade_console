@@ -7,9 +7,6 @@ use crate::{
     PHRASE_MAX_ENTRIES,
 };
 
-#[cfg(feature = "playback")]
-use crate::{Instrument, SoundRomInstance};
-
 /// Newtype Chain Identifier
 #[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 pub struct PhraseId(pub usize);
@@ -67,24 +64,6 @@ impl Default for Phrase {
     fn default() -> Self {
         Self {
             entries: ArrayVec::from(std::array::from_fn(|_| None)),
-        }
-    }
-}
-
-#[cfg(feature = "playback")]
-pub type InstrumentChannelType = PhraseEntry<f32, Instrument>;
-
-#[cfg(feature = "playback")]
-impl InstrumentChannelType {
-    pub fn new(entry: &PhraseStorageType, rom: &SoundRomInstance) -> Self {
-        let note = crate::notes::get_note(entry.note).frequency;
-        let instrument = rom[entry.instrument].clone();
-
-        Self {
-            note,
-            volume: entry.volume,
-            instrument,
-            effects: entry.effects.clone(),
         }
     }
 }

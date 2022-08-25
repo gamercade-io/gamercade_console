@@ -7,41 +7,11 @@ description = "Audio functionality for Gamercade and related projects"
 homepage = "https://gamercade.io"
 repository = "https://github.com/gamercade-io/gamercade_audio"
 
-default-run = "tester"
-
-[[bin]]
-name = "tester"
-path = "src/bin/tester.rs"
-required-features = ["playback"]
-
-[[bin]]
-name = "rollback"
-path = "src/bin/rollback.rs"
-required-features = ["playback"]
-
-[[bin]]
-name = "sample"
-path = "src/bin/sample.rs"
-required-features = ["playback"]
-
-[[bin]]
-name = "pitched"
-path = "src/bin/pitched.rs"
-required-features = ["playback"]
-
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-rodio = { version = "0.15.0", optional = true }
 serde = { version = "1.0.144", features = ["derive"] }
 strum = { version = "0.24.1", features = ["derive"] }
 arrayvec = { version = "0.7.2", features = ["serde"] }
 tinystr = "0.6.1"
 rtrb = "0.2.2"
-spin_sleep = "1.1.1"
-
-# for .wav
-hound = "3.4.0"
-
-[features]
-playback = ["dep:rodio"]
