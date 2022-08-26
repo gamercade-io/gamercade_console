@@ -26,6 +26,14 @@ pub fn circle(graphics_parameters: GraphicsParameters, x: i32, y: i32, radius: u
     unsafe { raw::circle(gp, x, y, radius as i32) }
 }
 
+/// Draws a filled circle around point (x, y) on the screen with the passed in radius.
+/// Uses palette_index and color_index. A transparent color will still have it's
+/// RGB values used to color the screen.
+pub fn circle_filled(graphics_parameters: GraphicsParameters, x: i32, y: i32, radius: u32) {
+    let gp = graphics_parameters.into();
+    unsafe { raw::circle_filled(gp, x, y, radius as i32) }
+}
+
 /// Draws an empty rectangle with the top left point (x, y) with width and height.
 /// Uses palette_index and color_index. A transparent color will still have it's
 /// RGB values used to color the screen.

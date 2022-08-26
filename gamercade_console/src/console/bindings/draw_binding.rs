@@ -27,7 +27,7 @@ derive_draw_api_binding! {
     set_pixel(graphics_parameters: i32, x: i32, y: i32),
 
     circle(graphics_parameters: i32, x: i32, y: i32, radius: i32),
-    // fn circle_filled(x: i32, y: i32, color_index: i32, palette_index: i32),
+    circle_filled(graphics_parameters: i32, x: i32, y: i32, radius: i32),
 
     rect(
         graphics_parameters: i32,

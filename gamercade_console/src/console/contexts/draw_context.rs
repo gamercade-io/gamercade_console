@@ -171,19 +171,20 @@ impl DrawApi for DrawContext {
             return;
         }
 
-        let x0 = x as usize;
-        let y0 = y as usize;
-
         let mut f = 1 - radius;
         let mut ddf_x = 0;
         let mut ddf_y = -2 * radius;
+
+        let radius = radius as usize;
+        let x0 = x as usize;
+        let y0 = y as usize;
         let mut x = 0;
         let mut y = radius;
 
-        self.set_pixel_safe(XCord(x0), YCord(y0 + radius as usize), color);
-        self.set_pixel_safe(XCord(x0), YCord(y0 - radius as usize), color);
-        self.set_pixel_safe(XCord(x0 + radius as usize), YCord(y0 as usize), color);
-        self.set_pixel_safe(XCord(x0 - radius as usize), YCord(y0 as usize), color);
+        self.set_pixel_safe(XCord(x0), YCord(y0 + radius), color);
+        self.set_pixel_safe(XCord(x0), YCord(y0 - radius), color);
+        self.set_pixel_safe(XCord(x0 + radius), YCord(y0), color);
+        self.set_pixel_safe(XCord(x0 - radius), YCord(y0), color);
 
         while x < y {
             if f >= 0 {
@@ -195,14 +196,62 @@ impl DrawApi for DrawContext {
             x += 1;
             ddf_x += 2;
             f += ddf_x + 1;
-            self.set_pixel_safe(XCord(x0 + x as usize), YCord(y0 + y as usize), color);
-            self.set_pixel_safe(XCord(x0 - x as usize), YCord(y0 + y as usize), color);
-            self.set_pixel_safe(XCord(x0 + x as usize), YCord(y0 - y as usize), color);
-            self.set_pixel_safe(XCord(x0 - x as usize), YCord(y0 - y as usize), color);
-            self.set_pixel_safe(XCord(x0 + y as usize), YCord(y0 + x as usize), color);
-            self.set_pixel_safe(XCord(x0 - y as usize), YCord(y0 + x as usize), color);
-            self.set_pixel_safe(XCord(x0 + y as usize), YCord(y0 - x as usize), color);
-            self.set_pixel_safe(XCord(x0 - y as usize), YCord(y0 - x as usize), color);
+            self.set_pixel_safe(XCord(x0 + x), YCord(y0 + y), color);
+            self.set_pixel_safe(XCord(x0 - x), YCord(y0 + y), color);
+            self.set_pixel_safe(XCord(x0 + x), YCord(y0 - y), color);
+            self.set_pixel_safe(XCord(x0 - x), YCord(y0 - y), color);
+            self.set_pixel_safe(XCord(x0 + y), YCord(y0 + x), color);
+            self.set_pixel_safe(XCord(x0 - y), YCord(y0 + x), color);
+            self.set_pixel_safe(XCord(x0 + y), YCord(y0 - x), color);
+            self.set_pixel_safe(XCord(x0 - y), YCord(y0 - x), color);
+        }
+    }
+
+    fn circle_filled(&mut self, graphics_parameters: i32, x: i32, y: i32, radius: i32) {
+        let top = self.validate_y(y - radius);
+        let bottom = self.validate_y(y + radius);
+        let left = self.validate_x(x - radius);
+        let right = self.validate_x(x + radius);
+
+        let GraphicsParameters {
+            color_index,
+            palette_index,
+            ..
+        } = graphics_parameters.into();
+
+        let color = match self.rom.graphics.palette(palette_index) {
+            Some(palette) => palette[color_index],
+            None => return,
+        };
+
+        if top.is_err() || bottom.is_err() || left.is_err() || right.is_err() {
+            return;
+        }
+
+        let mut f = 1 - radius;
+        let mut ddf_x = 0;
+        let mut ddf_y = -2 * radius;
+
+        let x0 = x;
+        let y0 = y;
+        let mut x = 0;
+        let mut y = radius;
+
+        self.draw_line_horizontal(x0 - radius, x0 + radius, y0, color);
+        while x < y {
+            if f >= 0 {
+                y -= 1;
+                ddf_y += 2;
+                f += ddf_y;
+            };
+
+            x += 1;
+            ddf_x += 2;
+            f += ddf_x + 1;
+            self.draw_line_horizontal(x0 - x, x0 + x, y0 + y, color);
+            self.draw_line_horizontal(x0 - y, x0 + y, y0 + x, color);
+            self.draw_line_horizontal(x0 - x, x0 + x, y0 - y, color);
+            self.draw_line_horizontal(x0 - y, x0 + y, y0 - x, color);
         }
     }
 }

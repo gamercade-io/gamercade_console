@@ -15,8 +15,8 @@ pub trait DrawApi {
     fn set_pixel(&mut self, graphics_parameters: i32, x: i32, y: i32);
 
     fn circle(&mut self, graphics_parameters: i32, x: i32, y: i32, radius: i32);
-    //TODO
-    // fn circle_filled(&self, x: i32, y: i32, color_index: i32, palette_index: i32);
+
+    fn circle_filled(&mut self, graphics_parameters: i32, x: i32, y: i32, radius: i32);
 
     fn rect(&mut self, graphics_parameters: i32, x: i32, y: i32, width: i32, height: i32);
 
@@ -31,7 +31,7 @@ derive_bind_draw_api! {
     bind_clear_screen,
     bind_set_pixel,
     bind_circle,
-    //bind_circle_filled,
+    bind_circle_filled,
     bind_rect,
     bind_rect_filled,
     bind_line,
