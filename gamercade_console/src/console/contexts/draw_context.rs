@@ -228,17 +228,16 @@ impl DrawApi for DrawContext {
             return;
         }
 
-        let x0 = x as usize;
-        let y0 = y as usize;
-
         let mut f = 1 - radius;
         let mut ddf_x = 0;
         let mut ddf_y = -2 * radius;
+
+        let x0 = x;
+        let y0 = y;
         let mut x = 0;
         let mut y = radius;
 
-        self.set_pixel_safe(XCord(x0 as usize), YCord(y0 as usize), color);
-
+        self.draw_line_horizontal(x0 - radius, x0 + radius, y0, color);
         while x < y {
             if f >= 0 {
                 y -= 1;
@@ -249,14 +248,10 @@ impl DrawApi for DrawContext {
             x += 1;
             ddf_x += 2;
             f += ddf_x + 1;
-            self.draw_line_horizontal(x0 as i32 - x, x0 as i32 + x, y0 as i32 + y, color);
-            self.draw_line_horizontal(x0 as i32 - x, x0 as i32 + x, y0 as i32 - y, color);
-            self.draw_line_horizontal(x0 as i32 - y, x0 as i32 + y, y0 as i32 + x, color);
-            self.draw_line_horizontal(x0 as i32 - y, x0 as i32 + y, y0 as i32 - x, color);
-            self.draw_line_vertical(x0 as i32 - y, y0 as i32 - x, y0 as i32 + x, color);
-            self.draw_line_vertical(x0 as i32 + y, y0 as i32 - x, y0 as i32 + x, color);
-            self.draw_line_vertical(x0 as i32 - x, y0 as i32 - x, y0 as i32 + x, color);
-            self.draw_line_vertical(x0 as i32 + x, y0 as i32 - x, y0 as i32 + x, color);
+            self.draw_line_horizontal(x0 - x, x0 + x, y0 + y, color);
+            self.draw_line_horizontal(x0 - y, x0 + y, y0 + x, color);
+            self.draw_line_horizontal(x0 - x, x0 + x, y0 - y, color);
+            self.draw_line_horizontal(x0 - y, x0 + y, y0 - x, color);
         }
     }
 }
