@@ -171,19 +171,20 @@ impl DrawApi for DrawContext {
             return;
         }
 
-        let x0 = x as usize;
-        let y0 = y as usize;
-
         let mut f = 1 - radius;
         let mut ddf_x = 0;
         let mut ddf_y = -2 * radius;
+
+        let radius = radius as usize;
+        let x0 = x as usize;
+        let y0 = y as usize;
         let mut x = 0;
         let mut y = radius;
 
-        self.set_pixel_safe(XCord(x0), YCord(y0 + radius as usize), color);
-        self.set_pixel_safe(XCord(x0), YCord(y0 - radius as usize), color);
-        self.set_pixel_safe(XCord(x0 + radius as usize), YCord(y0 as usize), color);
-        self.set_pixel_safe(XCord(x0 - radius as usize), YCord(y0 as usize), color);
+        self.set_pixel_safe(XCord(x0), YCord(y0 + radius), color);
+        self.set_pixel_safe(XCord(x0), YCord(y0 - radius), color);
+        self.set_pixel_safe(XCord(x0 + radius), YCord(y0), color);
+        self.set_pixel_safe(XCord(x0 - radius), YCord(y0), color);
 
         while x < y {
             if f >= 0 {
@@ -195,14 +196,14 @@ impl DrawApi for DrawContext {
             x += 1;
             ddf_x += 2;
             f += ddf_x + 1;
-            self.set_pixel_safe(XCord(x0 + x as usize), YCord(y0 + y as usize), color);
-            self.set_pixel_safe(XCord(x0 - x as usize), YCord(y0 + y as usize), color);
-            self.set_pixel_safe(XCord(x0 + x as usize), YCord(y0 - y as usize), color);
-            self.set_pixel_safe(XCord(x0 - x as usize), YCord(y0 - y as usize), color);
-            self.set_pixel_safe(XCord(x0 + y as usize), YCord(y0 + x as usize), color);
-            self.set_pixel_safe(XCord(x0 - y as usize), YCord(y0 + x as usize), color);
-            self.set_pixel_safe(XCord(x0 + y as usize), YCord(y0 - x as usize), color);
-            self.set_pixel_safe(XCord(x0 - y as usize), YCord(y0 - x as usize), color);
+            self.set_pixel_safe(XCord(x0 + x), YCord(y0 + y), color);
+            self.set_pixel_safe(XCord(x0 - x), YCord(y0 + y), color);
+            self.set_pixel_safe(XCord(x0 + x), YCord(y0 - y), color);
+            self.set_pixel_safe(XCord(x0 - x), YCord(y0 - y), color);
+            self.set_pixel_safe(XCord(x0 + y), YCord(y0 + x), color);
+            self.set_pixel_safe(XCord(x0 - y), YCord(y0 + x), color);
+            self.set_pixel_safe(XCord(x0 + y), YCord(y0 - x), color);
+            self.set_pixel_safe(XCord(x0 - y), YCord(y0 - x), color);
         }
     }
 
