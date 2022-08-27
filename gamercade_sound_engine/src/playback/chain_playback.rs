@@ -71,4 +71,10 @@ impl ChainPlayback {
             TrackerFlow::Finished
         }
     }
+
+    pub fn replace_sound_rom_instance(&mut self, new_rom: &Arc<SoundRomInstance>) {
+        self.rom = new_rom.clone();
+
+        self.phrase_playback.replace_sound_rom_instance(new_rom);
+    }
 }

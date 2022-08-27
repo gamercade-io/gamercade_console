@@ -59,4 +59,8 @@ impl PhrasePlayback {
             TrackerFlow::Advance
         }
     }
+
+    pub(crate) fn replace_sound_rom_instance(&mut self, new_rom: &Arc<SoundRomInstance>) {
+        self.rom = new_rom.clone();
+    }
 }

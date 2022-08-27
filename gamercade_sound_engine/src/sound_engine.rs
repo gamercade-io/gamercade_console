@@ -84,6 +84,15 @@ impl SoundEngineData {
             });
         });
     }
+
+    pub fn replace_sound_rom_instance(&mut self, new_rom: &Arc<SoundRomInstance>) {
+        self.rom = new_rom.clone();
+
+        self.bgm.replace_sound_rom_instance(new_rom);
+        self.sfx
+            .iter_mut()
+            .for_each(|sfx| sfx.replace_sound_rom_instance(new_rom));
+    }
 }
 
 pub struct SoundEngine {
@@ -111,7 +120,7 @@ impl SoundEngine {
         println!("Output channels: {}", channels);
 
         let sound_frames_per_render_frame = output_sample_rate / fps;
-        let (producer, mut consumer) = RingBuffer::new(max_rollback_frames);
+        let (producer, mut consumer) = RingBuffer::new(1 + max_rollback_frames);
         let mut data = SoundEngineData::new(output_sample_rate, rom);
 
         let stream = device

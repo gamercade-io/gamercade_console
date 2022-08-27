@@ -1,4 +1,5 @@
 use gamercade_audio::{Chain, InstrumentDataDefinition, Phrase, Sfx, Song, SoundRom};
+use gamercade_sound_engine::{InstrumentDefinition, InstrumentDefinitionKind, SoundRomInstance};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -55,6 +56,27 @@ impl From<&EditorSoundData> for SoundRom {
             chains: extract_data(&data.chains),
             phrases: extract_data(&data.phrases),
             instruments: extract_data(&data.instruments),
+            sfx: extract_data(&data.sfx),
+        }
+    }
+}
+
+impl From<&EditorSoundData> for SoundRomInstance {
+    fn from(data: &EditorSoundData) -> Self {
+        Self {
+            songs: extract_data(&data.songs),
+            chains: extract_data(&data.chains),
+            phrases: extract_data(&data.phrases),
+            instrument_bank: data
+                .instruments
+                .iter()
+                .enumerate()
+                .map(|(id, instrument)| InstrumentDefinition {
+                    id,
+                    kind: InstrumentDefinitionKind::from(instrument.data.clone()),
+                })
+                .collect::<Vec<_>>()
+                .into_boxed_slice(),
             sfx: extract_data(&data.sfx),
         }
     }

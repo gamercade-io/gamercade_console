@@ -5,9 +5,9 @@ use crate::editor_data::EditorSoundData;
 use super::AudioSyncHelper;
 
 #[derive(Clone, Debug, Default)]
-pub struct PatternEditor {}
+pub struct SfxEditor {}
 
-impl PatternEditor {
+impl SfxEditor {
     pub(crate) fn draw(
         &mut self,
         _ui: &mut Ui,

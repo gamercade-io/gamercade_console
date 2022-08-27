@@ -32,6 +32,22 @@ pub enum InstrumentDefinitionKind {
     Sampler(Arc<SampleDefinition>),
 }
 
+impl From<InstrumentDataDefinition> for InstrumentDefinitionKind {
+    fn from(data: InstrumentDataDefinition) -> Self {
+        match data {
+            InstrumentDataDefinition::Wavetable(wavetable_def) => {
+                InstrumentDefinitionKind::Wavetable(Arc::new(wavetable_def))
+            }
+            InstrumentDataDefinition::FMSynth(fm_def) => {
+                InstrumentDefinitionKind::FMSynth(Arc::new(fm_def))
+            }
+            InstrumentDataDefinition::Sampler(sample) => {
+                InstrumentDefinitionKind::Sampler(Arc::new(sample))
+            }
+        }
+    }
+}
+
 impl SoundRomInstance {
     /// Generates a new sound engine. This struct is used throughout the audio system.
     /// Performs some light logic to prepare the generation of sound sources.
@@ -43,19 +59,9 @@ impl SoundRomInstance {
             instrument_bank: Vec::from(rom.instruments.clone())
                 .into_iter()
                 .enumerate()
-                .map(|(index, instrument)| {
-                    let kind = match instrument {
-                        InstrumentDataDefinition::Wavetable(wavetable_def) => {
-                            InstrumentDefinitionKind::Wavetable(Arc::new(wavetable_def))
-                        }
-                        InstrumentDataDefinition::FMSynth(fm_def) => {
-                            InstrumentDefinitionKind::FMSynth(Arc::new(fm_def))
-                        }
-                        InstrumentDataDefinition::Sampler(sample) => {
-                            InstrumentDefinitionKind::Sampler(Arc::new(sample))
-                        }
-                    };
-                    InstrumentDefinition { id: index, kind }
+                .map(|(index, instrument)| InstrumentDefinition {
+                    id: index,
+                    kind: InstrumentDefinitionKind::from(instrument),
                 })
                 .collect::<Vec<_>>()
                 .into_boxed_slice(),
