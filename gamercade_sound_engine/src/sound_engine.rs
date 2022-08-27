@@ -12,6 +12,7 @@ use crate::{
     SoundRomInstance,
 };
 pub use gamercade_audio::{Sfx, SongId, SFX_CHANNELS, SONG_TRACK_CHANNELS};
+
 #[derive(Clone)]
 pub struct SoundEngineData {
     pub bgm: SongPlayback,
@@ -101,14 +102,13 @@ impl SoundEngine {
         initialize_globals();
         let device = default_host().default_output_device().unwrap();
 
-        let supported_config = device
-            .supported_output_configs()
-            .unwrap()
-            .next()
-            .unwrap()
-            .with_max_sample_rate();
+        let supported_config = device.default_output_config().unwrap();
         let output_sample_rate = supported_config.sample_rate().0 as usize;
+        let channels = supported_config.channels() as usize;
         let config = StreamConfig::from(supported_config);
+
+        println!("Output Sample Rate: {}", output_sample_rate);
+        println!("Output channels: {}", channels);
 
         let sound_frames_per_render_frame = output_sample_rate / fps;
         let (producer, mut consumer) = RingBuffer::new(max_rollback_frames);
@@ -119,7 +119,7 @@ impl SoundEngine {
                 &config,
                 move |frames: &mut [f32], _: &cpal::OutputCallbackInfo| {
                     // react to stream events and read or write stream data here.
-                    frames.chunks_exact_mut(2).for_each(|frame| {
+                    frames.chunks_exact_mut(channels).for_each(|frame| {
                         while let Ok(next_data) = consumer.pop() {
                             data = next_data;
                         }
@@ -129,8 +129,9 @@ impl SoundEngine {
                         let output =
                             (bgm_frame + sfx_frame) / (SFX_CHANNELS + SONG_TRACK_CHANNELS) as f32;
 
-                        frame[0] = output;
-                        frame[1] = output;
+                        frame.iter_mut().for_each(|channel| {
+                            *channel = output;
+                        });
                     })
                 },
                 move |err| {
