@@ -15,8 +15,8 @@ pub struct AudioEditor {
     song_editor: SongEditor,
     sfx_editor: SfxEditor,
 
-    sound_engine_data: SoundEngineData,
     sound_engine: SoundEngine,
+    audio_sync_helper: AudioSyncHelper,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -44,19 +44,32 @@ impl AudioEditor {
             song_editor: SongEditor::default(),
             sfx_editor: SfxEditor::default(),
             sound_engine,
-            sound_engine_data,
+            audio_sync_helper: AudioSyncHelper {
+                should_sync: false,
+                sound_engine_data,
+            },
         }
     }
 }
 
-#[derive(Default)]
 pub(crate) struct AudioSyncHelper {
     should_sync: bool,
+    sound_engine_data: SoundEngineData,
 }
 
 impl AudioSyncHelper {
-    fn notify(&mut self) {
+    pub(crate) fn notify(&mut self) {
         self.should_sync = true;
+    }
+
+    pub(crate) fn try_sync(&mut self, data: &EditorSoundData, sound_engine: &mut SoundEngine) {
+        if self.should_sync {
+            let new_instance = Arc::new(SoundRomInstance::from(data));
+            self.sound_engine_data
+                .replace_sound_rom_instance(&new_instance);
+            sound_engine.sync_audio_thread(&self.sound_engine_data);
+            self.should_sync = false;
+        }
     }
 }
 
@@ -70,22 +83,25 @@ impl AudioEditor {
     }
 
     pub fn draw_contents(&mut self, ui: &mut Ui, data: &mut EditorSoundData) {
-        let sync = &mut AudioSyncHelper::default();
-
         match self.mode {
-            AudioEditorMode::Instrument => self.instrument_editor.draw(ui, data, sync),
-            AudioEditorMode::Sfx => self.sfx_editor.draw(ui, data, sync),
-            AudioEditorMode::Songs => self.song_editor.draw(ui, data, sync),
-            AudioEditorMode::Chains => self.chain_editor.draw(ui, data, sync),
-            AudioEditorMode::Patterns => self.pattern_editor.draw(ui, data, sync),
+            AudioEditorMode::Instrument => {
+                self.instrument_editor
+                    .draw(ui, data, &mut self.audio_sync_helper)
+            }
+            AudioEditorMode::Sfx => self.sfx_editor.draw(ui, data, &mut self.audio_sync_helper),
+            AudioEditorMode::Songs => self.song_editor.draw(ui, data, &mut self.audio_sync_helper),
+            AudioEditorMode::Chains => {
+                self.chain_editor
+                    .draw(ui, data, &mut self.audio_sync_helper)
+            }
+            AudioEditorMode::Patterns => {
+                self.pattern_editor
+                    .draw(ui, data, &mut self.audio_sync_helper)
+            }
         };
 
-        if sync.should_sync {
-            let new_instance = Arc::new(SoundRomInstance::from(&*data));
-            self.sound_engine_data
-                .replace_sound_rom_instance(&new_instance);
-            self.sound_engine.sync_audio_thread(&self.sound_engine_data)
-        }
+        self.audio_sync_helper
+            .try_sync(data, &mut self.sound_engine);
     }
 
     pub fn draw_bottom_panel(&mut self, ui: &mut Ui) {
