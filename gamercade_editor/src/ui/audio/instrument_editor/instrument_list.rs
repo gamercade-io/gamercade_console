@@ -42,8 +42,8 @@ impl InstrumentList {
     pub(crate) fn draw_buttons(
         &mut self,
         ui: &mut Ui,
-        data: &mut EditorSoundData,
-        sync: &mut AudioSyncHelper,
+        _data: &mut EditorSoundData,
+        _sync: &mut AudioSyncHelper,
     ) {
         ui.horizontal(|ui| {
             if ui.button("New").clicked() {

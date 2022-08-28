@@ -50,6 +50,7 @@ impl InstrumentEditor {
         }
 
         //TODO:  Finally, Draw the Piano Roll
-        self.piano_roll.draw(ui, sync);
+        self.piano_roll
+            .draw(ui, sync, self.instrument_list.selected_instrument);
     }
 }

@@ -20,6 +20,16 @@ pub struct SoundEngineData {
     rom: Arc<SoundRomInstance>,
 }
 
+pub enum SoundEngineChannelType {
+    SoundEngineData(Box<SoundEngineData>),
+    PianoKey {
+        active: bool,
+        note_index: usize,
+        instrument_index: usize,
+        channel: usize,
+    },
+}
+
 impl SoundEngineData {
     pub fn new(output_sample_rate: usize, rom: &Arc<SoundRomInstance>) -> Self {
         use std::array::from_fn;
@@ -98,7 +108,7 @@ impl SoundEngineData {
 pub struct SoundEngine {
     _stream: Stream,
     sound_frames_per_render_frame: usize,
-    producer: Producer<SoundEngineData>,
+    producer: Producer<SoundEngineChannelType>,
     output_sample_rate: usize,
 }
 
@@ -130,7 +140,23 @@ impl SoundEngine {
                     // react to stream events and read or write stream data here.
                     frames.chunks_exact_mut(channels).for_each(|frame| {
                         while let Ok(next_data) = consumer.pop() {
-                            data = next_data;
+                            match next_data {
+                                SoundEngineChannelType::SoundEngineData(next_data) => {
+                                    data = *next_data;
+                                }
+                                SoundEngineChannelType::PianoKey {
+                                    active,
+                                    note_index,
+                                    instrument_index,
+                                    channel,
+                                } => {
+                                    if active {
+                                        data.play_note(note_index as i32, instrument_index, channel)
+                                    } else {
+                                        data.play_sfx(None, channel)
+                                    }
+                                }
+                            };
                         }
 
                         let bgm_frame = data.bgm.tick().iter().sum::<f32>();
@@ -167,6 +193,14 @@ impl SoundEngine {
     }
 
     pub fn sync_audio_thread(&mut self, data: &SoundEngineData) {
-        self.producer.push(data.clone()).unwrap()
+        self.producer
+            .push(SoundEngineChannelType::SoundEngineData(Box::new(
+                data.clone(),
+            )))
+            .unwrap()
+    }
+
+    pub fn send(&mut self, message: SoundEngineChannelType) {
+        self.producer.push(message).unwrap();
     }
 }

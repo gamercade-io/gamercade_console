@@ -1,7 +1,10 @@
-use std::sync::Arc;
+use std::{iter::Cycle, ops::Range, sync::Arc};
 
 use eframe::egui::Ui;
-use gamercade_sound_engine::{SoundEngine, SoundEngineData, SoundRomInstance};
+use gamercade_audio::SFX_CHANNELS;
+use gamercade_sound_engine::{
+    SoundEngine, SoundEngineChannelType, SoundEngineData, SoundRomInstance,
+};
 
 use crate::editor_data::EditorSoundData;
 
@@ -45,31 +48,49 @@ impl AudioEditor {
             sfx_editor: SfxEditor::default(),
             sound_engine,
             audio_sync_helper: AudioSyncHelper {
-                should_sync: false,
                 sound_engine_data,
+                channel_ticker: (0..SFX_CHANNELS).cycle(),
+                command_queue: Vec::new(),
             },
         }
     }
 }
 
+pub(crate) enum AudioSyncCommand {
+    PlayNote {
+        note_index: usize,
+        instrument_index: usize,
+    },
+}
+
 pub(crate) struct AudioSyncHelper {
-    should_sync: bool,
-    sound_engine_data: SoundEngineData,
+    pub(crate) sound_engine_data: SoundEngineData,
+    channel_ticker: Cycle<Range<usize>>,
+    command_queue: Vec<AudioSyncCommand>,
 }
 
 impl AudioSyncHelper {
-    pub(crate) fn notify(&mut self) {
-        self.should_sync = true;
+    pub(crate) fn play_note(&mut self, note_index: usize, instrument_index: usize) {
+        self.command_queue.push(AudioSyncCommand::PlayNote {
+            note_index,
+            instrument_index,
+        })
     }
 
-    pub(crate) fn try_sync(&mut self, data: &EditorSoundData, sound_engine: &mut SoundEngine) {
-        if self.should_sync {
-            let new_instance = Arc::new(SoundRomInstance::from(data));
-            self.sound_engine_data
-                .replace_sound_rom_instance(&new_instance);
-            sound_engine.sync_audio_thread(&self.sound_engine_data);
-            self.should_sync = false;
-        }
+    fn push_commands(&mut self, engine: &mut SoundEngine) {
+        self.command_queue
+            .drain(..)
+            .for_each(|command| match command {
+                AudioSyncCommand::PlayNote {
+                    note_index,
+                    instrument_index,
+                } => engine.send(SoundEngineChannelType::PianoKey {
+                    active: true,
+                    note_index,
+                    instrument_index,
+                    channel: self.channel_ticker.next().unwrap(),
+                }),
+            })
     }
 }
 
@@ -100,8 +121,7 @@ impl AudioEditor {
             }
         };
 
-        self.audio_sync_helper
-            .try_sync(data, &mut self.sound_engine);
+        self.audio_sync_helper.push_commands(&mut self.sound_engine)
     }
 
     pub fn draw_bottom_panel(&mut self, ui: &mut Ui) {
