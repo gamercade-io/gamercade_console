@@ -1,13 +1,13 @@
 use eframe::egui::Ui;
 
-use crate::editor_data::EditorSoundData;
-
-use super::AudioSyncHelper;
+use crate::{editor_data::EditorSoundData, ui::AudioSyncHelper};
 
 #[derive(Clone, Debug, Default)]
-pub struct InstrumentEditor {}
+pub struct InstrumentList {
+    pub selected_instrument: usize,
+}
 
-impl InstrumentEditor {
+impl InstrumentList {
     pub(crate) fn draw(
         &mut self,
         _ui: &mut Ui,

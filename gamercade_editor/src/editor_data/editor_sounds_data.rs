@@ -4,11 +4,11 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EditorSoundData {
-    songs: Vec<EditorAudioDataEntry<Song>>,
-    chains: Vec<EditorAudioDataEntry<Chain>>,
-    phrases: Vec<EditorAudioDataEntry<Phrase>>,
-    instruments: Vec<EditorAudioDataEntry<InstrumentDataDefinition>>,
-    sfx: Vec<EditorAudioDataEntry<Sfx>>,
+    pub(crate) songs: Vec<EditorAudioDataEntry<Song>>,
+    pub(crate) chains: Vec<EditorAudioDataEntry<Chain>>,
+    pub(crate) phrases: Vec<EditorAudioDataEntry<Phrase>>,
+    pub(crate) instruments: Vec<EditorAudioDataEntry<InstrumentDataDefinition>>,
+    pub(crate) sfx: Vec<EditorAudioDataEntry<Sfx>>,
 }
 
 impl Default for EditorSoundData {
@@ -26,8 +26,8 @@ impl Default for EditorSoundData {
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct EditorAudioDataEntry<T> {
-    name: String,
-    data: T,
+    pub(crate) name: String,
+    pub(crate) data: T,
 }
 
 fn extract_data<T: Clone>(target: &[EditorAudioDataEntry<T>]) -> Box<[T]> {
