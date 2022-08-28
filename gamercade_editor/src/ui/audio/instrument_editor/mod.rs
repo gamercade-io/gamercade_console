@@ -5,12 +5,14 @@ use crate::editor_data::EditorSoundData;
 
 use super::AudioSyncHelper;
 
+mod envelope_widget;
 mod fm_editor;
 mod instrument_list;
 mod piano_roll;
 mod sampler_editor;
 mod wavetable_editor;
 
+use envelope_widget::*;
 use fm_editor::*;
 use instrument_list::*;
 use piano_roll::*;
