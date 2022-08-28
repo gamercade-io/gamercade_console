@@ -63,10 +63,10 @@ impl AudioSyncHelper {
 impl AudioEditor {
     pub fn draw_selector(&mut self, ui: &mut Ui) {
         ui.selectable_value(&mut self.mode, AudioEditorMode::Instrument, "Instruments");
-        ui.selectable_value(&mut self.mode, AudioEditorMode::Sfx, "Sfx");
-        ui.selectable_value(&mut self.mode, AudioEditorMode::Songs, "Songs");
-        ui.selectable_value(&mut self.mode, AudioEditorMode::Chains, "Chains");
         ui.selectable_value(&mut self.mode, AudioEditorMode::Patterns, "Patterns");
+        ui.selectable_value(&mut self.mode, AudioEditorMode::Chains, "Chains");
+        ui.selectable_value(&mut self.mode, AudioEditorMode::Songs, "Songs");
+        ui.selectable_value(&mut self.mode, AudioEditorMode::Sfx, "Sfx");
     }
 
     pub fn draw_contents(&mut self, ui: &mut Ui, data: &mut EditorSoundData) {

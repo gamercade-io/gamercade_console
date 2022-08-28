@@ -16,9 +16,9 @@ impl Default for EditorSoundData {
         let sound_rom = SoundRom::default();
         Self {
             songs: from_rom(&sound_rom.songs, "Song"),
-            chains: from_rom(&sound_rom.chains, "Chains"),
-            phrases: from_rom(&sound_rom.phrases, "Phrases"),
-            instruments: from_rom(&sound_rom.instruments, "Instruments"),
+            chains: from_rom(&sound_rom.chains, "Chain"),
+            phrases: from_rom(&sound_rom.phrases, "Phrase"),
+            instruments: from_rom(&sound_rom.instruments, "Instrument"),
             sfx: from_rom(&sound_rom.sfx, "Sfx"),
         }
     }

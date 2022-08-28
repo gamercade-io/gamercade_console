@@ -9,10 +9,11 @@ pub struct FMEditor {}
 impl FMEditor {
     pub(crate) fn draw(
         &mut self,
-        _ui: &mut Ui,
+        ui: &mut Ui,
         _instrument: &mut PatchDefinition,
         _sync: &mut AudioSyncHelper,
     ) {
         // TODO: Write this
+        ui.label("FM Editor: TODO");
     }
 }

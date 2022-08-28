@@ -9,10 +9,11 @@ pub struct WavetableEditor {}
 impl WavetableEditor {
     pub(crate) fn draw(
         &mut self,
-        _ui: &mut Ui,
+        ui: &mut Ui,
         _instrument: &mut WavetableDefinition,
         _sync: &mut AudioSyncHelper,
     ) {
         // TODO: Write this
+        ui.label("Wavetable Editor: TODO");
     }
 }

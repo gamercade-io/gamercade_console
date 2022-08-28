@@ -9,10 +9,11 @@ pub struct SamplerEditor {}
 impl SamplerEditor {
     pub(crate) fn draw(
         &mut self,
-        _ui: &mut Ui,
+        ui: &mut Ui,
         _instrument: &mut SampleDefinition,
         _sync: &mut AudioSyncHelper,
     ) {
         // TODO: Write this
+        ui.label("Sampler Editor: TODO");
     }
 }

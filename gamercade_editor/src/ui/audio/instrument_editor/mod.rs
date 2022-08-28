@@ -17,7 +17,7 @@ use piano_roll::*;
 use sampler_editor::*;
 use wavetable_editor::*;
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Default)]
 pub struct InstrumentEditor {
     fm_editor: FMEditor,
     wavetable_editor: WavetableEditor,
