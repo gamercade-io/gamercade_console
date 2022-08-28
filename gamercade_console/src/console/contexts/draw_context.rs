@@ -171,7 +171,7 @@ impl DrawApi for DrawContext {
         let mut x = 0;
         let mut y = radius;
 
-        self.draw_circle(x0, y0, x, y, color);
+        self.draw_circle_points(x0, y0, x, y, color);
         while x < y {
             if f >= 0 {
                 y -= 1;
@@ -182,7 +182,7 @@ impl DrawApi for DrawContext {
             x += 1;
             ddf_x += 2;
             f += ddf_x + 1;
-            self.draw_circle(x0, y0, x, y, color);
+            self.draw_circle_points(x0, y0, x, y, color);
         }
     }
 
@@ -426,7 +426,7 @@ impl DrawContext {
             .for_each(|pixel| pixel.copy_from_slice(&color));
     }
 
-    fn draw_circle(&mut self, x0: usize, y0: usize, x: usize, y: usize, color: Color) {
+    fn draw_circle_points(&mut self, x0: usize, y0: usize, x: usize, y: usize, color: Color) {
         let up_x = YCord(y0 + x);
         let up_y = YCord(y0 + y);
         let down_x = YCord(y0 - x);
