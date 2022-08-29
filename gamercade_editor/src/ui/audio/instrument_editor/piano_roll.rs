@@ -106,6 +106,38 @@ impl PianoRoll {
         sync: &mut AudioSyncHelper,
         selected_instrument: usize,
     ) {
+        ui.group(|ui| {
+            ui.label("Piano Roll");
+            // Updates the keyboard key states
+            self.update_key_states(ui, sync, selected_instrument);
+
+            // Draws the left/right buttons, and handles
+            // Arrow keys going left or right
+            ui.horizontal(|ui| {
+                let go_left = ui.button("<--").clicked() || ui.input().key_pressed(Key::ArrowLeft);
+                let go_right =
+                    ui.button("-->").clicked() || ui.input().key_pressed(Key::ArrowRight);
+
+                if go_left && self.bottom_note_index > 0 {
+                    self.bottom_note_index -= 12
+                } else if go_right
+                    && self.bottom_note_index < TOTAL_NOTES_COUNT - KEYBOARD_KEY_COUNT
+                {
+                    self.bottom_note_index += 12
+                }
+
+                self.draw_piano_keys(ui, sync, selected_instrument);
+            });
+        });
+    }
+
+    /// Draws the piano keys, which are clickable
+    fn draw_piano_keys(
+        &mut self,
+        ui: &mut Ui,
+        sync: &mut AudioSyncHelper,
+        selected_instrument: usize,
+    ) {
         let texture_id = self
             .default_piano_texture
             .get_or_insert_with(|| {
@@ -116,13 +148,6 @@ impl PianoRoll {
                 )
             })
             .id();
-
-        self.update_key_states(ui, sync, selected_instrument);
-
-        if ui.button("LEFT").clicked() && self.bottom_note_index > 0 {
-            self.bottom_note_index -= 12
-        };
-
         // Draw the actual piano keys for clicking
         ui.vertical(|ui| {
             ui.spacing_mut().item_spacing = Vec2 {
@@ -165,12 +190,6 @@ impl PianoRoll {
                 }
             })
         });
-
-        if ui.button("RIGHT").clicked()
-            && self.bottom_note_index < TOTAL_NOTES_COUNT - KEYBOARD_KEY_COUNT
-        {
-            self.bottom_note_index += 12
-        };
     }
 
     fn get_key_texture_tint(&self, note: NoteName, index: usize) -> Color32 {
