@@ -1,4 +1,4 @@
-use gamercade_audio::EnvelopeType;
+use gamercade_audio::{EnvelopeValue, EnvelopeValueType};
 
 use crate::{EnvelopeDefinition, EnvelopePhase, ENVELOPE_TIME_SCALE};
 
@@ -36,31 +36,34 @@ impl ExponentialRamp {
     ) {
         match phase {
             EnvelopePhase::Attack => self.ramp_to(
-                definition.total_level as f32 / EnvelopeType::MAX as f32,
-                (definition.attack_time as f32 / EnvelopeType::MAX as f32) * ENVELOPE_TIME_SCALE,
+                definition.total_level.to_linear_value(),
+                definition.attack_time.to_scaled_value() * ENVELOPE_TIME_SCALE,
             ),
             EnvelopePhase::Decay => self.ramp_to(
-                (definition.sustain_level - 1) as f32 / (EnvelopeType::MAX - 1) as f32,
-                (definition.decay_attack_time as f32 / EnvelopeType::MAX as f32)
-                    * ENVELOPE_TIME_SCALE,
+                definition.sustain_level.to_linear_value(),
+                definition.decay_attack_time.to_scaled_value(),
             ),
             EnvelopePhase::Sustain => {
-                if definition.decay_sustain_time == EnvelopeType::MAX {
-                    self.set_constant_value(
-                        (definition.sustain_level - 1) as f32 / (EnvelopeType::MAX - 1) as f32,
-                    )
+                if definition.decay_sustain_time.is_max_value() {
+                    self.set_constant_value(definition.sustain_level.to_linear_value())
                 } else {
+                    // TODO: Should this be scaled or linear?
                     self.ramp_to(
                         0.0,
-                        (definition.decay_sustain_time as f32 / EnvelopeType::MAX as f32)
-                            * ENVELOPE_TIME_SCALE,
+                        definition.decay_sustain_time.to_scaled_value() * ENVELOPE_TIME_SCALE,
                     )
                 }
             }
-            EnvelopePhase::Release => self.ramp_to(
-                0.0,
-                (definition.release_time as f32 / EnvelopeType::MAX as f32) * ENVELOPE_TIME_SCALE,
-            ),
+            EnvelopePhase::Release => {
+                if definition.release_time.is_max_value() {
+                    self.set_constant_value(definition.sustain_level.to_linear_value())
+                } else {
+                    self.ramp_to(
+                        0.0,
+                        definition.release_time.to_scaled_value() * ENVELOPE_TIME_SCALE,
+                    )
+                }
+            }
             EnvelopePhase::Off => self.set_constant_value(0.0),
         };
     }

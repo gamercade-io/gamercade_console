@@ -54,7 +54,7 @@ impl PianoRoll {
 
                     let button_top = ImageButton::new(texture_id, TOP_KEY_SIZE).tint(color);
                     if ui.add(button_top).clicked() {
-                        sync.play_note(index, selected_instrument);
+                        sync.trigger_note(index, selected_instrument);
                     };
                 });
             });
@@ -71,7 +71,7 @@ impl PianoRoll {
                         let button_bottom = ImageButton::new(texture_id, BOTTOM_KEY_SIZE);
 
                         if ui.add(button_bottom).clicked() {
-                            sync.play_note(index, selected_instrument);
+                            sync.trigger_note(index, selected_instrument);
                         };
                     }
                 }

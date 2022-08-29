@@ -114,6 +114,14 @@ impl InstrumentInstance {
         }
     }
 
+    pub(crate) fn trigger(&mut self) {
+        match &mut self.kind {
+            InstrumentInstanceKind::Wavetable(wv) => wv.trigger(),
+            InstrumentInstanceKind::FMSynth(fm) => fm.trigger(),
+            InstrumentInstanceKind::Sampler(sm) => sm.trigger(),
+        }
+    }
+
     pub(crate) fn set_note(&mut self, note_id: i32) {
         if let Ok(note) = NoteId::try_from(note_id) {
             let frequency = gamercade_audio::get_note(note).frequency;

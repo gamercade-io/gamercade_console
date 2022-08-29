@@ -22,8 +22,14 @@ pub struct SoundEngineData {
 
 pub enum SoundEngineChannelType {
     SoundEngineData(Box<SoundEngineData>),
+    SoundRomInstance(Arc<SoundRomInstance>),
     PianoKey {
         active: bool,
+        note_index: usize,
+        instrument_index: usize,
+        channel: usize,
+    },
+    TriggerNote {
         note_index: usize,
         instrument_index: usize,
         channel: usize,
@@ -74,6 +80,18 @@ impl SoundEngineData {
         }
     }
 
+    pub fn trigger_note(&mut self, note: i32, instrument_index: usize, channel: usize) {
+        let instrument = self.rom.instrument_bank.get(instrument_index);
+        let channel = self.sfx.get_mut(channel);
+
+        if let (Some(instrument), Some(channel)) = (instrument, channel) {
+            let target = &mut channel.chain_playback.phrase_playback.instrument;
+            target.update_from_instrument(instrument);
+            target.trigger();
+            target.set_note(note);
+        }
+    }
+
     pub fn play_frequency(&mut self, frequency: f32, instrument_index: usize, channel: usize) {
         let instrument = self.rom.instrument_bank.get(instrument_index);
         let channel = self.sfx.get_mut(channel);
@@ -117,7 +135,7 @@ impl SoundEngine {
         self.output_sample_rate
     }
 
-    pub fn new(fps: usize, rom: &Arc<SoundRomInstance>, max_rollback_frames: usize) -> Self {
+    pub fn new(fps: usize, rom: &Arc<SoundRomInstance>, message_buffer_size: usize) -> Self {
         initialize_globals();
         let device = default_host().default_output_device().unwrap();
 
@@ -130,7 +148,7 @@ impl SoundEngine {
         println!("Output channels: {}", channels);
 
         let sound_frames_per_render_frame = output_sample_rate / fps;
-        let (producer, mut consumer) = RingBuffer::new(1 + max_rollback_frames);
+        let (producer, mut consumer) = RingBuffer::new(message_buffer_size);
         let mut data = SoundEngineData::new(output_sample_rate, rom);
 
         let stream = device
@@ -144,6 +162,9 @@ impl SoundEngine {
                                 SoundEngineChannelType::SoundEngineData(next_data) => {
                                     data = *next_data;
                                 }
+                                SoundEngineChannelType::SoundRomInstance(new_rom) => {
+                                    data.replace_sound_rom_instance(&new_rom);
+                                }
                                 SoundEngineChannelType::PianoKey {
                                     active,
                                     note_index,
@@ -155,6 +176,13 @@ impl SoundEngine {
                                     } else {
                                         data.play_sfx(None, channel)
                                     }
+                                }
+                                SoundEngineChannelType::TriggerNote {
+                                    note_index,
+                                    instrument_index,
+                                    channel,
+                                } => {
+                                    data.trigger_note(note_index as i32, instrument_index, channel)
                                 }
                             };
                         }

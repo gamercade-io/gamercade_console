@@ -12,7 +12,6 @@ mod piano_roll;
 mod sampler_editor;
 mod wavetable_editor;
 
-use envelope_widget::*;
 use fm_editor::*;
 use instrument_list::*;
 use piano_roll::*;
@@ -51,7 +50,6 @@ impl InstrumentEditor {
             println!("InstrumentEditor: selected_index is invalid")
         }
 
-        //TODO:  Finally, Draw the Piano Roll
         self.piano_roll
             .draw(ui, sync, self.instrument_list.selected_instrument);
     }

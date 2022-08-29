@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use super::FrequencyMultiplier;
-use crate::{EnvelopeDefinition, FMWaveform, OPERATOR_COUNT};
+use crate::{EnvelopeDefinition, EnvelopeValue, FMWaveform, OPERATOR_COUNT};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OperatorDefinitionBundle {
@@ -11,7 +11,7 @@ pub struct OperatorDefinitionBundle {
 impl Default for OperatorDefinitionBundle {
     fn default() -> Self {
         let modulators_envelope = EnvelopeDefinition {
-            total_level: 0,
+            total_level: EnvelopeValue::zero(),
             ..Default::default()
         };
 
@@ -23,7 +23,7 @@ impl Default for OperatorDefinitionBundle {
         };
 
         let modulator_envelope = EnvelopeDefinition {
-            total_level: 49_152, // Random value to compare against audio-test
+            total_level: EnvelopeValue(170), // Random value to compare against audio-test
             ..EnvelopeDefinition::interesting()
         };
 

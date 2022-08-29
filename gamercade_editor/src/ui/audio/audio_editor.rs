@@ -34,7 +34,7 @@ pub enum AudioEditorMode {
 impl AudioEditor {
     pub(crate) fn new(data: &EditorSoundData) -> Self {
         let sound_rom_instance = Arc::new(SoundRomInstance::from(data));
-        let sound_engine = SoundEngine::new(60, &sound_rom_instance, 0);
+        let sound_engine = SoundEngine::new(60, &sound_rom_instance, 64);
 
         let sound_engine_data =
             SoundEngineData::new(sound_engine.output_sample_rate(), &sound_rom_instance);
@@ -48,6 +48,7 @@ impl AudioEditor {
             sfx_editor: SfxEditor::default(),
             sound_engine,
             audio_sync_helper: AudioSyncHelper {
+                sync_rom: false,
                 sound_engine_data,
                 channel_ticker: (0..SFX_CHANNELS).cycle(),
                 command_queue: Vec::new(),
@@ -61,15 +62,24 @@ pub(crate) enum AudioSyncCommand {
         note_index: usize,
         instrument_index: usize,
     },
+    TriggerNote {
+        note_index: usize,
+        instrument_index: usize,
+    },
 }
 
 pub(crate) struct AudioSyncHelper {
+    sync_rom: bool,
     pub(crate) sound_engine_data: SoundEngineData,
     channel_ticker: Cycle<Range<usize>>,
     command_queue: Vec<AudioSyncCommand>,
 }
 
 impl AudioSyncHelper {
+    pub(crate) fn notify_rom_changed(&mut self) {
+        self.sync_rom = true;
+    }
+
     pub(crate) fn play_note(&mut self, note_index: usize, instrument_index: usize) {
         self.command_queue.push(AudioSyncCommand::PlayNote {
             note_index,
@@ -77,7 +87,14 @@ impl AudioSyncHelper {
         })
     }
 
-    fn push_commands(&mut self, engine: &mut SoundEngine) {
+    pub(crate) fn trigger_note(&mut self, note_index: usize, instrument_index: usize) {
+        self.command_queue.push(AudioSyncCommand::TriggerNote {
+            note_index,
+            instrument_index,
+        })
+    }
+
+    fn push_commands(&mut self, engine: &mut SoundEngine, data: &EditorSoundData) {
         self.command_queue
             .drain(..)
             .for_each(|command| match command {
@@ -90,7 +107,24 @@ impl AudioSyncHelper {
                     instrument_index,
                     channel: self.channel_ticker.next().unwrap(),
                 }),
-            })
+                AudioSyncCommand::TriggerNote {
+                    note_index,
+                    instrument_index,
+                } => engine.send(SoundEngineChannelType::TriggerNote {
+                    note_index,
+                    instrument_index,
+                    channel: self.channel_ticker.next().unwrap(),
+                }),
+            });
+
+        if self.sync_rom {
+            self.sync_rom = false;
+
+            let new_instance = Arc::new(SoundRomInstance::from(data));
+            self.sound_engine_data
+                .replace_sound_rom_instance(&new_instance);
+            engine.send(SoundEngineChannelType::SoundRomInstance(new_instance));
+        }
     }
 }
 
@@ -121,7 +155,8 @@ impl AudioEditor {
             }
         };
 
-        self.audio_sync_helper.push_commands(&mut self.sound_engine)
+        self.audio_sync_helper
+            .push_commands(&mut self.sound_engine, data);
     }
 
     pub fn draw_bottom_panel(&mut self, ui: &mut Ui) {
