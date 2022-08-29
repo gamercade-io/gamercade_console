@@ -1,9 +1,9 @@
 use eframe::{
     egui::{
-        plot::{HLine, Line, Plot, PlotPoints, VLine},
+        plot::{HLine, Line, Plot, PlotPoint, PlotPoints, VLine},
         Ui,
     },
-    epaint::Color32,
+    epaint::{Color32, Vec2},
 };
 use gamercade_audio::{WavetableBitDepth, WavetableDefinition};
 
@@ -48,10 +48,15 @@ impl WavetableEditor {
             .allow_scroll(false)
             .allow_boxed_zoom(false)
             .allow_zoom(false)
-            .include_x(0.0)
-            .include_x(last_index as f64)
-            .include_y(WavetableBitDepth::MAX as f64)
-            .include_y(WavetableBitDepth::MIN as f64)
+            .set_margin_fraction(Vec2::ZERO)
+            .include_x(-1.0)
+            .include_x(last_index as f64 + 2.0)
+            .include_y(WavetableBitDepth::MAX as f64 * 1.1)
+            .include_y(WavetableBitDepth::MIN as f64 * 1.1)
+            .label_formatter(move |_, point| {
+                let (x, y) = plot_point_to_x_y(point, last_index);
+                format!("Idx:{}\nVal:{}", x, y)
+            })
             .show(ui, |plot_ui| {
                 plot_ui.line(line);
                 plot_ui.line(line_segment);
@@ -62,14 +67,8 @@ impl WavetableEditor {
                 plot_ui.vline(VLine::new(last_index as f64).color(Color32::RED));
 
                 if plot_ui.plot_hovered() && primary_pointer_down {
-                    let pos = plot_ui.pointer_coordinate().unwrap();
-
-                    let x = (pos.x.round() as usize).min(last_index);
-                    let y = pos
-                        .y
-                        .round()
-                        .clamp(WavetableBitDepth::MIN as f64, WavetableBitDepth::MAX as f64)
-                        as WavetableBitDepth;
+                    let point = plot_ui.pointer_coordinate().unwrap();
+                    let (x, y) = plot_point_to_x_y(&point, last_index);
 
                     // Only update if we changed the value!
                     if instrument.data[x] != y {
@@ -84,4 +83,15 @@ impl WavetableEditor {
 
         EnvelopeWidget::draw(ui, &mut instrument.envelope, sync)
     }
+}
+
+fn plot_point_to_x_y(point: &PlotPoint, last_index: usize) -> (usize, WavetableBitDepth) {
+    let x = (point.x.round() as usize).min(last_index);
+    let y = point
+        .y
+        .round()
+        .clamp(WavetableBitDepth::MIN as f64, WavetableBitDepth::MAX as f64)
+        as WavetableBitDepth;
+
+    (x, y)
 }
