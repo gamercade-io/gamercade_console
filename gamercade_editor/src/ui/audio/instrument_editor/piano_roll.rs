@@ -2,7 +2,7 @@ use eframe::{
     egui::{ImageButton, Key, TextureFilter, Ui},
     epaint::{Color32, ColorImage, TextureHandle, Vec2},
 };
-use gamercade_audio::{NoteColor, NotesIter, TOTAL_NOTES_COUNT};
+use gamercade_audio::{NoteColor, NoteName, NotesIter, TOTAL_NOTES_COUNT};
 
 use crate::ui::AudioSyncHelper;
 
@@ -13,7 +13,7 @@ pub struct PianoRoll {
     default_piano_texture: Option<TextureHandle>,
 
     bottom_note_index: usize,
-    prev_keys: [bool; KEYBOARD_KEY_COUNT],
+    key_states: [bool; KEYBOARD_KEY_COUNT],
     key_channels: [Option<usize>; KEYBOARD_KEY_COUNT],
 }
 
@@ -22,7 +22,7 @@ impl Default for PianoRoll {
         Self {
             default_piano_texture: Default::default(),
             bottom_note_index: BOTTOM_NOTE_INDEX_START,
-            prev_keys: Default::default(),
+            key_states: Default::default(),
             key_channels: Default::default(),
         }
     }
@@ -69,6 +69,37 @@ impl PianoRoll {
         index >= self.bottom_note_index && index < self.bottom_note_index + KEYBOARD_KEY_COUNT
     }
 
+    fn update_key_states(
+        &mut self,
+        ui: &mut Ui,
+        sync: &mut AudioSyncHelper,
+        selected_instrument: usize,
+    ) {
+        let input = ui.input();
+        let next_keys = std::array::from_fn(|index| input.key_down(KEYS[index]));
+
+        self.key_states
+            .iter()
+            .zip(next_keys.iter())
+            .enumerate()
+            .for_each(|(index, (prev, next))| {
+                if prev != next {
+                    if *next {
+                        let assigned_channel =
+                            sync.play_note(index + self.bottom_note_index, selected_instrument);
+                        self.key_channels[index] = Some(assigned_channel);
+                    } else if let Some(assigned_channel) = self.key_channels[index] {
+                        sync.stop_note(assigned_channel);
+                    } else {
+                        println!("Err: Released key for an unknown note!")
+                    }
+                }
+            });
+
+        self.key_states = next_keys;
+        drop(input);
+    }
+
     pub(crate) fn draw(
         &mut self,
         ui: &mut Ui,
@@ -86,36 +117,10 @@ impl PianoRoll {
             })
             .id();
 
-        let input = ui.input();
-        let next_keys = std::array::from_fn(|index| input.key_down(KEYS[index]));
+        self.update_key_states(ui, sync, selected_instrument);
 
-        self.prev_keys
-            .iter()
-            .zip(next_keys.iter())
-            .enumerate()
-            .for_each(|(index, (prev, next))| {
-                if prev != next {
-                    if *next {
-                        let assigned_channel =
-                            sync.play_note(index + self.bottom_note_index, selected_instrument);
-                        self.key_channels[index] = Some(assigned_channel);
-                    } else {
-                        if let Some(assigned_channel) = self.key_channels[index] {
-                            sync.stop_note(assigned_channel);
-                        } else {
-                            println!("Err: Released key for an unknown note!")
-                        }
-                    }
-                }
-            });
-
-        self.prev_keys = next_keys;
-        drop(input);
-
-        if ui.button("LEFT").clicked() {
-            if self.bottom_note_index > 0 {
-                self.bottom_note_index -= 12
-            };
+        if ui.button("LEFT").clicked() && self.bottom_note_index > 0 {
+            self.bottom_note_index -= 12
         };
 
         // Draw the actual piano keys for clicking
@@ -130,17 +135,7 @@ impl PianoRoll {
                 let all_notes_iter = NotesIter::default().enumerate();
 
                 all_notes_iter.for_each(|(index, (note, _octave))| {
-                    let color = if self.key_in_keyboard_range(index) {
-                        match note.get_key_color() {
-                            NoteColor::White => Color32::WHITE,
-                            NoteColor::Black => Color32::DARK_GRAY,
-                        }
-                    } else {
-                        match note.get_key_color() {
-                            NoteColor::White => Color32::LIGHT_GRAY,
-                            NoteColor::Black => Color32::BLACK,
-                        }
-                    };
+                    let color = self.get_key_texture_tint(note, index);
 
                     let button_top = ImageButton::new(texture_id, TOP_KEY_SIZE).tint(color);
                     if ui.add(button_top).clicked() {
@@ -158,11 +153,7 @@ impl PianoRoll {
 
                 for (index, (note, _octave)) in white_notes_iter.by_ref() {
                     if note.get_key_color() == NoteColor::White {
-                        let tint = if self.key_in_keyboard_range(index) {
-                            Color32::WHITE
-                        } else {
-                            Color32::LIGHT_GRAY
-                        };
+                        let tint = self.get_key_texture_tint(note, index);
 
                         let button_bottom =
                             ImageButton::new(texture_id, BOTTOM_KEY_SIZE).tint(tint);
@@ -175,10 +166,35 @@ impl PianoRoll {
             })
         });
 
-        if ui.button("RIGHT").clicked() {
-            if self.bottom_note_index < TOTAL_NOTES_COUNT - KEYBOARD_KEY_COUNT {
-                self.bottom_note_index += 12
-            };
+        if ui.button("RIGHT").clicked()
+            && self.bottom_note_index < TOTAL_NOTES_COUNT - KEYBOARD_KEY_COUNT
+        {
+            self.bottom_note_index += 12
         };
+    }
+
+    fn get_key_texture_tint(&self, note: NoteName, index: usize) -> Color32 {
+        const OUT_OF_RANGE: &[Color32; 2] = &[Color32::GRAY, Color32::BLACK];
+        const IN_RANGE: &[Color32; 2] = &[Color32::WHITE, Color32::DARK_GRAY];
+        const ACTIVE: &[Color32; 2] = &[Color32::GREEN, Color32::DARK_GREEN];
+
+        let color = match note.get_key_color() {
+            NoteColor::White => 0,
+            NoteColor::Black => 1,
+        };
+
+        let position = if self.key_in_keyboard_range(index) {
+            let inner_index = index - self.bottom_note_index;
+
+            if self.key_states[inner_index] {
+                ACTIVE
+            } else {
+                IN_RANGE
+            }
+        } else {
+            OUT_OF_RANGE
+        };
+
+        position[color]
     }
 }
