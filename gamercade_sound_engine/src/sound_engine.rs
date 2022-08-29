@@ -23,10 +23,12 @@ pub struct SoundEngineData {
 pub enum SoundEngineChannelType {
     SoundEngineData(Box<SoundEngineData>),
     SoundRomInstance(Arc<SoundRomInstance>),
-    PianoKey {
-        active: bool,
+    PianoKeyPressed {
         note_index: usize,
         instrument_index: usize,
+        channel: usize,
+    },
+    PianoKeyReleased {
         channel: usize,
     },
     TriggerNote {
@@ -77,6 +79,16 @@ impl SoundEngineData {
             target.update_from_instrument(instrument);
             target.set_active(true);
             target.set_note(note);
+        }
+    }
+
+    pub fn set_key_active(&mut self, active: bool, channel: usize) {
+        if let Some(target) = self.sfx.get_mut(channel) {
+            target
+                .chain_playback
+                .phrase_playback
+                .instrument
+                .set_active(active)
         }
     }
 
@@ -165,17 +177,13 @@ impl SoundEngine {
                                 SoundEngineChannelType::SoundRomInstance(new_rom) => {
                                     data.replace_sound_rom_instance(&new_rom);
                                 }
-                                SoundEngineChannelType::PianoKey {
-                                    active,
+                                SoundEngineChannelType::PianoKeyPressed {
                                     note_index,
                                     instrument_index,
                                     channel,
-                                } => {
-                                    if active {
-                                        data.play_note(note_index as i32, instrument_index, channel)
-                                    } else {
-                                        data.play_sfx(None, channel)
-                                    }
+                                } => data.play_note(note_index as i32, instrument_index, channel),
+                                SoundEngineChannelType::PianoKeyReleased { channel } => {
+                                    data.set_key_active(false, channel)
                                 }
                                 SoundEngineChannelType::TriggerNote {
                                     note_index,

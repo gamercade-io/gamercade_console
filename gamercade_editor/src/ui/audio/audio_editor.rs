@@ -58,9 +58,13 @@ impl AudioEditor {
 }
 
 pub(crate) enum AudioSyncCommand {
-    PlayNote {
+    PressedKey {
         note_index: usize,
         instrument_index: usize,
+        channel: usize,
+    },
+    ReleasedKey {
+        channel: usize,
     },
     TriggerNote {
         note_index: usize,
@@ -80,11 +84,19 @@ impl AudioSyncHelper {
         self.sync_rom = true;
     }
 
-    pub(crate) fn play_note(&mut self, note_index: usize, instrument_index: usize) {
-        self.command_queue.push(AudioSyncCommand::PlayNote {
+    pub(crate) fn play_note(&mut self, note_index: usize, instrument_index: usize) -> usize {
+        let channel = self.channel_ticker.next().unwrap();
+        self.command_queue.push(AudioSyncCommand::PressedKey {
             note_index,
             instrument_index,
-        })
+            channel,
+        });
+        channel
+    }
+
+    pub(crate) fn stop_note(&mut self, channel: usize) {
+        self.command_queue
+            .push(AudioSyncCommand::ReleasedKey { channel })
     }
 
     pub(crate) fn trigger_note(&mut self, note_index: usize, instrument_index: usize) {
@@ -95,18 +107,30 @@ impl AudioSyncHelper {
     }
 
     fn push_commands(&mut self, engine: &mut SoundEngine, data: &EditorSoundData) {
+        if self.sync_rom {
+            self.sync_rom = false;
+
+            let new_instance = Arc::new(SoundRomInstance::from(data));
+            self.sound_engine_data
+                .replace_sound_rom_instance(&new_instance);
+            engine.send(SoundEngineChannelType::SoundRomInstance(new_instance));
+        }
+
         self.command_queue
             .drain(..)
             .for_each(|command| match command {
-                AudioSyncCommand::PlayNote {
+                AudioSyncCommand::PressedKey {
                     note_index,
                     instrument_index,
-                } => engine.send(SoundEngineChannelType::PianoKey {
-                    active: true,
+                    channel,
+                } => engine.send(SoundEngineChannelType::PianoKeyPressed {
                     note_index,
                     instrument_index,
-                    channel: self.channel_ticker.next().unwrap(),
+                    channel,
                 }),
+                AudioSyncCommand::ReleasedKey { channel } => {
+                    engine.send(SoundEngineChannelType::PianoKeyReleased { channel })
+                }
                 AudioSyncCommand::TriggerNote {
                     note_index,
                     instrument_index,
@@ -116,15 +140,6 @@ impl AudioSyncHelper {
                     channel: self.channel_ticker.next().unwrap(),
                 }),
             });
-
-        if self.sync_rom {
-            self.sync_rom = false;
-
-            let new_instance = Arc::new(SoundRomInstance::from(data));
-            self.sound_engine_data
-                .replace_sound_rom_instance(&new_instance);
-            engine.send(SoundEngineChannelType::SoundRomInstance(new_instance));
-        }
     }
 }
 

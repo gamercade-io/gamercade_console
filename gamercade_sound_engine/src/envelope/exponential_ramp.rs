@@ -1,5 +1,3 @@
-use gamercade_audio::{EnvelopeValue, EnvelopeValueType};
-
 use crate::{EnvelopeDefinition, EnvelopePhase, ENVELOPE_TIME_SCALE};
 
 const OVERSHOOT: f32 = 1.001;
@@ -47,7 +45,6 @@ impl ExponentialRamp {
                 if definition.decay_sustain_time.is_max_value() {
                     self.set_constant_value(definition.sustain_level.to_linear_value())
                 } else {
-                    // TODO: Should this be scaled or linear?
                     self.ramp_to(
                         0.0,
                         definition.decay_sustain_time.to_scaled_value() * ENVELOPE_TIME_SCALE,

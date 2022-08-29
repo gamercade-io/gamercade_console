@@ -28,6 +28,10 @@ impl EnvelopeInstance {
 
     /// Advances the envelope forward one tick and returns the output value.
     pub fn tick(&mut self, active: ActiveState) -> f32 {
+        if ActiveState::On == active {
+            //println!("ON");
+        }
+
         if self.definition.total_level == EnvelopeValue(0) {
             0.0
         } else if ActiveState::Trigger == active {
@@ -47,7 +51,7 @@ impl EnvelopeInstance {
                         0.0
                     }
                 }
-                EnvelopePhase::Attack | EnvelopePhase::Decay | EnvelopePhase::Release => {
+                EnvelopePhase::Attack | EnvelopePhase::Release | EnvelopePhase::Decay => {
                     let out = self.ramp.tick();
 
                     if self.ramp.is_finished() {

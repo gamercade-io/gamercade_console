@@ -52,11 +52,11 @@ impl SamplerInstance {
     }
 
     pub fn set_active(&mut self, active: bool) {
-        if active {
-            self.active = ActiveState::On
+        self.active = if active {
+            ActiveState::On
         } else {
-            self.active = ActiveState::Off
-        }
+            ActiveState::Off
+        };
     }
 
     pub fn trigger(&mut self) {
