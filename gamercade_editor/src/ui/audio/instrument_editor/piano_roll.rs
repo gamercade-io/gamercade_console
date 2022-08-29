@@ -6,13 +6,26 @@ use gamercade_audio::{NoteColor, NotesIter, TOTAL_NOTES_COUNT};
 
 use crate::ui::AudioSyncHelper;
 
-#[derive(Clone, Default)]
+const BOTTOM_NOTE_INDEX_START: usize = 36;
+
+#[derive(Clone)]
 pub struct PianoRoll {
     default_piano_texture: Option<TextureHandle>,
 
     bottom_note_index: usize,
     prev_keys: [bool; KEYBOARD_KEY_COUNT],
     key_channels: [Option<usize>; KEYBOARD_KEY_COUNT],
+}
+
+impl Default for PianoRoll {
+    fn default() -> Self {
+        Self {
+            default_piano_texture: Default::default(),
+            bottom_note_index: BOTTOM_NOTE_INDEX_START,
+            prev_keys: Default::default(),
+            key_channels: Default::default(),
+        }
+    }
 }
 
 const KEYBOARD_KEY_COUNT: usize = 24;
