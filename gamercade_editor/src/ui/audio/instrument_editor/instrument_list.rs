@@ -47,10 +47,12 @@ impl InstrumentList {
     ) {
         ui.horizontal(|ui| {
             if ui.button("New").clicked() {
+                // TODO:
                 println!("new instrument clicked")
             }
 
             if ui.button("Delete").clicked() {
+                // TODO:
                 println!("delete instrument clicked")
             }
         });

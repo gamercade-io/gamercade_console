@@ -11,6 +11,7 @@ pub struct ExponentialRamp {
     overshoot_value: f32,    // The "overshoot" value since we are dealing a small margin of error
     decaying_increment: f32, // The increment which changes over time
     multiplier: f32,         // The multiplier for the increment
+    is_constant: bool,
 }
 
 impl ExponentialRamp {
@@ -23,6 +24,7 @@ impl ExponentialRamp {
             overshoot_value: 0.0,
             decaying_increment: 0.0,
             multiplier: 0.0,
+            is_constant: true,
         }
     }
 
@@ -72,6 +74,7 @@ impl ExponentialRamp {
         self.overshoot_value = new_value;
         self.decaying_increment = 0.0;
         self.multiplier = 0.0;
+        self.is_constant = true;
     }
 
     /// Sets the next target value for the ramp and how long it should take to get there.
@@ -88,6 +91,8 @@ impl ExponentialRamp {
             f32::exp(-1.0 / time),
             (self.output_sample_rate as f32).recip(),
         );
+
+        self.is_constant = false;
     }
 
     /// Ticks the ramp, advancing it forward once and returing the resulting value.
@@ -103,12 +108,16 @@ impl ExponentialRamp {
 
     /// Returns true if the ramp is done advancing.
     pub fn is_finished(&self) -> bool {
-        // Going up
-        if self.value >= self.target_value && self.value <= self.overshoot_value {
-            true
+        if self.is_constant {
+            false
         } else {
-            // Going Down
-            self.value <= self.target_value && self.value >= self.overshoot_value
+            // Going up
+            if self.value >= self.target_value && self.value <= self.overshoot_value {
+                true
+            } else {
+                // Going Down
+                self.value <= self.target_value && self.value >= self.overshoot_value
+            }
         }
     }
 }

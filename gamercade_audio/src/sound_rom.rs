@@ -65,27 +65,3 @@ impl Index<SongId> for SoundRom {
         &self.songs[index.0]
     }
 }
-
-impl Index<ChainId> for SoundRom {
-    type Output = Chain;
-
-    fn index(&self, index: ChainId) -> &Self::Output {
-        &self.chains[index.0]
-    }
-}
-
-impl Index<PhraseId> for SoundRom {
-    type Output = Phrase;
-
-    fn index(&self, index: PhraseId) -> &Self::Output {
-        &self.phrases[index.0]
-    }
-}
-
-impl Index<InstrumentId> for SoundRom {
-    type Output = InstrumentDataDefinition;
-
-    fn index(&self, index: InstrumentId) -> &Self::Output {
-        &self.instruments[index.0]
-    }
-}
