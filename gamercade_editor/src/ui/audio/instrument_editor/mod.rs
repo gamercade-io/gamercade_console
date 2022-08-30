@@ -56,11 +56,11 @@ impl InstrumentEditor {
                 .draw(ui, instrument, sync, &mut self.keyboard_mode);
 
             // Now we need to determine which instrument kind we are currenty editing
-            match &mut instrument.data {
+            ui.group(|ui| match &mut instrument.data {
                 InstrumentDataDefinition::Wavetable(wv) => self.wavetable_editor.draw(ui, wv, sync),
                 InstrumentDataDefinition::FMSynth(fm) => self.fm_editor.draw(ui, fm, sync),
                 InstrumentDataDefinition::Sampler(sm) => self.sampler_editor.draw(ui, sm, sync),
-            }
+            });
         } else {
             println!("InstrumentEditor: selected_index is invalid")
         }

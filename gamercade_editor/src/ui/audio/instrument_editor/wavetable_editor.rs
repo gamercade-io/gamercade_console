@@ -41,6 +41,7 @@ impl WavetableEditor {
 
         let primary_pointer_down = ui.input().pointer.primary_down();
 
+        ui.label(&format!("Wavetable Length: {}", instrument.data.len()));
         Plot::new("my_plot")
             .width(1000.0)
             .height(200.0)
@@ -49,8 +50,8 @@ impl WavetableEditor {
             .allow_boxed_zoom(false)
             .allow_zoom(false)
             .set_margin_fraction(Vec2::ZERO)
-            .include_x(-1.0)
-            .include_x(last_index as f64 + 2.0)
+            // .include_x(-1.0)
+            // .include_x(last_index as f64 + 2.0)
             .include_y(WavetableBitDepth::MAX as f64 * 1.1)
             .include_y(WavetableBitDepth::MIN as f64 * 1.1)
             .label_formatter(move |_, point| {
@@ -78,8 +79,28 @@ impl WavetableEditor {
                 }
             });
 
-        // TODO: Add something to add/shorten the length
+        // TODO: Add something to add length
+        if ui.button("Add Table Entry").clicked() {
+            let mut new_data = instrument.data.clone().into_vec();
+            new_data.push(WavetableBitDepth::default());
+            instrument.data = new_data.into_boxed_slice();
+            sync.notify_rom_changed();
+        }
+
+        // TODO: Add something to remove length
+        if ui.button("Remove Table Entry").clicked() {
+            let new_data = instrument.data[0..last_index]
+                .iter()
+                .cloned()
+                .collect::<Vec<WavetableBitDepth>>();
+            instrument.data = new_data.into_boxed_slice();
+            sync.notify_rom_changed();
+        }
+
         // TODO: Add wavetable generator helper UI
+        if ui.button("Waveform Generator").clicked() {
+            println!("TODO: Waveform Generator Ui")
+        }
 
         EnvelopeWidget::draw(ui, &mut instrument.envelope, sync)
     }
