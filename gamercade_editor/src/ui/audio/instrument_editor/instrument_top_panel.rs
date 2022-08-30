@@ -1,19 +1,41 @@
-use eframe::egui::Ui;
-use gamercade_audio::InstrumentDataDefinition;
+use eframe::{
+    egui::{Label, RichText, SelectableLabel, Ui},
+    epaint::Color32,
+};
+use gamercade_audio::{
+    InstrumentDataDefinition, PatchDefinition, SampleDefinition, WavetableDefinition,
+};
 
 use crate::{editor_data::EditorAudioDataEntry, ui::AudioSyncHelper};
 
 use super::KeyboardMode;
 
-#[derive(Clone, Default)]
-pub(crate) struct InstrumentTopPanel {}
+#[derive(Clone)]
+pub(crate) struct InstrumentTopPanel {
+    editable: bool,
+
+    wavetable_default: InstrumentDataDefinition,
+    fm_default: InstrumentDataDefinition,
+    sampler_default: InstrumentDataDefinition,
+}
+
+impl Default for InstrumentTopPanel {
+    fn default() -> Self {
+        Self {
+            editable: false,
+            wavetable_default: InstrumentDataDefinition::Wavetable(WavetableDefinition::default()),
+            fm_default: InstrumentDataDefinition::FMSynth(PatchDefinition::default()),
+            sampler_default: InstrumentDataDefinition::Sampler(SampleDefinition::default()),
+        }
+    }
+}
 
 impl InstrumentTopPanel {
     pub(crate) fn draw(
-        &self,
+        &mut self,
         ui: &mut Ui,
         instrument: &mut EditorAudioDataEntry<InstrumentDataDefinition>,
-        _sync: &mut AudioSyncHelper,
+        sync: &mut AudioSyncHelper,
         keyboard_mode: &mut KeyboardMode,
     ) {
         ui.group(|ui| {
@@ -27,7 +49,67 @@ impl InstrumentTopPanel {
                 };
             });
 
-            // TODO: Add something about selecting/change instrument types
+            ui.horizontal(|ui| {
+                if ui.button("Change Instrument Type").clicked() {
+                    self.editable = !self.editable
+                };
+
+                ui.separator();
+
+                add_instrument_type_button(
+                    &mut self.editable,
+                    ui,
+                    &mut instrument.data,
+                    sync,
+                    "Wavetable",
+                    &self.wavetable_default,
+                );
+                add_instrument_type_button(
+                    &mut self.editable,
+                    ui,
+                    &mut instrument.data,
+                    sync,
+                    "FM Synth",
+                    &self.fm_default,
+                );
+                add_instrument_type_button(
+                    &mut self.editable,
+                    ui,
+                    &mut instrument.data,
+                    sync,
+                    "Sample",
+                    &self.sampler_default,
+                );
+
+                if self.editable {
+                    let text = Label::new(
+                        RichText::new("Warning: Changing instrument type results in loss of data!")
+                            .color(Color32::DARK_RED),
+                    );
+                    ui.add(text);
+                }
+            })
         });
     }
+}
+
+fn add_instrument_type_button(
+    editable: &mut bool,
+    ui: &mut Ui,
+    instrument: &mut InstrumentDataDefinition,
+    sync: &mut AudioSyncHelper,
+    text: &str,
+    default_instrument: &InstrumentDataDefinition,
+) {
+    let same_kind = instrument.get_kind() == default_instrument.get_kind();
+
+    if ui
+        .add_enabled(*editable, SelectableLabel::new(same_kind, text))
+        .clicked()
+        && !same_kind
+    {
+        *instrument = default_instrument.clone();
+        *editable = false;
+        sync.notify_rom_changed();
+    };
 }

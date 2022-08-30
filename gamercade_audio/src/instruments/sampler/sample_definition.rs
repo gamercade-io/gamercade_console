@@ -10,6 +10,17 @@ pub struct SampleDefinition {
     pub envelope_definition: EnvelopeDefinition,
 }
 
+impl Default for SampleDefinition {
+    fn default() -> Self {
+        Self {
+            data: vec![0].into_boxed_slice(),
+            source_sample_rate: 1,
+            sample_frequency: Default::default(),
+            envelope_definition: Default::default(),
+        }
+    }
+}
+
 impl SampleDefinition {
     pub fn len(&self) -> usize {
         self.data.len()

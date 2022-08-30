@@ -9,6 +9,15 @@ pub struct WavetableDefinition {
     pub envelope: EnvelopeDefinition,
 }
 
+impl Default for WavetableDefinition {
+    fn default() -> Self {
+        Self {
+            data: vec![0].into_boxed_slice(),
+            envelope: Default::default(),
+        }
+    }
+}
+
 impl WavetableDefinition {
     pub fn len(&self) -> usize {
         self.data.len()

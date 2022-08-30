@@ -7,3 +7,10 @@ pub use fm::*;
 pub use instrument_data_definition::*;
 pub use sampler::*;
 pub use wavetable::*;
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum InstrumentKind {
+    Sampler,
+    FMSynth,
+    Wavetable,
+}
