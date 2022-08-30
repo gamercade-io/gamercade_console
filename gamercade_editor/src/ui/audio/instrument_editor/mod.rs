@@ -8,15 +8,25 @@ use super::AudioSyncHelper;
 mod envelope_widget;
 mod fm_editor;
 mod instrument_list;
+mod instrument_top_panel;
 mod piano_roll;
 mod sampler_editor;
 mod wavetable_editor;
 
 use fm_editor::*;
 use instrument_list::*;
+use instrument_top_panel::*;
 use piano_roll::*;
 use sampler_editor::*;
 use wavetable_editor::*;
+
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub(crate) enum KeyboardMode {
+    Normal,
+
+    #[default]
+    PianoRoll,
+}
 
 #[derive(Clone, Default)]
 pub struct InstrumentEditor {
@@ -25,7 +35,9 @@ pub struct InstrumentEditor {
     sampler_editor: SamplerEditor,
 
     instrument_list: InstrumentList,
+    instrument_top_panel: InstrumentTopPanel,
     piano_roll: PianoRoll,
+    keyboard_mode: KeyboardMode,
 }
 
 impl InstrumentEditor {
@@ -37,10 +49,13 @@ impl InstrumentEditor {
     ) {
         self.instrument_list.draw(ui, data, sync);
 
-        // Now we need to determine which instrument kind we are currenty editing
         let index = self.instrument_list.selected_instrument;
 
         if let Some(instrument) = data.instruments.get_mut(index) {
+            self.instrument_top_panel
+                .draw(ui, instrument, sync, &mut self.keyboard_mode);
+
+            // Now we need to determine which instrument kind we are currenty editing
             match &mut instrument.data {
                 InstrumentDataDefinition::Wavetable(wv) => self.wavetable_editor.draw(ui, wv, sync),
                 InstrumentDataDefinition::FMSynth(fm) => self.fm_editor.draw(ui, fm, sync),
@@ -50,7 +65,11 @@ impl InstrumentEditor {
             println!("InstrumentEditor: selected_index is invalid")
         }
 
-        self.piano_roll
-            .draw(ui, sync, self.instrument_list.selected_instrument);
+        self.piano_roll.draw(
+            ui,
+            sync,
+            self.instrument_list.selected_instrument,
+            &self.keyboard_mode,
+        );
     }
 }

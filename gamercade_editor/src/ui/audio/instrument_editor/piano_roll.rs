@@ -6,6 +6,8 @@ use gamercade_audio::{NoteColor, NoteName, NotesIter, TOTAL_NOTES_COUNT};
 
 use crate::ui::AudioSyncHelper;
 
+use super::KeyboardMode;
+
 const BOTTOM_NOTE_INDEX_START: usize = 36;
 
 #[derive(Clone)]
@@ -105,18 +107,25 @@ impl PianoRoll {
         ui: &mut Ui,
         sync: &mut AudioSyncHelper,
         selected_instrument: usize,
+        keyboard_mode: &KeyboardMode,
     ) {
         ui.group(|ui| {
             ui.label("Piano Roll");
-            // Updates the keyboard key states
-            self.update_key_states(ui, sync, selected_instrument);
+
+            let piano_active = KeyboardMode::PianoRoll == *keyboard_mode;
+
+            if piano_active {
+                // Updates the keyboard key states
+                self.update_key_states(ui, sync, selected_instrument);
+            }
 
             // Draws the left/right buttons, and handles
             // Arrow keys going left or right
             ui.horizontal(|ui| {
-                let go_left = ui.button("<--").clicked() || ui.input().key_pressed(Key::ArrowLeft);
-                let go_right =
-                    ui.button("-->").clicked() || ui.input().key_pressed(Key::ArrowRight);
+                let go_left = ui.button("<--").clicked()
+                    || (piano_active && ui.input().key_pressed(Key::ArrowLeft));
+                let go_right = ui.button("-->").clicked()
+                    || (piano_active && ui.input().key_pressed(Key::ArrowRight));
 
                 if go_left && self.bottom_note_index > 0 {
                     self.bottom_note_index -= 12
