@@ -89,10 +89,7 @@ impl WavetableEditor {
 
         // TODO: Add something to remove length
         if ui.button("Remove Table Entry").clicked() {
-            let new_data = instrument.data[0..last_index]
-                .iter()
-                .cloned()
-                .collect::<Vec<WavetableBitDepth>>();
+            let new_data = instrument.data[0..last_index].to_vec();
             instrument.data = new_data.into_boxed_slice();
             sync.notify_rom_changed();
         }

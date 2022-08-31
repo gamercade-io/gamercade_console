@@ -1,7 +1,8 @@
 use std::{ops::Index, sync::Arc};
 
 use gamercade_audio::{
-    Chain, InstrumentDataDefinition, PatchDefinition, Phrase, SampleDefinition, Song, SoundRom,
+    Chain, ChainId, InstrumentDataDefinition, InstrumentId, PatchDefinition, Phrase, PhraseId,
+    SampleDefinition, Song, SoundRom,
 };
 
 use crate::{Sfx, SongId, WavetableDefinition};
@@ -10,9 +11,9 @@ use crate::{Sfx, SongId, WavetableDefinition};
 #[derive(Debug)]
 pub struct SoundRomInstance {
     pub songs: Box<[Song]>,
-    pub chains: Box<[Chain]>,
-    pub phrases: Box<[Phrase]>,
-    pub instrument_bank: Box<[InstrumentDefinition]>,
+    pub chains: Box<[Option<Chain>]>,
+    pub phrases: Box<[Option<Phrase>]>,
+    pub instrument_bank: Box<[Option<InstrumentDefinition>]>,
     pub sfx: Box<[Sfx]>,
 }
 
@@ -58,9 +59,11 @@ impl SoundRomInstance {
             instrument_bank: Vec::from(rom.instruments.clone())
                 .into_iter()
                 .enumerate()
-                .map(|(index, instrument)| InstrumentDefinition {
-                    id: index,
-                    kind: InstrumentDefinitionKind::from(instrument),
+                .map(|(index, instrument)| {
+                    instrument.map(|instrument| InstrumentDefinition {
+                        id: index,
+                        kind: InstrumentDefinitionKind::from(instrument),
+                    })
                 })
                 .collect::<Vec<_>>()
                 .into_boxed_slice(),
@@ -74,5 +77,29 @@ impl Index<SongId> for SoundRomInstance {
 
     fn index(&self, index: SongId) -> &Self::Output {
         &self.songs[index.0]
+    }
+}
+
+impl Index<ChainId> for SoundRomInstance {
+    type Output = Option<Chain>;
+
+    fn index(&self, index: ChainId) -> &Self::Output {
+        &self.chains[index.0]
+    }
+}
+
+impl Index<PhraseId> for SoundRomInstance {
+    type Output = Option<Phrase>;
+
+    fn index(&self, index: PhraseId) -> &Self::Output {
+        &self.phrases[index.0]
+    }
+}
+
+impl Index<InstrumentId> for SoundRomInstance {
+    type Output = Option<InstrumentDefinition>;
+
+    fn index(&self, index: InstrumentId) -> &Self::Output {
+        &self.instrument_bank[index.0]
     }
 }

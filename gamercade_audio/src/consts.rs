@@ -21,3 +21,21 @@ use strum::EnumCount;
 use crate::{NoteName, Octave};
 /// The total number of valid notes. 96 notes from C1 -> B9
 pub const TOTAL_NOTES_COUNT: usize = (Octave::COUNT - 1) * NoteName::COUNT;
+
+/// The maximum number of songs in the SoundRom
+pub const SONGS_MAX_COUNT: usize = 256;
+
+/// The maximum number of chain lists in a Song
+pub const SONG_MAX_CHAIN_LENGTH: usize = 256;
+
+/// The maximum number of chains in the SoundRom
+pub const CHAINS_MAX_COUNT: usize = 256;
+
+/// The maximum number of phrases in the SoundRom
+pub const PHRASES_MAX_COUNT: usize = 256;
+
+/// The maximum number of instruments in the SoundRom
+pub const INSTRUMENTS_MAX_COUNT: usize = 256;
+
+/// The maximum number of sfx in the SoundRom
+pub const SFX_MAX_COUNT: usize = 256;

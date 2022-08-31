@@ -57,9 +57,16 @@ impl InstrumentEditor {
 
             // Now we need to determine which instrument kind we are currenty editing
             ui.group(|ui| match &mut instrument.data {
-                InstrumentDataDefinition::Wavetable(wv) => self.wavetable_editor.draw(ui, wv, sync),
-                InstrumentDataDefinition::FMSynth(fm) => self.fm_editor.draw(ui, fm, sync),
-                InstrumentDataDefinition::Sampler(sm) => self.sampler_editor.draw(ui, sm, sync),
+                Some(InstrumentDataDefinition::Wavetable(wv)) => {
+                    self.wavetable_editor.draw(ui, wv, sync)
+                }
+                Some(InstrumentDataDefinition::FMSynth(fm)) => self.fm_editor.draw(ui, fm, sync),
+                Some(InstrumentDataDefinition::Sampler(sm)) => {
+                    self.sampler_editor.draw(ui, sm, sync)
+                }
+                None => {
+                    ui.label("Instrument is not initialized");
+                }
             });
         } else {
             println!("InstrumentEditor: selected_index is invalid")

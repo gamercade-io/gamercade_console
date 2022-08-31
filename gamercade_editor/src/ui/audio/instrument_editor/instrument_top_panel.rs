@@ -34,7 +34,7 @@ impl InstrumentTopPanel {
     pub(crate) fn draw(
         &mut self,
         ui: &mut Ui,
-        instrument: &mut EditorAudioDataEntry<InstrumentDataDefinition>,
+        instrument: &mut EditorAudioDataEntry<Option<InstrumentDataDefinition>>,
         sync: &mut AudioSyncHelper,
         keyboard_mode: &mut KeyboardMode,
     ) {
@@ -50,7 +50,7 @@ impl InstrumentTopPanel {
             });
 
             ui.horizontal(|ui| {
-                if ui.button("Change Instrument Type").clicked() {
+                if ui.button("Select Instrument Type").clicked() {
                     self.editable = !self.editable
                 };
 
@@ -96,19 +96,28 @@ impl InstrumentTopPanel {
 fn add_instrument_type_button(
     editable: &mut bool,
     ui: &mut Ui,
-    instrument: &mut InstrumentDataDefinition,
+    instrument: &mut Option<InstrumentDataDefinition>,
     sync: &mut AudioSyncHelper,
     text: &str,
     default_instrument: &InstrumentDataDefinition,
 ) {
-    let same_kind = instrument.get_kind() == default_instrument.get_kind();
+    if let Some(instrument) = instrument {
+        let same_kind = instrument.get_kind() == default_instrument.get_kind();
 
-    if ui
-        .add_enabled(*editable, SelectableLabel::new(same_kind, text))
+        if ui
+            .add_enabled(*editable, SelectableLabel::new(same_kind, text))
+            .clicked()
+            && !same_kind
+        {
+            *instrument = default_instrument.clone();
+            *editable = false;
+            sync.notify_rom_changed();
+        };
+    } else if ui
+        .add_enabled(*editable, SelectableLabel::new(false, text))
         .clicked()
-        && !same_kind
     {
-        *instrument = default_instrument.clone();
+        *instrument = Some(default_instrument.clone());
         *editable = false;
         sync.notify_rom_changed();
     };

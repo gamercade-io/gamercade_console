@@ -5,9 +5,9 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EditorSoundData {
     pub(crate) songs: Vec<EditorAudioDataEntry<Song>>,
-    pub(crate) chains: Vec<EditorAudioDataEntry<Chain>>,
-    pub(crate) phrases: Vec<EditorAudioDataEntry<Phrase>>,
-    pub(crate) instruments: Vec<EditorAudioDataEntry<InstrumentDataDefinition>>,
+    pub(crate) chains: Vec<EditorAudioDataEntry<Option<Chain>>>,
+    pub(crate) phrases: Vec<EditorAudioDataEntry<Option<Phrase>>>,
+    pub(crate) instruments: Vec<EditorAudioDataEntry<Option<InstrumentDataDefinition>>>,
     pub(crate) sfx: Vec<EditorAudioDataEntry<Sfx>>,
 }
 
@@ -71,9 +71,14 @@ impl From<&EditorSoundData> for SoundRomInstance {
                 .instruments
                 .iter()
                 .enumerate()
-                .map(|(id, instrument)| InstrumentDefinition {
-                    id,
-                    kind: InstrumentDefinitionKind::from(instrument.data.clone()),
+                .map(|(id, instrument)| {
+                    instrument
+                        .data
+                        .as_ref()
+                        .map(|instrument| InstrumentDefinition {
+                            id,
+                            kind: InstrumentDefinitionKind::from(instrument.clone()),
+                        })
                 })
                 .collect::<Vec<_>>()
                 .into_boxed_slice(),

@@ -5,6 +5,7 @@ use cpal::{
     traits::{DeviceTrait, HostTrait, StreamTrait},
     Stream, StreamConfig,
 };
+use gamercade_audio::InstrumentId;
 use rtrb::{Producer, RingBuffer};
 
 use crate::{
@@ -71,10 +72,10 @@ impl SoundEngineData {
     }
 
     pub fn play_note(&mut self, note: i32, instrument_index: usize, channel: usize) {
-        let instrument = self.rom.instrument_bank.get(instrument_index);
+        let instrument = self.rom[InstrumentId(instrument_index)].as_ref();
         let channel = self.sfx.get_mut(channel);
 
-        if let (Some(instrument), Some(channel)) = (instrument, channel) {
+        if let (Some(instrument), Some(channel)) = (&instrument, channel) {
             let target = &mut channel.chain_playback.phrase_playback.instrument;
             target.update_from_instrument(instrument);
             target.set_active(true);
@@ -93,10 +94,10 @@ impl SoundEngineData {
     }
 
     pub fn trigger_note(&mut self, note: i32, instrument_index: usize, channel: usize) {
-        let instrument = self.rom.instrument_bank.get(instrument_index);
+        let instrument = self.rom[InstrumentId(instrument_index)].as_ref();
         let channel = self.sfx.get_mut(channel);
 
-        if let (Some(instrument), Some(channel)) = (instrument, channel) {
+        if let (Some(instrument), Some(channel)) = (&instrument, channel) {
             let target = &mut channel.chain_playback.phrase_playback.instrument;
             target.update_from_instrument(instrument);
             target.trigger();
@@ -105,10 +106,10 @@ impl SoundEngineData {
     }
 
     pub fn play_frequency(&mut self, frequency: f32, instrument_index: usize, channel: usize) {
-        let instrument = self.rom.instrument_bank.get(instrument_index);
+        let instrument = self.rom[InstrumentId(instrument_index)].as_ref();
         let channel = self.sfx.get_mut(channel);
 
-        if let (Some(instrument), Some(channel)) = (instrument, channel) {
+        if let (Some(instrument), Some(channel)) = (&instrument, channel) {
             let target = &mut channel.chain_playback.phrase_playback.instrument;
             target.update_from_instrument(instrument);
             target.set_active(true);

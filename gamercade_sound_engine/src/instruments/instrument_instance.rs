@@ -24,7 +24,7 @@ pub fn new_instrument_channel_message(
     entry: &PhraseStorageType,
     rom: &SoundRomInstance,
 ) -> Option<InstrumentChannelType> {
-    if let Some(instrument) = rom.instrument_bank.get(entry.instrument.0) {
+    if let Some(instrument) = &rom[entry.instrument] {
         let note = get_note(entry.note).frequency;
         let instrument = instrument.clone();
 

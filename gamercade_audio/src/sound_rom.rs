@@ -11,9 +11,9 @@ use crate::{
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SoundRom {
     pub songs: Box<[Song]>,
-    pub chains: Box<[Chain]>,
-    pub phrases: Box<[Phrase]>,
-    pub instruments: Box<[InstrumentDataDefinition]>,
+    pub chains: Box<[Option<Chain>]>,
+    pub phrases: Box<[Option<Phrase>]>,
+    pub instruments: Box<[Option<InstrumentDataDefinition>]>,
     pub sfx: Box<[Sfx]>,
 }
 
@@ -50,9 +50,9 @@ impl Default for SoundRom {
 
         Self {
             songs: vec![].into_boxed_slice(),
-            chains: vec![default_chain].into_boxed_slice(),
-            phrases: vec![default_phrase].into_boxed_slice(),
-            instruments: vec![default_sine_wave].into_boxed_slice(),
+            chains: vec![Some(default_chain)].into_boxed_slice(),
+            phrases: vec![Some(default_phrase)].into_boxed_slice(),
+            instruments: vec![Some(default_sine_wave)].into_boxed_slice(),
             sfx: vec![default_sfx].into_boxed_slice(),
         }
     }

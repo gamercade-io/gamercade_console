@@ -35,17 +35,17 @@ pub fn main() {
 // the editor gets audio support.
 fn test_rom() -> SoundRomInstance {
     let instruments = vec![
-        InstrumentDataDefinition::FMSynth(PatchDefinition::default()),
-        InstrumentDataDefinition::Wavetable(WavetableDefinition {
+        Some(InstrumentDataDefinition::FMSynth(PatchDefinition::default())),
+        Some(InstrumentDataDefinition::Wavetable(WavetableDefinition {
             data: WavetableGenerator {
                 waveform: WavetableWaveform::Sine,
                 size: 64,
             }
             .generate(),
             envelope: EnvelopeDefinition::interesting(),
-        }),
-        InstrumentDataDefinition::Sampler(sampler_no_pitch()),
-        InstrumentDataDefinition::Sampler(sampler_pitched()),
+        })),
+        Some(InstrumentDataDefinition::Sampler(sampler_no_pitch())),
+        Some(InstrumentDataDefinition::Sampler(sampler_pitched())),
     ];
 
     let mut chains0 = ArrayVec::new();
@@ -95,20 +95,20 @@ fn test_rom() -> SoundRomInstance {
     let rom = SoundRom {
         songs,
         chains: vec![
-            Chain { entries: chains0 },
-            Chain { entries: chains1 },
-            Chain { entries: chains2 },
-            Chain { entries: chains3 },
+            Some(Chain { entries: chains0 }),
+            Some(Chain { entries: chains1 }),
+            Some(Chain { entries: chains2 }),
+            Some(Chain { entries: chains3 }),
         ]
         .into_boxed_slice(),
         phrases: vec![
-            Phrase::c_scale(InstrumentId(0)),
-            Phrase::c_scale_reverse(InstrumentId(0)),
-            Phrase::c_scale(InstrumentId(1)),
-            Phrase::c_scale_reverse(InstrumentId(1)),
-            Phrase::c_scale(InstrumentId(2)),
-            Phrase::c_scale(InstrumentId(3)),
-            Phrase::c_scale_reverse(InstrumentId(3)),
+            Some(Phrase::c_scale(InstrumentId(0))),
+            Some(Phrase::c_scale_reverse(InstrumentId(0))),
+            Some(Phrase::c_scale(InstrumentId(1))),
+            Some(Phrase::c_scale_reverse(InstrumentId(1))),
+            Some(Phrase::c_scale(InstrumentId(2))),
+            Some(Phrase::c_scale(InstrumentId(3))),
+            Some(Phrase::c_scale_reverse(InstrumentId(3))),
         ]
         .into_boxed_slice(),
         instruments: instruments.into_boxed_slice(),
