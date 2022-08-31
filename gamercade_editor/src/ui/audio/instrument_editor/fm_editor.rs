@@ -153,7 +153,11 @@ impl OperatorWidget {
 
             ui.group(|ui| {
                 ui.label("Frequency Adjustment");
-                ui.label("Frequency Multiplier");
+                ui.label(format!(
+                    "Frequency Multiplier: {:.3}",
+                    operator.frequency_multiplier.top as f32
+                        / operator.frequency_multiplier.bottom as f32
+                ));
                 ui.label("Top");
                 if ui
                     .add(Slider::new(
