@@ -7,10 +7,10 @@ pub const SFX_CHANNELS: usize = 8;
 /// How many effects are available.
 pub const EFFECT_COUNT: usize = 3;
 
-// Maximum allowed phrases in a chain
+/// Maximum allowed phrases in a chain
 pub const CHAIN_MAX_PHRASE_COUNT: usize = 16;
 
-// Maximum allowed entries (or steps) in a phrase
+/// Maximum allowed entries (or steps) in a phrase
 pub const PHRASE_MAX_ENTRIES: usize = 16;
 
 // I'm not sure why this is correct but it is
@@ -39,3 +39,6 @@ pub const INSTRUMENTS_MAX_COUNT: usize = 256;
 
 /// The maximum number of sfx in the SoundRom
 pub const SFX_MAX_COUNT: usize = 256;
+
+/// Maximum length of a wavetable
+pub const WAVETABLE_MAX_LENGTH: usize = u16::MAX as usize;

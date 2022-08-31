@@ -1,18 +1,23 @@
 use eframe::{
     egui::{
         plot::{HLine, Line, Plot, PlotPoint, PlotPoints, VLine},
-        Ui,
+        ComboBox, Slider, Ui, Window,
     },
     epaint::{Color32, Vec2},
 };
-use gamercade_audio::{WavetableBitDepth, WavetableDefinition};
+use gamercade_audio::{
+    WavetableBitDepth, WavetableDefinition, WavetableGenerator, WavetableWaveform,
+    WAVETABLE_MAX_LENGTH,
+};
 
 use crate::ui::AudioSyncHelper;
 
 use super::envelope_widget::EnvelopeWidget;
 
 #[derive(Clone, Debug, Default)]
-pub struct WavetableEditor {}
+pub struct WavetableEditor {
+    generator: WavetableGeneratorWidget,
+}
 
 impl WavetableEditor {
     pub(crate) fn draw(
@@ -21,6 +26,8 @@ impl WavetableEditor {
         instrument: &mut WavetableDefinition,
         sync: &mut AudioSyncHelper,
     ) {
+        self.generator.draw(ui, instrument, sync);
+
         let last_index = instrument.data.len() - 1;
 
         // Draw the waveform:
@@ -96,7 +103,7 @@ impl WavetableEditor {
 
         // TODO: Add wavetable generator helper UI
         if ui.button("Waveform Generator").clicked() {
-            println!("TODO: Waveform Generator Ui")
+            self.generator.open = !self.generator.open;
         }
 
         EnvelopeWidget::draw(ui, &mut instrument.envelope, sync)
@@ -112,4 +119,120 @@ fn plot_point_to_x_y(point: &PlotPoint, last_index: usize) -> (usize, WavetableB
         as WavetableBitDepth;
 
     (x, y)
+}
+
+#[derive(Clone, Debug, Default)]
+struct WavetableGeneratorWidget {
+    open: bool,
+    generator: WavetableGenerator,
+    duty_cycle: f32,
+}
+
+impl WavetableGeneratorWidget {
+    fn draw(
+        &mut self,
+        ui: &mut Ui,
+        instrument: &mut WavetableDefinition,
+        sync: &mut AudioSyncHelper,
+    ) {
+        Window::new("Wavetable Generator")
+            .open(&mut self.open)
+            .collapsible(false)
+            .show(ui.ctx(), |ui| {
+                ComboBox::from_label("Waveform")
+                    .selected_text(format!("{:?}", &self.generator.waveform))
+                    .show_ui(ui, |ui| {
+                        ui.selectable_value(
+                            &mut self.generator.waveform,
+                            WavetableWaveform::Sine,
+                            "Sine",
+                        );
+                        ui.selectable_value(
+                            &mut self.generator.waveform,
+                            WavetableWaveform::Square,
+                            "Square",
+                        );
+                        ui.selectable_value(
+                            &mut self.generator.waveform,
+                            WavetableWaveform::Pulse(self.duty_cycle),
+                            "Pulse",
+                        );
+                        ui.selectable_value(
+                            &mut self.generator.waveform,
+                            WavetableWaveform::Saw,
+                            "Saw",
+                        );
+                        ui.selectable_value(
+                            &mut self.generator.waveform,
+                            WavetableWaveform::Triangle,
+                            "Triangle",
+                        );
+                        ui.selectable_value(
+                            &mut self.generator.waveform,
+                            WavetableWaveform::HalfSine,
+                            "Half Sine",
+                        );
+                        ui.selectable_value(
+                            &mut self.generator.waveform,
+                            WavetableWaveform::AbsoluteSine,
+                            "Absolute Sine",
+                        );
+                        ui.selectable_value(
+                            &mut self.generator.waveform,
+                            WavetableWaveform::QuarterSine,
+                            "Quarter Sine",
+                        );
+                        ui.selectable_value(
+                            &mut self.generator.waveform,
+                            WavetableWaveform::AlternatingSine,
+                            "Alternating Sine",
+                        );
+                        ui.selectable_value(
+                            &mut self.generator.waveform,
+                            WavetableWaveform::CamelSine,
+                            "Camel Sine",
+                        );
+                        ui.selectable_value(
+                            &mut self.generator.waveform,
+                            WavetableWaveform::LogarithmicSaw,
+                            "Logarithmic Saw",
+                        );
+                        ui.selectable_value(
+                            &mut self.generator.waveform,
+                            WavetableWaveform::InvertedSine,
+                            "Inverted Sine",
+                        );
+                        ui.selectable_value(
+                            &mut self.generator.waveform,
+                            WavetableWaveform::InvertedHalfSine,
+                            "Inverted Half Sine",
+                        );
+                        ui.selectable_value(
+                            &mut self.generator.waveform,
+                            WavetableWaveform::InvertedAlternatingSine,
+                            "Inverted Alternating Sine",
+                        );
+                        ui.selectable_value(
+                            &mut self.generator.waveform,
+                            WavetableWaveform::InvertedCamelSine,
+                            "Inverted Camel Sine",
+                        );
+                    });
+
+                if let WavetableWaveform::Pulse(duty_cycle) = &mut self.generator.waveform {
+                    ui.add(Slider::new(duty_cycle, 0.0..=1.0).text("Pulse Duty Cycle"));
+                    self.duty_cycle = *duty_cycle;
+                };
+
+                ui.add(Slider::new(
+                    &mut self.generator.size,
+                    1..=WAVETABLE_MAX_LENGTH,
+                ));
+
+                if ui.button("Generate").clicked() {
+                    instrument.data = self.generator.generate();
+                    sync.notify_rom_changed()
+                }
+            });
+    }
 }
