@@ -30,30 +30,34 @@ impl FMEditor {
     ) {
         ui.label("FM Editor");
 
-        // TODO: Colorize / Explain Algorithms
-        ui.label("Algorithm");
-        if ui
-            .add(Slider::new(&mut patch.algorithm.0, 0..=Algorithm::max()))
-            .changed()
-        {
-            sync.notify_rom_changed();
-        }
+        ui.horizontal(|ui| {
+            ui.label("Feedback");
+            if ui
+                .add(Slider::new(&mut patch.feedback.0, 0..=FeedbackLevel::max()))
+                .changed()
+            {
+                sync.notify_rom_changed();
+            }
 
-        ui.label("Feedback");
-        if ui
-            .add(Slider::new(&mut patch.feedback.0, 0..=FeedbackLevel::max()))
-            .changed()
-        {
-            sync.notify_rom_changed();
-        }
+            // TODO: Colorize / Explain Algorithms
+            ui.label("Algorithm");
+            if ui
+                .add(Slider::new(&mut patch.algorithm.0, 0..=Algorithm::max()))
+                .changed()
+            {
+                sync.notify_rom_changed();
+            }
+        });
 
-        self.operator_widgets.chunks_exact(2).for_each(|widget| {
-            ui.horizontal(|ui| {
-                ui.group(|ui| {
-                    widget[0].draw(ui, &mut patch.operators.operators[widget[0].index], sync);
-                });
-                ui.group(|ui| {
-                    widget[1].draw(ui, &mut patch.operators.operators[widget[1].index], sync);
+        ui.vertical(|ui| {
+            self.operator_widgets.chunks_exact(2).for_each(|widget| {
+                ui.horizontal(|ui| {
+                    ui.group(|ui| {
+                        widget[0].draw(ui, &mut patch.operators.operators[widget[0].index], sync);
+                    });
+                    ui.group(|ui| {
+                        widget[1].draw(ui, &mut patch.operators.operators[widget[1].index], sync);
+                    });
                 });
             });
         });
@@ -87,14 +91,14 @@ impl OperatorWidget {
                         .selectable_value(
                             &mut operator.waveform,
                             FMWaveform::InverseSine,
-                            "Inverse Sine",
+                            "InverseSine",
                         )
                         .clicked()
                     {
                         should_notify = true;
                     };
                     if ui
-                        .selectable_value(&mut operator.waveform, FMWaveform::HalfSine, "Half Sine")
+                        .selectable_value(&mut operator.waveform, FMWaveform::HalfSine, "HalfSine")
                         .clicked()
                     {
                         should_notify = true;
@@ -103,7 +107,7 @@ impl OperatorWidget {
                         .selectable_value(
                             &mut operator.waveform,
                             FMWaveform::InverseHalfSine,
-                            "Inverse Half Sine",
+                            "InverseHalfSine",
                         )
                         .clicked()
                     {
@@ -113,7 +117,7 @@ impl OperatorWidget {
                         .selectable_value(
                             &mut operator.waveform,
                             FMWaveform::AlternatingSine,
-                            "Alternating Sine",
+                            "AlternatingSine",
                         )
                         .clicked()
                     {
@@ -123,7 +127,7 @@ impl OperatorWidget {
                         .selectable_value(
                             &mut operator.waveform,
                             FMWaveform::InverseAlternatingSine,
-                            "Inverse Alternating Sine",
+                            "InverseAlternatingSine",
                         )
                         .clicked()
                     {
@@ -133,7 +137,7 @@ impl OperatorWidget {
                         .selectable_value(
                             &mut operator.waveform,
                             FMWaveform::CamelSine,
-                            "Camel Sine",
+                            "CamelSine",
                         )
                         .clicked()
                     {
@@ -143,7 +147,7 @@ impl OperatorWidget {
                         .selectable_value(
                             &mut operator.waveform,
                             FMWaveform::InveseCamelSine,
-                            "Invese Camel Sine",
+                            "InveseCamelSine",
                         )
                         .clicked()
                     {
