@@ -8,7 +8,10 @@ use gamercade_sound_engine::{
 
 use crate::editor_data::EditorSoundData;
 
-use super::{ChainEditor, InstrumentEditor, PatternEditor, SfxEditor, SongEditor};
+use super::{
+    ChainEditor, InstrumentEditor, Oscilloscope, OscilloscopeMode, PatternEditor, SfxEditor,
+    SongEditor,
+};
 
 pub struct AudioEditor {
     pub mode: AudioEditorMode,
@@ -20,6 +23,8 @@ pub struct AudioEditor {
 
     sound_engine: SoundEngine,
     audio_sync_helper: AudioSyncHelper,
+
+    oscilloscope: Oscilloscope,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -34,10 +39,14 @@ pub enum AudioEditorMode {
 impl AudioEditor {
     pub(crate) fn new(data: &EditorSoundData) -> Self {
         let sound_rom_instance = Arc::new(SoundRomInstance::from(data));
-        let sound_engine = SoundEngine::new(60, &sound_rom_instance, 64);
+        let mut sound_engine = SoundEngine::new(60, &sound_rom_instance, 64);
 
         let sound_engine_data =
             SoundEngineData::new(sound_engine.output_sample_rate(), &sound_rom_instance);
+
+        let (producer, consumer) = rtrb::RingBuffer::new(sound_engine.output_sample_rate());
+
+        sound_engine.send(SoundEngineChannelType::UpdateOutputProducer(Some(producer)));
 
         Self {
             mode: AudioEditorMode::Instrument,
@@ -53,6 +62,7 @@ impl AudioEditor {
                 channel_ticker: (0..SFX_CHANNELS).cycle(),
                 command_queue: Vec::new(),
             },
+            oscilloscope: Oscilloscope::new(consumer),
         }
     }
 }
@@ -150,6 +160,33 @@ impl AudioEditor {
         ui.selectable_value(&mut self.mode, AudioEditorMode::Chains, "Chains");
         ui.selectable_value(&mut self.mode, AudioEditorMode::Songs, "Songs");
         ui.selectable_value(&mut self.mode, AudioEditorMode::Sfx, "Sfx");
+
+        ui.separator();
+
+        ui.label("Oscilloscope:");
+        ui.selectable_value(&mut self.oscilloscope.mode, OscilloscopeMode::Off, "Off");
+        if ui
+            .selectable_value(
+                &mut self.oscilloscope.mode,
+                OscilloscopeMode::Channels,
+                "Channels",
+            )
+            .clicked()
+        {
+            self.oscilloscope.open = true
+        };
+        if ui
+            .selectable_value(
+                &mut self.oscilloscope.mode,
+                OscilloscopeMode::Master,
+                "Master",
+            )
+            .clicked()
+        {
+            self.oscilloscope.open = true
+        };
+
+        self.oscilloscope.draw(ui);
     }
 
     pub fn draw_contents(&mut self, ui: &mut Ui, data: &mut EditorSoundData) {

@@ -10,7 +10,7 @@ use rtrb::{Producer, RingBuffer};
 
 use crate::{
     initialize_globals, ChainPlayback, InstrumentInstance, SfxPlayback, SongPlayback,
-    SoundRomInstance,
+    SoundOutputChannels, SoundRomInstance,
 };
 pub use gamercade_audio::{Sfx, SongId, SFX_CHANNELS, SONG_TRACK_CHANNELS};
 
@@ -37,6 +37,7 @@ pub enum SoundEngineChannelType {
         instrument_index: usize,
         channel: usize,
     },
+    UpdateOutputProducer(Option<Producer<SoundOutputChannels>>),
 }
 
 impl SoundEngineData {
@@ -58,6 +59,13 @@ impl SoundEngineData {
                 )
             }),
             rom: rom.clone(),
+        }
+    }
+
+    pub fn tick(&mut self) -> SoundOutputChannels {
+        SoundOutputChannels {
+            sfx_output: std::array::from_fn(|index| self.sfx[index].tick()),
+            bgm_output: self.bgm.tick(),
         }
     }
 
@@ -139,7 +147,7 @@ impl SoundEngineData {
 pub struct SoundEngine {
     _stream: Stream,
     sound_frames_per_render_frame: usize,
-    producer: Producer<SoundEngineChannelType>,
+    sound_thread_producer: Producer<SoundEngineChannelType>,
     output_sample_rate: usize,
 }
 
@@ -163,6 +171,8 @@ impl SoundEngine {
         let sound_frames_per_render_frame = output_sample_rate / fps;
         let (producer, mut consumer) = RingBuffer::new(message_buffer_size);
         let mut data = SoundEngineData::new(output_sample_rate, rom);
+
+        let mut sound_output_producer: Option<Producer<SoundOutputChannels>> = None;
 
         let stream = device
             .build_output_stream(
@@ -193,11 +203,22 @@ impl SoundEngine {
                                 } => {
                                     data.trigger_note(note_index as i32, instrument_index, channel)
                                 }
+                                SoundEngineChannelType::UpdateOutputProducer(new_producer) => {
+                                    sound_output_producer = new_producer
+                                }
                             };
                         }
 
-                        let bgm_frame = data.bgm.tick().iter().sum::<f32>();
-                        let sfx_frame = data.sfx.iter_mut().map(|sfx| sfx.tick()).sum::<f32>();
+                        let output = data.tick();
+
+                        if let Some(sound_output_producer) = &mut sound_output_producer {
+                            if !sound_output_producer.is_full() {
+                                sound_output_producer.push(output.clone()).unwrap();
+                            }
+                        }
+
+                        let bgm_frame = output.get_bgm_output();
+                        let sfx_frame = output.get_sfx_output();
                         let output =
                             (bgm_frame + sfx_frame) / (SFX_CHANNELS + SONG_TRACK_CHANNELS) as f32;
 
@@ -219,7 +240,7 @@ impl SoundEngine {
             sound_frames_per_render_frame,
             output_sample_rate,
             _stream: stream,
-            producer,
+            sound_thread_producer: producer,
         }
     }
 
@@ -230,7 +251,7 @@ impl SoundEngine {
     }
 
     pub fn sync_audio_thread(&mut self, data: &SoundEngineData) {
-        self.producer
+        self.sound_thread_producer
             .push(SoundEngineChannelType::SoundEngineData(Box::new(
                 data.clone(),
             )))
@@ -238,6 +259,6 @@ impl SoundEngine {
     }
 
     pub fn send(&mut self, message: SoundEngineChannelType) {
-        self.producer.push(message).unwrap();
+        self.sound_thread_producer.push(message).unwrap();
     }
 }
