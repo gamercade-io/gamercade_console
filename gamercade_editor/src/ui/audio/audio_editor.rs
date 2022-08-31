@@ -164,7 +164,12 @@ impl AudioEditor {
         ui.separator();
 
         ui.label("Oscilloscope:");
-        ui.selectable_value(&mut self.oscilloscope.mode, OscilloscopeMode::Off, "Off");
+        if ui
+            .selectable_value(&mut self.oscilloscope.mode, OscilloscopeMode::Off, "Off")
+            .clicked()
+        {
+            self.oscilloscope.open = false;
+        };
         if ui
             .selectable_value(
                 &mut self.oscilloscope.mode,
