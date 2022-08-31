@@ -29,7 +29,9 @@ impl PatchInstance {
         instances
             .zip(definitions)
             .for_each(|(instance, definition)| {
-                let adjusted_frequency = definition.frequency_multiplier.multiply(frequency);
+                let adjusted_frequency = definition
+                    .frequency_multiplier
+                    .multiply(frequency * definition.detune.as_multiplier());
                 instance.set_frequency(adjusted_frequency)
             });
     }

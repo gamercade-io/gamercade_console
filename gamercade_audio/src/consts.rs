@@ -41,4 +41,4 @@ pub const INSTRUMENTS_MAX_COUNT: usize = 256;
 pub const SFX_MAX_COUNT: usize = 256;
 
 /// Maximum length of a wavetable
-pub const WAVETABLE_MAX_LENGTH: usize = u16::MAX as usize;
+pub const WAVETABLE_MAX_LENGTH: usize = 2048;

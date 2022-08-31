@@ -27,4 +27,8 @@ impl FeedbackLevel {
             _ => panic!("invalid feedback level"),
         }
     }
+
+    pub fn max() -> usize {
+        15
+    }
 }
