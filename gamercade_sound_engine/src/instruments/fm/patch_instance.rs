@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use gamercade_audio::{ModulatedBy, PatchDefinition, OPERATOR_COUNT};
 
-use crate::{ActiveState, OperatorInstanceBundle, FM_AMPLIFICATION};
+use crate::{ActiveState, OperatorInstanceBundle};
 
 #[derive(Clone, Debug)]
 pub struct PatchInstance {
@@ -68,10 +68,10 @@ impl PatchInstance {
 
         // Handle feedback
         self.feedback[1] = self.feedback[0];
-        self.feedback[0] = outputs[1];
+        self.feedback[0] = outputs[0];
 
         if algorithm.carriers[0] {
-            final_output += outputs[0] * FM_AMPLIFICATION;
+            final_output += outputs[0];
         }
         // End 1st Operator
 
@@ -92,8 +92,6 @@ impl PatchInstance {
 
             let result = operator.tick(waveform, modulation, self.active);
 
-            let result = result * FM_AMPLIFICATION;
-
             outputs[i] = result;
 
             if algorithm.carriers[i] {
@@ -105,7 +103,7 @@ impl PatchInstance {
             self.active = ActiveState::Off;
         }
 
-        final_output / FM_AMPLIFICATION
+        final_output
     }
 
     pub(crate) fn output_sample_rate(&self) -> usize {
