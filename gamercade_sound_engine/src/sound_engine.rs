@@ -178,54 +178,66 @@ impl SoundEngine {
             .build_output_stream(
                 &config,
                 move |frames: &mut [f32], _: &cpal::OutputCallbackInfo| {
-                    // react to stream events and read or write stream data here.
-                    frames.chunks_exact_mut(channels).for_each(|frame| {
-                        while let Ok(next_data) = consumer.pop() {
-                            match next_data {
-                                SoundEngineChannelType::SoundEngineData(next_data) => {
-                                    data = *next_data;
-                                }
-                                SoundEngineChannelType::SoundRomInstance(new_rom) => {
-                                    data.replace_sound_rom_instance(&new_rom);
-                                }
-                                SoundEngineChannelType::PianoKeyPressed {
-                                    note_index,
-                                    instrument_index,
-                                    channel,
-                                } => data.play_note(note_index as i32, instrument_index, channel),
-                                SoundEngineChannelType::PianoKeyReleased { channel } => {
-                                    data.set_key_active(false, channel)
-                                }
-                                SoundEngineChannelType::TriggerNote {
-                                    note_index,
-                                    instrument_index,
-                                    channel,
-                                } => {
-                                    data.trigger_note(note_index as i32, instrument_index, channel)
-                                }
-                                SoundEngineChannelType::UpdateOutputProducer(new_producer) => {
-                                    sound_output_producer = new_producer
-                                }
-                            };
-                        }
-
-                        let output = data.tick();
-
-                        if let Some(sound_output_producer) = &mut sound_output_producer {
-                            if !sound_output_producer.is_full() {
-                                sound_output_producer.push(output.clone()).unwrap();
+                    // Repeat indefinitely until we write a full buffer without
+                    // any new data inputs. If we receive a new data snapshot midway
+                    // during a buffer, it will cause some popping, so in this case
+                    // we need to just throw away whatever we have written and start again
+                    'write_to_buffer: loop {
+                        frames.chunks_exact_mut(channels).for_each(|frame| {
+                            while let Ok(next_data) = consumer.pop() {
+                                match next_data {
+                                    SoundEngineChannelType::SoundEngineData(next_data) => {
+                                        data = *next_data;
+                                        return;
+                                    }
+                                    SoundEngineChannelType::SoundRomInstance(new_rom) => {
+                                        data.replace_sound_rom_instance(&new_rom);
+                                    }
+                                    SoundEngineChannelType::PianoKeyPressed {
+                                        note_index,
+                                        instrument_index,
+                                        channel,
+                                    } => {
+                                        data.play_note(note_index as i32, instrument_index, channel)
+                                    }
+                                    SoundEngineChannelType::PianoKeyReleased { channel } => {
+                                        data.set_key_active(false, channel)
+                                    }
+                                    SoundEngineChannelType::TriggerNote {
+                                        note_index,
+                                        instrument_index,
+                                        channel,
+                                    } => data.trigger_note(
+                                        note_index as i32,
+                                        instrument_index,
+                                        channel,
+                                    ),
+                                    SoundEngineChannelType::UpdateOutputProducer(new_producer) => {
+                                        sound_output_producer = new_producer
+                                    }
+                                };
                             }
-                        }
 
-                        let bgm_frame = output.get_bgm_output();
-                        let sfx_frame = output.get_sfx_output();
-                        let output =
-                            (bgm_frame + sfx_frame) / (SFX_CHANNELS + SONG_TRACK_CHANNELS) as f32;
+                            let output = data.tick();
 
-                        frame.iter_mut().for_each(|channel| {
-                            *channel = output;
+                            if let Some(sound_output_producer) = &mut sound_output_producer {
+                                if !sound_output_producer.is_full() {
+                                    sound_output_producer.push(output.clone()).unwrap();
+                                }
+                            }
+
+                            let bgm_frame = output.get_bgm_output();
+                            let sfx_frame = output.get_sfx_output();
+                            let output = (bgm_frame + sfx_frame)
+                                / (SFX_CHANNELS + SONG_TRACK_CHANNELS) as f32;
+
+                            frame.iter_mut().for_each(|channel| {
+                                *channel = output;
+                            });
                         });
-                    })
+
+                        break 'write_to_buffer;
+                    }
                 },
                 move |err| {
                     // react to errors here.
