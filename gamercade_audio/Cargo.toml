@@ -15,3 +15,4 @@ strum = { version = "0.24.1", features = ["derive"] }
 arrayvec = { version = "0.7.2", features = ["serde"] }
 tinystr = "0.6.1"
 rtrb = "0.2.2"
+fastrand = "1.8.0"

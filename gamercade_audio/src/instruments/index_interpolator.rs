@@ -33,16 +33,17 @@ pub enum IndexInterpolatorResult {
 
 impl IndexInterpolator {
     pub fn get_indices(self, index: f32, table_length: usize) -> IndexInterpolatorResult {
-        let table_length = table_length - 1;
         match self {
             IndexInterpolator::Linear => {
                 let fract = index.fract();
-                let index = index as usize % table_length;
-                let first = (index, 1.0 - fract);
-                let second = (index + 1 % table_length, fract);
+                let index = index as usize;
+                let first = (index % table_length, 1.0 - fract);
+                let second = ((index + 1) % table_length, fract);
                 IndexInterpolatorResult::Multiple(ArrayVec::from([first, second]))
             }
-            IndexInterpolator::Truncate => IndexInterpolatorResult::Single(index.trunc() as usize),
+            IndexInterpolator::Truncate => {
+                IndexInterpolatorResult::Single(index.trunc() as usize % table_length)
+            }
             IndexInterpolator::NearestNeighbor => {
                 IndexInterpolatorResult::Single(index.round() as usize % table_length)
             }

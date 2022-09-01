@@ -31,7 +31,13 @@ impl WavetableEditor {
         let ref ptr = &instrument.interpolator as *const _ as usize;
         InterpolatorWidget::draw(ui, &mut instrument.interpolator, sync, ptr);
 
-        let last_index = instrument.data.len() - 1;
+        let len = instrument.data.len();
+
+        if len == 0 {
+            return;
+        }
+
+        let last_index = len - 1;
 
         // Draw the waveform:
         // Should we use a shape here instead of a plot?
@@ -219,6 +225,11 @@ impl WavetableGeneratorWidget {
                             &mut self.generator.waveform,
                             WavetableWaveform::InvertedCamelSine,
                             "Inverted Camel Sine",
+                        );
+                        ui.selectable_value(
+                            &mut self.generator.waveform,
+                            WavetableWaveform::Noise,
+                            "Noise",
                         );
                     });
 
