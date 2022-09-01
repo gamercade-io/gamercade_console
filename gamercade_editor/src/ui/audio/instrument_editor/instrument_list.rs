@@ -1,54 +1,18 @@
-use eframe::egui::{ScrollArea, Ui};
+use eframe::egui::Ui;
+use gamercade_audio::InstrumentDataDefinition;
 
 use crate::{
     editor_data::{EditorAudioDataEntry, EditorSoundData},
-    ui::AudioSyncHelper,
+    ui::{AudioList, AudioSyncHelper},
 };
 
-#[derive(Clone, Debug, Default)]
+#[derive(Default)]
 pub struct InstrumentList {
     pub selected_instrument: usize,
 }
 
-impl InstrumentList {
-    pub(crate) fn draw(
-        &mut self,
-        ui: &mut Ui,
-        data: &mut EditorSoundData,
-        sync: &mut AudioSyncHelper,
-    ) {
-        ui.vertical(|ui| {
-            ui.label("Instrument List:");
-
-            // Draws the list of instruments
-            ui.group(|ui| {
-                ScrollArea::vertical().show(ui, |ui| {
-                    data.instruments
-                        .iter()
-                        .enumerate()
-                        .for_each(|(index, instrument)| {
-                            ui.horizontal(|ui| {
-                                let is_checked = self.selected_instrument == index;
-
-                                if ui
-                                    .selectable_label(
-                                        is_checked,
-                                        format!("[{}]: {}", index, &instrument.name),
-                                    )
-                                    .clicked()
-                                {
-                                    self.selected_instrument = index
-                                };
-                            });
-                        });
-                })
-            });
-
-            self.draw_buttons(ui, data, sync);
-        });
-    }
-
-    pub(crate) fn draw_buttons(
+impl AudioList<Option<InstrumentDataDefinition>> for InstrumentList {
+    fn draw_buttons(
         &mut self,
         ui: &mut Ui,
         data: &mut EditorSoundData,
@@ -72,5 +36,19 @@ impl InstrumentList {
                 println!("Clean Up Instruments")
             }
         });
+    }
+
+    fn target_data(
+        data: &EditorSoundData,
+    ) -> &Vec<EditorAudioDataEntry<Option<InstrumentDataDefinition>>> {
+        &data.instruments
+    }
+
+    fn selected_index(&mut self) -> &mut usize {
+        &mut self.selected_instrument
+    }
+
+    fn name() -> &'static str {
+        "Instrument List"
     }
 }

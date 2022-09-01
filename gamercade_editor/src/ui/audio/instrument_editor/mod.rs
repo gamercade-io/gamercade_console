@@ -3,7 +3,7 @@ use gamercade_audio::InstrumentDataDefinition;
 
 use crate::editor_data::EditorSoundData;
 
-use super::AudioSyncHelper;
+use super::{AudioList, AudioSyncHelper};
 
 mod envelope_widget;
 mod fm_editor;

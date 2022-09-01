@@ -9,7 +9,7 @@ use gamercade_sound_engine::{
 use crate::editor_data::EditorSoundData;
 
 use super::{
-    ChainEditor, InstrumentEditor, Oscilloscope, OscilloscopeMode, PatternEditor, SfxEditor,
+    ChainEditor, InstrumentEditor, Oscilloscope, OscilloscopeMode, PhraseEditor, SfxEditor,
     SongEditor,
 };
 
@@ -17,7 +17,7 @@ pub struct AudioEditor {
     pub mode: AudioEditorMode,
     chain_editor: ChainEditor,
     instrument_editor: InstrumentEditor,
-    pattern_editor: PatternEditor,
+    phrase_editor: PhraseEditor,
     song_editor: SongEditor,
     sfx_editor: SfxEditor,
 
@@ -33,7 +33,7 @@ pub enum AudioEditorMode {
     Sfx,
     Songs,
     Chains,
-    Patterns,
+    Phrases,
 }
 
 impl AudioEditor {
@@ -52,7 +52,7 @@ impl AudioEditor {
             mode: AudioEditorMode::Instrument,
             chain_editor: ChainEditor::default(),
             instrument_editor: InstrumentEditor::default(),
-            pattern_editor: PatternEditor::default(),
+            phrase_editor: PhraseEditor::default(),
             song_editor: SongEditor::default(),
             sfx_editor: SfxEditor::default(),
             sound_engine,
@@ -156,7 +156,7 @@ impl AudioSyncHelper {
 impl AudioEditor {
     pub fn draw_selector(&mut self, ui: &mut Ui) {
         ui.selectable_value(&mut self.mode, AudioEditorMode::Instrument, "Instruments");
-        ui.selectable_value(&mut self.mode, AudioEditorMode::Patterns, "Patterns");
+        ui.selectable_value(&mut self.mode, AudioEditorMode::Phrases, "Phrases");
         ui.selectable_value(&mut self.mode, AudioEditorMode::Chains, "Chains");
         ui.selectable_value(&mut self.mode, AudioEditorMode::Songs, "Songs");
         ui.selectable_value(&mut self.mode, AudioEditorMode::Sfx, "Sfx");
@@ -207,8 +207,8 @@ impl AudioEditor {
                 self.chain_editor
                     .draw(ui, data, &mut self.audio_sync_helper)
             }
-            AudioEditorMode::Patterns => {
-                self.pattern_editor
+            AudioEditorMode::Phrases => {
+                self.phrase_editor
                     .draw(ui, data, &mut self.audio_sync_helper)
             }
         };
