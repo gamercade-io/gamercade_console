@@ -1,4 +1,7 @@
-use eframe::egui::{ComboBox, Slider, Ui};
+use eframe::{
+    egui::{ComboBox, Image, Slider, TextureFilter, Ui, Window},
+    epaint::{ColorImage, TextureHandle, Vec2},
+};
 use gamercade_audio::{
     Algorithm, Detune, FMWaveform, FeedbackLevel, FrequencyMultiplier, OperatorDefinition,
     PatchDefinition, OPERATOR_COUNT,
@@ -8,16 +11,54 @@ use crate::ui::AudioSyncHelper;
 
 use super::{envelope_widget::EnvelopeWidget, interpolator_widget::InterpolatorWidget};
 
-#[derive(Clone, Debug)]
+const FM_ALGORITHM_PATH: &str = "./gamercade_editor/fm algorithm diagram.png";
+#[derive(Clone)]
 pub struct FMEditor {
     operator_widgets: [OperatorWidget; OPERATOR_COUNT],
+    fm_help: FMHelp,
 }
 
 impl Default for FMEditor {
     fn default() -> Self {
         Self {
             operator_widgets: std::array::from_fn(OperatorWidget::new),
+            fm_help: FMHelp::default(),
         }
+    }
+}
+
+#[derive(Clone, Default)]
+struct FMHelp {
+    open: bool,
+    diagram_texture: Option<TextureHandle>,
+    diagram_size: Option<Vec2>,
+}
+
+impl FMHelp {
+    fn draw(&mut self, ui: &mut Ui) {
+        let ctx = ui.ctx();
+
+        Window::new("FM Synth Help")
+            .open(&mut self.open)
+            .collapsible(false)
+            .resizable(false)
+            .show(ctx, |ui| {
+                let texture_id = self.diagram_texture.get_or_insert_with(|| {
+                    let image =
+                        image::open(FM_ALGORITHM_PATH).expect("Failed to load FM Algorithm image.");
+                    let size = [image.width() as usize, image.height() as usize];
+                    self.diagram_size = Some(Vec2::new(size[0] as f32, size[1] as f32));
+                    let image = image.to_rgba8();
+                    ui.ctx().load_texture(
+                        "fm algorithm diagram",
+                        ColorImage::from_rgba_unmultiplied(size, &image),
+                        TextureFilter::Nearest,
+                    )
+                });
+
+                ui.label("Algorithm Chart:");
+                ui.add(Image::new(texture_id, self.diagram_size.unwrap()));
+            });
     }
 }
 
@@ -28,7 +69,13 @@ impl FMEditor {
         patch: &mut PatchDefinition,
         sync: &mut AudioSyncHelper,
     ) {
+        self.fm_help.draw(ui);
+
         ui.label("FM Editor");
+
+        if ui.button("FM Synth Help").clicked() {
+            self.fm_help.open = !self.fm_help.open;
+        }
 
         ui.horizontal(|ui| {
             ui.label("Feedback");
@@ -39,7 +86,6 @@ impl FMEditor {
                 sync.notify_rom_changed();
             }
 
-            // TODO: Colorize / Explain Algorithms
             ui.label("Algorithm");
             if ui
                 .add(Slider::new(&mut patch.algorithm.0, 0..=Algorithm::max()))
@@ -77,8 +123,7 @@ impl OperatorWidget {
     fn draw(&self, ui: &mut Ui, operator: &mut OperatorDefinition, sync: &mut AudioSyncHelper) {
         let mut should_notify = false;
 
-        // TODO: Fix the has collision
-        let ref ptr = &operator.interpolator as *const _ as usize;
+        let ptr = &(&operator.interpolator as *const _ as usize);
         InterpolatorWidget::draw(ui, &mut operator.interpolator, sync, ptr);
 
         ui.vertical(|ui| {

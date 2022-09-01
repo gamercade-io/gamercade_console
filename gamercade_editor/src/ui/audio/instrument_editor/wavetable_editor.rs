@@ -28,7 +28,7 @@ impl WavetableEditor {
     ) {
         self.generator.draw(ui, instrument, sync);
 
-        let ref ptr = &instrument.interpolator as *const _ as usize;
+        let ptr = &(&instrument.interpolator as *const _ as usize);
         InterpolatorWidget::draw(ui, &mut instrument.interpolator, sync, ptr);
 
         let len = instrument.data.len();

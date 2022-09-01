@@ -120,7 +120,7 @@ fn test_rom() -> SoundRomInstance {
 }
 
 fn sampler_no_pitch() -> SampleDefinition {
-    let reader = WavReader::open("./gamercade_audio/CantinaBand3.wav").unwrap();
+    let reader = WavReader::open("./gamercade_sound_engine/CantinaBand3.wav").unwrap();
     let spec = reader.spec();
     let channels = spec.channels;
     let source_sample_rate = spec.sample_rate as usize;
@@ -146,7 +146,7 @@ fn sampler_no_pitch() -> SampleDefinition {
 }
 
 fn sampler_pitched() -> SampleDefinition {
-    let reader = WavReader::open("./gamercade_audio/1_piano_mid.wav").unwrap();
+    let reader = WavReader::open("./gamercade_sound_engine/1_piano_mid.wav").unwrap();
     let spec = reader.spec();
     let channels = spec.channels;
     let source_sample_rate = spec.sample_rate as usize;
