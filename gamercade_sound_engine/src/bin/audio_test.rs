@@ -3,8 +3,8 @@ use std::{process, sync::Arc, time::Duration};
 use arrayvec::ArrayVec;
 use gamercade_audio::{
     Chain, ChainId, EnvelopeDefinition, IndexInterpolator, InstrumentDataDefinition, InstrumentId,
-    PatchDefinition, Phrase, PhraseId, SampleBitDepth, SampleDefinition, Song, SongId, SoundRom,
-    WavetableDefinition, WavetableGenerator, WavetableWaveform,
+    LoopMode, PatchDefinition, Phrase, PhraseId, SampleBitDepth, SampleDefinition, Song, SongId,
+    SoundRom, WavetableDefinition, WavetableGenerator, WavetableWaveform,
 };
 use gamercade_sound_engine::{SoundEngine, SoundEngineData, SoundRomInstance};
 use hound::WavReader;
@@ -142,6 +142,7 @@ fn sampler_no_pitch() -> SampleDefinition {
         sample_frequency: None,
         envelope_definition: EnvelopeDefinition::always_on(),
         interpolator: IndexInterpolator::default(),
+        loop_mode: LoopMode::Loop,
     }
 }
 
@@ -168,5 +169,6 @@ fn sampler_pitched() -> SampleDefinition {
         sample_frequency: Some(523.251), //This sample is pitched to C
         envelope_definition: EnvelopeDefinition::interesting(),
         interpolator: IndexInterpolator::default(),
+        loop_mode: LoopMode::Oneshot,
     }
 }
