@@ -9,6 +9,7 @@ mod envelope_widget;
 mod fm_editor;
 mod instrument_list;
 mod instrument_top_panel;
+mod interpolator_widget;
 mod piano_roll;
 mod sampler_editor;
 mod wavetable_editor;

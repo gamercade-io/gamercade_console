@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use gamercade_audio::{SampleBitDepth, SampleDefinition};
+use gamercade_audio::{IndexInterpolatorResult, SampleBitDepth, SampleDefinition};
 
 use crate::{ActiveState, EnvelopeInstance, SampleOscillator};
 
@@ -21,22 +21,26 @@ impl SamplerInstance {
             envelope: EnvelopeInstance::new(&definition.envelope_definition, output_sample_rate),
         }
     }
+
     /// Get's the current sample value
-    /// This interpolates between the current index and the next index
+    /// This interpolates if necessary.
     /// Also increments the oscillator
     pub fn tick(&mut self) -> f32 {
         let index = self.oscillator.tick();
 
-        let next_weight = index.fract();
-        let index_weight = 1.0 - next_weight;
+        let indices = self.oscillator.get_interpolated_indices(index);
 
-        let index = index as usize;
-        let next = (index + 1) % self.definition.len();
-
-        let index = self.definition.data[index] as f32 / SampleBitDepth::MAX as f32;
-        let next = self.definition.data[next] as f32 / SampleBitDepth::MAX as f32;
-
-        let output = (index * index_weight) + (next * next_weight);
+        let output = match indices {
+            IndexInterpolatorResult::Single(index) => {
+                self.definition.data[index] as f32 / SampleBitDepth::MAX as f32
+            }
+            IndexInterpolatorResult::Multiple(indices) => {
+                indices.into_iter().fold(0.0, |val, (index, scaling)| {
+                    val + ((self.definition.data[index] as f32 / SampleBitDepth::MAX as f32)
+                        * scaling)
+                })
+            }
+        };
 
         let envelope = self.envelope.tick(self.active);
 

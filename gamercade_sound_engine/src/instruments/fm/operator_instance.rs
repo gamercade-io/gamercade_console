@@ -1,4 +1,7 @@
-use gamercade_audio::{FMWaveform, OperatorDefinition, OperatorDefinitionBundle, OPERATOR_COUNT};
+use gamercade_audio::{
+    FMWaveform, IndexInterpolatorResult, OperatorDefinition, OperatorDefinitionBundle,
+    OPERATOR_COUNT,
+};
 
 use crate::{ActiveState, EnvelopeInstance, WavetableOscillator, LUT_FULL_LEN};
 
@@ -12,7 +15,11 @@ impl OperatorInstance {
     /// Constructs a new operator instance based on the passed in definition
     pub fn new(source: &OperatorDefinition, output_sample_rate: usize) -> Self {
         Self {
-            oscillator: WavetableOscillator::new(LUT_FULL_LEN, output_sample_rate),
+            oscillator: WavetableOscillator::new(
+                LUT_FULL_LEN,
+                output_sample_rate,
+                source.interpolator,
+            ),
             envelope: EnvelopeInstance::new(&source.envlope_definition, output_sample_rate),
         }
     }
@@ -23,22 +30,23 @@ impl OperatorInstance {
     }
 
     /// Get's the current sample value including any modulation and
-    /// interpolates between the next sample.
+    /// interpolates between the next sample if necessary.
     /// Also ticks the operator.
     pub fn tick(&mut self, waveform: FMWaveform, modulation: f32, active: ActiveState) -> f32 {
         use crate::lookup;
         let index = self.oscillator.tick() + self.oscillator.modulation(modulation);
 
-        let next_weight = index.fract();
-        let index_weight = 1.0 - next_weight;
+        let indices = self.oscillator.get_interpolated_indices(index);
 
-        let index = index as usize % LUT_FULL_LEN;
-        let next = (index + 1) % LUT_FULL_LEN;
+        let output = match indices {
+            IndexInterpolatorResult::Single(index) => lookup(waveform, index),
+            IndexInterpolatorResult::Multiple(indices) => {
+                indices.into_iter().fold(0.0, |val, (index, scaling)| {
+                    val + (lookup(waveform, index) * scaling)
+                })
+            }
+        };
 
-        let index = lookup(waveform, index);
-        let next = lookup(waveform, next);
-
-        let output = (index * index_weight) + (next * next_weight);
         let envelope = self.envelope.tick(active);
 
         output * envelope

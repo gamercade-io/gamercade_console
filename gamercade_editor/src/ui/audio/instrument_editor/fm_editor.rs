@@ -6,7 +6,7 @@ use gamercade_audio::{
 
 use crate::ui::AudioSyncHelper;
 
-use super::envelope_widget::EnvelopeWidget;
+use super::{envelope_widget::EnvelopeWidget, interpolator_widget::InterpolatorWidget};
 
 #[derive(Clone, Debug)]
 pub struct FMEditor {
@@ -76,6 +76,9 @@ impl OperatorWidget {
 
     fn draw(&self, ui: &mut Ui, operator: &mut OperatorDefinition, sync: &mut AudioSyncHelper) {
         let mut should_notify = false;
+
+        // TODO: Fix the has collision
+        //InterpolatorWidget::draw(ui, &mut operator.interpolator, sync);
 
         ui.vertical(|ui| {
             ComboBox::from_label(format!("Op. {} Waveform", self.index + 1))

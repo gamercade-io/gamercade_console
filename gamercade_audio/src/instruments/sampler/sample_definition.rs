@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{EnvelopeDefinition, SampleBitDepth};
+use crate::{EnvelopeDefinition, IndexInterpolator, SampleBitDepth};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SampleDefinition {
@@ -8,6 +8,7 @@ pub struct SampleDefinition {
     pub source_sample_rate: usize,
     pub sample_frequency: Option<f32>,
     pub envelope_definition: EnvelopeDefinition,
+    pub interpolator: IndexInterpolator,
 }
 
 impl Default for SampleDefinition {
@@ -17,6 +18,7 @@ impl Default for SampleDefinition {
             source_sample_rate: 1,
             sample_frequency: Default::default(),
             envelope_definition: Default::default(),
+            interpolator: IndexInterpolator::default(),
         }
     }
 }

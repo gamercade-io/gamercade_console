@@ -1,7 +1,9 @@
 use serde::{Deserialize, Serialize};
 
 use super::FrequencyMultiplier;
-use crate::{Detune, EnvelopeDefinition, EnvelopeValue, FMWaveform, OPERATOR_COUNT};
+use crate::{
+    Detune, EnvelopeDefinition, EnvelopeValue, FMWaveform, IndexInterpolator, OPERATOR_COUNT,
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OperatorDefinitionBundle {
@@ -20,6 +22,7 @@ impl Default for OperatorDefinitionBundle {
             frequency_multiplier: FrequencyMultiplier::one(),
             detune: Detune(0),
             envlope_definition: modulators_envelope,
+            interpolator: IndexInterpolator::default(),
         };
 
         let modulator_envelope = EnvelopeDefinition {
@@ -32,6 +35,7 @@ impl Default for OperatorDefinitionBundle {
             frequency_multiplier: FrequencyMultiplier::one(),
             detune: Detune(0),
             envlope_definition: modulator_envelope,
+            interpolator: IndexInterpolator::default(),
         };
 
         let carrier = OperatorDefinition {
@@ -39,6 +43,7 @@ impl Default for OperatorDefinitionBundle {
             frequency_multiplier: FrequencyMultiplier::one(),
             detune: Detune(0),
             envlope_definition: EnvelopeDefinition::interesting(),
+            interpolator: IndexInterpolator::default(),
         };
 
         Self {
@@ -58,4 +63,5 @@ pub struct OperatorDefinition {
     pub frequency_multiplier: FrequencyMultiplier,
     pub detune: Detune,
     pub envlope_definition: EnvelopeDefinition,
+    pub interpolator: IndexInterpolator,
 }

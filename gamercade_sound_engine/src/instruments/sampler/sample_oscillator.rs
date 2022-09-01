@@ -1,4 +1,4 @@
-use gamercade_audio::SampleDefinition;
+use gamercade_audio::{IndexInterpolator, IndexInterpolatorResult, SampleDefinition};
 
 #[derive(Debug, Clone)]
 pub struct SampleOscillator {
@@ -6,23 +6,25 @@ pub struct SampleOscillator {
     sample_frequency: Option<f32>,
     input_sample_rate: usize,
     pub output_sample_rate: usize,
+    interpolator: IndexInterpolator,
 
     // For sound playback
     index: f32,
     index_increment: f32,
-    table_length: f32,
+    table_length: usize,
 }
 
 impl SampleOscillator {
     /// Generates a new SampleOscillator with the default value.
-    pub(crate) fn new(output_sample_rate: usize) -> Self {
+    pub(crate) fn new(output_sample_rate: usize, interpolator: IndexInterpolator) -> Self {
         Self {
             sample_frequency: None,
             input_sample_rate: output_sample_rate,
             output_sample_rate,
             index: 0.0,
             index_increment: 0.0,
-            table_length: 1.0,
+            table_length: 1,
+            interpolator,
         }
     }
 
@@ -30,7 +32,7 @@ impl SampleOscillator {
         definition: &SampleDefinition,
         output_sample_rate: usize,
     ) -> Self {
-        let mut out = Self::new(output_sample_rate);
+        let mut out = Self::new(output_sample_rate, definition.interpolator);
         out.set_sample(definition);
         out
     }
@@ -54,7 +56,7 @@ impl SampleOscillator {
         self.input_sample_rate = sample.source_sample_rate;
         self.index = 0.0;
         self.index_increment = sample.source_sample_rate as f32 / self.output_sample_rate as f32;
-        self.table_length = sample.data.len() as f32;
+        self.table_length = sample.data.len();
     }
 
     /// Returns the index, then
@@ -62,7 +64,11 @@ impl SampleOscillator {
     pub(crate) fn tick(&mut self) -> f32 {
         let out = self.index;
         self.index += self.index_increment;
-        self.index %= self.table_length;
+        self.index %= self.table_length as f32;
         out
+    }
+
+    pub(crate) fn get_interpolated_indices(&self, index: f32) -> IndexInterpolatorResult {
+        self.interpolator.get_indices(index, self.table_length)
     }
 }

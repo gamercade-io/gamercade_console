@@ -178,11 +178,13 @@ impl SoundEngine {
             .build_output_stream(
                 &config,
                 move |frames: &mut [f32], _: &cpal::OutputCallbackInfo| {
+                    let mut buffer_written = false;
+
                     // Repeat indefinitely until we write a full buffer without
                     // any new data inputs. If we receive a new data snapshot midway
                     // during a buffer, it will cause some popping, so in this case
                     // we need to just throw away whatever we have written and start again
-                    'write_to_buffer: loop {
+                    while !buffer_written {
                         frames.chunks_exact_mut(channels).for_each(|frame| {
                             while let Ok(next_data) = consumer.pop() {
                                 match next_data {
@@ -236,7 +238,7 @@ impl SoundEngine {
                             });
                         });
 
-                        break 'write_to_buffer;
+                        buffer_written = true;
                     }
                 },
                 move |err| {

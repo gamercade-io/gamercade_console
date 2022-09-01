@@ -21,6 +21,7 @@ fn initialize_globals() {
         NO_SOUND_DEFINITION.write(std::sync::Arc::new(WavetableDefinition {
             data: Box::new([0, 0]),
             envelope: EnvelopeDefinition::default(),
+            interpolator: gamercade_audio::IndexInterpolator::Truncate,
         }));
     }
 }

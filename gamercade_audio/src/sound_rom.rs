@@ -4,8 +4,8 @@ use arrayvec::ArrayVec;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    Chain, ChainId, EnvelopeDefinition, InstrumentDataDefinition, InstrumentId, Phrase, PhraseId,
-    Song, SongId, WavetableDefinition, WavetableGenerator, WavetableWaveform,
+    Chain, ChainId, EnvelopeDefinition, IndexInterpolator, InstrumentDataDefinition, InstrumentId,
+    Phrase, PhraseId, Song, SongId, WavetableDefinition, WavetableGenerator, WavetableWaveform,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -35,6 +35,7 @@ impl Default for SoundRom {
             }
             .generate(),
             envelope: EnvelopeDefinition::interesting(),
+            interpolator: IndexInterpolator::default(),
         });
 
         let default_phrase = Phrase::c_scale(InstrumentId(0));

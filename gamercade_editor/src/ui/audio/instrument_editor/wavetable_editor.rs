@@ -12,7 +12,7 @@ use gamercade_audio::{
 
 use crate::ui::AudioSyncHelper;
 
-use super::envelope_widget::EnvelopeWidget;
+use super::{envelope_widget::EnvelopeWidget, interpolator_widget::InterpolatorWidget};
 
 #[derive(Clone, Debug, Default)]
 pub struct WavetableEditor {
@@ -27,6 +27,8 @@ impl WavetableEditor {
         sync: &mut AudioSyncHelper,
     ) {
         self.generator.draw(ui, instrument, sync);
+
+        InterpolatorWidget::draw(ui, &mut instrument.interpolator, sync);
 
         let last_index = instrument.data.len() - 1;
 
