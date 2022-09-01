@@ -11,7 +11,6 @@ use crate::ui::AudioSyncHelper;
 
 use super::{envelope_widget::EnvelopeWidget, interpolator_widget::InterpolatorWidget};
 
-const FM_ALGORITHM_PATH: &str = "./gamercade_editor/fm algorithm diagram.png";
 #[derive(Clone)]
 pub struct FMEditor {
     operator_widgets: [OperatorWidget; OPERATOR_COUNT],
@@ -44,8 +43,8 @@ impl FMHelp {
             .resizable(false)
             .show(ctx, |ui| {
                 let texture_id = self.diagram_texture.get_or_insert_with(|| {
-                    let image =
-                        image::open(FM_ALGORITHM_PATH).expect("Failed to load FM Algorithm image.");
+                    let image = image::load_from_memory(include_bytes!("fm algorithm diagram.png"))
+                        .expect("Failed to load FM Algorithm image.");
                     let size = [image.width() as usize, image.height() as usize];
                     self.diagram_size = Some(Vec2::new(size[0] as f32, size[1] as f32));
                     let image = image.to_rgba8();
