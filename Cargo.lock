@@ -1703,6 +1703,7 @@ dependencies = [
  "gamercade_core",
  "gamercade_sound_engine",
  "hashbrown 0.12.3",
+ "hound",
  "image",
  "rfd",
  "rtrb",

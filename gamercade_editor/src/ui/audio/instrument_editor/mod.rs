@@ -29,7 +29,7 @@ pub(crate) enum KeyboardMode {
     PianoRoll,
 }
 
-#[derive(Clone, Default)]
+#[derive(Default)]
 pub struct InstrumentEditor {
     fm_editor: FMEditor,
     wavetable_editor: WavetableEditor,

@@ -40,7 +40,6 @@ impl WavetableEditor {
         let last_index = len - 1;
 
         // Draw the waveform:
-        // Should we use a shape here instead of a plot?
         let points: PlotPoints = instrument
             .data
             .iter()
@@ -58,7 +57,7 @@ impl WavetableEditor {
         let primary_pointer_down = ui.input().pointer.primary_down();
 
         ui.label(&format!("Wavetable Length: {}", instrument.data.len()));
-        Plot::new("my_plot")
+        Plot::new("Wavetable Plot")
             .width(1000.0)
             .height(200.0)
             .allow_drag(false)
