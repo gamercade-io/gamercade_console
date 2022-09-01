@@ -122,10 +122,10 @@ impl OperatorWidget {
     fn draw(&self, ui: &mut Ui, operator: &mut OperatorDefinition, sync: &mut AudioSyncHelper) {
         let mut should_notify = false;
 
-        let ptr = &(&operator.interpolator as *const _ as usize);
-        InterpolatorWidget::draw(ui, &mut operator.interpolator, sync, ptr);
-
         ui.vertical(|ui| {
+            let ptr = &(&operator.interpolator as *const _ as usize);
+            InterpolatorWidget::draw(ui, &mut operator.interpolator, sync, ptr);
+
             ComboBox::from_label(format!("Op. {} Waveform", self.index + 1))
                 .selected_text(format!("{:?}", &operator.waveform))
                 .show_ui(ui, |ui| {
