@@ -48,12 +48,16 @@ impl PhraseEditor {
         sync: &mut AudioSyncHelper,
     ) {
         self.phrase_list.draw(ui, data, sync);
+
+        if let Some(phrase) = &mut data.phrases[self.phrase_list.selected_phrase].data {
+            phrase_editor_inner(ui, phrase, sync)
+        }
     }
 }
 
-fn phrase_editor_inner(ui: &mut Ui, phrase: &mut Phrase, sync: &mut AudioSyncHelper) {
-    ui.vertical(|ui| {
-        phrase.entries.iter().for_each(|entry| {
+fn phrase_editor_inner(ui: &mut Ui, phrase: &mut Phrase, _sync: &mut AudioSyncHelper) {
+    ui.vertical(|_ui| {
+        phrase.entries.iter().for_each(|_entry| {
             // TODO: This
         });
     });

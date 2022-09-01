@@ -33,7 +33,7 @@ impl AudioList<Option<InstrumentDataDefinition>> for InstrumentList {
                 // TODO: Clean up unused instruments
                 // Have to iterate through the list and find the highest "non-none" value
                 // Then we can remove all of those after it.
-                println!("Clean Up Instruments")
+                println!("TODO: Clean Up Instruments")
             }
         });
     }
