@@ -78,7 +78,8 @@ impl OperatorWidget {
         let mut should_notify = false;
 
         // TODO: Fix the has collision
-        //InterpolatorWidget::draw(ui, &mut operator.interpolator, sync);
+        let ref ptr = &operator.interpolator as *const _ as usize;
+        InterpolatorWidget::draw(ui, &mut operator.interpolator, sync, ptr);
 
         ui.vertical(|ui| {
             ComboBox::from_label(format!("Op. {} Waveform", self.index + 1))

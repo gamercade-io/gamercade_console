@@ -1,3 +1,5 @@
+use std::hash::Hash;
+
 use eframe::egui::{ComboBox, Ui};
 
 use gamercade_audio::IndexInterpolator;
@@ -11,10 +13,11 @@ impl InterpolatorWidget {
         ui: &mut Ui,
         interpolator: &mut IndexInterpolator,
         sync: &mut AudioSyncHelper,
+        id_source: &impl Hash,
     ) {
         let mut should_notify = false;
         ui.group(|ui| {
-            ComboBox::from_label("Interpolation")
+            ComboBox::new(id_source, "Interpolation")
                 .selected_text(format!("{:?}", &interpolator))
                 .show_ui(ui, |ui| {
                     if ui
