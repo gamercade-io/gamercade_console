@@ -23,15 +23,19 @@ pub type InstrumentChannelType = PhraseEntry<f32, InstrumentDefinition>;
 pub fn new_instrument_channel_message(
     entry: &PhraseStorageType,
     rom: &SoundRomInstance,
-) -> InstrumentChannelType {
-    let note = get_note(entry.note).frequency;
-    let instrument = rom[entry.instrument].clone();
+) -> Option<InstrumentChannelType> {
+    if let Some(instrument) = &rom[entry.instrument] {
+        let note = get_note(entry.note).frequency;
+        let instrument = instrument.clone();
 
-    InstrumentChannelType {
-        note,
-        volume: entry.volume,
-        instrument,
-        effects: entry.effects.clone(),
+        Some(InstrumentChannelType {
+            note,
+            volume: entry.volume,
+            instrument,
+            effects: entry.effects.clone(),
+        })
+    } else {
+        None
     }
 }
 
@@ -111,6 +115,14 @@ impl InstrumentInstance {
             InstrumentInstanceKind::Wavetable(wv) => wv.set_active(active),
             InstrumentInstanceKind::FMSynth(fm) => fm.set_active(active),
             InstrumentInstanceKind::Sampler(sm) => sm.set_active(active),
+        }
+    }
+
+    pub(crate) fn trigger(&mut self) {
+        match &mut self.kind {
+            InstrumentInstanceKind::Wavetable(wv) => wv.trigger(),
+            InstrumentInstanceKind::FMSynth(fm) => fm.trigger(),
+            InstrumentInstanceKind::Sampler(sm) => sm.trigger(),
         }
     }
 

@@ -38,13 +38,13 @@ impl PhrasePlayback {
     }
 
     /// Updates the instrument with new frequency, effects, id etc
-    fn update_instrument(&mut self) {
-        if let Some(phrase_id) = self.phrase {
-            if let Some(next_entry) = &self.rom[phrase_id].entries[self.step_index] {
-                self.instrument
-                    .update_from_tracker(&new_instrument_channel_message(next_entry, &self.rom))
-            }
-        }
+    fn update_instrument(&mut self) -> Option<()> {
+        let phrase_id = self.phrase?;
+        let next_entry = self.rom[phrase_id].as_ref()?;
+        let next_entry = next_entry.entries[self.step_index].as_ref()?;
+        let msg = new_instrument_channel_message(next_entry, &self.rom)?;
+        self.instrument.update_from_tracker(&msg);
+        Some(())
     }
 
     /// Increments the index and notifies the sound thread
@@ -58,5 +58,10 @@ impl PhrasePlayback {
             self.update_instrument();
             TrackerFlow::Advance
         }
+    }
+
+    pub(crate) fn replace_sound_rom_instance(&mut self, new_rom: &Arc<SoundRomInstance>) {
+        self.rom = new_rom.clone();
+        self.update_instrument();
     }
 }

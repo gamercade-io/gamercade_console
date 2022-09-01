@@ -36,7 +36,8 @@ impl ChainPlayback {
         self.chain = chain;
         self.phrase_index = 0;
 
-        let phrase_id = chain.and_then(|chain| self.rom[chain].entries[0]);
+        let phrase_id =
+            chain.and_then(|chain| self.rom[chain].as_ref().and_then(|chain| chain.entries[0]));
 
         self.phrase_playback.set_phrase_id(phrase_id);
     }
@@ -57,9 +58,8 @@ impl ChainPlayback {
             self.phrase_index += 1;
 
             let next_phrase = self.rom[chain]
-                .entries
-                .get(self.phrase_index)
-                .and_then(|x| *x);
+                .as_ref()
+                .and_then(|chain| chain.entries.get(self.phrase_index).and_then(|x| *x));
 
             if next_phrase.is_some() {
                 self.phrase_playback.set_phrase_id(next_phrase);
@@ -70,5 +70,11 @@ impl ChainPlayback {
         } else {
             TrackerFlow::Finished
         }
+    }
+
+    pub fn replace_sound_rom_instance(&mut self, new_rom: &Arc<SoundRomInstance>) {
+        self.rom = new_rom.clone();
+
+        self.phrase_playback.replace_sound_rom_instance(new_rom);
     }
 }

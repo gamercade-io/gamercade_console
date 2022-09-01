@@ -1,5 +1,3 @@
-use gamercade_audio::EnvelopeType;
-
 use crate::{EnvelopeDefinition, EnvelopePhase, ENVELOPE_TIME_SCALE};
 
 const OVERSHOOT: f32 = 1.001;
@@ -13,6 +11,7 @@ pub struct ExponentialRamp {
     overshoot_value: f32,    // The "overshoot" value since we are dealing a small margin of error
     decaying_increment: f32, // The increment which changes over time
     multiplier: f32,         // The multiplier for the increment
+    is_constant: bool,
 }
 
 impl ExponentialRamp {
@@ -25,6 +24,7 @@ impl ExponentialRamp {
             overshoot_value: 0.0,
             decaying_increment: 0.0,
             multiplier: 0.0,
+            is_constant: true,
         }
     }
 
@@ -36,31 +36,40 @@ impl ExponentialRamp {
     ) {
         match phase {
             EnvelopePhase::Attack => self.ramp_to(
-                definition.total_level as f32 / EnvelopeType::MAX as f32,
-                (definition.attack_time as f32 / EnvelopeType::MAX as f32) * ENVELOPE_TIME_SCALE,
+                definition.total_level.to_linear_value(),
+                definition.attack_time.to_scaled_value() * ENVELOPE_TIME_SCALE,
             ),
             EnvelopePhase::Decay => self.ramp_to(
-                (definition.sustain_level - 1) as f32 / (EnvelopeType::MAX - 1) as f32,
-                (definition.decay_attack_time as f32 / EnvelopeType::MAX as f32)
-                    * ENVELOPE_TIME_SCALE,
+                definition.sustain_level.to_linear_value()
+                    * definition.total_level.to_linear_value(),
+                definition.decay_attack_time.to_scaled_value(),
             ),
             EnvelopePhase::Sustain => {
-                if definition.decay_sustain_time == EnvelopeType::MAX {
+                if definition.decay_sustain_time.is_max_value() {
                     self.set_constant_value(
-                        (definition.sustain_level - 1) as f32 / (EnvelopeType::MAX - 1) as f32,
+                        definition.sustain_level.to_linear_value()
+                            * definition.total_level.to_linear_value(),
                     )
                 } else {
                     self.ramp_to(
                         0.0,
-                        (definition.decay_sustain_time as f32 / EnvelopeType::MAX as f32)
-                            * ENVELOPE_TIME_SCALE,
+                        definition.decay_sustain_time.to_scaled_value() * ENVELOPE_TIME_SCALE,
                     )
                 }
             }
-            EnvelopePhase::Release => self.ramp_to(
-                0.0,
-                (definition.release_time as f32 / EnvelopeType::MAX as f32) * ENVELOPE_TIME_SCALE,
-            ),
+            EnvelopePhase::Release => {
+                if definition.release_time.is_max_value() {
+                    self.set_constant_value(
+                        definition.sustain_level.to_linear_value()
+                            * definition.total_level.to_linear_value(),
+                    )
+                } else {
+                    self.ramp_to(
+                        0.0,
+                        definition.release_time.to_scaled_value() * ENVELOPE_TIME_SCALE,
+                    )
+                }
+            }
             EnvelopePhase::Off => self.set_constant_value(0.0),
         };
     }
@@ -72,6 +81,7 @@ impl ExponentialRamp {
         self.overshoot_value = new_value;
         self.decaying_increment = 0.0;
         self.multiplier = 0.0;
+        self.is_constant = true;
     }
 
     /// Sets the next target value for the ramp and how long it should take to get there.
@@ -88,6 +98,8 @@ impl ExponentialRamp {
             f32::exp(-1.0 / time),
             (self.output_sample_rate as f32).recip(),
         );
+
+        self.is_constant = false;
     }
 
     /// Ticks the ramp, advancing it forward once and returing the resulting value.
@@ -103,12 +115,16 @@ impl ExponentialRamp {
 
     /// Returns true if the ramp is done advancing.
     pub fn is_finished(&self) -> bool {
-        // Going up
-        if self.value >= self.target_value && self.value <= self.overshoot_value {
-            true
+        if self.is_constant {
+            false
         } else {
-            // Going Down
-            self.value <= self.target_value && self.value >= self.overshoot_value
+            // Going up
+            if self.value >= self.target_value && self.value <= self.overshoot_value {
+                true
+            } else {
+                // Going Down
+                self.value <= self.target_value && self.value >= self.overshoot_value
+            }
         }
     }
 }

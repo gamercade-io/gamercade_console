@@ -3,6 +3,7 @@ use std::f32::consts::TAU;
 use super::{WavetableBitDepth, WavetableWaveform};
 
 /// Use to generate wavetables based on predetermined conditions
+#[derive(Debug, Clone, Default)]
 pub struct WavetableGenerator {
     /// The kind of waveform to generate.
     pub waveform: WavetableWaveform,
@@ -13,7 +14,7 @@ pub struct WavetableGenerator {
 
 impl WavetableGenerator {
     /// Generates the wavetable's data based on the passed in parameters
-    pub fn generate(self) -> Box<[WavetableBitDepth]> {
+    pub fn generate(&self) -> Box<[WavetableBitDepth]> {
         (0..self.size)
             .map(|index| {
                 let value = (TAU * index as f32) / self.size as f32;

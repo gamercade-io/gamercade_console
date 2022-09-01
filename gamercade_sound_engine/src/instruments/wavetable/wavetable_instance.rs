@@ -1,6 +1,6 @@
 use std::{mem::MaybeUninit, sync::Arc};
 
-use gamercade_audio::{WavetableBitDepth, WavetableDefinition};
+use gamercade_audio::{IndexInterpolatorResult, WavetableBitDepth, WavetableDefinition};
 
 use crate::{ActiveState, EnvelopeInstance, WavetableOscillator};
 
@@ -20,8 +20,8 @@ impl WavetableInstance {
         let definition = unsafe { NO_SOUND_DEFINITION.assume_init_ref().clone() };
         Self {
             envelope: EnvelopeInstance::no_sound(output_sample_rate),
+            oscillator: WavetableOscillator::new(1, output_sample_rate, definition.interpolator),
             definition,
-            oscillator: WavetableOscillator::new(1, output_sample_rate),
             active: ActiveState::Off,
         }
     }
@@ -30,7 +30,11 @@ impl WavetableInstance {
     pub fn new(definition: Arc<WavetableDefinition>, output_sample_rate: usize) -> Self {
         Self {
             envelope: EnvelopeInstance::new(&definition.envelope, output_sample_rate),
-            oscillator: WavetableOscillator::new(definition.len(), output_sample_rate),
+            oscillator: WavetableOscillator::new(
+                definition.len(),
+                output_sample_rate,
+                definition.interpolator,
+            ),
             definition,
             active: ActiveState::Off,
         }
@@ -47,16 +51,20 @@ impl WavetableInstance {
     pub fn tick(&mut self) -> f32 {
         let index = self.oscillator.tick();
 
-        let next_weight = index.fract();
-        let index_weight = 1.0 - next_weight;
+        let indices = self.oscillator.get_interpolated_indices(index);
 
-        let index = index as usize;
-        let next = (index + 1) % self.definition.len();
+        let output = match indices {
+            IndexInterpolatorResult::Single(index) => {
+                self.definition.data[index] as f32 / WavetableBitDepth::MAX as f32
+            }
+            IndexInterpolatorResult::Multiple(indices) => {
+                indices.into_iter().fold(0.0, |val, (index, scaling)| {
+                    val + ((self.definition.data[index] as f32 / WavetableBitDepth::MAX as f32)
+                        * scaling)
+                })
+            }
+        };
 
-        let index = self.definition.data[index] as f32 / WavetableBitDepth::MAX as f32;
-        let next = self.definition.data[next] as f32 / WavetableBitDepth::MAX as f32;
-
-        let output = (index * index_weight) + (next * next_weight);
         let envelope = self.envelope.tick(self.active);
 
         if ActiveState::Trigger == self.active {

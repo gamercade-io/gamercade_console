@@ -1,7 +1,7 @@
 use crate::{ActiveState, EnvelopePhase, ExponentialRamp};
-use gamercade_audio::EnvelopeDefinition;
+use gamercade_audio::{EnvelopeDefinition, EnvelopeValue};
 
-/// Max length in seconds, ~4.25mins.
+/// Max length in seconds, ~4.267mins.
 pub(crate) const ENVELOPE_TIME_SCALE: f32 = 256.0;
 
 /// A running instance of an envelope.
@@ -28,7 +28,7 @@ impl EnvelopeInstance {
 
     /// Advances the envelope forward one tick and returns the output value.
     pub fn tick(&mut self, active: ActiveState) -> f32 {
-        if self.definition.total_level == 0 {
+        if self.definition.total_level == EnvelopeValue(0) {
             0.0
         } else if ActiveState::Trigger == active {
             self.state = EnvelopePhase::Attack;
@@ -47,7 +47,7 @@ impl EnvelopeInstance {
                         0.0
                     }
                 }
-                EnvelopePhase::Attack | EnvelopePhase::Decay | EnvelopePhase::Release => {
+                EnvelopePhase::Attack | EnvelopePhase::Release | EnvelopePhase::Decay => {
                     let out = self.ramp.tick();
 
                     if self.ramp.is_finished() {

@@ -7,8 +7,8 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 pub struct FrequencyMultiplier {
-    top: u8,
-    bottom: u8,
+    pub top: u8,
+    pub bottom: u8,
 }
 
 impl Default for FrequencyMultiplier {

@@ -1648,6 +1648,7 @@ name = "gamercade_audio"
 version = "0.1.0"
 dependencies = [
  "arrayvec 0.7.2",
+ "fastrand",
  "rtrb",
  "serde",
  "strum",
@@ -1702,8 +1703,10 @@ dependencies = [
  "gamercade_core",
  "gamercade_sound_engine",
  "hashbrown 0.12.3",
+ "hound",
  "image",
  "rfd",
+ "rtrb",
  "serde",
  "serde_json",
  "zstd",

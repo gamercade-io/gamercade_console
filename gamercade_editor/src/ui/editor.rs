@@ -27,13 +27,14 @@ pub enum EditorMode {
 
 impl Default for Editor {
     fn default() -> Self {
+        let rom = EditorRom::default();
         Self {
             mode: EditorMode::Rom,
-            rom: EditorRom::default(),
             rom_editor: RomEditor::default(),
             graphics_editor: GraphicsEditor::default(),
-            audio_editor: AudioEditor::default(),
+            audio_editor: AudioEditor::new(&rom.sounds),
             wasm_path: None,
+            rom,
         }
     }
 }
