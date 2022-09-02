@@ -29,6 +29,6 @@ impl AudioList<Option<Phrase>> for PhraseList {
     }
 
     fn on_clear(&mut self, data: &mut Vec<EditorAudioDataEntry<Option<Phrase>>>) {
-        data[self.selected_phrase].data = None;
+        data[self.selected_phrase].data = Some(Phrase::default());
     }
 }

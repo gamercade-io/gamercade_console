@@ -42,6 +42,8 @@ pub enum SoundEngineChannelType {
         phrase_index: usize,
         target_bpm: f32,
     },
+    PlaySfx(Sfx),
+    StopSfx,
 }
 
 impl SoundEngineData {
@@ -236,6 +238,10 @@ impl SoundEngine {
                                             InstrumentInstance::no_sound(output_sample_rate);
                                         phrase_playback.set_phrase_id(phrase);
                                     }
+                                    SoundEngineChannelType::PlaySfx(sfx) => {
+                                        data.play_sfx(Some(sfx), 0);
+                                    }
+                                    SoundEngineChannelType::StopSfx => data.play_sfx(None, 0),
                                 };
                             }
 

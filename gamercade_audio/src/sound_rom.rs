@@ -40,13 +40,11 @@ impl Default for SoundRom {
 
         let default_phrase = Phrase::c_scale(InstrumentId(0));
 
-        let default_chain = Chain {
-            entries: ArrayVec::from_iter(Some(Some(PhraseId(0)))),
-        };
+        let default_chain = Chain::default();
 
         let default_sfx = Sfx {
             bpm: 120.0,
-            chain: ChainId(0),
+            chain: ChainId::default(),
         };
 
         Self {

@@ -1,22 +1,30 @@
 use eframe::{egui::Ui, epaint::Color32};
 
-use crate::ui::audio::sequences::TrackerText;
+use crate::ui::audio::sequences::{
+    TrackerText, DEFAULT_TEXT_COLOR, EDITING_BG_COLOR, SELECTED_BG_COLOR,
+};
 
 use super::{PhraseEntryType, SelectedEntry, SelectedEntryMode};
 
 pub(crate) struct PhraseRow {
-    pub(crate) row: TrackerText<3>,
-    pub(crate) note: TrackerText<3>,
-    pub(crate) volume: TrackerText<2>,
-    pub(crate) instrument: TrackerText<2>,
-    pub(crate) separator: TrackerText<2>,
+    row_index: TrackerText<3>,
+    note: TrackerText<3>,
+    volume: TrackerText<2>,
+    instrument: TrackerText<2>,
+    separator: TrackerText<2>,
 }
 
-const DEFAULT_TEXT_COLOR: Color32 = Color32::GRAY;
-const SELECTED_BG_COLOR: Color32 = Color32::DARK_BLUE;
-const EDITING_BG_COLOR: Color32 = Color32::BLUE;
-
 impl PhraseRow {
+    pub(crate) fn header() -> Self {
+        Self {
+            row_index: TrackerText::new("# ", Color32::GRAY, None),
+            note: TrackerText::new("N  ", Color32::GRAY, None),
+            volume: TrackerText::new("V ", Color32::GRAY, None),
+            instrument: TrackerText::new("I ", Color32::GRAY, None),
+            separator: TrackerText::separator(None),
+        }
+    }
+
     pub(crate) fn new(
         row: usize,
         entry: &Option<PhraseEntryType>,
@@ -32,8 +40,8 @@ impl PhraseRow {
         let separator = TrackerText::separator(bg_color);
 
         if let Some(entry) = entry {
-            PhraseRow {
-                row,
+            Self {
+                row_index: row,
                 note: TrackerText::new(
                     &gamercade_audio::get_note(entry.note).name,
                     DEFAULT_TEXT_COLOR,
@@ -64,8 +72,8 @@ impl PhraseRow {
                 separator,
             }
         } else {
-            PhraseRow {
-                row,
+            Self {
+                row_index: row,
                 note: TrackerText::new_empty(bg_color),
                 volume: TrackerText::new_empty(bg_color),
                 instrument: TrackerText::new_empty(bg_color),
@@ -76,7 +84,7 @@ impl PhraseRow {
 
     pub(crate) fn draw(&self, ui: &mut Ui) -> Option<SelectedEntryMode> {
         let results = [
-            self.row.draw(ui),
+            self.row_index.draw(ui),
             self.separator.draw(ui),
             self.note.draw(ui),
             self.separator.draw(ui),

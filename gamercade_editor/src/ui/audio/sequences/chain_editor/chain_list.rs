@@ -7,7 +7,7 @@ use crate::{
 
 #[derive(Default)]
 pub(crate) struct ChainList {
-    selected_chain: usize,
+    pub(crate) selected_chain: usize,
 }
 
 impl AudioList<Option<Chain>> for ChainList {
@@ -29,6 +29,6 @@ impl AudioList<Option<Chain>> for ChainList {
     }
 
     fn on_clear(&mut self, data: &mut Vec<EditorAudioDataEntry<Option<Chain>>>) {
-        data[self.selected_chain].data = None;
+        data[self.selected_chain].data = Some(Chain::default())
     }
 }

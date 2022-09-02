@@ -1,7 +1,7 @@
 use std::{iter::Cycle, ops::Range, sync::Arc};
 
 use eframe::egui::Ui;
-use gamercade_audio::SFX_CHANNELS;
+use gamercade_audio::{Sfx, SFX_CHANNELS};
 use gamercade_sound_engine::{
     SoundEngine, SoundEngineChannelType, SoundEngineData, SoundRomInstance,
 };
@@ -84,6 +84,8 @@ pub(crate) enum AudioSyncCommand {
         phrase_index: usize,
         target_bpm: f32,
     },
+    PlaySfx(Sfx),
+    StopSfx,
 }
 
 pub(crate) struct AudioSyncHelper {
@@ -127,6 +129,14 @@ impl AudioSyncHelper {
         })
     }
 
+    pub(crate) fn play_sfx(&mut self, sfx: Sfx) {
+        self.command_queue.push(AudioSyncCommand::PlaySfx(sfx))
+    }
+
+    pub(crate) fn stop_sfx(&mut self) {
+        self.command_queue.push(AudioSyncCommand::StopSfx)
+    }
+
     fn push_commands(&mut self, engine: &mut SoundEngine, data: &EditorSoundData) {
         if self.sync_rom {
             self.sync_rom = false;
@@ -167,6 +177,8 @@ impl AudioSyncHelper {
                     phrase_index,
                     target_bpm,
                 }),
+                AudioSyncCommand::PlaySfx(sfx) => engine.send(SoundEngineChannelType::PlaySfx(sfx)),
+                AudioSyncCommand::StopSfx => engine.send(SoundEngineChannelType::StopSfx),
             });
     }
 }

@@ -1,13 +1,10 @@
-use eframe::{
-    egui::{Grid, InputState, Key, Slider, Ui},
-    epaint::Color32,
-};
+use eframe::egui::{Grid, InputState, Key, Slider, Ui};
 
 use gamercade_audio::{InstrumentId, NoteId, Phrase, PhraseEntry, PHRASE_MAX_ENTRIES};
 
 use super::{
     HandleTrackerEditEntryCommand, TrackerEditCommand, TrackerEditEntryCommand,
-    TrackerEditRowCommand, TrackerText,
+    TrackerEditRowCommand,
 };
 use crate::{
     editor_data::EditorSoundData,
@@ -100,6 +97,10 @@ impl PhraseEditor {
 
         if ui.button("Play").clicked() || ui.input().key_pressed(Key::Space) {
             sync.play_phrase(self.phrase_list.selected_phrase, self.target_bpm);
+        }
+
+        if ui.button("Stop").clicked() {
+            sync.stop_sfx()
         }
 
         if let Some(phrase) = &mut data.phrases[self.phrase_list.selected_phrase].data {
@@ -228,13 +229,7 @@ impl PhraseEditor {
 
             // Draw the header row
             ui.horizontal(|ui| {
-                let header = PhraseRow {
-                    row: TrackerText::new("# ", Color32::GRAY, None),
-                    note: TrackerText::new("N  ", Color32::GRAY, None),
-                    volume: TrackerText::new("V ", Color32::GRAY, None),
-                    instrument: TrackerText::new("I ", Color32::GRAY, None),
-                    separator: TrackerText::separator(None),
-                };
+                let header = PhraseRow::header();
                 header.draw(ui);
             });
             ui.end_row();
