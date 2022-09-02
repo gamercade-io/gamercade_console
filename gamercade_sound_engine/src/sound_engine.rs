@@ -44,6 +44,8 @@ pub enum SoundEngineChannelType {
     },
     PlaySfx(Sfx),
     StopSfx,
+    PlayBgm(usize),
+    StopBgm,
 }
 
 impl SoundEngineData {
@@ -242,6 +244,10 @@ impl SoundEngine {
                                         data.play_sfx(Some(sfx), 0);
                                     }
                                     SoundEngineChannelType::StopSfx => data.play_sfx(None, 0),
+                                    SoundEngineChannelType::PlayBgm(bgm) => {
+                                        data.play_bgm(Some(SongId(bgm)))
+                                    }
+                                    SoundEngineChannelType::StopBgm => data.play_bgm(None),
                                 };
                             }
 

@@ -2,14 +2,14 @@ use eframe::{egui::Ui, epaint::Color32};
 use gamercade_audio::PhraseId;
 
 use crate::ui::audio::sequences::{TrackerText, DEFAULT_TEXT_COLOR, SELECTED_BG_COLOR};
-pub(crate) struct ChainRow {
+pub(super) struct ChainRow {
     row_index: TrackerText<3>,
     phrase: TrackerText<2>,
     separator: TrackerText<2>,
 }
 
 impl ChainRow {
-    pub(crate) fn header() -> Self {
+    pub(super) fn header() -> Self {
         Self {
             row_index: TrackerText::new("# ", Color32::GRAY, None),
             separator: TrackerText::separator(None),
@@ -17,7 +17,7 @@ impl ChainRow {
         }
     }
 
-    pub(crate) fn new(row: usize, entry: &Option<PhraseId>, selected_index: usize) -> Self {
+    pub(super) fn new(row: usize, entry: &Option<PhraseId>, selected_index: usize) -> Self {
         let bg_color = if selected_index == row {
             Some(SELECTED_BG_COLOR)
         } else {
@@ -40,7 +40,7 @@ impl ChainRow {
         }
     }
 
-    pub(crate) fn draw(&self, ui: &mut Ui) -> bool {
+    pub(super) fn draw(&self, ui: &mut Ui) -> bool {
         let results = [
             self.row_index.draw(ui),
             self.separator.draw(ui),

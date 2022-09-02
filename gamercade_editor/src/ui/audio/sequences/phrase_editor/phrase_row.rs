@@ -6,7 +6,7 @@ use crate::ui::audio::sequences::{
 
 use super::{PhraseEntryType, SelectedEntry, SelectedEntryMode};
 
-pub(crate) struct PhraseRow {
+pub(super) struct PhraseRow {
     row_index: TrackerText<3>,
     note: TrackerText<3>,
     volume: TrackerText<2>,
@@ -15,7 +15,7 @@ pub(crate) struct PhraseRow {
 }
 
 impl PhraseRow {
-    pub(crate) fn header() -> Self {
+    pub(super) fn header() -> Self {
         Self {
             row_index: TrackerText::new("# ", Color32::GRAY, None),
             note: TrackerText::new("N  ", Color32::GRAY, None),

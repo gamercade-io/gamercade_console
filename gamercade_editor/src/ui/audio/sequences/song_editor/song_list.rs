@@ -6,8 +6,8 @@ use crate::{
 };
 
 #[derive(Default)]
-pub(crate) struct SongList {
-    selected_song: usize,
+pub(super) struct SongList {
+    pub(super) selected_song: usize,
 }
 
 impl AudioList<Song> for SongList {

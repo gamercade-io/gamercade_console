@@ -6,8 +6,8 @@ use crate::{
 };
 
 #[derive(Debug, Default)]
-pub(crate) struct PhraseList {
-    pub(crate) selected_phrase: usize,
+pub(super) struct PhraseList {
+    pub(super) selected_phrase: usize,
 }
 
 impl AudioList<Option<Phrase>> for PhraseList {

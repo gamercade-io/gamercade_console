@@ -6,8 +6,8 @@ use crate::{
 };
 
 #[derive(Default)]
-pub(crate) struct ChainList {
-    pub(crate) selected_chain: usize,
+pub(super) struct ChainList {
+    pub(super) selected_chain: usize,
 }
 
 impl AudioList<Option<Chain>> for ChainList {

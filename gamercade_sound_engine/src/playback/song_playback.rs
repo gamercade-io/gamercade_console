@@ -72,6 +72,11 @@ impl SongPlayback {
                 .for_each(|(track, next)| {
                     track.set_chain_id(*next);
                 });
+        } else {
+            // Otherwise, just stop all of the playbacks
+            self.tracks.iter_mut().for_each(|track| {
+                track.set_chain_id(None);
+            });
         }
     }
 

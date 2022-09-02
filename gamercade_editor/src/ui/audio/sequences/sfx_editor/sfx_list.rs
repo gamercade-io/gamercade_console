@@ -6,8 +6,8 @@ use crate::{
 };
 
 #[derive(Default)]
-pub(crate) struct SfxList {
-    pub(crate) selected_sfx: usize,
+pub(super) struct SfxList {
+    pub(super) selected_sfx: usize,
 }
 
 impl AudioList<Sfx> for SfxList {

@@ -86,6 +86,8 @@ pub(crate) enum AudioSyncCommand {
     },
     PlaySfx(Sfx),
     StopSfx,
+    PlayBgm(usize),
+    StopBgm,
 }
 
 pub(crate) struct AudioSyncHelper {
@@ -144,6 +146,14 @@ impl AudioSyncHelper {
         self.command_queue.push(AudioSyncCommand::StopSfx)
     }
 
+    pub(crate) fn play_bgm(&mut self, song_id: usize) {
+        self.command_queue.push(AudioSyncCommand::PlayBgm(song_id))
+    }
+
+    pub(crate) fn stop_bgm(&mut self) {
+        self.command_queue.push(AudioSyncCommand::StopBgm)
+    }
+
     fn push_commands(&mut self, engine: &mut SoundEngine, data: &EditorSoundData) {
         if self.sync_rom {
             self.sync_rom = false;
@@ -186,6 +196,10 @@ impl AudioSyncHelper {
                 }),
                 AudioSyncCommand::PlaySfx(sfx) => engine.send(SoundEngineChannelType::PlaySfx(sfx)),
                 AudioSyncCommand::StopSfx => engine.send(SoundEngineChannelType::StopSfx),
+                AudioSyncCommand::PlayBgm(song) => {
+                    engine.send(SoundEngineChannelType::PlayBgm(song))
+                }
+                AudioSyncCommand::StopBgm => engine.send(SoundEngineChannelType::StopBgm),
             });
     }
 }
