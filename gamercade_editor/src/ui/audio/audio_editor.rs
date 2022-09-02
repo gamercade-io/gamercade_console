@@ -80,6 +80,10 @@ pub(crate) enum AudioSyncCommand {
         note_index: usize,
         instrument_index: usize,
     },
+    PlayPhrase {
+        phrase_index: usize,
+        target_bpm: f32,
+    },
 }
 
 pub(crate) struct AudioSyncHelper {
@@ -102,6 +106,13 @@ impl AudioSyncHelper {
             channel,
         });
         channel
+    }
+
+    pub(crate) fn play_phrase(&mut self, phrase_index: usize, target_bpm: f32) {
+        self.command_queue.push(AudioSyncCommand::PlayPhrase {
+            phrase_index,
+            target_bpm,
+        });
     }
 
     pub(crate) fn stop_note(&mut self, channel: usize) {
@@ -148,6 +159,13 @@ impl AudioSyncHelper {
                     note_index,
                     instrument_index,
                     channel: self.channel_ticker.next().unwrap(),
+                }),
+                AudioSyncCommand::PlayPhrase {
+                    phrase_index,
+                    target_bpm,
+                } => engine.send(SoundEngineChannelType::PlayPhrase {
+                    phrase_index,
+                    target_bpm,
                 }),
             });
     }

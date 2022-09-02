@@ -84,7 +84,11 @@ impl Index<ChainId> for SoundRomInstance {
     type Output = Option<Chain>;
 
     fn index(&self, index: ChainId) -> &Self::Output {
-        &self.chains[index.0]
+        if let Some(chain) = self.chains.get(index.0) {
+            chain
+        } else {
+            &None
+        }
     }
 }
 
@@ -92,7 +96,11 @@ impl Index<PhraseId> for SoundRomInstance {
     type Output = Option<Phrase>;
 
     fn index(&self, index: PhraseId) -> &Self::Output {
-        &self.phrases[index.0]
+        if let Some(phrase) = self.phrases.get(index.0) {
+            phrase
+        } else {
+            &None
+        }
     }
 }
 
@@ -100,6 +108,10 @@ impl Index<InstrumentId> for SoundRomInstance {
     type Output = Option<InstrumentDefinition>;
 
     fn index(&self, index: InstrumentId) -> &Self::Output {
-        &self.instrument_bank[index.0]
+        if let Some(instrument) = self.instrument_bank.get(index.0) {
+            instrument
+        } else {
+            &None
+        }
     }
 }

@@ -1,9 +1,6 @@
-use eframe::{
-    egui::{Response, Ui, Widget},
-    epaint::Color32,
-};
+use eframe::{egui::Ui, epaint::Color32};
 
-use crate::ui::{audio::sequences::TrackerText, AudioSyncHelper};
+use crate::ui::audio::sequences::TrackerText;
 
 use super::{PhraseEntryType, SelectedEntry, SelectedEntryMode};
 
@@ -77,33 +74,16 @@ impl PhraseRow {
         }
     }
 
-    pub(crate) fn draw(
-        &self,
-        ui: &mut Ui,
-        entry: &mut Option<PhraseEntryType>,
-        sync: &mut AudioSyncHelper,
-    ) -> Option<SelectedEntryMode> {
-        let results = if let Some(entry) = entry {
-            [
-                self.row.draw_none(ui),
-                self.separator.draw_none(ui),
-                self.note.draw_editable(ui, &mut entry.note),
-                self.separator.draw_none(ui),
-                self.volume.draw_editable(ui, &mut entry.volume),
-                self.separator.draw_none(ui),
-                self.instrument.draw_editable(ui, &mut entry.instrument),
-            ]
-        } else {
-            [
-                self.row.draw_none(ui),
-                self.separator.draw_none(ui),
-                self.note.draw_none(ui),
-                self.separator.draw_none(ui),
-                self.volume.draw_none(ui),
-                self.separator.draw_none(ui),
-                self.instrument.draw_none(ui),
-            ]
-        };
+    pub(crate) fn draw(&self, ui: &mut Ui) -> Option<SelectedEntryMode> {
+        let results = [
+            self.row.draw(ui),
+            self.separator.draw(ui),
+            self.note.draw(ui),
+            self.separator.draw(ui),
+            self.volume.draw(ui),
+            self.separator.draw(ui),
+            self.instrument.draw(ui),
+        ];
 
         if let Some((index, _)) = results.into_iter().enumerate().find(|(_, result)| *result) {
             match index {

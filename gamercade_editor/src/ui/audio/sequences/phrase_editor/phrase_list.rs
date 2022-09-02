@@ -1,5 +1,5 @@
 use eframe::egui::Ui;
-use gamercade_audio::Phrase;
+use gamercade_audio::{Phrase, PHRASES_MAX_COUNT};
 
 use crate::{
     editor_data::{EditorAudioDataEntry, EditorSoundData},
@@ -27,10 +27,26 @@ impl AudioList<Option<Phrase>> for PhraseList {
     fn draw_buttons(
         &mut self,
         ui: &mut Ui,
-        _data: &mut EditorSoundData,
-        _sync: &mut AudioSyncHelper,
+        data: &mut EditorSoundData,
+        sync: &mut AudioSyncHelper,
     ) {
-        // TODO
-        ui.label("TODO: Draw Buttons - Audio List");
+        ui.horizontal(|ui| {
+            if ui.button("Add Phrase").clicked() {
+                let curr_len = data.phrases.len();
+                if curr_len < PHRASES_MAX_COUNT {
+                    let name = format!("Phrase {}", curr_len + 1);
+                    data.phrases.push(EditorAudioDataEntry {
+                        name,
+                        data: Some(Phrase::default()),
+                    });
+                    sync.notify_rom_changed();
+                }
+            }
+
+            if ui.button("Clear Phrase").clicked() {
+                data.phrases[self.selected_phrase].data = None;
+                sync.notify_rom_changed();
+            }
+        });
     }
 }

@@ -5,7 +5,7 @@ use cpal::{
     traits::{DeviceTrait, HostTrait, StreamTrait},
     Stream, StreamConfig,
 };
-use gamercade_audio::InstrumentId;
+use gamercade_audio::{InstrumentId, PhraseId};
 use rtrb::{Producer, RingBuffer};
 
 use crate::{
@@ -38,6 +38,10 @@ pub enum SoundEngineChannelType {
         channel: usize,
     },
     UpdateOutputProducer(Option<Producer<SoundOutputChannels>>),
+    PlayPhrase {
+        phrase_index: usize,
+        target_bpm: f32,
+    },
 }
 
 impl SoundEngineData {
@@ -216,6 +220,18 @@ impl SoundEngine {
                                     ),
                                     SoundEngineChannelType::UpdateOutputProducer(new_producer) => {
                                         sound_output_producer = new_producer
+                                    }
+                                    SoundEngineChannelType::PlayPhrase {
+                                        phrase_index,
+                                        target_bpm,
+                                    } => {
+                                        let phrase = Some(PhraseId(phrase_index));
+                                        data.sfx[0].set_sfx_id(None);
+                                        data.sfx[0].oscillator.reset_bpm(target_bpm);
+                                        let phrase_playback =
+                                            &mut data.sfx[0].chain_playback.phrase_playback;
+
+                                        phrase_playback.set_phrase_id(phrase);
                                     }
                                 };
                             }

@@ -1,5 +1,3 @@
-use std::fmt::Debug;
-
 use eframe::{
     egui::{Button, RichText, Ui},
     epaint::Color32,
@@ -21,17 +19,7 @@ impl<const N: usize> TrackerText<N> {
         }
     }
 
-    pub fn draw_editable<'a, T: Debug>(&self, ui: &mut Ui, field: &mut T) -> bool {
-        let mut text = RichText::new(self.text.as_str())
-            .color(self.text_color)
-            .monospace();
-        if let Some(bg_color) = self.bg_color {
-            text = text.background_color(bg_color)
-        };
-        ui.add(Button::new(text).frame(false)).clicked()
-    }
-
-    pub fn draw_none(&self, ui: &mut Ui) -> bool {
+    pub fn draw(&self, ui: &mut Ui) -> bool {
         let mut text = RichText::new(self.text.as_str())
             .color(self.text_color)
             .monospace();

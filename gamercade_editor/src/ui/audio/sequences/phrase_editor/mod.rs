@@ -1,11 +1,14 @@
 use eframe::{
-    egui::{Grid, Key, Ui},
+    egui::{Grid, InputState, Key, Slider, Ui},
     epaint::Color32,
 };
 
 use gamercade_audio::{InstrumentId, NoteId, Phrase, PhraseEntry, PHRASE_MAX_ENTRIES};
 
-use super::TrackerText;
+use super::{
+    HandleTrackerEditEntryCommand, TrackerEditCommand, TrackerEditEntryCommand,
+    TrackerEditRowCommand, TrackerText,
+};
 use crate::{
     editor_data::EditorSoundData,
     ui::{AudioList, AudioSyncHelper},
@@ -21,6 +24,8 @@ use phrase_row::*;
 pub(crate) struct PhraseEditor {
     phrase_list: PhraseList,
     selected_entry: SelectedEntry,
+
+    target_bpm: f32,
 }
 
 #[derive(Default, Debug, Clone, Copy)]
@@ -90,35 +95,133 @@ impl PhraseEditor {
     ) {
         self.phrase_list.draw(ui, data, sync);
 
-        if let Some(phrase) = &mut data.phrases[self.phrase_list.selected_phrase].data {
-            self.phrase_editor_inner(ui, phrase, sync)
+        ui.label("Bpm: ");
+        ui.add(Slider::new(&mut self.target_bpm, 0.0..=500.0));
+
+        if ui.button("Play").clicked() || ui.input().key_pressed(Key::Space) {
+            sync.play_phrase(self.phrase_list.selected_phrase, self.target_bpm);
         }
 
-        let input = ui.input();
+        if let Some(phrase) = &mut data.phrases[self.phrase_list.selected_phrase].data {
+            self.phrase_editor_inner(ui, phrase);
 
-        if input.key_pressed(Key::ArrowUp) {
+            let input = ui.input();
+
+            if input.modifiers.shift {
+                self.handle_shift_input(&input, phrase, sync);
+            } else {
+                self.handle_input(&input)
+            }
+        }
+    }
+
+    fn handle_shift_input(
+        &mut self,
+        input_state: &InputState,
+        phrase: &mut Phrase,
+        sync: &mut AudioSyncHelper,
+    ) {
+        let mut command = None;
+
+        if input_state.key_pressed(Key::ArrowUp) {
+            command = Some(TrackerEditCommand::EditEntry(TrackerEditEntryCommand::Add(
+                1,
+            )))
+        } else if input_state.key_pressed(Key::ArrowRight) {
+            command = Some(TrackerEditCommand::EditEntry(TrackerEditEntryCommand::Add(
+                12,
+            )))
+        } else if input_state.key_pressed(Key::ArrowDown) {
+            command = Some(TrackerEditCommand::EditEntry(TrackerEditEntryCommand::Sub(
+                1,
+            )))
+        } else if input_state.key_pressed(Key::ArrowLeft) {
+            command = Some(TrackerEditCommand::EditEntry(TrackerEditEntryCommand::Sub(
+                12,
+            )))
+        } else if input_state.key_pressed(Key::Insert) {
+            command = Some(TrackerEditCommand::EditRow(TrackerEditRowCommand::Insert))
+        } else if input_state.key_pressed(Key::Delete) {
+            command = Some(TrackerEditCommand::EditRow(TrackerEditRowCommand::Delete))
+        };
+
+        match command {
+            Some(TrackerEditCommand::EditEntry(entry)) => {
+                self.handle_edit_entry(entry, phrase, sync)
+            }
+            Some(TrackerEditCommand::EditRow(row)) => self.handle_edit_row(row, phrase, sync),
+            None => (),
+        }
+    }
+
+    fn handle_edit_entry(
+        &mut self,
+        command: TrackerEditEntryCommand,
+        phrase: &mut Phrase,
+        sync: &mut AudioSyncHelper,
+    ) {
+        if let Some(phrase) = &mut phrase.entries[self.selected_entry.index] {
+            let should_sync = match self.selected_entry.mode {
+                SelectedEntryMode::None => false,
+                SelectedEntryMode::Note => {
+                    phrase.note.handle_command(command);
+                    true
+                }
+                SelectedEntryMode::Volume => {
+                    phrase.volume.handle_command(command);
+                    true
+                }
+                SelectedEntryMode::Instrument => {
+                    phrase.instrument.handle_command(command);
+                    true
+                }
+            };
+
+            if should_sync {
+                sync.notify_rom_changed()
+            }
+        }
+    }
+
+    fn handle_edit_row(
+        &mut self,
+        command: TrackerEditRowCommand,
+        phrase: &mut Phrase,
+        sync: &mut AudioSyncHelper,
+    ) {
+        let phrase_row = &mut phrase.entries[self.selected_entry.index];
+        match (command, &phrase_row) {
+            (TrackerEditRowCommand::Delete, Some(_)) => {
+                *phrase_row = None;
+                sync.notify_rom_changed();
+            }
+            (TrackerEditRowCommand::Insert, None) => {
+                *phrase_row = Some(PhraseEntry::default());
+                sync.notify_rom_changed();
+            }
+            _ => (),
+        }
+    }
+
+    fn handle_input(&mut self, input_state: &InputState) {
+        if input_state.key_pressed(Key::ArrowUp) {
             self.selected_entry.up()
         }
 
-        if input.key_pressed(Key::ArrowDown) {
+        if input_state.key_pressed(Key::ArrowDown) {
             self.selected_entry.down()
         }
 
-        if input.key_pressed(Key::ArrowLeft) {
+        if input_state.key_pressed(Key::ArrowLeft) {
             self.selected_entry.left()
         }
 
-        if input.key_pressed(Key::ArrowRight) {
+        if input_state.key_pressed(Key::ArrowRight) {
             self.selected_entry.right()
         }
     }
 
-    fn phrase_editor_inner(
-        &mut self,
-        ui: &mut Ui,
-        phrase: &mut Phrase,
-        sync: &mut AudioSyncHelper,
-    ) {
+    fn phrase_editor_inner(&mut self, ui: &mut Ui, phrase: &mut Phrase) {
         Grid::new("phase_editor_grid").striped(true).show(ui, |ui| {
             ui.spacing_mut().item_spacing.x = 0.0;
             ui.spacing_mut().button_padding.x = 0.0;
@@ -132,7 +235,7 @@ impl PhraseEditor {
                     instrument: TrackerText::new("I ", Color32::GRAY, None),
                     separator: TrackerText::separator(None),
                 };
-                header.draw(ui, &mut None, sync);
+                header.draw(ui);
             });
             ui.end_row();
 
@@ -144,7 +247,7 @@ impl PhraseEditor {
                 .for_each(|(row, entry)| {
                     ui.horizontal(|ui| {
                         let phrase_row = PhraseRow::new(row, entry, self.selected_entry);
-                        if let Some(selected) = phrase_row.draw(ui, entry, sync) {
+                        if let Some(selected) = phrase_row.draw(ui) {
                             self.selected_entry.index = row;
                             self.selected_entry.mode = selected;
                         }
