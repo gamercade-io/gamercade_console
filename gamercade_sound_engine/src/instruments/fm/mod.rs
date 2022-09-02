@@ -8,4 +8,4 @@ pub use patch_instance::*;
 
 pub(crate) const LUT_QUARTER_LEN: usize = 256;
 pub(crate) const LUT_FULL_LEN: usize = LUT_QUARTER_LEN * 4;
-pub(crate) const FM_MODULATION: f32 = 8.0;
+pub(crate) const FM_MODULATION: f32 = 5.0;
