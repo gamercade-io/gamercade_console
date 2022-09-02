@@ -14,7 +14,7 @@ pub(crate) struct PhraseRow {
 
 const DEFAULT_TEXT_COLOR: Color32 = Color32::GRAY;
 const SELECTED_BG_COLOR: Color32 = Color32::DARK_BLUE;
-const EDITING_BG_COLOR: Color32 = Color32::LIGHT_BLUE;
+const EDITING_BG_COLOR: Color32 = Color32::BLUE;
 
 impl PhraseRow {
     pub(crate) fn new(

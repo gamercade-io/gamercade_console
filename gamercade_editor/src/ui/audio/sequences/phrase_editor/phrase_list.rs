@@ -1,9 +1,8 @@
-use eframe::egui::Ui;
 use gamercade_audio::{Phrase, PHRASES_MAX_COUNT};
 
 use crate::{
     editor_data::{EditorAudioDataEntry, EditorSoundData},
-    ui::{AudioList, AudioSyncHelper},
+    ui::AudioList,
 };
 
 #[derive(Debug, Default)]
@@ -12,41 +11,24 @@ pub(crate) struct PhraseList {
 }
 
 impl AudioList<Option<Phrase>> for PhraseList {
-    fn target_data(data: &EditorSoundData) -> &Vec<EditorAudioDataEntry<Option<Phrase>>> {
-        &data.phrases
+    const MAX_ENTRY_COUNT: usize = PHRASES_MAX_COUNT;
+    const NAME: &'static str = "Phrase";
+
+    fn target_data_mut(
+        data: &mut EditorSoundData,
+    ) -> &mut Vec<EditorAudioDataEntry<Option<Phrase>>> {
+        &mut data.phrases
     }
 
     fn selected_index(&mut self) -> &mut usize {
         &mut self.selected_phrase
     }
 
-    fn name() -> &'static str {
-        "Phrase List"
+    fn on_add() -> Option<Phrase> {
+        Some(Phrase::default())
     }
 
-    fn draw_buttons(
-        &mut self,
-        ui: &mut Ui,
-        data: &mut EditorSoundData,
-        sync: &mut AudioSyncHelper,
-    ) {
-        ui.horizontal(|ui| {
-            if ui.button("Add Phrase").clicked() {
-                let curr_len = data.phrases.len();
-                if curr_len < PHRASES_MAX_COUNT {
-                    let name = format!("Phrase {}", curr_len + 1);
-                    data.phrases.push(EditorAudioDataEntry {
-                        name,
-                        data: Some(Phrase::default()),
-                    });
-                    sync.notify_rom_changed();
-                }
-            }
-
-            if ui.button("Clear Phrase").clicked() {
-                data.phrases[self.selected_phrase].data = None;
-                sync.notify_rom_changed();
-            }
-        });
+    fn on_clear(&mut self, data: &mut Vec<EditorAudioDataEntry<Option<Phrase>>>) {
+        data[self.selected_phrase].data = None;
     }
 }

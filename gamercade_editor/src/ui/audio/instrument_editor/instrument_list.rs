@@ -1,5 +1,5 @@
 use eframe::egui::Ui;
-use gamercade_audio::InstrumentDataDefinition;
+use gamercade_audio::{InstrumentDataDefinition, INSTRUMENTS_MAX_COUNT};
 
 use crate::{
     editor_data::{EditorAudioDataEntry, EditorSoundData},
@@ -12,6 +12,9 @@ pub struct InstrumentList {
 }
 
 impl AudioList<Option<InstrumentDataDefinition>> for InstrumentList {
+    const NAME: &'static str = "Instrument";
+    const MAX_ENTRY_COUNT: usize = INSTRUMENTS_MAX_COUNT;
+
     fn draw_buttons(
         &mut self,
         ui: &mut Ui,
@@ -19,7 +22,7 @@ impl AudioList<Option<InstrumentDataDefinition>> for InstrumentList {
         sync: &mut AudioSyncHelper,
     ) {
         ui.horizontal(|ui| {
-            if ui.button("New").clicked() {
+            if ui.button("New").clicked() && data.instruments.len() < Self::MAX_ENTRY_COUNT {
                 data.instruments.push(EditorAudioDataEntry::default());
                 sync.notify_rom_changed()
             }
@@ -38,17 +41,24 @@ impl AudioList<Option<InstrumentDataDefinition>> for InstrumentList {
         });
     }
 
-    fn target_data(
-        data: &EditorSoundData,
-    ) -> &Vec<EditorAudioDataEntry<Option<InstrumentDataDefinition>>> {
-        &data.instruments
+    fn target_data_mut(
+        data: &mut EditorSoundData,
+    ) -> &mut Vec<EditorAudioDataEntry<Option<InstrumentDataDefinition>>> {
+        &mut data.instruments
     }
 
     fn selected_index(&mut self) -> &mut usize {
         &mut self.selected_instrument
     }
 
-    fn name() -> &'static str {
-        "Instrument List"
+    fn on_add() -> Option<InstrumentDataDefinition> {
+        unreachable!()
+    }
+
+    fn on_clear(
+        &mut self,
+        _data: &mut Vec<EditorAudioDataEntry<Option<InstrumentDataDefinition>>>,
+    ) {
+        unreachable!()
     }
 }

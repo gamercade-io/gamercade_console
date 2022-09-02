@@ -18,7 +18,7 @@ pub struct SoundRom {
 }
 
 /// Represents a singular sound effect
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Sfx {
     pub bpm: f32,
     pub chain: ChainId,
