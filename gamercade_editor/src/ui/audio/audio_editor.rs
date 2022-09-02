@@ -14,7 +14,7 @@ use super::{
 };
 
 pub struct AudioEditor {
-    pub mode: AudioEditorMode,
+    pub(crate) mode: AudioEditorMode,
     chain_editor: ChainEditor,
     instrument_editor: InstrumentEditor,
     phrase_editor: PhraseEditor,
@@ -22,7 +22,7 @@ pub struct AudioEditor {
     sfx_editor: SfxEditor,
 
     sound_engine: SoundEngine,
-    audio_sync_helper: AudioSyncHelper,
+    pub(crate) audio_sync_helper: AudioSyncHelper,
 
     oscilloscope: Oscilloscope,
 }

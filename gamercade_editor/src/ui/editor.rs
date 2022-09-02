@@ -61,6 +61,7 @@ impl Editor {
                         if let Err(e) = try_load_editor_rom(&mut self.rom) {
                             println!("{}", e);
                         }
+                        self.audio_editor.audio_sync_helper.notify_rom_changed();
                         ui.close_menu();
                     }
 

@@ -25,10 +25,16 @@ fn de_sprites<'de, D>(deserializer: D) -> Result<Box<[ColorIndex]>, D::Error>
 where
     D: Deserializer<'de>,
 {
-    let text: String = Deserialize::deserialize(deserializer)?;
-    let bytes = base64::decode(&text).map_err(serde::de::Error::custom)?;
-    let bytes: Vec<ColorIndex> = unsafe { std::mem::transmute(bytes) };
-    Ok(bytes.into_boxed_slice())
+    if deserializer.is_human_readable() {
+        let text: String = Deserialize::deserialize(deserializer)?;
+        let bytes = base64::decode(&text).map_err(serde::de::Error::custom)?;
+        let bytes: Vec<ColorIndex> = unsafe { std::mem::transmute(bytes) };
+        Ok(bytes.into_boxed_slice())
+    } else {
+        let bytes: Vec<u8> = Deserialize::deserialize(deserializer)?;
+        let bytes: Vec<ColorIndex> = unsafe { std::mem::transmute(bytes) };
+        Ok(bytes.into_boxed_slice())
+    }
 }
 
 fn ser_sprites<S>(sprites: &[ColorIndex], serializer: S) -> Result<S::Ok, S::Error>
@@ -36,8 +42,12 @@ where
     S: serde::Serializer,
 {
     let sprites: &[u8] = unsafe { std::mem::transmute(sprites) };
-    let sprites = base64::encode(sprites);
-    serializer.serialize_str(&sprites)
+    if serializer.is_human_readable() {
+        let sprites = base64::encode(sprites);
+        serializer.serialize_str(&sprites)
+    } else {
+        serializer.serialize_bytes(sprites)
+    }
 }
 
 impl Default for SpriteSheet {

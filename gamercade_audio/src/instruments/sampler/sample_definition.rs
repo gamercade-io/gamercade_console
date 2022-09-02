@@ -1,9 +1,12 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{EnvelopeDefinition, IndexInterpolator, LoopMode, SampleBitDepth};
+use crate::{
+    de_audio_data, ser_audio_data, EnvelopeDefinition, IndexInterpolator, LoopMode, SampleBitDepth,
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SampleDefinition {
+    #[serde(serialize_with = "ser_audio_data", deserialize_with = "de_audio_data")]
     pub data: Box<[SampleBitDepth]>,
     pub source_sample_rate: usize,
     pub sample_frequency: Option<f32>,
