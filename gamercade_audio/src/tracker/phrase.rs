@@ -70,7 +70,7 @@ impl Default for Phrase {
 
 pub type PhraseStorageType = PhraseEntry<NoteId, InstrumentId>;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 /// An entry in the phrase, contains all data necessary to produce a sound
 pub struct PhraseEntry<N, T> {
     pub note: N,

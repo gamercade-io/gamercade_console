@@ -10,7 +10,7 @@ use tinystr::TinyAsciiStr;
 use crate::{NoteName, NoteNameIter, Octave, OctaveIter, TOTAL_NOTES_COUNT};
 
 /// Newtype Note Id
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, Default)]
 pub struct NoteId(pub usize);
 
 impl TryFrom<i32> for NoteId {

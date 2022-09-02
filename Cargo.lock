@@ -1709,6 +1709,7 @@ dependencies = [
  "rtrb",
  "serde",
  "serde_json",
+ "tinystr",
  "zstd",
 ]
 
