@@ -231,6 +231,9 @@ impl SoundEngine {
                                         let phrase_playback =
                                             &mut data.sfx[0].chain_playback.phrase_playback;
 
+                                        // Reset the instrument to force a refresh
+                                        phrase_playback.instrument =
+                                            InstrumentInstance::no_sound(output_sample_rate);
                                         phrase_playback.set_phrase_id(phrase);
                                     }
                                 };
