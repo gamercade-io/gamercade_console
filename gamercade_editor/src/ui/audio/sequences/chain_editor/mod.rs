@@ -1,5 +1,5 @@
-use eframe::egui::{Grid, Ui};
-use gamercade_audio::Chain;
+use eframe::egui::{Grid, InputState, Key, Slider, Ui};
+use gamercade_audio::{Chain, PhraseId, CHAIN_MAX_PHRASE_COUNT};
 
 use crate::{
     editor_data::EditorSoundData,
@@ -12,11 +12,17 @@ mod chain_row;
 use chain_list::*;
 use chain_row::*;
 
+use super::{
+    HandleTrackerEditEntryCommand, TrackerEditCommand, TrackerEditEntryCommand,
+    TrackerEditRowCommand,
+};
+
 #[derive(Default)]
 pub(crate) struct ChainEditor {
     chain_list: ChainList,
 
     selected_index: usize,
+    target_bpm: f32,
 }
 
 impl ChainEditor {
@@ -28,13 +34,110 @@ impl ChainEditor {
     ) {
         self.chain_list.draw(ui, data, sync);
 
+        ui.label("Bpm: ");
+        ui.add(Slider::new(&mut self.target_bpm, 0.0..=500.0));
+
+        if ui.button("Play").clicked() || ui.input().key_pressed(Key::Space) {
+            sync.play_chain(self.chain_list.selected_chain, self.target_bpm);
+        }
+
+        if ui.button("Stop").clicked() {
+            sync.stop_sfx()
+        }
+
         if let Some(chain) = &mut data.chains[self.chain_list.selected_chain].data {
-            self.chain_editor_inner(ui, chain)
+            self.chain_editor_inner(ui, chain);
+
+            let input = ui.input();
+
+            if input.modifiers.shift {
+                self.handle_shift_input(&input, chain, sync);
+            } else {
+                self.handle_input(&input)
+            }
+        };
+    }
+
+    fn handle_shift_input(
+        &mut self,
+        input_state: &InputState,
+        chain: &mut Chain,
+        sync: &mut AudioSyncHelper,
+    ) {
+        let mut command = None;
+
+        if input_state.key_pressed(Key::ArrowUp) {
+            command = Some(TrackerEditCommand::EditEntry(TrackerEditEntryCommand::Add(
+                1,
+            )))
+        } else if input_state.key_pressed(Key::ArrowRight) {
+            command = Some(TrackerEditCommand::EditEntry(TrackerEditEntryCommand::Add(
+                16,
+            )))
+        } else if input_state.key_pressed(Key::ArrowDown) {
+            command = Some(TrackerEditCommand::EditEntry(TrackerEditEntryCommand::Sub(
+                1,
+            )))
+        } else if input_state.key_pressed(Key::ArrowLeft) {
+            command = Some(TrackerEditCommand::EditEntry(TrackerEditEntryCommand::Sub(
+                16,
+            )))
+        } else if input_state.key_pressed(Key::Insert) {
+            command = Some(TrackerEditCommand::EditRow(TrackerEditRowCommand::Insert))
+        } else if input_state.key_pressed(Key::Delete) {
+            command = Some(TrackerEditCommand::EditRow(TrackerEditRowCommand::Delete))
         };
 
-        // TODO: Add Play & Stop Buttons
+        match command {
+            Some(TrackerEditCommand::EditEntry(entry)) => {
+                self.handle_edit_entry(entry, chain, sync)
+            }
+            Some(TrackerEditCommand::EditRow(row)) => self.handle_edit_row(row, chain, sync),
+            None => (),
+        }
+    }
 
-        // TODO: Add Keyboard Controls
+    fn handle_edit_entry(
+        &self,
+        command: TrackerEditEntryCommand,
+        chain: &mut Chain,
+        sync: &mut AudioSyncHelper,
+    ) {
+        if let Some(chain) = &mut chain.entries[self.selected_index] {
+            chain.handle_command(command);
+            sync.notify_rom_changed()
+        }
+    }
+
+    fn handle_edit_row(
+        &self,
+        command: TrackerEditRowCommand,
+        chain: &mut Chain,
+        sync: &mut AudioSyncHelper,
+    ) {
+        let chain_row = &mut chain.entries[self.selected_index];
+
+        match (command, &chain_row) {
+            (TrackerEditRowCommand::Insert, None) => {
+                *chain_row = Some(PhraseId::default());
+                sync.notify_rom_changed()
+            }
+            (TrackerEditRowCommand::Delete, Some(_)) => {
+                *chain_row = None;
+                sync.notify_rom_changed()
+            }
+            _ => (),
+        }
+    }
+
+    fn handle_input(&mut self, input_state: &InputState) {
+        if input_state.key_pressed(Key::ArrowUp) {
+            self.selected_index = self.selected_index.saturating_sub(1)
+        }
+
+        if input_state.key_pressed(Key::ArrowDown) {
+            self.selected_index = (self.selected_index + 1).min(CHAIN_MAX_PHRASE_COUNT)
+        }
     }
 
     fn chain_editor_inner(&mut self, ui: &mut Ui, chain: &mut Chain) {

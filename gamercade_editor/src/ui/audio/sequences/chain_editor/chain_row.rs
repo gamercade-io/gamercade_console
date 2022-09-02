@@ -4,7 +4,7 @@ use gamercade_audio::PhraseId;
 use crate::ui::audio::sequences::{TrackerText, DEFAULT_TEXT_COLOR, SELECTED_BG_COLOR};
 pub(crate) struct ChainRow {
     row_index: TrackerText<3>,
-    phrase: TrackerText<3>,
+    phrase: TrackerText<2>,
     separator: TrackerText<2>,
 }
 

@@ -1,7 +1,7 @@
 use std::{iter::Cycle, ops::Range, sync::Arc};
 
 use eframe::egui::Ui;
-use gamercade_audio::{Sfx, SFX_CHANNELS};
+use gamercade_audio::{ChainId, Sfx, SFX_CHANNELS};
 use gamercade_sound_engine::{
     SoundEngine, SoundEngineChannelType, SoundEngineData, SoundRomInstance,
 };
@@ -127,6 +127,13 @@ impl AudioSyncHelper {
             note_index,
             instrument_index,
         })
+    }
+
+    pub(crate) fn play_chain(&mut self, chain_id: usize, bpm: f32) {
+        self.command_queue.push(AudioSyncCommand::PlaySfx(Sfx {
+            bpm,
+            chain: ChainId(chain_id),
+        }))
     }
 
     pub(crate) fn play_sfx(&mut self, sfx: Sfx) {

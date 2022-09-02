@@ -156,7 +156,7 @@ impl PhraseEditor {
     }
 
     fn handle_edit_entry(
-        &mut self,
+        &self,
         command: TrackerEditEntryCommand,
         phrase: &mut Phrase,
         sync: &mut AudioSyncHelper,
@@ -185,7 +185,7 @@ impl PhraseEditor {
     }
 
     fn handle_edit_row(
-        &mut self,
+        &self,
         command: TrackerEditRowCommand,
         phrase: &mut Phrase,
         sync: &mut AudioSyncHelper,

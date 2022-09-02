@@ -1,11 +1,10 @@
 use std::ops::Index;
 
-use arrayvec::ArrayVec;
 use serde::{Deserialize, Serialize};
 
 use crate::{
     Chain, ChainId, EnvelopeDefinition, IndexInterpolator, InstrumentDataDefinition, InstrumentId,
-    Phrase, PhraseId, Song, SongId, WavetableDefinition, WavetableGenerator, WavetableWaveform,
+    Phrase, Song, SongId, WavetableDefinition, WavetableGenerator, WavetableWaveform,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

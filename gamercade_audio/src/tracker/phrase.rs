@@ -8,7 +8,7 @@ use crate::{
 };
 
 /// Newtype Chain Identifier
-#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone, Serialize, Deserialize, Default)]
 pub struct PhraseId(pub usize);
 
 /// A phrase is a series of notes tied to instruments, which when combined together form a chain.
