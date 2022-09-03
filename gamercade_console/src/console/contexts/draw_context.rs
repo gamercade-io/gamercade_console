@@ -1,6 +1,9 @@
 use crate::api::DrawApi;
-use gamercade_core::{Color, GraphicsParameters, PixelBuffer, Rom, BYTES_PER_PIXEL};
-use std::{ops::Deref, sync::Arc};
+use gamercade_core::{Color, GraphicsParameters, PixelBuffer, Rom, XCord, YCord, BYTES_PER_PIXEL};
+use std::{
+    ops::{Add, Mul, Sub},
+    sync::Arc,
+};
 
 #[derive(Clone)]
 pub struct DrawContext {
@@ -13,6 +16,20 @@ impl DrawContext {
         Self {
             frame_buffer: PixelBuffer::init_from_rom(&rom),
             rom,
+        }
+    }
+
+    pub fn validate_x<T: Into<i32>>(&self, x: T) -> Result<XCord, &'static str> {
+        match self.rom.resolution.try_get_xcord(x.into()) {
+            Some(x) => Ok(x),
+            None => Err("Invalid X screen coordinate"),
+        }
+    }
+
+    pub fn validate_y<T: Into<i32>>(&self, y: T) -> Result<YCord, &'static str> {
+        match self.rom.resolution.try_get_ycord(y.into()) {
+            Some(y) => Ok(y),
+            None => Err("Invalid Y screen coordinate"),
         }
     }
 }
@@ -60,7 +77,7 @@ impl DrawApi for DrawContext {
         if let (Ok(x), Ok(y)) = (self.validate_x(x), self.validate_y(y)) {
             if let Some(palette) = self.rom.graphics.palette(palette_index) {
                 let color = palette[color_index];
-                self.set_pixel_safe(x, y, color)
+                self.set_pixel_safe(&x, &y, &color)
             }
         }
     }
@@ -226,41 +243,6 @@ impl DrawApi for DrawContext {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-struct XCord(usize);
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-struct YCord(usize);
-
-trait ScreenCoordinate<T> {
-    fn on_screen(&self, screen: &T) -> bool;
-}
-
-impl<T> ScreenCoordinate<T> for XCord
-where
-    T: Deref<Target = DrawContext>,
-{
-    fn on_screen(&self, screen: &T) -> bool {
-        let width: usize = match screen.width().try_into() {
-            Ok(w) => w,
-            _ => return false,
-        };
-        self.0 < width
-    }
-}
-
-impl<T> ScreenCoordinate<T> for YCord
-where
-    T: Deref<Target = DrawContext>,
-{
-    fn on_screen(&self, screen: &T) -> bool {
-        let height: usize = match screen.height().try_into() {
-            Ok(h) => h,
-            _ => return false,
-        };
-        self.0 < height
-    }
-}
-
 impl DrawContext {
     fn width(&self) -> i32 {
         self.rom.width()
@@ -270,23 +252,23 @@ impl DrawContext {
         self.rom.height()
     }
 
-    fn validate_x(&self, x: i32) -> Result<XCord, &'static str> {
-        if x >= 0 && x < self.width() {
-            Ok(XCord(x as usize))
-        } else {
-            Err("invalid X screen coordinate")
-        }
-    }
+    // fn validate_x(&self, x: i32) -> Result<XCord, &'static str> {
+    //     if x >= 0 && x < self.width() {
+    //         Ok(XCord(x as usize))
+    //     } else {
+    //         Err("invalid X screen coordinate")
+    //     }
+    // }
 
-    fn validate_y(&self, y: i32) -> Result<YCord, &'static str> {
-        if y >= 0 && y < self.height() {
-            Ok(YCord(y as usize))
-        } else {
-            Err("invalid Y screen coordinate")
-        }
-    }
+    // fn validate_y(&self, y: i32) -> Result<YCord, &'static str> {
+    //     if y >= 0 && y < self.height() {
+    //         Ok(YCord(y as usize))
+    //     } else {
+    //         Err("invalid Y screen coordinate")
+    //     }
+    // }
 
-    fn set_pixel_safe(&mut self, x: XCord, y: YCord, color: Color) {
+    fn set_pixel_safe(&mut self, x: &XCord, y: &YCord, color: &Color) {
         let pixel_index = match self.x_y_cord_to_pixel_buffer_index(x, y) {
             Ok(v) => v,
             _ => return,
@@ -301,12 +283,15 @@ impl DrawContext {
         }
     }
 
-    fn x_y_cord_to_pixel_buffer_index(&self, x: XCord, y: YCord) -> Result<usize, ()> {
-        let iy =
-            y.0.checked_mul(self.width().try_into().map_err(|_| ())?)
-                .ok_or(())?;
-        let ix = x.0.checked_add(iy).ok_or(())?;
-        ix.checked_mul(BYTES_PER_PIXEL).ok_or(())
+    fn x_y_cord_to_pixel_buffer_index(&self, x: &XCord, y: &YCord) -> Result<usize, &'static str> {
+        Ok(x.add(y.mul(self.validate_y(self.width())?))
+            .mul(BYTES_PER_PIXEL)
+            .raw_value())
+        // let iy = y.mul(self.validate_y(self.width()));
+        // y.0.checked_mul(self.width().try_into().map_err(|_| ())?)
+        //     .ok_or(())?;
+        // let ix = x.0.checked_add(iy).ok_or(())?;
+        // ix.checked_mul(BYTES_PER_PIXEL).ok_or(())
     }
 
     // TODO: Handle out of bounds pixels
@@ -326,7 +311,7 @@ impl DrawContext {
 
         for x in x0..=x1 {
             if let (Ok(valid_x), Ok(valid_y)) = (self.validate_x(x), self.validate_y(y)) {
-                self.set_pixel_safe(valid_x, valid_y, color);
+                self.set_pixel_safe(&valid_x, &valid_y, &color);
                 if d > 0 {
                     y += y_adjust;
                     d += 2 * (dy - dx);
@@ -427,38 +412,43 @@ impl DrawContext {
     }
 
     fn draw_circle_points(&mut self, x0: usize, y0: usize, x: usize, y: usize, color: Color) {
-        let up_x = YCord(y0 + x);
-        let up_y = YCord(y0 + y);
-        let down_x = YCord(y0 - x);
-        let down_y = YCord(y0 - y);
-        let left_x = XCord(x0 - x);
-        let left_y = XCord(x0 - y);
-        let right_x = XCord(x0 + x);
-        let right_y = XCord(x0 + y);
+        let up_x = self.validate_y(y0.add(x) as i32);
+        let up_y = self.validate_y(y0.add(y) as i32);
+        let down_x = self.validate_y(y0.max(x).sub(y0.min(x)) as i32);
+        let down_y = self.validate_y(y0.max(y).sub(y0.min(y)) as i32);
+        let left_x = self.validate_x(x0.max(x).sub(x0.min(x)) as i32);
+        let left_y = self.validate_x(x0.max(y).sub(x0.min(y)) as i32);
+        let right_x = self.validate_x(x0.add(x) as i32);
+        let right_y = self.validate_x(x0.add(y) as i32);
 
-        if right_x.on_screen(&self) && up_y.on_screen(&self) {
-            self.set_pixel_safe(right_x, up_y, color);
+        if let Ok(right_x) = right_x {
+            if let Ok(up_y) = up_y {
+                self.set_pixel_safe(&right_x, up_y, color);
+            }
+            if let Ok(down_y) = down_y {
+                self.set_pixel_safe(right_x, down_y, color);
+            }
         }
-        if left_x.on_screen(&self) && up_y.on_screen(&self) {
-            self.set_pixel_safe(left_x, up_y, color);
+        if let Ok(right_y) = right_y {
+            if let Ok(up_x) = up_x {
+                self.set_pixel_safe(right_y, up_x, color);
+            }
+            if let Ok(down_x) = down_x {
+                self.set_pixel_safe(right_y, down_x, color);
+            }
         }
-        if right_x.on_screen(&self) && down_y.on_screen(&self) {
-            self.set_pixel_safe(right_x, down_y, color);
+        if let Ok(left_y) = left_y {
+            if let Ok(up_x) = up_x {
+                self.set_pixel_safe(left_y, up_x, color);
+            }
+            if let Ok(down_x) = down_x {
+                self.set_pixel_safe(left_y, down_x, color);
+            }
         }
-        if left_x.on_screen(&self) && down_y.on_screen(&self) {
-            self.set_pixel_safe(left_x, down_y, color);
-        }
-        if right_y.on_screen(&self) && up_x.on_screen(&self) {
-            self.set_pixel_safe(right_y, up_x, color);
-        }
-        if left_y.on_screen(&self) && up_x.on_screen(&self) {
-            self.set_pixel_safe(left_y, up_x, color);
-        }
-        if right_y.on_screen(&self) && down_x.on_screen(&self) {
-            self.set_pixel_safe(right_y, down_x, color);
-        }
-        if left_y.on_screen(&self) && down_x.on_screen(&self) {
-            self.set_pixel_safe(left_y, down_x, color);
+        if let Ok(left_x) = left_x {
+            if let Ok(up_y) = up_y {
+                self.set_pixel_safe(left_x, up_y, color);
+            }
         }
     }
 }

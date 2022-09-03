@@ -15,3 +15,4 @@ gamercade_audio = { path = "../gamercade_audio" }
 serde = { version = "1.0.144", features = ["derive"] }
 serde-big-array = "0.4.1"
 base64 = "0.13.0"
+impl_ops = "0.1.1"
