@@ -402,31 +402,31 @@ impl DrawContext {
 
         if let Ok(ref right_x) = right_x {
             if let Ok(ref up_y) = up_y {
-                self.set_pixel_safe(&right_x, &up_y, &color);
+                self.set_pixel_safe(right_x, up_y, &color);
             }
             if let Ok(ref down_y) = down_y {
-                self.set_pixel_safe(&right_x, &down_y, &color);
+                self.set_pixel_safe(right_x, down_y, &color);
             }
         }
         if let Ok(ref right_y) = right_y {
             if let Ok(ref up_x) = up_x {
-                self.set_pixel_safe(&right_y, &up_x, &color);
+                self.set_pixel_safe(right_y, up_x, &color);
             }
             if let Ok(ref down_x) = down_x {
-                self.set_pixel_safe(&right_y, &down_x, &color);
+                self.set_pixel_safe(right_y, down_x, &color);
             }
         }
-        if let Ok(left_y) = left_y {
+        if let Ok(ref left_y) = left_y {
             if let Ok(ref up_x) = up_x {
-                self.set_pixel_safe(&left_y, &up_x, &color);
+                self.set_pixel_safe(left_y, up_x, &color);
             }
             if let Ok(ref down_x) = down_x {
-                self.set_pixel_safe(&left_y, &down_x, &color);
+                self.set_pixel_safe(left_y, down_x, &color);
             }
         }
         if let Ok(ref left_x) = left_x {
             if let Ok(ref up_y) = up_y {
-                self.set_pixel_safe(&left_x, &up_y, &color);
+                self.set_pixel_safe(left_x, up_y, &color);
             }
         }
     }
