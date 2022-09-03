@@ -1,22 +1,36 @@
 # Gamercade Console Workspace
 
-A Wasm powered Fantasy Console.
+The ultimate WASM powered Fantasy Console.
 
 Learn more about [Gamercade](https://gamercade.io).
 
-This is the main workspace crate. Consider viewing the inner crates for more information about the project. Each of them has their own readme.
+## Features
 
-- `gamercade_audio` - For all gamercade audio related things.
-- `gamercade_console` - The console used to run & play games.
-- `gamercade_core` - Core shared types and functionality.
-- `gamercade_editor` - The editor used to bundle WASM code with assets.
-- `gamercade_rs` - A safe wrapper around the raw Api.
-- `gamercade_sound_engine` - Closely related to gamercade_audio, responsible for actual sound output.
-- `gamercade_tools` - Useful assorted tools.
+- **Simple and Powerful** - 2d Rendering, Input, Audio all included.
+- **Language Agnostic** - Write in your favorite language, and compile to WebAssembly.
+- **Tool Agnostic** - Build assets using your favorite tools. Bundle them with the Editor.
+- **Seamless Multiplayer** - Built-in p2p rollback lets you get multiplayer "for free."
+- **Collaboration Friendly** - Save work-in-progress as JSON, easily collaborate.
+- **Free and Open Source** - Free to build, use, and play, forever.
 
-## Minimum Supported Rust Version
+## Motivation
 
-Gamercade runs on **Stable Rust 1.63 or later**.
+The main motivation for developing Gamercade was to solve the "I'm a small team/solo developer and I want to make a multiplayer game" problem. In order to have a successful game, these small projects need to have multiple successes:
+
+- Building a project which correctly handles the complexity of online multiplayer.
+- Marketing to a big enough playerbase to have enough for short wait times.
+- Setting up server hosting, and the associated costs to keep them running well after release.
+- Making a game which is actually fun to play.
+
+With Gamercade, the first 3 requirements are removed. This creates a more modern development environment which lets game developers do what they do best: Make exciting games!
+
+## Community
+
+Currently, the community is mostly active on [Discord](https://discord.gg/Qafv2Fpt5j).
+
+# For Developers
+
+Follow these steps to get your first game project up and running. See the included resources for more information.
 
 ## Building, Bundling, and Running A Game
 
@@ -47,6 +61,22 @@ A template example project is available at: [rust_template](https://github.com/g
 1. Press the "Select Game" button to open the file dialog.
 1. Select the `.gcrom` file you wish to run, and click open.
 1. Launch the game by pressing the "Launch Game" button.
+
+# For Contributors
+
+This is the main workspace crate. Consider viewing the inner crates for more information about the project. Each of them has their own readme.
+
+- `gamercade_audio` - For all gamercade audio related things.
+- `gamercade_console` - The console used to run & play games.
+- `gamercade_core` - Core shared types and functionality.
+- `gamercade_editor` - The editor used to bundle WASM code with assets.
+- `gamercade_rs` - A safe wrapper around the raw Api.
+- `gamercade_sound_engine` - Closely related to gamercade_audio, responsible for actual sound output.
+- `gamercade_tools` - Useful assorted tools.
+
+## Minimum Supported Rust Version
+
+Gamercade runs on **Stable Rust 1.63 or later**.
 
 ## License
 
