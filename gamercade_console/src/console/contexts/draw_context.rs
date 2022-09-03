@@ -258,9 +258,14 @@ impl DrawContext {
             _ => return,
         };
         let color = color.into_pixel_data();
-        if let Some(index_bound) = pixel_index.checked_add(BYTES_PER_PIXEL) &&
-            let Some(pixel_buffer) = self.frame_buffer.pixel_buffer.get_mut(pixel_index..index_bound) {
-            pixel_buffer.copy_from_slice(&color);
+        if let Some(index_bound) = pixel_index.checked_add(BYTES_PER_PIXEL) {
+            if let Some(pixel_buffer) = self
+                .frame_buffer
+                .pixel_buffer
+                .get_mut(pixel_index..index_bound)
+            {
+                pixel_buffer.copy_from_slice(&color);
+            }
         }
     }
 
