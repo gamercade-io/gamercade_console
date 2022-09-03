@@ -20,14 +20,14 @@ impl DrawContext {
     }
 
     pub fn validate_x<T: Into<i32>>(&self, x: T) -> Result<XCord, &'static str> {
-        match self.rom.resolution.try_get_xcord(x.into()) {
+        match self.rom.screen.try_get_xcord(x.into()) {
             Some(x) => Ok(x),
             None => Err("Invalid X screen coordinate"),
         }
     }
 
     pub fn validate_y<T: Into<i32>>(&self, y: T) -> Result<YCord, &'static str> {
-        match self.rom.resolution.try_get_ycord(y.into()) {
+        match self.rom.screen.try_get_ycord(y.into()) {
             Some(y) => Ok(y),
             None => Err("Invalid Y screen coordinate"),
         }

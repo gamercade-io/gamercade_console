@@ -11,15 +11,15 @@ pub struct PixelBuffer {
 
 impl PixelBuffer {
     pub fn init_from_rom(rom: &Rom) -> Self {
-        let pixel_buffer = (0..rom.resolution.total_pixels() * BYTES_PER_PIXEL as i32)
+        let pixel_buffer = (0..rom.screen.total_pixels() * BYTES_PER_PIXEL as i32)
             .map(|_| 0)
             .collect::<Vec<u8>>()
             .into_boxed_slice();
 
         Self {
             pixel_buffer,
-            buffer_width: rom.resolution.width() as usize,
-            buffer_height: rom.resolution.height() as usize,
+            buffer_width: rom.screen.width() as usize,
+            buffer_height: rom.screen.height() as usize,
         }
     }
 

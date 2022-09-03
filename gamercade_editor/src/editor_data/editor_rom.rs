@@ -27,7 +27,7 @@ impl Default for EditorRom {
 impl EditorRom {
     pub fn export_as_rom(&self, code: &[u8]) -> Rom {
         Rom {
-            resolution: self.screen,
+            screen: self.screen,
             frame_rate: self.frame_rate,
             graphics: (&self.graphics).into(),
             sounds: (&self.sounds).into(),

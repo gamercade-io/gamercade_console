@@ -7,7 +7,7 @@ use crate::{ColorIndex, PaletteIndex, PixelBuffer, BYTES_PER_PIXEL};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Rom {
-    pub resolution: Screen,
+    pub screen: Screen,
     pub frame_rate: FrameRate,
     pub player_count: (usize, usize),
     pub graphics: GraphicsData,
@@ -18,7 +18,7 @@ pub struct Rom {
 impl Default for Rom {
     fn default() -> Self {
         Self {
-            resolution: Default::default(),
+            screen: Default::default(),
             frame_rate: Default::default(),
             graphics: Default::default(),
             sounds: Default::default(),
@@ -46,10 +46,10 @@ impl Rom {
     }
 
     pub const fn height(&self) -> i32 {
-        self.resolution.height()
+        self.screen.height()
     }
 
     pub const fn width(&self) -> i32 {
-        self.resolution.width()
+        self.screen.width()
     }
 }
