@@ -341,7 +341,7 @@ impl DrawContext {
 
         for y in y0..=y1 {
             if let (Ok(valid_x), Ok(valid_y)) = (self.validate_x(x), self.validate_y(y)) {
-                self.set_pixel_safe(valid_x, valid_y, color);
+                self.set_pixel_safe(&valid_x, &valid_y, &color);
                 if d > 0 {
                     x += x_adjust;
                     d += 2 * (dx - dy);
@@ -421,33 +421,33 @@ impl DrawContext {
         let right_x = self.validate_x(x0.add(x) as i32);
         let right_y = self.validate_x(x0.add(y) as i32);
 
-        if let Ok(right_x) = right_x {
-            if let Ok(up_y) = up_y {
-                self.set_pixel_safe(&right_x, up_y, color);
+        if let Ok(ref right_x) = right_x {
+            if let Ok(ref up_y) = up_y {
+                self.set_pixel_safe(&right_x, &up_y, &color);
             }
-            if let Ok(down_y) = down_y {
-                self.set_pixel_safe(right_x, down_y, color);
+            if let Ok(ref down_y) = down_y {
+                self.set_pixel_safe(&right_x, &down_y, &color);
             }
         }
-        if let Ok(right_y) = right_y {
-            if let Ok(up_x) = up_x {
-                self.set_pixel_safe(right_y, up_x, color);
+        if let Ok(ref right_y) = right_y {
+            if let Ok(ref up_x) = up_x {
+                self.set_pixel_safe(&right_y, &up_x, &color);
             }
-            if let Ok(down_x) = down_x {
-                self.set_pixel_safe(right_y, down_x, color);
+            if let Ok(ref down_x) = down_x {
+                self.set_pixel_safe(&right_y, &down_x, &color);
             }
         }
         if let Ok(left_y) = left_y {
-            if let Ok(up_x) = up_x {
-                self.set_pixel_safe(left_y, up_x, color);
+            if let Ok(ref up_x) = up_x {
+                self.set_pixel_safe(&left_y, &up_x, &color);
             }
-            if let Ok(down_x) = down_x {
-                self.set_pixel_safe(left_y, down_x, color);
+            if let Ok(ref down_x) = down_x {
+                self.set_pixel_safe(&left_y, &down_x, &color);
             }
         }
-        if let Ok(left_x) = left_x {
-            if let Ok(up_y) = up_y {
-                self.set_pixel_safe(left_x, up_y, color);
+        if let Ok(ref left_x) = left_x {
+            if let Ok(ref up_y) = up_y {
+                self.set_pixel_safe(&left_x, &up_y, &color);
             }
         }
     }
