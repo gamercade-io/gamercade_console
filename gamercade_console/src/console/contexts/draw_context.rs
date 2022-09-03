@@ -253,10 +253,7 @@ impl DrawContext {
     }
 
     fn set_pixel_safe(&mut self, x: &XCord, y: &YCord, color: &Color) {
-        let pixel_index = match self.x_y_cord_to_pixel_buffer_index(x, y) {
-            Ok(v) => v,
-            _ => return,
-        };
+        let pixel_index = self.x_y_cord_to_pixel_buffer_index(x, y);
         let color = color.into_pixel_data();
         if let Some(index_bound) = pixel_index.checked_add(BYTES_PER_PIXEL) {
             if let Some(pixel_buffer) = self
@@ -269,25 +266,8 @@ impl DrawContext {
         }
     }
 
-    fn x_y_cord_to_pixel_buffer_index(&self, x: &XCord, y: &YCord) -> Result<usize, &'static str> {
-        let width: usize = self
-            .width()
-            .try_into()
-            .map_err(|_| "Failed to retrieve valid `width`.")?;
-        let lines = y
-            .raw_value()
-            .checked_mul(width)
-            .ok_or("Failed to get lines in index.")?;
-        let columns = x
-            .raw_value()
-            .checked_add(lines)
-            .ok_or("Failed to get columns in index")?;
-        let index = columns
-            .checked_mul(BYTES_PER_PIXEL)
-            .ok_or("Failed to get `index`.")?;
-        Ok(XCord::try_for_screen(index, &self.rom.screen)
-            .ok_or("Failed to get final pixel buffer index from `X` and `Y` coordinates.")?
-            .raw_value())
+    fn x_y_cord_to_pixel_buffer_index(&self, x: &XCord, y: &YCord) -> usize {
+        (x.raw_value() + (y.raw_value() * self.width() as usize)) * BYTES_PER_PIXEL
     }
 
     // TODO: Handle out of bounds pixels
