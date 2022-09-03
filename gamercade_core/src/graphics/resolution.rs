@@ -34,6 +34,10 @@ impl Screen {
         self.0
     }
 
+    pub fn resolution_mut(&mut self) -> &mut Resolution {
+        &mut self.0
+    }
+
     pub const fn width(&self) -> i32 {
         match self.0 {
             Resolution::UltraLow => Self::ULTRALOW.0,

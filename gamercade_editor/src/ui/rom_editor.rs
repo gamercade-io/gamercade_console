@@ -17,13 +17,13 @@ impl RomEditor {
                 rom.screen.height()
             ));
             ui.horizontal(|ui| {
-                ui.selectable_value(&mut rom.screen.resolution(), UltraLow, "Ultra Low");
-                ui.selectable_value(&mut rom.screen.resolution(), VeryLow, "Very Low");
-                ui.selectable_value(&mut rom.screen.resolution(), Low, "Low");
-                ui.selectable_value(&mut rom.screen.resolution(), Medium, "Medium");
-                ui.selectable_value(&mut rom.screen.resolution(), High, "High");
-                ui.selectable_value(&mut rom.screen.resolution(), VeryHigh, "Very High");
-                ui.selectable_value(&mut rom.screen.resolution(), UltraHigh, "Ultra High");
+                ui.selectable_value(rom.screen.resolution_mut(), UltraLow, "Ultra Low");
+                ui.selectable_value(rom.screen.resolution_mut(), VeryLow, "Very Low");
+                ui.selectable_value(rom.screen.resolution_mut(), Low, "Low");
+                ui.selectable_value(rom.screen.resolution_mut(), Medium, "Medium");
+                ui.selectable_value(rom.screen.resolution_mut(), High, "High");
+                ui.selectable_value(rom.screen.resolution_mut(), VeryHigh, "Very High");
+                ui.selectable_value(rom.screen.resolution_mut(), UltraHigh, "Ultra High");
             });
         });
 
