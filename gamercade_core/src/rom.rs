@@ -2,12 +2,12 @@ use serde::{Deserialize, Serialize};
 
 use gamercade_audio::SoundRom;
 
-use super::graphics::{FrameRate, GraphicsData, Resolution};
+use super::graphics::{FrameRate, GraphicsData, Screen};
 use crate::{ColorIndex, PaletteIndex, PixelBuffer, BYTES_PER_PIXEL};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Rom {
-    pub resolution: Resolution,
+    pub resolution: Screen,
     pub frame_rate: FrameRate,
     pub player_count: (usize, usize),
     pub graphics: GraphicsData,

@@ -2,12 +2,12 @@ use serde::{Deserialize, Serialize};
 use std::ops;
 
 #[non_exhaustive]
-#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
-pub struct Resolution(ResolutionLevels);
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Screen(Resolution);
 
-#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
-pub enum ResolutionLevels {
+pub enum Resolution {
     UltraLow,  // 128 x 72
     VeryLow,   // 160 x 90
     Low,       // 320 x 180
@@ -17,7 +17,7 @@ pub enum ResolutionLevels {
     UltraHigh, // 1920 x 1080
 }
 
-impl Resolution {
+impl Screen {
     pub const ULTRALOW: (i32, i32) = (128, 72);
     pub const VERYLOW: (i32, i32) = (160, 90);
     pub const LOW: (i32, i32) = (320, 180);
@@ -26,31 +26,35 @@ impl Resolution {
     pub const VERYHIGH: (i32, i32) = (1280, 720);
     pub const ULTRAHIGH: (i32, i32) = (1920, 1080);
 
-    pub const fn new(resolution: ResolutionLevels) -> Self {
-        Resolution(resolution)
+    pub const fn new(resolution: Resolution) -> Self {
+        Screen(resolution)
+    }
+
+    pub const fn resolution(&self) -> Resolution {
+        self.0
     }
 
     pub const fn width(&self) -> i32 {
         match self.0 {
-            ResolutionLevels::UltraLow => Self::ULTRALOW.0,
-            ResolutionLevels::VeryLow => Self::VERYLOW.0,
-            ResolutionLevels::Low => Self::LOW.0,
-            ResolutionLevels::Medium => Self::MEDIUM.0,
-            ResolutionLevels::High => Self::HIGH.0,
-            ResolutionLevels::VeryHigh => Self::VERYHIGH.0,
-            ResolutionLevels::UltraHigh => Self::ULTRAHIGH.0,
+            Resolution::UltraLow => Self::ULTRALOW.0,
+            Resolution::VeryLow => Self::VERYLOW.0,
+            Resolution::Low => Self::LOW.0,
+            Resolution::Medium => Self::MEDIUM.0,
+            Resolution::High => Self::HIGH.0,
+            Resolution::VeryHigh => Self::VERYHIGH.0,
+            Resolution::UltraHigh => Self::ULTRAHIGH.0,
         }
     }
 
     pub const fn height(&self) -> i32 {
         match self.0 {
-            ResolutionLevels::UltraLow => Self::ULTRALOW.1,
-            ResolutionLevels::VeryLow => Self::VERYLOW.1,
-            ResolutionLevels::Low => Self::LOW.1,
-            ResolutionLevels::Medium => Self::MEDIUM.1,
-            ResolutionLevels::High => Self::HIGH.1,
-            ResolutionLevels::VeryHigh => Self::VERYHIGH.1,
-            ResolutionLevels::UltraHigh => Self::ULTRAHIGH.1,
+            Resolution::UltraLow => Self::ULTRALOW.1,
+            Resolution::VeryLow => Self::VERYLOW.1,
+            Resolution::Low => Self::LOW.1,
+            Resolution::Medium => Self::MEDIUM.1,
+            Resolution::High => Self::HIGH.1,
+            Resolution::VeryHigh => Self::VERYHIGH.1,
+            Resolution::UltraHigh => Self::ULTRAHIGH.1,
         }
     }
 
@@ -75,9 +79,9 @@ impl Resolution {
     }
 }
 
-impl Default for Resolution {
+impl Default for Screen {
     fn default() -> Self {
-        Self(ResolutionLevels::VeryLow)
+        Self(Resolution::VeryLow)
     }
 }
 
