@@ -1,11 +1,11 @@
-use gamercade_core::{FrameRate, Resolution, Rom};
+use gamercade_core::{FrameRate, Rom, Screen};
 use serde::{Deserialize, Serialize};
 
 use super::{EditorGraphicsData, EditorSoundData};
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct EditorRom {
-    pub resolution: Resolution,
+    pub screen: Screen,
     pub frame_rate: FrameRate,
     pub player_count: (usize, usize),
     pub graphics: EditorGraphicsData,
@@ -16,7 +16,7 @@ impl Default for EditorRom {
     fn default() -> Self {
         Self {
             player_count: (1, 1),
-            resolution: Resolution::default(),
+            screen: Screen::default(),
             frame_rate: FrameRate::default(),
             graphics: EditorGraphicsData::default(),
             sounds: EditorSoundData::default(),
@@ -27,7 +27,7 @@ impl Default for EditorRom {
 impl EditorRom {
     pub fn export_as_rom(&self, code: &[u8]) -> Rom {
         Rom {
-            resolution: self.resolution,
+            resolution: self.screen,
             frame_rate: self.frame_rate,
             graphics: (&self.graphics).into(),
             sounds: (&self.sounds).into(),
