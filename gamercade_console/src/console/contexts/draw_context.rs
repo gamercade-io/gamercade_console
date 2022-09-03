@@ -252,22 +252,6 @@ impl DrawContext {
         self.rom.height()
     }
 
-    // fn validate_x(&self, x: i32) -> Result<XCord, &'static str> {
-    //     if x >= 0 && x < self.width() {
-    //         Ok(XCord(x as usize))
-    //     } else {
-    //         Err("invalid X screen coordinate")
-    //     }
-    // }
-
-    // fn validate_y(&self, y: i32) -> Result<YCord, &'static str> {
-    //     if y >= 0 && y < self.height() {
-    //         Ok(YCord(y as usize))
-    //     } else {
-    //         Err("invalid Y screen coordinate")
-    //     }
-    // }
-
     fn set_pixel_safe(&mut self, x: &XCord, y: &YCord, color: &Color) {
         let pixel_index = match self.x_y_cord_to_pixel_buffer_index(x, y) {
             Ok(v) => v,
@@ -287,11 +271,6 @@ impl DrawContext {
         Ok(x.add(y.mul(self.validate_y(self.width())?))
             .mul(BYTES_PER_PIXEL)
             .raw_value())
-        // let iy = y.mul(self.validate_y(self.width()));
-        // y.0.checked_mul(self.width().try_into().map_err(|_| ())?)
-        //     .ok_or(())?;
-        // let ix = x.0.checked_add(iy).ok_or(())?;
-        // ix.checked_mul(BYTES_PER_PIXEL).ok_or(())
     }
 
     // TODO: Handle out of bounds pixels
