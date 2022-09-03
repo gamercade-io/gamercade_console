@@ -1,6 +1,4 @@
 use serde::{Deserialize, Serialize};
-use std::ops;
-
 #[non_exhaustive]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Screen(Resolution);
@@ -85,7 +83,7 @@ impl Screen {
 
 impl Default for Screen {
     fn default() -> Self {
-        Self(Resolution::VeryLow)
+        Self(Resolution::Low)
     }
 }
 
@@ -98,37 +96,21 @@ pub struct XCord(usize);
 pub struct YCord(usize);
 
 impl XCord {
+    pub fn try_for_screen<T: TryInto<i32>>(value: T, screen: &Screen) -> Option<Self> {
+        TryInto::try_into(value).map_or(None, |v| screen.try_get_xcord(v))
+    }
+
     pub fn raw_value(&self) -> usize {
         self.0
     }
 }
 
 impl YCord {
+    pub fn try_for_screen<T: TryInto<i32>>(value: T, screen: &Screen) -> Option<Self> {
+        TryInto::try_into(value).map_or(None, |v| screen.try_get_ycord(v))
+    }
+
     pub fn raw_value(&self) -> usize {
         self.0
     }
 }
-
-// Derive Multiplication
-impl_op_ex!(*|a: &XCord, b: &XCord| -> XCord { XCord(a.0 * b.0) });
-impl_op_ex!(*|a: &XCord, b: &YCord| -> XCord { XCord(a.0 * b.0) });
-impl_op_ex!(*|a: &YCord, b: &YCord| -> YCord { YCord(a.0 * b.0) });
-impl_op_ex!(*|a: &YCord, b: &XCord| -> YCord { YCord(a.0 * b.0) });
-impl_op_ex!(*|a: &XCord, b: &usize| -> XCord { XCord(a.0 * b) });
-impl_op_ex!(*|a: &YCord, b: &usize| -> YCord { YCord(a.0 * b) });
-
-// Derive Addition
-impl_op_ex!(+ |a: &XCord, b: &XCord| -> XCord {XCord(a.0 + b.0)});
-impl_op_ex!(+ |a: &XCord, b: &YCord| -> XCord {XCord(a.0 + b.0)});
-impl_op_ex!(+ |a: &YCord, b: &YCord| -> YCord {YCord(a.0 + b.0)});
-impl_op_ex!(+ |a: &YCord, b: &XCord| -> YCord {YCord(a.0 + b.0)});
-impl_op_ex!(+ |a: &XCord, b: &usize| -> XCord {XCord(a.0 + b)});
-impl_op_ex!(+ |a: &YCord, b: &usize| -> YCord {YCord(a.0 + b)});
-
-// Derive Subtraction
-impl_op_ex!(-|a: &XCord, b: &XCord| -> XCord { XCord(a.0.max(b.0) - a.0.min(b.0)) });
-impl_op_ex!(-|a: &XCord, b: &YCord| -> XCord { XCord(a.0.max(b.0) - a.0.min(b.0)) });
-impl_op_ex!(-|a: &YCord, b: &YCord| -> YCord { YCord(a.0.max(b.0) - a.0.min(b.0)) });
-impl_op_ex!(-|a: &YCord, b: &XCord| -> YCord { YCord(a.0.max(b.0) - a.0.min(b.0)) });
-impl_op_ex!(-|a: &XCord, b: &usize| -> XCord { XCord(a.0.max(*b) - a.0.min(*b)) });
-impl_op_ex!(-|a: &YCord, b: &usize| -> YCord { YCord(a.0.max(*b) - a.0.min(*b)) });

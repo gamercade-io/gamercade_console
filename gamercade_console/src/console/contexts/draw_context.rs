@@ -1,7 +1,7 @@
 use crate::api::DrawApi;
 use gamercade_core::{Color, GraphicsParameters, PixelBuffer, Rom, XCord, YCord, BYTES_PER_PIXEL};
 use std::{
-    ops::{Add, Mul, Sub},
+    ops::{Add, Sub},
     sync::Arc,
 };
 
@@ -265,8 +265,23 @@ impl DrawContext {
     }
 
     fn x_y_cord_to_pixel_buffer_index(&self, x: &XCord, y: &YCord) -> Result<usize, &'static str> {
-        Ok(x.add(y.mul(self.validate_y(self.width())?))
-            .mul(BYTES_PER_PIXEL)
+        let width: usize = self
+            .width()
+            .try_into()
+            .map_err(|_| "Failed to retrieve valid `width`.")?;
+        let lines = y
+            .raw_value()
+            .checked_mul(width)
+            .ok_or("Failed to get lines in index.")?;
+        let columns = x
+            .raw_value()
+            .checked_add(lines)
+            .ok_or("Failed to get columns in index")?;
+        let index = columns
+            .checked_mul(BYTES_PER_PIXEL)
+            .ok_or("Failed to get `index`.")?;
+        Ok(XCord::try_for_screen(index, &self.rom.screen)
+            .ok_or("Failed to get final pixel buffer index from `X` and `Y` coordinates.")?
             .raw_value())
     }
 
@@ -387,44 +402,30 @@ impl DrawContext {
             .for_each(|pixel| pixel.copy_from_slice(&color));
     }
 
-    fn draw_circle_points(&mut self, x0: usize, y0: usize, x: usize, y: usize, color: Color) {
-        let up_x = self.validate_y(y0.add(x) as i32);
-        let up_y = self.validate_y(y0.add(y) as i32);
-        let down_x = self.validate_y(y0.max(x).sub(y0.min(x)) as i32);
-        let down_y = self.validate_y(y0.max(y).sub(y0.min(y)) as i32);
-        let left_x = self.validate_x(x0.max(x).sub(x0.min(x)) as i32);
-        let left_y = self.validate_x(x0.max(y).sub(x0.min(y)) as i32);
-        let right_x = self.validate_x(x0.add(x) as i32);
-        let right_y = self.validate_x(x0.add(y) as i32);
+    fn draw_circle_points(
+        &mut self,
+        x0: usize,
+        y0: usize,
+        x: usize,
+        y: usize,
+        color: Color,
+    ) -> Result<(), &'static str> {
+        let up_x = self.validate_y(y0.add(x) as i32)?;
+        let up_y = self.validate_y(y0.add(y) as i32)?;
+        let down_x = self.validate_y(y0.max(x).sub(y0.min(x)) as i32)?;
+        let down_y = self.validate_y(y0.max(y).sub(y0.min(y)) as i32)?;
+        let left_x = self.validate_x(x0.max(x).sub(x0.min(x)) as i32)?;
+        let left_y = self.validate_x(x0.max(y).sub(x0.min(y)) as i32)?;
+        let right_x = self.validate_x(x0.add(x) as i32)?;
+        let right_y = self.validate_x(x0.add(y) as i32)?;
 
-        if let Ok(ref right_x) = right_x {
-            if let Ok(ref up_y) = up_y {
-                self.set_pixel_safe(right_x, up_y, &color);
-            }
-            if let Ok(ref down_y) = down_y {
-                self.set_pixel_safe(right_x, down_y, &color);
-            }
-        }
-        if let Ok(ref right_y) = right_y {
-            if let Ok(ref up_x) = up_x {
-                self.set_pixel_safe(right_y, up_x, &color);
-            }
-            if let Ok(ref down_x) = down_x {
-                self.set_pixel_safe(right_y, down_x, &color);
-            }
-        }
-        if let Ok(ref left_y) = left_y {
-            if let Ok(ref up_x) = up_x {
-                self.set_pixel_safe(left_y, up_x, &color);
-            }
-            if let Ok(ref down_x) = down_x {
-                self.set_pixel_safe(left_y, down_x, &color);
-            }
-        }
-        if let Ok(ref left_x) = left_x {
-            if let Ok(ref up_y) = up_y {
-                self.set_pixel_safe(left_x, up_y, &color);
-            }
-        }
+        self.set_pixel_safe(&right_x, &up_y, &color);
+        self.set_pixel_safe(&right_x, &down_y, &color);
+        self.set_pixel_safe(&right_y, &up_x, &color);
+        self.set_pixel_safe(&right_y, &down_x, &color);
+        self.set_pixel_safe(&left_y, &up_x, &color);
+        self.set_pixel_safe(&left_y, &down_x, &color);
+        self.set_pixel_safe(&left_x, &up_y, &color);
+        Ok(())
     }
 }

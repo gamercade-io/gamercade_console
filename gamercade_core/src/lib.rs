@@ -1,6 +1,3 @@
-#[macro_use]
-extern crate impl_ops;
-
 mod graphics;
 mod pixel_buffer;
 mod rom;
