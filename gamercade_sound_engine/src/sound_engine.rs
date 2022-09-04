@@ -245,7 +245,13 @@ impl SoundEngine {
                                     }
                                     SoundEngineChannelType::StopSfx => data.play_sfx(None, 0),
                                     SoundEngineChannelType::PlayBgm(bgm) => {
-                                        data.play_bgm(Some(SongId(bgm)))
+                                        // Force a refresh of all instruments
+                                        data.bgm.tracks.iter_mut().for_each(|track| {
+                                            track.phrase_playback.instrument =
+                                                InstrumentInstance::no_sound(output_sample_rate);
+                                        });
+
+                                        data.play_bgm(Some(SongId(bgm)));
                                     }
                                     SoundEngineChannelType::StopBgm => data.play_bgm(None),
                                 };
