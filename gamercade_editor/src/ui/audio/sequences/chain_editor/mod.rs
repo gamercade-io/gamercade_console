@@ -14,7 +14,7 @@ use chain_row::*;
 
 use super::{
     HandleTrackerEditEntryCommand, TrackerEditCommand, TrackerEditEntryCommand,
-    TrackerEditRowCommand,
+    TrackerEditRowCommand, TRACKER_TEXT_FONT_SIZE,
 };
 
 #[derive(Default)]
@@ -146,31 +146,33 @@ impl ChainEditor {
     }
 
     fn chain_editor_inner(&mut self, ui: &mut Ui, chain: &mut Chain) {
-        Grid::new("chain_editor_grid").striped(true).show(ui, |ui| {
-            ui.spacing_mut().item_spacing.x = 0.0;
-            ui.spacing_mut().button_padding.x = 0.0;
+        Grid::new("chain_editor_grid")
+            .min_row_height(TRACKER_TEXT_FONT_SIZE)
+            .striped(true)
+            .show(ui, |ui| {
+                ui.spacing_mut().item_spacing.x = 0.0;
 
-            // Draw the header row
-            ui.horizontal(|ui| {
-                let header = ChainRow::header();
-                header.draw(ui);
-            });
-            ui.end_row();
-
-            // Draw the individual entries
-            chain
-                .entries
-                .iter_mut()
-                .enumerate()
-                .for_each(|(row, entry)| {
-                    ui.horizontal(|ui| {
-                        let phrase_row = ChainRow::new(row, entry, self.selected_index);
-                        if phrase_row.draw(ui) {
-                            self.selected_index = row;
-                        }
-                    });
-                    ui.end_row();
+                // Draw the header row
+                ui.horizontal_centered(|ui| {
+                    let header = ChainRow::header();
+                    header.draw(ui);
                 });
-        });
+                ui.end_row();
+
+                // Draw the individual entries
+                chain
+                    .entries
+                    .iter_mut()
+                    .enumerate()
+                    .for_each(|(row, entry)| {
+                        ui.horizontal_centered(|ui| {
+                            let phrase_row = ChainRow::new(row, entry, self.selected_index);
+                            if phrase_row.draw(ui) {
+                                self.selected_index = row;
+                            }
+                        });
+                        ui.end_row();
+                    });
+            });
     }
 }

@@ -91,7 +91,6 @@ impl Oscilloscope {
 
         let ctx = ui.ctx();
         ctx.request_repaint();
-        drop(ctx);
 
         Window::new("Oscilloscope")
             .open(&mut self.open)

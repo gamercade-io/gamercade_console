@@ -13,7 +13,7 @@ use crate::{
 
 use super::{
     HandleTrackerEditEntryCommand, TrackerEditCommand, TrackerEditEntryCommand,
-    TrackerEditRowCommand,
+    TrackerEditRowCommand, TRACKER_TEXT_FONT_SIZE,
 };
 
 #[derive(Default)]
@@ -96,36 +96,38 @@ impl SongEditor {
     }
 
     fn song_editor_inner(&mut self, ui: &mut Ui, song: &mut Song) {
-        Grid::new("song_editor_grid").striped(true).show(ui, |ui| {
-            ui.spacing_mut().item_spacing.x = 0.0;
-            ui.spacing_mut().button_padding.x = 0.0;
+        Grid::new("song_editor_grid")
+            .min_row_height(TRACKER_TEXT_FONT_SIZE)
+            .striped(true)
+            .show(ui, |ui| {
+                ui.spacing_mut().item_spacing.x = 0.0;
 
-            // Draw the header row
-            ui.horizontal(|ui| {
-                let header = SongRow::header();
-                header.draw(ui);
-            });
-            ui.end_row();
-
-            // Draw the individual entries
-            song.tracks.iter_mut().enumerate().for_each(|(row, entry)| {
-                ui.horizontal(|ui| {
-                    let song_row = SongRow::new(row, entry, self.selected_entry.clone());
-                    match song_row.draw(ui) {
-                        Some(Some(channel)) => {
-                            self.selected_entry.selected_row = row;
-                            self.selected_entry.selected_channel = Some(channel);
-                        }
-                        Some(None) => {
-                            self.selected_entry.selected_row = row;
-                            self.selected_entry.selected_channel = None;
-                        }
-                        None => (),
-                    }
+                // Draw the header row
+                ui.horizontal_centered(|ui| {
+                    let header = SongRow::header();
+                    header.draw(ui);
                 });
                 ui.end_row();
+
+                // Draw the individual entries
+                song.tracks.iter_mut().enumerate().for_each(|(row, entry)| {
+                    ui.horizontal_centered(|ui| {
+                        let song_row = SongRow::new(row, entry, self.selected_entry.clone());
+                        match song_row.draw(ui) {
+                            Some(Some(channel)) => {
+                                self.selected_entry.selected_row = row;
+                                self.selected_entry.selected_channel = Some(channel);
+                            }
+                            Some(None) => {
+                                self.selected_entry.selected_row = row;
+                                self.selected_entry.selected_channel = None;
+                            }
+                            None => (),
+                        }
+                    });
+                    ui.end_row();
+                });
             });
-        });
     }
 
     fn handle_shift_input(

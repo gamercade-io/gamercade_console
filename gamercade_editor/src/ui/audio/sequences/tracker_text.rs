@@ -1,10 +1,10 @@
 use eframe::{
-    egui::{Button, RichText, Ui},
+    egui::{Label, RichText, Sense, Ui},
     epaint::Color32,
 };
 use tinystr::TinyAsciiStr;
 
-const FONT_SIZE: f32 = 32.0;
+pub(crate) const TRACKER_TEXT_FONT_SIZE: f32 = 32.0;
 
 pub(crate) struct TrackerText<const N: usize> {
     text: TinyAsciiStr<N>,
@@ -25,11 +25,11 @@ impl<const N: usize> TrackerText<N> {
         let mut text = RichText::new(self.text.as_str())
             .color(self.text_color)
             .monospace()
-            .size(FONT_SIZE);
+            .size(TRACKER_TEXT_FONT_SIZE);
         if let Some(bg_color) = self.bg_color {
             text = text.background_color(bg_color)
         };
-        ui.add(Button::new(text).frame(false)).clicked()
+        ui.add(Label::new(text).sense(Sense::click())).clicked()
     }
 
     pub fn separator(bg_color: Option<Color32>) -> Self {

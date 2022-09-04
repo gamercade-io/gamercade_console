@@ -4,7 +4,7 @@ use gamercade_audio::{InstrumentId, NoteId, Phrase, PhraseEntry, PHRASE_MAX_ENTR
 
 use super::{
     HandleTrackerEditEntryCommand, TrackerEditCommand, TrackerEditEntryCommand,
-    TrackerEditRowCommand,
+    TrackerEditRowCommand, TRACKER_TEXT_FONT_SIZE,
 };
 use crate::{
     editor_data::EditorSoundData,
@@ -228,32 +228,34 @@ impl PhraseEditor {
     }
 
     fn phrase_editor_inner(&mut self, ui: &mut Ui, phrase: &mut Phrase) {
-        Grid::new("phase_editor_grid").striped(true).show(ui, |ui| {
-            ui.spacing_mut().item_spacing.x = 0.0;
-            ui.spacing_mut().button_padding.x = 0.0;
+        Grid::new("phase_editor_grid")
+            .min_row_height(TRACKER_TEXT_FONT_SIZE)
+            .striped(true)
+            .show(ui, |ui| {
+                ui.spacing_mut().item_spacing.x = 0.0;
 
-            // Draw the header row
-            ui.horizontal_centered(|ui| {
-                let header = PhraseRow::header();
-                header.draw(ui);
-            });
-            ui.end_row();
-
-            // Draw the individual entries
-            phrase
-                .entries
-                .iter_mut()
-                .enumerate()
-                .for_each(|(row, entry)| {
-                    ui.horizontal_centered(|ui| {
-                        let phrase_row = PhraseRow::new(row, entry, self.selected_entry);
-                        if let Some(selected) = phrase_row.draw(ui) {
-                            self.selected_entry.index = row;
-                            self.selected_entry.mode = selected;
-                        }
-                    });
-                    ui.end_row();
+                // Draw the header row
+                ui.horizontal_centered(|ui| {
+                    let header = PhraseRow::header();
+                    header.draw(ui);
                 });
-        });
+                ui.end_row();
+
+                // Draw the individual entries
+                phrase
+                    .entries
+                    .iter_mut()
+                    .enumerate()
+                    .for_each(|(row, entry)| {
+                        ui.horizontal_centered(|ui| {
+                            let phrase_row = PhraseRow::new(row, entry, self.selected_entry);
+                            if let Some(selected) = phrase_row.draw(ui) {
+                                self.selected_entry.index = row;
+                                self.selected_entry.mode = selected;
+                            }
+                        });
+                        ui.end_row();
+                    });
+            });
     }
 }
