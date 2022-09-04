@@ -92,6 +92,11 @@ impl PhraseEditor {
     ) {
         self.phrase_list.draw(ui, data, sync);
 
+        let selected_phrase = &mut data.phrases[self.phrase_list.selected_phrase];
+
+        ui.label("Phrase Name: ");
+        ui.text_edit_singleline(&mut selected_phrase.name);
+
         ui.label("Bpm: ");
         ui.add(Slider::new(&mut self.target_bpm, 0.0..=500.0));
 
@@ -103,7 +108,7 @@ impl PhraseEditor {
             sync.stop_sfx()
         }
 
-        if let Some(phrase) = &mut data.phrases[self.phrase_list.selected_phrase].data {
+        if let Some(phrase) = &mut selected_phrase.data {
             self.phrase_editor_inner(ui, phrase);
 
             let input = ui.input();

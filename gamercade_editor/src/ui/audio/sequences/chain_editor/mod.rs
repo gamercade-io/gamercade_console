@@ -34,6 +34,11 @@ impl ChainEditor {
     ) {
         self.chain_list.draw(ui, data, sync);
 
+        let selected_chain = &mut data.chains[self.chain_list.selected_chain];
+
+        ui.label("Chain Name: ");
+        ui.text_edit_singleline(&mut selected_chain.name);
+
         ui.label("Bpm: ");
         ui.add(Slider::new(&mut self.target_bpm, 0.0..=500.0));
 
@@ -45,7 +50,7 @@ impl ChainEditor {
             sync.stop_sfx()
         }
 
-        if let Some(chain) = &mut data.chains[self.chain_list.selected_chain].data {
+        if let Some(chain) = &mut selected_chain.data {
             self.chain_editor_inner(ui, chain);
 
             let input = ui.input();

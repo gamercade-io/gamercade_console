@@ -29,7 +29,10 @@ impl SfxEditor {
         self.sfx_list.draw(ui, data, sync);
 
         if let Some(selected_sfx) = data.sfx.get_mut(self.sfx_list.selected_sfx) {
-            ui.label("Chain Index");
+            ui.label("Sfx Name: ");
+            ui.text_edit_singleline(&mut selected_sfx.name);
+
+            ui.label("Chain Index:");
             if ui
                 .add(Slider::new(
                     &mut selected_sfx.data.chain.0,

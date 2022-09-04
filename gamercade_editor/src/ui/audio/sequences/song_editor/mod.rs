@@ -38,6 +38,9 @@ impl SongEditor {
         self.song_list.draw(ui, data, sync);
 
         if let Some(song) = data.songs.get_mut(self.song_list.selected_song) {
+            ui.label("Song Name: ");
+            ui.text_edit_singleline(&mut song.name);
+
             let song = &mut song.data;
 
             if ui.add(Slider::new(&mut song.bpm, 0.0..=999.9)).changed() {

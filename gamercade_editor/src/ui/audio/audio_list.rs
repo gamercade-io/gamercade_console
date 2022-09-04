@@ -1,4 +1,4 @@
-use eframe::egui::{ScrollArea, Ui};
+use eframe::egui::{ScrollArea, SidePanel, TopBottomPanel, Ui};
 
 use crate::{
     editor_data::{EditorAudioDataEntry, EditorSoundData},
@@ -42,34 +42,38 @@ pub(crate) trait AudioList<T> {
     }
 
     fn draw(&mut self, ui: &mut Ui, data: &mut EditorSoundData, sync: &mut AudioSyncHelper) {
-        ui.vertical(|ui| {
-            ui.label(format!("{} List", Self::NAME));
+        SidePanel::left("Audio List")
+            .resizable(false)
+            .show_inside(ui, |ui| {
+                TopBottomPanel::bottom("Audio Bottom Panel")
+                    .show_inside(ui, |ui| self.draw_buttons(ui, data, sync));
 
-            // Draws the list of instruments
-            ui.group(|ui| {
-                ScrollArea::vertical().show(ui, |ui| {
-                    Self::target_data_mut(data)
-                        .iter()
-                        .enumerate()
-                        .for_each(|(index, thing)| {
-                            ui.horizontal(|ui| {
-                                let is_checked = *self.selected_index() == index;
+                ui.vertical(|ui| {
+                    ui.label(format!("{} List", Self::NAME));
 
-                                if ui
-                                    .selectable_label(
-                                        is_checked,
-                                        format!("[{}]: {}", index, &thing.name),
-                                    )
-                                    .clicked()
-                                {
-                                    *self.selected_index() = index
-                                };
-                            });
-                        });
-                })
+                    // Draws the list of instruments
+                    ui.group(|ui| {
+                        ScrollArea::vertical().show(ui, |ui| {
+                            Self::target_data_mut(data).iter().enumerate().for_each(
+                                |(index, thing)| {
+                                    ui.horizontal(|ui| {
+                                        let is_checked = *self.selected_index() == index;
+
+                                        if ui
+                                            .selectable_label(
+                                                is_checked,
+                                                format!("[{:02X}]: {}", index, &thing.name),
+                                            )
+                                            .clicked()
+                                        {
+                                            *self.selected_index() = index
+                                        };
+                                    });
+                                },
+                            );
+                        })
+                    });
+                });
             });
-
-            self.draw_buttons(ui, data, sync);
-        });
     }
 }
