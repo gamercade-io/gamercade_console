@@ -72,14 +72,14 @@ impl SampleOscillator {
     /// Returns the index, then
     /// Increments the oscillator by its predefined amount
     /// Also handles any looping logic
-    pub(crate) fn tick(&mut self) -> f32 {
+    pub(crate) fn tick(&mut self) -> Option<f32> {
         let out = self.index;
         self.index += self.index_increment;
 
         match &self.loop_mode {
             LoopMode::Oneshot => {
                 if self.index > self.table_length as f32 {
-                    self.index_increment = 0.0;
+                    return None;
                 }
             }
             LoopMode::Loop => self.index %= self.table_length as f32,
@@ -89,7 +89,7 @@ impl SampleOscillator {
                 }
             }
         }
-        out
+        Some(out)
     }
 
     pub(crate) fn get_interpolated_indices(&self, index: f32) -> IndexInterpolatorResult {
@@ -112,5 +112,10 @@ impl SampleOscillator {
             }
         }
         self.interpolator.get_indices(index, self.table_length)
+    }
+
+    /// Resets the index back to zero. Useful when retriggering the sample
+    pub(crate) fn reset(&mut self) {
+        self.index = 0.0;
     }
 }

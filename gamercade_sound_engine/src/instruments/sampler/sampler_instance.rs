@@ -26,29 +26,31 @@ impl SamplerInstance {
     /// This interpolates if necessary.
     /// Also increments the oscillator
     pub fn tick(&mut self) -> f32 {
-        let index = self.oscillator.tick();
+        if let Some(index) = self.oscillator.tick() {
+            let indices = self.oscillator.get_interpolated_indices(index);
 
-        let indices = self.oscillator.get_interpolated_indices(index);
+            let output = match indices {
+                IndexInterpolatorResult::Single(index) => {
+                    self.definition.data[index] as f32 / SampleBitDepth::MAX as f32
+                }
+                IndexInterpolatorResult::Multiple(indices) => {
+                    indices.into_iter().fold(0.0, |val, (index, scaling)| {
+                        val + ((self.definition.data[index] as f32 / SampleBitDepth::MAX as f32)
+                            * scaling)
+                    })
+                }
+            };
 
-        let output = match indices {
-            IndexInterpolatorResult::Single(index) => {
-                self.definition.data[index] as f32 / SampleBitDepth::MAX as f32
+            let envelope = self.envelope.tick(self.active);
+
+            if ActiveState::Trigger == self.active {
+                self.active = ActiveState::Off;
             }
-            IndexInterpolatorResult::Multiple(indices) => {
-                indices.into_iter().fold(0.0, |val, (index, scaling)| {
-                    val + ((self.definition.data[index] as f32 / SampleBitDepth::MAX as f32)
-                        * scaling)
-                })
-            }
-        };
 
-        let envelope = self.envelope.tick(self.active);
-
-        if ActiveState::Trigger == self.active {
-            self.active = ActiveState::Off;
+            output * envelope
+        } else {
+            0.0
         }
-
-        output * envelope
     }
 
     pub fn set_frequency(&mut self, frequency: f32) {
@@ -61,9 +63,11 @@ impl SamplerInstance {
         } else {
             ActiveState::Off
         };
+        self.oscillator.reset();
     }
 
     pub fn trigger(&mut self) {
-        self.active = ActiveState::Trigger
+        self.active = ActiveState::Trigger;
+        self.oscillator.reset();
     }
 }

@@ -34,7 +34,12 @@ impl OperatorInstance {
     /// Also ticks the operator.
     pub fn tick(&mut self, waveform: FMWaveform, modulation: f32, active: ActiveState) -> f32 {
         use crate::lookup;
-        let index = (self.oscillator.tick() + self.oscillator.modulation(modulation)).abs();
+        let mut index = self.oscillator.tick() + self.oscillator.modulation(modulation);
+
+        if index.is_sign_negative() {
+            let lut_len = LUT_FULL_LEN as f32;
+            index = lut_len + (index % lut_len);
+        }
 
         let indices = self.oscillator.get_interpolated_indices(index);
 
