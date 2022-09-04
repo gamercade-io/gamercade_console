@@ -4,6 +4,8 @@ use eframe::{
 };
 use tinystr::TinyAsciiStr;
 
+const FONT_SIZE: f32 = 32.0;
+
 pub(crate) struct TrackerText<const N: usize> {
     text: TinyAsciiStr<N>,
     text_color: Color32,
@@ -22,7 +24,8 @@ impl<const N: usize> TrackerText<N> {
     pub fn draw(&self, ui: &mut Ui) -> bool {
         let mut text = RichText::new(self.text.as_str())
             .color(self.text_color)
-            .monospace();
+            .monospace()
+            .size(FONT_SIZE);
         if let Some(bg_color) = self.bg_color {
             text = text.background_color(bg_color)
         };
