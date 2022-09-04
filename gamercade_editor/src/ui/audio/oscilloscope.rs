@@ -7,6 +7,7 @@ use eframe::{
     },
     epaint::{Color32, Vec2},
 };
+use gamercade_audio::SFX_CHANNELS;
 use gamercade_sound_engine::SoundOutputChannels;
 use rtrb::Consumer;
 
@@ -61,8 +62,8 @@ impl Oscilloscope {
 
             //Find the zero cross
             while let (Some(prev), Some(next)) = (self.buffer.get(0), self.buffer.get(1)) {
-                let prev = prev.get_sfx_output();
-                let next = next.get_sfx_output();
+                let prev = prev.get_sfx_output() + prev.get_bgm_output();
+                let next = next.get_sfx_output() + next.get_bgm_output();
                 if prev < 0.0 && next > 0.0 {
                     self.next_points.push(next as f64);
                     break;
@@ -74,12 +75,23 @@ impl Oscilloscope {
 
         (self.next_points.len()..OSCILLOSCOPE_FRAMES).for_each(|_| {
             if let Some(next_frame) = self.buffer.pop_front() {
-                self.next_points.push(next_frame.get_sfx_output() as f64)
+                let value = next_frame.get_sfx_output() + next_frame.get_bgm_output();
+                self.next_points.push(value as f64)
             }
         });
 
+        let wave_height = match self.mode {
+            OscilloscopeMode::Off => 0.0,
+            OscilloscopeMode::Channels => {
+                ui.label("TODO: Channels oscilloscope");
+                1.0
+            }
+            OscilloscopeMode::Master => SFX_CHANNELS as f32,
+        };
+
         let ctx = ui.ctx();
         ctx.request_repaint();
+        drop(ctx);
 
         Window::new("Oscilloscope")
             .open(&mut self.open)
@@ -93,8 +105,8 @@ impl Oscilloscope {
                     .show_axes([false, false])
                     .include_x(OSCILLOSCOPE_FRAMES as f64)
                     .include_x(0)
-                    .include_y(1.0)
-                    .include_y(-1.0)
+                    .include_y(wave_height)
+                    .include_y(-wave_height)
                     .set_margin_fraction(Vec2::ZERO);
 
                 plot.show(ui, |plot_ui| {

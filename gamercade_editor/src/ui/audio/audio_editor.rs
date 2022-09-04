@@ -221,17 +221,16 @@ impl AudioEditor {
         {
             self.oscilloscope.open = false;
         };
-        // TODO: Add this back in when we have per-channel oscilloscope
-        // if ui
-        //     .selectable_value(
-        //         &mut self.oscilloscope.mode,
-        //         OscilloscopeMode::Channels,
-        //         "Channels",
-        //     )
-        //     .clicked()
-        // {
-        //     self.oscilloscope.open = true
-        // };
+        if ui
+            .selectable_value(
+                &mut self.oscilloscope.mode,
+                OscilloscopeMode::Channels,
+                "Channels",
+            )
+            .clicked()
+        {
+            self.oscilloscope.open = true
+        };
         if ui
             .selectable_value(
                 &mut self.oscilloscope.mode,
