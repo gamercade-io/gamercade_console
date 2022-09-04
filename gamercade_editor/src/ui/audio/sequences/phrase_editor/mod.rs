@@ -230,15 +230,7 @@ impl PhraseEditor {
     fn phrase_editor_inner(&mut self, ui: &mut Ui, phrase: &mut Phrase) {
         Grid::new("phase_editor_grid").striped(true).show(ui, |ui| {
             ui.spacing_mut().item_spacing.x = 0.0;
-            ui.spacing_mut().item_spacing.y = 15.0;
             ui.spacing_mut().button_padding.x = 0.0;
-            ui.spacing_mut().button_padding.y = 15.0;
-            ui.spacing_mut().window_margin.top = 0.0;
-            ui.spacing_mut().window_margin.left = 0.0;
-            ui.spacing_mut().window_margin.bottom = 0.0;
-            ui.spacing_mut().window_margin.right = 0.0;
-
-            println!("{:?}", ui.spacing());
 
             // Draw the header row
             ui.horizontal_centered(|ui| {
