@@ -17,31 +17,32 @@ pub enum InstrumentKind {
     Wavetable,
 }
 
-pub(crate) fn de_audio_data<'de, D, T>(deserializer: D) -> Result<Box<[T]>, D::Error>
+pub(crate) fn de_audio_data<'de, D>(deserializer: D) -> Result<Box<[i16]>, D::Error>
 where
     D: serde::Deserializer<'de>,
 {
-    if deserializer.is_human_readable() {
+    let bytes = if deserializer.is_human_readable() {
         let text: String = serde::Deserialize::deserialize(deserializer)?;
-        let bytes = base64::decode(&text).map_err(serde::de::Error::custom)?;
-        let bytes: Vec<T> = unsafe { std::mem::transmute(bytes) };
-        Ok(bytes.into_boxed_slice())
+        base64::decode(&text).map_err(serde::de::Error::custom)?
     } else {
-        let bytes: Vec<u8> = serde::Deserialize::deserialize(deserializer)?;
-        let bytes: Vec<T> = unsafe { std::mem::transmute(bytes) };
-        Ok(bytes.into_boxed_slice())
-    }
+        serde::Deserialize::deserialize(deserializer)?
+    };
+    let bytes: Vec<i16> = bytes
+        .chunks_exact(2)
+        .map(|slice| i16::from_be_bytes([slice[0], slice[1]]))
+        .collect();
+    Ok(bytes.into_boxed_slice())
 }
 
-pub(crate) fn ser_audio_data<S, T>(data: &[T], serializer: S) -> Result<S::Ok, S::Error>
+pub(crate) fn ser_audio_data<S>(data: &[i16], serializer: S) -> Result<S::Ok, S::Error>
 where
     S: serde::Serializer,
 {
-    let data: &[u8] = unsafe { std::mem::transmute(data) };
+    let data: Vec<u8> = data.iter().flat_map(|x| x.to_be_bytes()).collect();
     if serializer.is_human_readable() {
         let data = base64::encode(data);
         serializer.serialize_str(&data)
     } else {
-        serializer.serialize_bytes(data)
+        serializer.serialize_bytes(&data)
     }
 }

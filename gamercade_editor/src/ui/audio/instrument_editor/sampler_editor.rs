@@ -16,9 +16,7 @@ use super::envelope_widget::EnvelopeWidget;
 
 #[derive(Default)]
 pub struct SamplerEditor {
-    points: Vec<PlotPoint>,
-    start: usize,
-    end: usize,
+    points: Option<Vec<PlotPoint>>,
 }
 
 impl SamplerEditor {
@@ -55,18 +53,15 @@ impl SamplerEditor {
         if ui.button("Load Sample").clicked() {
             match try_load_sample(instrument) {
                 Ok(_) => {
+                    self.generate_sample_plot(&instrument.data);
                     sync.notify_rom_changed();
-                    self.points = instrument
-                        .data
-                        .iter()
-                        .enumerate()
-                        .map(|(index, val)| PlotPoint::new(index as f64, *val as f64))
-                        .collect::<Vec<_>>();
-                    self.start = 0;
-                    self.end = instrument.data.len() - 1;
                 }
                 Err(e) => println!("{}", e),
             };
+        }
+
+        if self.points.is_none() {
+            self.generate_sample_plot(&instrument.data);
         }
 
         Plot::new("Sample Plot")
@@ -84,7 +79,8 @@ impl SamplerEditor {
 
                 let last_index = len - 1;
 
-                let line = Line::new(PlotPoints::Owned(self.points.clone())).color(Color32::WHITE);
+                let line = Line::new(PlotPoints::Owned(self.points.as_ref().unwrap().clone()))
+                    .color(Color32::WHITE);
 
                 plot_ui.line(line);
 
@@ -116,7 +112,7 @@ impl SamplerEditor {
             if ui
                 .selectable_value(
                     &mut instrument.loop_mode,
-                    LoopMode::LoopRange(self.start..self.end),
+                    LoopMode::LoopRange(0..instrument.data.len() - 1),
                     "Loop Range",
                 )
                 .clicked()
@@ -130,7 +126,6 @@ impl SamplerEditor {
                     .add(Slider::new(&mut range.start, 0..=range.end - 1))
                     .changed()
                 {
-                    self.start = range.start;
                     sync.notify_rom_changed()
                 };
                 ui.label("End:");
@@ -141,7 +136,6 @@ impl SamplerEditor {
                     ))
                     .changed()
                 {
-                    self.end = range.end;
                     sync.notify_rom_changed();
                 }
 
@@ -160,6 +154,15 @@ impl SamplerEditor {
         });
 
         EnvelopeWidget::draw(ui, &mut instrument.envelope_definition, sync);
+    }
+
+    fn generate_sample_plot(&mut self, data: &[SampleBitDepth]) {
+        self.points = Some(
+            data.iter()
+                .enumerate()
+                .map(|(index, val)| PlotPoint::new(index as f64, *val as f64))
+                .collect::<Vec<_>>(),
+        );
     }
 }
 
