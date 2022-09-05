@@ -30,6 +30,11 @@ impl AudioEditorHelp {
 
             ui.separator();
 
+            ui.label(RichText::new("Songs, chains, and phrases: ").strong());
+            ui.label("A Phrase is a series of notes and instruments.");
+            ui.label("A Chain is a series if phrases linked together.");
+            ui.label("A Song is a series of Chains, one per output channel.");
+
             ui.label(RichText::new("How to nagivate the tracker: ").strong());
             ui.label("Navigate around entries with arrow keys or clicking entries");
             ui.label("[Space Bar] can be used to play the current track");
