@@ -1,5 +1,5 @@
 use eframe::egui::{Grid, InputState, Key, Slider, Ui};
-use gamercade_audio::{Chain, PhraseId, CHAIN_MAX_PHRASE_COUNT};
+use gamercade_audio::{Chain, PhraseId, CHAIN_MAX_PHRASE_COUNT, DEFAULT_BPM};
 
 use crate::{
     editor_data::EditorSoundData,
@@ -17,12 +17,21 @@ use super::{
     TrackerEditRowCommand, TRACKER_TEXT_FONT_SIZE,
 };
 
-#[derive(Default)]
 pub(crate) struct ChainEditor {
     chain_list: ChainList,
 
     selected_index: usize,
     target_bpm: f32,
+}
+
+impl Default for ChainEditor {
+    fn default() -> Self {
+        Self {
+            chain_list: Default::default(),
+            selected_index: Default::default(),
+            target_bpm: DEFAULT_BPM,
+        }
+    }
 }
 
 impl ChainEditor {

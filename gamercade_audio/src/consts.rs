@@ -42,3 +42,5 @@ pub const SFX_MAX_COUNT: usize = 256;
 
 /// Maximum length of a wavetable
 pub const WAVETABLE_MAX_LENGTH: usize = 2048;
+
+pub const DEFAULT_BPM: f32 = 120.0;

@@ -1,6 +1,6 @@
 use eframe::egui::{Grid, InputState, Key, Slider, Ui};
 
-use gamercade_audio::{InstrumentId, NoteId, Phrase, PhraseEntry, PHRASE_MAX_ENTRIES};
+use gamercade_audio::{InstrumentId, NoteId, Phrase, PhraseEntry, DEFAULT_BPM, PHRASE_MAX_ENTRIES};
 
 use super::{
     HandleTrackerEditEntryCommand, TrackerEditCommand, TrackerEditEntryCommand,
@@ -17,12 +17,22 @@ mod phrase_row;
 use phrase_list::*;
 use phrase_row::*;
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub(crate) struct PhraseEditor {
     phrase_list: PhraseList,
     selected_entry: SelectedEntry,
 
     target_bpm: f32,
+}
+
+impl Default for PhraseEditor {
+    fn default() -> Self {
+        Self {
+            phrase_list: Default::default(),
+            selected_entry: Default::default(),
+            target_bpm: DEFAULT_BPM,
+        }
+    }
 }
 
 #[derive(Default, Debug, Clone, Copy)]
