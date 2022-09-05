@@ -8,7 +8,7 @@ use crate::{
 };
 
 /// Newtype Chain Identifier
-#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone, Serialize, Deserialize, Default)]
 pub struct PhraseId(pub usize);
 
 /// A phrase is a series of notes tied to instruments, which when combined together form a chain.
@@ -70,7 +70,7 @@ impl Default for Phrase {
 
 pub type PhraseStorageType = PhraseEntry<NoteId, InstrumentId>;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 /// An entry in the phrase, contains all data necessary to produce a sound
 pub struct PhraseEntry<N, T> {
     pub note: N,

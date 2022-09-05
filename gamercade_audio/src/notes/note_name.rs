@@ -43,17 +43,17 @@ impl NoteName {
 
     pub(crate) fn as_str(self) -> TinyAsciiStr<2> {
         TinyAsciiStr::from_str(match self {
-            NoteName::A => "A ",
+            NoteName::A => "A-",
             NoteName::ASharp => "A#",
-            NoteName::B => "B ",
-            NoteName::C => "C ",
+            NoteName::B => "B-",
+            NoteName::C => "C-",
             NoteName::CSharp => "C#",
-            NoteName::D => "D ",
+            NoteName::D => "D-",
             NoteName::DSharp => "D#",
-            NoteName::E => "E ",
-            NoteName::F => "F ",
-            NoteName::FSharp => "F ",
-            NoteName::G => "G ",
+            NoteName::E => "E-",
+            NoteName::F => "F-",
+            NoteName::FSharp => "F#",
+            NoteName::G => "G-",
             NoteName::GSharp => "G#",
         })
         .unwrap()

@@ -1,11 +1,10 @@
 use std::ops::Index;
 
-use arrayvec::ArrayVec;
 use serde::{Deserialize, Serialize};
 
 use crate::{
     Chain, ChainId, EnvelopeDefinition, IndexInterpolator, InstrumentDataDefinition, InstrumentId,
-    Phrase, PhraseId, Song, SongId, WavetableDefinition, WavetableGenerator, WavetableWaveform,
+    Phrase, Song, SongId, WavetableDefinition, WavetableGenerator, WavetableWaveform,
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -18,7 +17,7 @@ pub struct SoundRom {
 }
 
 /// Represents a singular sound effect
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Sfx {
     pub bpm: f32,
     pub chain: ChainId,
@@ -40,13 +39,11 @@ impl Default for SoundRom {
 
         let default_phrase = Phrase::c_scale(InstrumentId(0));
 
-        let default_chain = Chain {
-            entries: ArrayVec::from_iter(Some(Some(PhraseId(0)))),
-        };
+        let default_chain = Chain::default();
 
         let default_sfx = Sfx {
             bpm: 120.0,
-            chain: ChainId(0),
+            chain: ChainId::default(),
         };
 
         Self {

@@ -10,8 +10,14 @@ use tinystr::TinyAsciiStr;
 use crate::{NoteName, NoteNameIter, Octave, OctaveIter, TOTAL_NOTES_COUNT};
 
 /// Newtype Note Id
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 pub struct NoteId(pub usize);
+
+impl Default for NoteId {
+    fn default() -> Self {
+        Self(TOTAL_NOTES_COUNT / 2)
+    }
+}
 
 impl TryFrom<i32> for NoteId {
     type Error = &'static str;

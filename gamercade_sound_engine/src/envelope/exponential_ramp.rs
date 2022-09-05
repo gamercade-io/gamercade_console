@@ -36,19 +36,19 @@ impl ExponentialRamp {
     ) {
         match phase {
             EnvelopePhase::Attack => self.ramp_to(
-                definition.total_level.to_linear_value(),
+                definition.total_level.to_scaled_value(),
                 definition.attack_time.to_scaled_value() * ENVELOPE_TIME_SCALE,
             ),
             EnvelopePhase::Decay => self.ramp_to(
                 definition.sustain_level.to_linear_value()
-                    * definition.total_level.to_linear_value(),
+                    * definition.total_level.to_scaled_value(),
                 definition.decay_attack_time.to_scaled_value(),
             ),
             EnvelopePhase::Sustain => {
                 if definition.decay_sustain_time.is_max_value() {
                     self.set_constant_value(
                         definition.sustain_level.to_linear_value()
-                            * definition.total_level.to_linear_value(),
+                            * definition.total_level.to_scaled_value(),
                     )
                 } else {
                     self.ramp_to(
@@ -61,7 +61,7 @@ impl ExponentialRamp {
                 if definition.release_time.is_max_value() {
                     self.set_constant_value(
                         definition.sustain_level.to_linear_value()
-                            * definition.total_level.to_linear_value(),
+                            * definition.total_level.to_scaled_value(),
                     )
                 } else {
                     self.ramp_to(

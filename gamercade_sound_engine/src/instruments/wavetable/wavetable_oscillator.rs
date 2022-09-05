@@ -1,3 +1,5 @@
+use std::f32::consts::TAU;
+
 use gamercade_audio::{IndexInterpolator, IndexInterpolatorResult};
 
 use crate::FM_MODULATION;
@@ -34,11 +36,9 @@ impl WavetableOscillator {
         self.index_increment = increment / self.output_sample_rate as f32;
     }
 
-    /// Returns the modulation amount for this oscillator. Used with FM Synth
+    // Returns the modulation amount for this oscillator. Used with FM Synth
     pub(crate) fn modulation(&self, modulation: f32) -> f32 {
-        FM_MODULATION
-            * modulation
-            * ((self.index_increment * self.output_sample_rate as f32) / self.table_length as f32)
+        FM_MODULATION * modulation * self.table_length as f32 / TAU
     }
 
     /// Returns the index, then

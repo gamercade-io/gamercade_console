@@ -30,8 +30,12 @@ impl<'de> Deserialize<'de> for Color {
     where
         D: Deserializer<'de>,
     {
-        let hex: String = Deserialize::deserialize(deserializer)?;
-        let hex = u32::from_str_radix(&hex, 16).map_err(serde::de::Error::custom)?;
+        let hex = if deserializer.is_human_readable() {
+            let hex: String = Deserialize::deserialize(deserializer)?;
+            u32::from_str_radix(&hex, 16).map_err(serde::de::Error::custom)?
+        } else {
+            Deserialize::deserialize(deserializer)?
+        };
         Ok(Color::from_hex(hex))
     }
 }
@@ -41,7 +45,11 @@ impl Serialize for Color {
     where
         S: serde::Serializer,
     {
-        serializer.serialize_str(&format!("{:x}", self.to_hex()))
+        if serializer.is_human_readable() {
+            serializer.serialize_str(&format!("{:x}", self.to_hex()))
+        } else {
+            serializer.serialize_u32(self.to_hex())
+        }
     }
 }
 

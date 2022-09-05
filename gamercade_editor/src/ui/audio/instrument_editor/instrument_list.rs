@@ -1,61 +1,28 @@
-use eframe::egui::{ScrollArea, Ui};
+use eframe::egui::Ui;
+use gamercade_audio::{InstrumentDataDefinition, INSTRUMENTS_MAX_COUNT};
 
 use crate::{
     editor_data::{EditorAudioDataEntry, EditorSoundData},
-    ui::AudioSyncHelper,
+    ui::{AudioList, AudioSyncHelper},
 };
 
-#[derive(Clone, Debug, Default)]
+#[derive(Default)]
 pub struct InstrumentList {
     pub selected_instrument: usize,
 }
 
-impl InstrumentList {
-    pub(crate) fn draw(
-        &mut self,
-        ui: &mut Ui,
-        data: &mut EditorSoundData,
-        sync: &mut AudioSyncHelper,
-    ) {
-        ui.vertical(|ui| {
-            ui.label("Instrument List:");
+impl AudioList<Option<InstrumentDataDefinition>> for InstrumentList {
+    const NAME: &'static str = "Instrument";
+    const MAX_ENTRY_COUNT: usize = INSTRUMENTS_MAX_COUNT;
 
-            // Draws the list of instruments
-            ui.group(|ui| {
-                ScrollArea::vertical().show(ui, |ui| {
-                    data.instruments
-                        .iter()
-                        .enumerate()
-                        .for_each(|(index, instrument)| {
-                            ui.horizontal(|ui| {
-                                let is_checked = self.selected_instrument == index;
-
-                                if ui
-                                    .selectable_label(
-                                        is_checked,
-                                        format!("[{}]: {}", index, &instrument.name),
-                                    )
-                                    .clicked()
-                                {
-                                    self.selected_instrument = index
-                                };
-                            });
-                        });
-                })
-            });
-
-            self.draw_buttons(ui, data, sync);
-        });
-    }
-
-    pub(crate) fn draw_buttons(
+    fn draw_buttons(
         &mut self,
         ui: &mut Ui,
         data: &mut EditorSoundData,
         sync: &mut AudioSyncHelper,
     ) {
         ui.horizontal(|ui| {
-            if ui.button("New").clicked() {
+            if ui.button("New").clicked() && data.instruments.len() < Self::MAX_ENTRY_COUNT {
                 data.instruments.push(EditorAudioDataEntry::default());
                 sync.notify_rom_changed()
             }
@@ -69,8 +36,29 @@ impl InstrumentList {
                 // TODO: Clean up unused instruments
                 // Have to iterate through the list and find the highest "non-none" value
                 // Then we can remove all of those after it.
-                println!("Clean Up Instruments")
+                println!("TODO: Clean Up Instruments")
             }
         });
+    }
+
+    fn target_data_mut(
+        data: &mut EditorSoundData,
+    ) -> &mut Vec<EditorAudioDataEntry<Option<InstrumentDataDefinition>>> {
+        &mut data.instruments
+    }
+
+    fn selected_index(&mut self) -> &mut usize {
+        &mut self.selected_instrument
+    }
+
+    fn on_add() -> Option<InstrumentDataDefinition> {
+        unreachable!()
+    }
+
+    fn on_clear(
+        &mut self,
+        _data: &mut Vec<EditorAudioDataEntry<Option<InstrumentDataDefinition>>>,
+    ) {
+        unreachable!()
     }
 }

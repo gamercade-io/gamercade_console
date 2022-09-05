@@ -1,4 +1,4 @@
-use gamercade_audio::{get_note, NoteId, PhraseEntry, PhraseStorageType};
+use gamercade_audio::{get_note, InstrumentId, NoteId, PhraseEntry, PhraseStorageType};
 
 use crate::{
     InstrumentDefinition, InstrumentDefinitionKind, PatchInstance, SamplerInstance,
@@ -46,6 +46,12 @@ impl InstrumentInstance {
             kind: InstrumentInstanceKind::Wavetable(WavetableInstance::no_sound(
                 output_sample_rate,
             )),
+        }
+    }
+
+    pub fn force_refresh_instrument(&mut self, rom: &SoundRomInstance) {
+        if let Some(instrument) = &rom[InstrumentId(self.id)] {
+            self.update_from_instrument(instrument)
         }
     }
 

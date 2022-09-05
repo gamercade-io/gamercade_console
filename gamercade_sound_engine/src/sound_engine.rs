@@ -5,7 +5,7 @@ use cpal::{
     traits::{DeviceTrait, HostTrait, StreamTrait},
     Stream, StreamConfig,
 };
-use gamercade_audio::InstrumentId;
+use gamercade_audio::{InstrumentId, PhraseId};
 use rtrb::{Producer, RingBuffer};
 
 use crate::{
@@ -38,6 +38,14 @@ pub enum SoundEngineChannelType {
         channel: usize,
     },
     UpdateOutputProducer(Option<Producer<SoundOutputChannels>>),
+    PlayPhrase {
+        phrase_index: usize,
+        target_bpm: f32,
+    },
+    PlaySfx(Sfx),
+    StopSfx,
+    PlayBgm(usize),
+    StopBgm,
 }
 
 impl SoundEngineData {
@@ -217,6 +225,35 @@ impl SoundEngine {
                                     SoundEngineChannelType::UpdateOutputProducer(new_producer) => {
                                         sound_output_producer = new_producer
                                     }
+                                    SoundEngineChannelType::PlayPhrase {
+                                        phrase_index,
+                                        target_bpm,
+                                    } => {
+                                        let phrase = Some(PhraseId(phrase_index));
+                                        data.sfx[0].set_sfx_id(None);
+                                        data.sfx[0].oscillator.reset_bpm(target_bpm);
+                                        let phrase_playback =
+                                            &mut data.sfx[0].chain_playback.phrase_playback;
+
+                                        // Reset the instrument to force a refresh
+                                        phrase_playback.instrument =
+                                            InstrumentInstance::no_sound(output_sample_rate);
+                                        phrase_playback.set_phrase_id(phrase);
+                                    }
+                                    SoundEngineChannelType::PlaySfx(sfx) => {
+                                        data.play_sfx(Some(sfx), 0);
+                                    }
+                                    SoundEngineChannelType::StopSfx => data.play_sfx(None, 0),
+                                    SoundEngineChannelType::PlayBgm(bgm) => {
+                                        // Force a refresh of all instruments
+                                        data.bgm.tracks.iter_mut().for_each(|track| {
+                                            track.phrase_playback.instrument =
+                                                InstrumentInstance::no_sound(output_sample_rate);
+                                        });
+
+                                        data.play_bgm(Some(SongId(bgm)));
+                                    }
+                                    SoundEngineChannelType::StopBgm => data.play_bgm(None),
                                 };
                             }
 
