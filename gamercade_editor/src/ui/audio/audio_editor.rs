@@ -9,8 +9,8 @@ use gamercade_sound_engine::{
 use crate::editor_data::EditorSoundData;
 
 use super::{
-    ChainEditor, InstrumentEditor, Oscilloscope, OscilloscopeMode, PhraseEditor, SfxEditor,
-    SongEditor,
+    AudioEditorHelp, ChainEditor, InstrumentEditor, Oscilloscope, OscilloscopeMode, PhraseEditor,
+    SfxEditor, SongEditor,
 };
 
 pub struct AudioEditor {
@@ -24,6 +24,7 @@ pub struct AudioEditor {
     sound_engine: SoundEngine,
     pub(crate) audio_sync_helper: AudioSyncHelper,
 
+    audio_editor_help: AudioEditorHelp,
     oscilloscope: Oscilloscope,
 }
 
@@ -63,6 +64,7 @@ impl AudioEditor {
                 command_queue: Vec::new(),
             },
             oscilloscope: Oscilloscope::new(consumer),
+            audio_editor_help: AudioEditorHelp::default(),
         }
     }
 }
@@ -214,6 +216,11 @@ impl AudioEditor {
 
         ui.separator();
 
+        let editor_help_open = self.audio_editor_help.open;
+        ui.selectable_value(&mut self.audio_editor_help.open, !editor_help_open, "Help!");
+
+        ui.separator();
+
         ui.label("Oscilloscope:");
         if ui
             .selectable_value(&mut self.oscilloscope.mode, OscilloscopeMode::Off, "Off")
@@ -242,6 +249,7 @@ impl AudioEditor {
             self.oscilloscope.open = true
         };
 
+        self.audio_editor_help.draw(ui);
         self.oscilloscope.draw(ui);
     }
 
