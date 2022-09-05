@@ -19,7 +19,7 @@ impl SongRow {
             row_index: TrackerText::new("# ", Color32::GRAY, None),
             separator: TrackerText::separator(None),
             channels: std::array::from_fn(|index| {
-                TrackerText::new(&format!("C{:X}", index), Color32::GRAY, None)
+                TrackerText::new(&format!("c{:X}", index), Color32::GRAY, None)
             }),
         }
     }
