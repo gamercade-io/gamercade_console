@@ -24,6 +24,14 @@ The main motivation for developing Gamercade was to solve the "I'm a small team/
 
 With Gamercade, the first 3 requirements are removed. This creates a more modern development environment which lets game developers do what they do best: Make exciting games!
 
+## Project Goals
+
+These are the three pillars that drive Gamercade development. Every feature and function of Gamercade and its related tools are built with the goals of achieving the following:
+
+- **Effortless Multiplayer** - The main priority is developing a top-notch multiplayer experience for both players and developers. This means providing an easy-to-use networking solution for developers, and also one which is robust and high performant.
+- **Empower Creatives** - Gamercade is a platform for all kinds of people, of different backgrounds and experience levels. Programmers, designers, artists, and are all welcome. Gamercade should empower creators and allow them to always do their best work.
+- **"Neo Retro" Game Development** - Project scoping is important. Retro consoles are cool, but also constrained and complex. Gamercade provides the balance between retro and modern development. Games are limited by content, but creativity is unlimited.
+
 ## Community
 
 Currently, the community is mostly active on [Discord](https://discord.gg/Qafv2Fpt5j).
