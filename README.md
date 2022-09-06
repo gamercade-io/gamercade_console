@@ -36,9 +36,13 @@ These are the three pillars that drive Gamercade development. Every feature and 
 
 Currently, the community is mostly active on [Discord](https://discord.gg/Qafv2Fpt5j).
 
+## FAQ
+
+We recommend reading the [FAQ](https://gamercade.io/faq) on the home page.
+
 # For Developers
 
-Follow these steps to get your first game project up and running. See the included resources for more information.
+Follow these steps to get your first game project up and running. See the included resources for more information. Also consider making yourself comfortable with the [Api Reference](https://gamercade.io/docs/api-reference).
 
 ## Building, Bundling, and Running A Game
 
