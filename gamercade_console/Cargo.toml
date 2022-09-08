@@ -40,7 +40,7 @@ serde = { version = "1.0.144", features = ["derive"] }
 zstd = "0.11"
 
 # Scripting
-wasmtime = { version = "0.39.1", features = ["cranelift"] }
+wasmtime = { version = "0.40.1", features = ["cranelift"] }
 
 # Random
 fastrand = "1.8.0"
