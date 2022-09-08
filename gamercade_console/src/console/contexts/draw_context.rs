@@ -24,6 +24,8 @@ impl DrawApi for DrawContext {
             palette_index,
             sprite_sheet_index,
             sprite_index,
+            flip_x,
+            flip_y,
             ..
         } = graphics_parameters.into();
 
@@ -36,8 +38,14 @@ impl DrawApi for DrawContext {
             None => return,
         };
 
-        self.frame_buffer
-            .draw_sprite(sheet, sprite_index, palette, x, y, transparency_mask);
+        self.frame_buffer.draw_sprite(
+            sheet,
+            sprite_index,
+            palette,
+            (x, y),
+            transparency_mask,
+            (flip_x, flip_y),
+        );
     }
 
     fn clear_screen(&mut self, graphics_parameters: i32) {
