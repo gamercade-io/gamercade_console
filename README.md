@@ -6,19 +6,19 @@ Learn more about [Gamercade](https://gamercade.io).
 
 ## Features
 
-- **Simple and Powerful** - 2d Rendering, Input, Audio all included.
-- **Language Agnostic** - Write in your favorite language, and compile to WebAssembly.
+- **Simple and Powerful** - 2d Rendering, Input, and Audio all included.
+- **Language Agnostic** - Write in your favorite language and compile to WebAssembly.
 - **Tool Agnostic** - Build assets using your favorite tools. Bundle them with the Editor.
-- **Seamless Multiplayer** - Built-in p2p rollback lets you get multiplayer "for free."
-- **Collaboration Friendly** - Save work-in-progress as JSON, easily collaborate.
+- **Seamless Multiplayer** - Built-in p2p rollback netcode to play with others.
+- **Collaboration Friendly** - Save work-in-progress as JSON for easy collaborate.
 - **Free and Open Source** - Free to build, use, and play, forever.
 
 ## Motivation
 
-The main motivation for developing Gamercade was to solve the "I'm a small team/solo developer and I want to make a multiplayer game" problem. In order to have a successful game, these small projects need to have multiple successes:
+Gamercade aims to solve the "I'm a small team/solo developer and I want to make a multiplayer game" problem. In order to have a successful game, these small projects need to have multiple successes:
 
-- Building a project which correctly handles the complexity of online multiplayer.
-- Marketing to a big enough playerbase to have enough for short wait times.
+- Building a project which correctly handles the complexities of online multiplayer.
+- Marketing to a big enough playerbase to shorten wait times.
 - Setting up server hosting, and the associated costs to keep them running well after release.
 - Making a game which is actually fun to play.
 
@@ -26,7 +26,7 @@ With Gamercade, the first 3 requirements are removed. This creates a more modern
 
 ## Project Goals
 
-These are the three pillars that drive Gamercade development. Every feature and function of Gamercade and its related tools are built with the goals of achieving the following:
+Every feature and function of Gamercade and its related tools are built with the goals of achieving the following:
 
 - **Effortless Multiplayer** - The main priority is developing a top-notch multiplayer experience for both players and developers. This means providing an easy-to-use networking solution for developers, and also one which is robust and high performant.
 - **Empower Creatives** - Gamercade is a platform for all kinds of people, of different backgrounds and experience levels. Programmers, designers, artists, and are all welcome. Gamercade should empower creators and allow them to always do their best work.
@@ -38,9 +38,9 @@ Currently, the community is mostly active on [Discord](https://discord.gg/Qafv2F
 
 ## FAQ
 
-We recommend reading the [FAQ](https://gamercade.io/faq) on the home page.
+We recommend reading the [FAQ](https://gamercade.io/faq) on our home page.
 
-# For Developers
+# Getting Started 
 
 Follow these steps to get your first game project up and running. See the included resources for more information. Also consider making yourself comfortable with the [Api Reference](https://gamercade.io/docs/api-reference).
 
@@ -59,7 +59,7 @@ A template example project is available at: [rust_template](https://github.com/g
 
 ### Bundling A Game with the Editor - How to create a .gcrom file
 
-1. With your game `.wasm` already built from the previous step...
+1. With your game `.wasm` already built from the previous steps...
 1. Run the editor. This can be done from source via `cargo run --bin editor`
 1. On the File menu, click "Select game .wasm." Find and locate your previously exported `.wasm` file.
 1. On the File menu, click "Export game" and export.
@@ -67,7 +67,7 @@ A template example project is available at: [rust_template](https://github.com/g
 
 ### Running a Game with the Console - How to run a .gcrom file
 
-1. With a `.gcrom` available to play from the previous step...
+1. With a `.gcrom` available to play from the previous steps...
 1. Run the console. This can be done from source via `cargo run --bin console`
 1. The console will run with the Main Menu already opened. You can open and close it with the `Spacebar`.
 1. Press the "Select Game" button to open the file dialog.
@@ -76,7 +76,7 @@ A template example project is available at: [rust_template](https://github.com/g
 
 # For Contributors
 
-This is the main workspace crate. Consider viewing the inner crates for more information about the project. Each of them has their own readme.
+This is the main workspace crate. Consider viewing the inner crates for more information about the project. Each of them has their own README.
 
 - `gamercade_audio` - For all gamercade audio related things.
 - `gamercade_console` - The console used to run & play games.
@@ -94,8 +94,8 @@ Gamercade runs on **Stable Rust 1.63 or later**.
 
 Licensed under either of
 
- * Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
- * MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
+ * Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE) or https://www.apache.org/licenses/LICENSE-2.0)
+ * MIT license ([LICENSE-MIT](LICENSE-MIT) or https://opensource.org/licenses/MIT)
 
 at your option.
 
