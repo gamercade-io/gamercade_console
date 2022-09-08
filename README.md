@@ -9,8 +9,8 @@ Learn more about [Gamercade](https://gamercade.io).
 - **Simple and Powerful** - 2d Rendering, Input, and Audio all included.
 - **Language Agnostic** - Write in your favorite language and compile to WebAssembly.
 - **Tool Agnostic** - Build assets using your favorite tools. Bundle them with the Editor.
-- **Seamless Multiplayer** - Built-in p2p rollback netcode to play with others.
-- **Collaboration Friendly** - Save work-in-progress as JSON for easy collaborate.
+- **Seamless Multiplayer** - Built-in p2p rollback lets you get multiplayer "for free."
+- **Collaboration Friendly** - Save work-in-progress as JSON, for easy collaboration.
 - **Free and Open Source** - Free to build, use, and play, forever.
 
 ## Motivation
@@ -40,7 +40,7 @@ Currently, the community is mostly active on [Discord](https://discord.gg/Qafv2F
 
 We recommend reading the [FAQ](https://gamercade.io/faq) on our home page.
 
-# Getting Started 
+# For Developers
 
 Follow these steps to get your first game project up and running. See the included resources for more information. Also consider making yourself comfortable with the [Api Reference](https://gamercade.io/docs/api-reference).
 
