@@ -5,7 +5,6 @@ mod palette_viewer;
 mod sprite_preview;
 
 use color_editor::ColorEditor;
-use gamercade_core::Palette;
 use palette_list::PaletteList;
 use palette_viewer::PaletteViewer;
 use sprite_preview::SpritePreview;
@@ -14,7 +13,7 @@ use sprite_preview::SpritePreview;
 use eframe::egui::{SidePanel, TextureId, TopBottomPanel, Ui};
 
 use super::SpriteSheetEditor;
-use crate::editor_data::EditorGraphicsData;
+use crate::editor_data::{EditorGraphicsData, EditorPalette};
 
 #[derive(Clone, Default)]
 pub struct PaletteEditor {
@@ -43,13 +42,13 @@ impl PaletteEditor {
             });
 
         // Draw Sprite Preview
-        let palette = &mut data.palettes[self.palette_list.selected_palette].palette;
+        let palette = &mut data.palettes[self.palette_list.selected_palette];
 
         let sheet = sprite_sheet_editor.selected_sheet();
         let sprite_index = sprite_sheet_editor.selected_sprite();
         let sprite_sheet = &data.sprite_sheets[sheet.0 as usize].sprite_sheet;
 
-        let mut preview_palette = palette.clone();
+        let mut preview_palette = palette.palette.clone();
         preview_palette.colors[self.palette_viewer.selected_color] = self.color_editor.preview;
 
         SidePanel::right("sprite_preview_right_panel")
@@ -58,7 +57,7 @@ impl PaletteEditor {
             .show_inside(ui, |ui| {
                 self.sprite_preview.draw(
                     ui,
-                    palette,
+                    &palette.palette,
                     &preview_palette,
                     sprite_sheet,
                     sprite_index,
@@ -71,12 +70,17 @@ impl PaletteEditor {
 
     // Draws the right side panel which includes palette viewer, color
     // editor, and sprite preview widgets
-    fn draw_color_editor(&mut self, ui: &mut Ui, texture_id: TextureId, palette: &mut Palette) {
+    fn draw_color_editor(
+        &mut self,
+        ui: &mut Ui,
+        texture_id: TextureId,
+        palette: &mut EditorPalette,
+    ) {
         ui.vertical(|ui| {
             self.palette_viewer.draw(ui, palette, texture_id);
 
             ui.horizontal(|ui| {
-                let color = self.palette_viewer.get_color_mut(palette);
+                let color = self.palette_viewer.get_color_mut(&mut palette.palette);
                 self.color_editor.draw(ui, color, texture_id);
             });
         });
