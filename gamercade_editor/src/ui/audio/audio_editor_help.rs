@@ -24,7 +24,7 @@ impl AudioEditorHelp {
             ui.label("TL: Total Level - The the full volume of this sound source.");
             ui.label("A: Attack time - How long it takes to reach Total Level.");
             ui.label("D1: Decay 1 - How long it takes to travel from Total Level to Sustain Level");
-            ui.label("S: Sustail Level - The sustained volume of this sound source, when a key is held.");
+            ui.label("S: Sustain Level - The sustained volume of this sound source, when a key is held.");
             ui.label("D2: Decay 2 - How long it takes for this sound to decay while holding the key.");
             ui.label("R: Release - How long it takes for this sound to decay while the key is released.");
 
