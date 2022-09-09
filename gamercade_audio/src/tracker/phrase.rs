@@ -70,11 +70,22 @@ impl Default for Phrase {
 
 pub type PhraseStorageType = PhraseEntry<NoteId, InstrumentId>;
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 /// An entry in the phrase, contains all data necessary to produce a sound
 pub struct PhraseEntry<N, T> {
     pub note: N,
     pub volume: PhraseVolumeType,
     pub instrument: T,
     pub effects: [Option<Effect>; EFFECT_COUNT],
+}
+
+impl Default for PhraseStorageType {
+    fn default() -> Self {
+        Self {
+            note: Default::default(),
+            volume: PhraseVolumeType::MAX / 2,
+            instrument: Default::default(),
+            effects: Default::default(),
+        }
+    }
 }

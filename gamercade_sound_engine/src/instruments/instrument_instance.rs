@@ -1,4 +1,7 @@
-use gamercade_audio::{get_note, InstrumentId, NoteId, PhraseEntry, PhraseStorageType};
+use gamercade_audio::{
+    get_note, to_scaled_value, InstrumentId, NoteId, PhraseEntry, PhraseStorageType,
+    PhraseVolumeType,
+};
 
 use crate::{
     InstrumentDefinition, InstrumentDefinitionKind, PatchInstance, SamplerInstance,
@@ -9,6 +12,7 @@ use crate::{
 pub struct InstrumentInstance {
     id: usize,
     kind: InstrumentInstanceKind,
+    volume: PhraseVolumeType,
 }
 
 #[derive(Debug, Clone)]
@@ -46,6 +50,7 @@ impl InstrumentInstance {
             kind: InstrumentInstanceKind::Wavetable(WavetableInstance::no_sound(
                 output_sample_rate,
             )),
+            volume: 0,
         }
     }
 
@@ -74,6 +79,7 @@ impl InstrumentInstance {
         Self {
             id: source.id,
             kind,
+            volume: PhraseVolumeType::MAX,
         }
     }
 
@@ -92,6 +98,8 @@ impl InstrumentInstance {
             self.update_from_instrument(&entry.instrument)
         }
 
+        self.volume = entry.volume;
+
         match &mut self.kind {
             InstrumentInstanceKind::Wavetable(wave) => {
                 wave.set_frequency(entry.note);
@@ -109,11 +117,13 @@ impl InstrumentInstance {
     }
 
     pub(crate) fn tick(&mut self) -> f32 {
-        match &mut self.kind {
+        let raw_output = match &mut self.kind {
             InstrumentInstanceKind::Wavetable(wv) => wv.tick(),
             InstrumentInstanceKind::FMSynth(fm) => fm.tick(),
             InstrumentInstanceKind::Sampler(sm) => sm.tick(),
-        }
+        };
+
+        raw_output * to_scaled_value(self.volume)
     }
 
     pub(crate) fn set_active(&mut self, active: bool) {

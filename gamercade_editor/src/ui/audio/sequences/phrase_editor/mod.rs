@@ -139,13 +139,20 @@ impl PhraseEditor {
     ) {
         let mut command = None;
 
+        let big_adjust = match self.selected_entry.mode {
+            SelectedEntryMode::None => 1,
+            SelectedEntryMode::Note => 12,
+            SelectedEntryMode::Volume => 16,
+            SelectedEntryMode::Instrument => 16,
+        };
+
         if input_state.key_pressed(Key::ArrowUp) {
             command = Some(TrackerEditCommand::EditEntry(TrackerEditEntryCommand::Add(
                 1,
             )))
         } else if input_state.key_pressed(Key::ArrowRight) {
             command = Some(TrackerEditCommand::EditEntry(TrackerEditEntryCommand::Add(
-                12,
+                big_adjust,
             )))
         } else if input_state.key_pressed(Key::ArrowDown) {
             command = Some(TrackerEditCommand::EditEntry(TrackerEditEntryCommand::Sub(
@@ -153,7 +160,7 @@ impl PhraseEditor {
             )))
         } else if input_state.key_pressed(Key::ArrowLeft) {
             command = Some(TrackerEditCommand::EditEntry(TrackerEditEntryCommand::Sub(
-                12,
+                big_adjust,
             )))
         } else if input_state.key_pressed(Key::Insert) {
             command = Some(TrackerEditCommand::EditRow(TrackerEditRowCommand::Insert))
