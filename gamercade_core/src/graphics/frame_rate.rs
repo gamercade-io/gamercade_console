@@ -17,7 +17,7 @@ impl Default for FrameRate {
 }
 
 impl FrameRate {
-    pub fn frames_per_second(self) -> usize {
+    pub const fn frames_per_second(self) -> usize {
         match self {
             FrameRate::SuperSlow => 24,
             FrameRate::Slow => 30,

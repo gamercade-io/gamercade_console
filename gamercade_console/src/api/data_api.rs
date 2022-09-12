@@ -10,6 +10,11 @@ pub trait DataApi {
     fn sprite_height(&self, sheet_index: i32) -> i32;
     fn sprite_width(&self, sheet_index: i32) -> i32;
     fn sprite_count(&self, sheet_index: i32) -> i32;
+
+    fn bgm_length_secs(&self, bgm_index: i32) -> f32;
+    fn bgm_length_frames(&self, bgm_index: i32) -> i32;
+    fn sfx_length_secs(&self, sfx_index: i32) -> f32;
+    fn sfx_length_frames(&self, sfx_index: i32) -> i32;
 }
 
 macro_rules! derive_bind_data_api {
@@ -34,4 +39,8 @@ derive_bind_data_api! {
     bind_sprite_height,
     bind_sprite_width,
     bind_sprite_count,
+    bind_bgm_length_secs,
+    bind_bgm_length_frames,
+    bind_sfx_length_secs,
+    bind_sfx_length_frames,
 }

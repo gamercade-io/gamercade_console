@@ -20,3 +20,10 @@ impl Default for Song {
         }
     }
 }
+
+impl Song {
+    /// Returns the length of the song in seconds
+    pub fn get_length(&self) -> f32 {
+        todo!()
+    }
+}

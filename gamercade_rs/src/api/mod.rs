@@ -53,7 +53,7 @@ pub(crate) fn f32_to_option(val: f32) -> Option<f32> {
 }
 
 pub(crate) fn i32_u32_to_option(val: i32) -> Option<u32> {
-    if val < 0 {
+    if val.is_negative() {
         None
     } else {
         Some(val as u32)

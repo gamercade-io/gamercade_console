@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use gamercade_audio::{Sfx, Song};
 use gamercade_core::{Rom, SpriteSheet};
 
 use crate::api::DataApi;
@@ -57,6 +58,30 @@ impl DataApi for DataContext {
             .map(|sheet| sheet.count as i32)
             .unwrap_or(-1)
     }
+
+    fn bgm_length_secs(&self, bgm_index: i32) -> f32 {
+        self.get_bgm(bgm_index)
+            .map(Song::get_length)
+            .unwrap_or(f32::NAN)
+    }
+
+    fn bgm_length_frames(&self, bgm_index: i32) -> i32 {
+        self.get_bgm(bgm_index)
+            .map(|song| self.secs_to_frames(song.get_length()))
+            .unwrap_or(-1)
+    }
+
+    fn sfx_length_secs(&self, sfx_index: i32) -> f32 {
+        self.get_sfx(sfx_index)
+            .map(Sfx::get_length)
+            .unwrap_or(f32::NAN)
+    }
+
+    fn sfx_length_frames(&self, sfx_index: i32) -> i32 {
+        self.get_sfx(sfx_index)
+            .map(|sfx| self.secs_to_frames(sfx.get_length()))
+            .unwrap_or(-1)
+    }
 }
 
 impl DataContext {
@@ -67,5 +92,17 @@ impl DataContext {
             .map(|index| self.rom.graphics.sprite_sheet(index))
             .ok()
             .flatten()
+    }
+
+    fn get_bgm(&self, bgm_index: i32) -> Option<&Song> {
+        self.rom.sounds.songs.get(bgm_index as usize)
+    }
+
+    fn get_sfx(&self, sfx_index: i32) -> Option<&Sfx> {
+        self.rom.sounds.sfx.get(sfx_index as usize)
+    }
+
+    fn secs_to_frames(&self, secs: f32) -> i32 {
+        (secs / self.rom.frame_rate.frame_time()).ceil() as i32
     }
 }
