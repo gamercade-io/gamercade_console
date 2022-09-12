@@ -1,7 +1,7 @@
+use gamercade_core::ButtonCode;
+
 use hashbrown::HashMap;
 use winit::event::VirtualKeyCode;
-
-use super::input_code::ButtonCode;
 
 #[derive(Debug)]
 pub struct KeyBindings {

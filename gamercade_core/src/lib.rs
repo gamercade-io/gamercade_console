@@ -1,8 +1,10 @@
 mod graphics;
+mod input;
 mod pixel_buffer;
 mod rom;
 
 pub use graphics::*;
+pub use input::*;
 pub use pixel_buffer::*;
 pub use rom::*;
 

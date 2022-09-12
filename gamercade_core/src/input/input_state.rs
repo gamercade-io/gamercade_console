@@ -1,26 +1,47 @@
-use super::{input_code::*, KeyBindings};
-use bytemuck::{Pod, Zeroable};
+use super::input_code::*;
+use bytemuck::{cast, Pod, Zeroable};
 
 #[repr(C)]
-#[derive(Clone, Copy, PartialEq, Eq, Debug, Default, Pod, Zeroable)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
 // 60-64 bits aka 8 bytes when compressed
 pub struct InputState {
-    pub left_stick: AnalogStick,
-    pub right_stick: AnalogStick,
     pub left_trigger: AnalogTrigger,
     pub right_trigger: AnalogTrigger,
+    pub left_stick: AnalogStick,
+    pub right_stick: AnalogStick,
     pub buttons: Buttons,
 }
 
 impl InputState {
-    pub fn as_raw_state(&self) -> i64 {
-        // TODO: Write this
-        todo!()
+    pub const INVALID_STATE: Self = Self {
+        left_trigger: AnalogTrigger { state: -1 },
+        right_trigger: AnalogTrigger { state: -1 },
+        left_stick: AnalogStick {
+            x_axis: 0,
+            y_axis: 0,
+        },
+        right_stick: AnalogStick {
+            x_axis: 0,
+            y_axis: 0,
+        },
+        buttons: Buttons { state: 0 },
+    };
+
+    pub fn as_raw_state(self) -> i64 {
+        cast(self)
+    }
+
+    pub fn from_raw_state(raw: i64) -> Self {
+        cast(raw)
+    }
+
+    pub fn is_valid(self) -> bool {
+        !self.left_trigger.state.is_negative() && !self.right_trigger.state.is_negative()
     }
 }
 
 #[repr(C)]
-#[derive(Clone, Copy, PartialEq, Eq, Debug, Default, Pod, Zeroable)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
 // 16 bits
 pub struct AnalogStick {
     x_axis: i8,
@@ -50,15 +71,15 @@ impl AnalogStick {
 }
 
 #[repr(transparent)]
-#[derive(Clone, Copy, PartialEq, Eq, Debug, Default, Pod, Zeroable)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
 // 7 bits
-// Sign bit will be dropped
+// Sign bit will be dropped/unused
 pub struct AnalogTrigger {
-    state: u8,
+    state: i8,
 }
 
 impl AnalogTrigger {
-    const MASK: u8 = 0b0111_1111;
+    const MASK: i8 = 0b0111_1111;
 
     pub fn get_value(&self) -> f32 {
         (self.state & Self::MASK) as f32 / Self::MASK as f32
@@ -66,7 +87,7 @@ impl AnalogTrigger {
 }
 
 #[repr(transparent)]
-#[derive(Clone, Copy, PartialEq, Eq, Debug, Default, Pod, Zeroable)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
 // 14 bits for with Analog Triggers
 // 16 bits for binary triggers
 pub struct Buttons {
@@ -81,19 +102,14 @@ impl Buttons {
     pub fn get_button_state(&self, code: ButtonCode) -> bool {
         self.state & code.to_bit_mask() != 0
     }
-
-    pub fn generate_new(
-        binds: &KeyBindings,
-        input_helper: &winit_input_helper::WinitInputHelper,
-    ) -> Self {
-        let mut output = Buttons::default();
-
-        binds.buttons.iter().for_each(|(code, input)| {
-            if input_helper.key_held(*code) {
-                output.enable_button(*input)
-            }
-        });
-
-        output
-    }
 }
+
+unsafe impl Pod for Buttons {}
+unsafe impl Pod for AnalogTrigger {}
+unsafe impl Pod for AnalogStick {}
+unsafe impl Pod for InputState {}
+
+unsafe impl Zeroable for Buttons {}
+unsafe impl Zeroable for AnalogTrigger {}
+unsafe impl Zeroable for AnalogStick {}
+unsafe impl Zeroable for InputState {}

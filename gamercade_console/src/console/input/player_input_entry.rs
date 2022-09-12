@@ -1,4 +1,4 @@
-use super::{Buttons, InputState};
+use gamercade_core::{Buttons, InputState};
 
 // TOOD: Move this to SoA instead of AoS for perf?
 #[derive(Debug, Default, Clone)]

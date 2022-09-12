@@ -1661,7 +1661,6 @@ name = "gamercade_console"
 version = "0.1.0"
 dependencies = [
  "bincode",
- "bytemuck",
  "cpal",
  "egui 0.17.0",
  "egui-winit 0.17.0",
@@ -1677,7 +1676,6 @@ dependencies = [
  "pixels",
  "rfd",
  "serde",
- "strum",
  "wasmtime",
  "winit 0.26.1",
  "winit_input_helper",
@@ -1689,9 +1687,11 @@ name = "gamercade_core"
 version = "0.1.0"
 dependencies = [
  "base64",
+ "bytemuck",
  "gamercade_audio",
  "serde",
  "serde-big-array",
+ "strum",
 ]
 
 [[package]]

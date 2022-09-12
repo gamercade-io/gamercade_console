@@ -2,6 +2,7 @@
 use super::{f32_to_option, i32_bool_to_option};
 use crate::raw;
 
+use gamercade_core::InputState;
 use paste::paste;
 
 macro_rules! derive_input_api {
@@ -56,11 +57,16 @@ macro_rules! derive_input_api {
     };
 }
 
-/// Returns a raw input state. This is currently not UNIMPLEMENTED.
-pub fn raw_input_state(player_id: usize) -> i64 {
-    // TODO: This could check for an invalid state, like UP + DOWN + LEFT + RIGHT all pressed
-    // at once, which is not possible
-    unsafe { raw::raw_input_state(player_id as i32) }
+/// Returns a raw input state. If the player_id is invalid, returns None.
+pub fn raw_input_state(player_id: usize) -> Option<InputState> {
+    unsafe {
+        let raw: InputState = std::mem::transmute(raw::raw_input_state(player_id as i32));
+        if raw.is_valid() {
+            Some(raw)
+        } else {
+            None
+        }
+    }
 }
 
 derive_input_api! {

@@ -17,7 +17,6 @@ gamercade_sound_engine = { path = "../gamercade_sound_engine" }
 
 # General Improvements
 hashbrown = "0.12.3"
-bytemuck = "1.12.1"
 parking_lot = "0.12.1"
 
 # Windowing & Graphics
@@ -31,7 +30,6 @@ egui_wgpu_backend = "0.17"
 egui-winit = "0.17"
 
 # Macros & Helpers
-strum = { version = "0.24.1", features = ["derive"] }
 paste = "1.0.8"
 
 # Serialization / File Loading etc
