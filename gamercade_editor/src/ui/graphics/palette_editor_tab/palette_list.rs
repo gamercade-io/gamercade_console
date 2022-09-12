@@ -81,31 +81,8 @@ impl PaletteList {
             });
 
             ui.vertical(|ui| {
-                let btn_rename = ui.button("Rename");
-                let btn_duplicate = ui.button("Duplicate");
-
-                if btn_rename.clicked() {
-                    // TODO: add Rename button
-                    println!("TODO: Rename palettes");
-                }
-
-                if btn_duplicate.clicked() {
-                    if data.palettes.len() == u8::MAX as usize + 1 {
-                        println!("Max of 256 Palettes");
-                    } else {
-                        let mut cloned = data.palettes[index].clone();
-                        cloned.name = format!("{} Copy", cloned.name);
-
-                        let new_index = index + 1;
-                        data.palettes.insert(new_index, cloned);
-                        self.selected_palette = new_index;
-                    }
-                };
-            });
-
-            ui.vertical(|ui| {
                 let btn_import = ui.button("Import");
-                let btn_export = ui.button("Export");
+                let btn_duplicate = ui.button("Duplicate");
 
                 if btn_import.clicked() {
                     if data.palettes.len() == u8::MAX as usize + 1 {
@@ -122,10 +99,18 @@ impl PaletteList {
                     }
                 };
 
-                if btn_export.clicked() {
-                    // TODO: add Export Palette button
-                    println!("TODO: Export Palette");
-                }
+                if btn_duplicate.clicked() {
+                    if data.palettes.len() == u8::MAX as usize + 1 {
+                        println!("Max of 256 Palettes");
+                    } else {
+                        let mut cloned = data.palettes[index].clone();
+                        cloned.name = format!("{} Copy", cloned.name);
+
+                        let new_index = index + 1;
+                        data.palettes.insert(new_index, cloned);
+                        self.selected_palette = new_index;
+                    }
+                };
             });
 
             ui.vertical(|ui| {
