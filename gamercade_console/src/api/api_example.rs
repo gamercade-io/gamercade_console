@@ -4,8 +4,6 @@
 extern "C" {
     pub fn play_bgm(bgm_index: i32);
     pub fn play_sfx(sfx_index: i32, channel: i32);
-    pub fn bgm_is_active() -> i32;
-    pub fn channel_is_active(channel: i32) -> i32;
     pub fn stop_bgm();
     pub fn stop_channel(channel: i32);
     pub fn play_note(note_id: i32, instrument_index: i32, channel: i32);
@@ -58,7 +56,6 @@ extern "C" {
 // Text
 extern "C" {
     pub fn console_log(text_ptr: i32, len: i32);
-    pub fn draw_text(text_ptr: i32, len: i32, x: i32, y: i32);
 }
 
 // Random

@@ -4,7 +4,6 @@
 extern "C" {
     pub fn play_bgm(bgm_index: i32);
     pub fn play_sfx(sfx_index: i32, channel: i32);
-    pub fn bgm_is_active() -> i32;
     pub fn channel_is_active(channel: i32) -> i32;
     pub fn stop_bgm();
     pub fn stop_channel(channel: i32);

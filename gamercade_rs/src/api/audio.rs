@@ -17,28 +17,6 @@ pub fn play_sfx(sfx_index: usize, channel: usize) {
     }
 }
 
-/// Returns true if a BGM is playing.
-pub fn bgm_is_active() -> bool {
-    unsafe { raw::bgm_is_active() == 1 }
-}
-
-/// If the channel is valid, returns Some true or false value if
-/// the channel is playing a sound.
-/// If the channel index is invalid, returns None.
-pub fn channel_is_active(channel: usize) -> Option<bool> {
-    if channel < SFX_CHANNELS {
-        unsafe {
-            match raw::channel_is_active(channel as i32) {
-                0 => Some(false),
-                1 => Some(true),
-                _ => None,
-            }
-        }
-    } else {
-        None
-    }
-}
-
 /// Stops the BGM from playing.
 pub fn stop_bgm() {
     unsafe { raw::stop_bgm() }
