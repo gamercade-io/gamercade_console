@@ -25,13 +25,6 @@ pub struct Sfx {
     // loop style? or should this be handled by game code?
 }
 
-impl Sfx {
-    /// Returns the length of the sfx in seconds.
-    pub fn get_length(&self) -> f32 {
-        todo!()
-    }
-}
-
 impl Default for SoundRom {
     fn default() -> Self {
         let default_sine_wave = InstrumentDataDefinition::Wavetable(WavetableDefinition {

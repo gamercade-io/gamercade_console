@@ -2,12 +2,12 @@ use eframe::egui::{Grid, InputState, Key, Slider, Ui};
 
 mod song_list;
 mod song_row;
-use gamercade_audio::{ChainId, Song, SONG_TRACK_CHANNELS};
+use gamercade_audio::{Chain, ChainId, Song, SONG_TRACK_CHANNELS};
 use song_list::*;
 use song_row::*;
 
 use crate::{
-    editor_data::EditorSoundData,
+    editor_data::{EditorAudioDataEntry, EditorSoundData},
     ui::{AudioList, AudioSyncHelper},
 };
 
@@ -46,6 +46,11 @@ impl SongEditor {
             if ui.add(Slider::new(&mut song.bpm, 0.0..=999.9)).changed() {
                 sync.notify_rom_changed();
             }
+
+            ui.label(format!(
+                "Song Length (secs): {}",
+                song_length_seconds(song, &data.chains)
+            ));
 
             if ui.button("Play").clicked() || ui.input().key_pressed(Key::Space) {
                 sync.play_bgm(self.song_list.selected_song);
@@ -234,4 +239,32 @@ impl SongEditor {
             }
         }
     }
+}
+
+// This is copied & pasted from gamercade_audio's song.rs
+// with slight modifications
+fn song_length_seconds(song: &Song, chains: &[EditorAudioDataEntry<Option<Chain>>]) -> f32 {
+    let mut sum = 0.0;
+
+    for row in song.tracks.iter() {
+        let row_max = row
+            .iter()
+            .filter_map(|lane| {
+                lane.and_then(|chain| {
+                    chains[chain.0]
+                        .data
+                        .as_ref()
+                        .map(|chain| chain.chain_length_seconds(song.bpm))
+                })
+            })
+            .reduce(f32::max);
+
+        if let Some(row_max) = row_max {
+            sum += row_max
+        } else {
+            break;
+        }
+    }
+
+    sum
 }

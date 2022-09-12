@@ -1,6 +1,5 @@
 use std::sync::Arc;
 
-use gamercade_audio::{Sfx, Song};
 use gamercade_core::{Rom, SpriteSheet};
 
 use crate::api::DataApi;
@@ -60,26 +59,22 @@ impl DataApi for DataContext {
     }
 
     fn bgm_length_secs(&self, bgm_index: i32) -> f32 {
-        self.get_bgm(bgm_index)
-            .map(Song::get_length)
-            .unwrap_or(f32::NAN)
+        self.get_bgm_length_secs(bgm_index).unwrap_or(f32::NAN)
     }
 
     fn bgm_length_frames(&self, bgm_index: i32) -> i32 {
-        self.get_bgm(bgm_index)
-            .map(|song| self.secs_to_frames(song.get_length()))
+        self.get_bgm_length_secs(bgm_index)
+            .map(|secs| self.secs_to_frames(secs))
             .unwrap_or(-1)
     }
 
     fn sfx_length_secs(&self, sfx_index: i32) -> f32 {
-        self.get_sfx(sfx_index)
-            .map(Sfx::get_length)
-            .unwrap_or(f32::NAN)
+        self.get_sfx_length_secs(sfx_index).unwrap_or(f32::NAN)
     }
 
     fn sfx_length_frames(&self, sfx_index: i32) -> i32 {
-        self.get_sfx(sfx_index)
-            .map(|sfx| self.secs_to_frames(sfx.get_length()))
+        self.get_sfx_length_secs(sfx_index)
+            .map(|secs| self.secs_to_frames(secs))
             .unwrap_or(-1)
     }
 }
@@ -94,12 +89,15 @@ impl DataContext {
             .flatten()
     }
 
-    fn get_bgm(&self, bgm_index: i32) -> Option<&Song> {
-        self.rom.sounds.songs.get(bgm_index as usize)
+    fn get_bgm_length_secs(&self, bgm_index: i32) -> Option<f32> {
+        let song = self.rom.sounds.songs.get(bgm_index as usize)?;
+        Some(song.song_length_seconds(&self.rom.sounds.chains))
     }
 
-    fn get_sfx(&self, sfx_index: i32) -> Option<&Sfx> {
-        self.rom.sounds.sfx.get(sfx_index as usize)
+    fn get_sfx_length_secs(&self, sfx_index: i32) -> Option<f32> {
+        let sfx = self.rom.sounds.sfx.get(sfx_index as usize)?;
+        let chain = self.rom.sounds.chains.get(sfx.chain.0)?.as_ref()?;
+        Some(chain.chain_length_seconds(sfx.bpm))
     }
 
     fn secs_to_frames(&self, secs: f32) -> i32 {

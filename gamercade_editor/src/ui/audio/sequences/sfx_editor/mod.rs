@@ -51,6 +51,18 @@ impl SfxEditor {
                 sync.notify_rom_changed()
             }
 
+            let length_text = match data
+                .chains
+                .get(selected_sfx.data.chain.0)
+                .and_then(|chain| chain.data.as_ref())
+                .map(|chain| chain.chain_length_seconds(selected_sfx.data.bpm))
+            {
+                Some(val) => val.to_string(),
+                None => String::from("invalid chain"),
+            };
+
+            ui.label(format!("Length (seconds): {}", length_text));
+
             if ui.button("Play").clicked() || ui.input().key_pressed(Key::Space) {
                 sync.play_sfx(selected_sfx.data.clone());
             }
