@@ -1,4 +1,4 @@
-use super::i32_u32_to_option;
+use super::{f32_to_option, i32_u32_to_option};
 use crate::raw;
 
 /// Returns the height of the screen, in pixels.
@@ -47,8 +47,38 @@ pub fn sprite_width(sprite_sheet: usize) -> Option<u32> {
 }
 
 /// Returns the number of sprites for the requsted sprite sheet.
-/// If the index is invalid, will return None..
+/// If the index is invalid, will return None.
 pub fn sprite_count(sprite_sheet: usize) -> Option<u32> {
     let val = unsafe { raw::sprite_count(sprite_sheet as i32) };
+    i32_u32_to_option(val)
+}
+
+/// Returns the length of the requested song in seconds.
+/// If the requested song is invalid, will return None.
+pub fn bgm_length_secs(bgm_index: usize) -> Option<f32> {
+    let val = unsafe { raw::bgm_length_secs(bgm_index as i32) };
+    f32_to_option(val)
+}
+
+/// Returns the length of the requested song in frames.
+/// Any fractional component will be rounded up.
+/// If the requested song is invalid, will return None.
+pub fn bgm_length_frames(bgm_index: usize) -> Option<u32> {
+    let val = unsafe { raw::bgm_length_frames(bgm_index as i32) };
+    i32_u32_to_option(val)
+}
+
+/// Returns the length of the requested sfx in seconds.
+/// If the requested sfx is invalid, will return None.
+pub fn sfx_length_secs(sfx_index: usize) -> Option<f32> {
+    let val = unsafe { raw::sfx_length_secs(sfx_index as i32) };
+    f32_to_option(val)
+}
+
+/// Returns the length of the requested sfx in frames.
+/// Any fractional component will be rounded up.
+/// If the requested sfx is invalid, will return None.
+pub fn sfx_length_frames(sfx_index: usize) -> Option<u32> {
+    let val = unsafe { raw::sfx_length_frames(sfx_index as i32) };
     i32_u32_to_option(val)
 }

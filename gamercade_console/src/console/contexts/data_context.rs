@@ -57,6 +57,26 @@ impl DataApi for DataContext {
             .map(|sheet| sheet.count as i32)
             .unwrap_or(-1)
     }
+
+    fn bgm_length_secs(&self, bgm_index: i32) -> f32 {
+        self.get_bgm_length_secs(bgm_index).unwrap_or(f32::NAN)
+    }
+
+    fn bgm_length_frames(&self, bgm_index: i32) -> i32 {
+        self.get_bgm_length_secs(bgm_index)
+            .map(|secs| self.secs_to_frames(secs))
+            .unwrap_or(-1)
+    }
+
+    fn sfx_length_secs(&self, sfx_index: i32) -> f32 {
+        self.get_sfx_length_secs(sfx_index).unwrap_or(f32::NAN)
+    }
+
+    fn sfx_length_frames(&self, sfx_index: i32) -> i32 {
+        self.get_sfx_length_secs(sfx_index)
+            .map(|secs| self.secs_to_frames(secs))
+            .unwrap_or(-1)
+    }
 }
 
 impl DataContext {
@@ -67,5 +87,20 @@ impl DataContext {
             .map(|index| self.rom.graphics.sprite_sheet(index))
             .ok()
             .flatten()
+    }
+
+    fn get_bgm_length_secs(&self, bgm_index: i32) -> Option<f32> {
+        let song = self.rom.sounds.songs.get(bgm_index as usize)?;
+        Some(song.song_length_seconds(&self.rom.sounds.chains))
+    }
+
+    fn get_sfx_length_secs(&self, sfx_index: i32) -> Option<f32> {
+        let sfx = self.rom.sounds.sfx.get(sfx_index as usize)?;
+        let chain = self.rom.sounds.chains.get(sfx.chain.0)?.as_ref()?;
+        Some(chain.chain_length_seconds(sfx.bpm))
+    }
+
+    fn secs_to_frames(&self, secs: f32) -> i32 {
+        (secs / self.rom.frame_rate.frame_time()).ceil() as i32
     }
 }
