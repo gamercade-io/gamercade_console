@@ -20,11 +20,11 @@ impl DrawContext {
     }
 
     pub fn try_get_xcord<T: Into<i32>>(&self, x: T) -> Option<XCord> {
-        self.rom.resolution.try_get_xcord(x.into())
+        self.rom.resolution.try_get_xcord(x)
     }
 
     pub fn try_get_ycord<T: Into<i32>>(&self, y: T) -> Option<YCord> {
-        self.rom.resolution.try_get_ycord(y.into())
+        self.rom.resolution.try_get_ycord(y)
     }
 }
 
@@ -184,9 +184,8 @@ impl DrawApi for DrawContext {
         let mut ddf_x = 0;
         let mut ddf_y = -2 * radius;
 
-        let radius = radius as usize;
-        let x0 = x as usize;
-        let y0 = y as usize;
+        let x0 = x;
+        let y0 = y;
         let mut x = 0;
         let mut y = radius;
 
@@ -255,22 +254,22 @@ impl DrawContext {
     }
 
     fn set_pixel_safe(&mut self, x: XCord, y: YCord, color: Color) {
-        self.try_set_pixel_safe(Some(x), Some(y), color)
+        let pixel_index = self.x_y_cord_to_pixel_buffer_index(x, y);
+        let color = color.into_pixel_data();
+        if let Some(index_bound) = pixel_index.checked_add(BYTES_PER_PIXEL) {
+            if let Some(pixel_buffer) = self
+                .frame_buffer
+                .pixel_buffer
+                .get_mut(pixel_index..index_bound)
+            {
+                pixel_buffer.copy_from_slice(&color);
+            }
+        }
     }
 
     fn try_set_pixel_safe(&mut self, x: Option<XCord>, y: Option<YCord>, color: Color) {
         if let (Some(x), Some(y)) = (x, y) {
-            let pixel_index = self.x_y_cord_to_pixel_buffer_index(x, y);
-            let color = color.into_pixel_data();
-            if let Some(index_bound) = pixel_index.checked_add(BYTES_PER_PIXEL) {
-                if let Some(pixel_buffer) = self
-                    .frame_buffer
-                    .pixel_buffer
-                    .get_mut(pixel_index..index_bound)
-                {
-                    pixel_buffer.copy_from_slice(&color);
-                }
-            }
+            self.set_pixel_safe(x, y, color)
         }
     }
 
@@ -397,15 +396,15 @@ impl DrawContext {
     }
 
     /// Draws the 8 circle points
-    fn draw_circle_points(&mut self, x0: usize, y0: usize, x: usize, y: usize, color: Color) {
-        let up_x = self.try_get_ycord(y0.add(x) as i32);
-        let up_y = self.try_get_ycord(y0.add(y) as i32);
-        let down_x = self.try_get_ycord(y0.max(x).sub(y0.min(x)) as i32);
-        let down_y = self.try_get_ycord(y0.max(y).sub(y0.min(y)) as i32);
-        let left_x = self.try_get_xcord(x0.max(x).sub(x0.min(x)) as i32);
-        let left_y = self.try_get_xcord(x0.max(y).sub(x0.min(y)) as i32);
-        let right_x = self.try_get_xcord(x0.add(x) as i32);
-        let right_y = self.try_get_xcord(x0.add(y) as i32);
+    fn draw_circle_points(&mut self, x0: i32, y0: i32, x: i32, y: i32, color: Color) {
+        let up_x = self.try_get_ycord(y0.add(x));
+        let up_y = self.try_get_ycord(y0.add(y));
+        let down_x = self.try_get_ycord(y0.sub(x));
+        let down_y = self.try_get_ycord(y0.sub(y));
+        let left_x = self.try_get_xcord(x0.sub(x));
+        let left_y = self.try_get_xcord(x0.sub(y));
+        let right_x = self.try_get_xcord(x0.add(x));
+        let right_y = self.try_get_xcord(x0.add(y));
 
         self.try_set_pixel_safe(right_x, up_y, color);
         self.try_set_pixel_safe(right_x, down_y, color);
