@@ -40,28 +40,6 @@ impl AudioApi for AudioContext {
         }
     }
 
-    // TODO: Improve this to check if the state is actually playing a sound or not,
-    // parhaps via TrackerFlow
-    fn bgm_is_active(&self) -> i32 {
-        if self.sound_engine_data.bgm.song.is_some() {
-            1
-        } else {
-            0
-        }
-    }
-
-    // TODO: Improve this to actually check if the channel is playing a sound or not,
-    // perhals via TrackerFlow
-    fn channel_is_active(&self, channel: i32) -> i32 {
-        if let Ok(channel) = usize::try_from(channel) {
-            if channel < SONG_TRACK_CHANNELS {
-                println!("TODO: channel_is_active is not implemented");
-            }
-        }
-
-        -1 // Invalid Channel
-    }
-
     fn stop_bgm(&mut self) {
         self.sound_engine_data.play_bgm(None);
     }

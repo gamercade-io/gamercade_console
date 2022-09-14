@@ -45,5 +45,4 @@ macro_rules! derive_text_api_binding {
 
 derive_text_api_binding! {
     console_log(text_ptr: i32, len: i32,),
-    draw_text(text_ptr: i32, len: i32, x: i32, y:i32),
 }

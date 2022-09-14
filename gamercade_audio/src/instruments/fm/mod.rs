@@ -1,4 +1,5 @@
 mod algorithm;
+mod detune;
 mod feedback;
 mod fm_waveform;
 mod frequency_multiplier;
@@ -6,6 +7,7 @@ mod operator_definition;
 mod patch_definition;
 
 pub use algorithm::*;
+pub use detune::*;
 pub use feedback::*;
 pub use fm_waveform::*;
 pub use frequency_multiplier::*;

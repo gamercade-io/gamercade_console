@@ -1,7 +1,9 @@
 use paste::paste;
 
+use gamercade_core::{ButtonCode, InputState};
+
 use crate::api::InputApi;
-use crate::console::{ButtonCode, PlayerInputEntry};
+use crate::console::PlayerInputEntry;
 
 #[derive(Clone)]
 pub struct InputContext {
@@ -89,8 +91,13 @@ macro_rules! derive_generate_input_api {
                 )*
 
                 fn raw_input_state(&self, player_id: i32) -> i64 {
-                    let player_input = &self.input_entries[player_id as usize];
-                    player_input.current.as_raw_state()
+                    let state = if let Some(player_input) = self.input_entries.get(player_id as usize) {
+                        player_input.current
+                    } else {
+                        InputState::INVALID_STATE
+                    };
+
+                    unsafe { std::mem::transmute(state) }
                 }
             }
         }

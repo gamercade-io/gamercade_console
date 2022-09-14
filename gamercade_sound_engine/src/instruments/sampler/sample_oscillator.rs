@@ -1,4 +1,4 @@
-use gamercade_audio::SampleDefinition;
+use gamercade_audio::{IndexInterpolator, IndexInterpolatorResult, LoopMode, SampleDefinition};
 
 #[derive(Debug, Clone)]
 pub struct SampleOscillator {
@@ -6,23 +6,31 @@ pub struct SampleOscillator {
     sample_frequency: Option<f32>,
     input_sample_rate: usize,
     pub output_sample_rate: usize,
+    interpolator: IndexInterpolator,
 
     // For sound playback
     index: f32,
     index_increment: f32,
-    table_length: f32,
+    table_length: usize,
+    loop_mode: LoopMode,
 }
 
 impl SampleOscillator {
     /// Generates a new SampleOscillator with the default value.
-    pub(crate) fn new(output_sample_rate: usize) -> Self {
+    pub(crate) fn new(
+        output_sample_rate: usize,
+        interpolator: IndexInterpolator,
+        loop_mode: LoopMode,
+    ) -> Self {
         Self {
             sample_frequency: None,
             input_sample_rate: output_sample_rate,
             output_sample_rate,
             index: 0.0,
             index_increment: 0.0,
-            table_length: 1.0,
+            table_length: 1,
+            interpolator,
+            loop_mode,
         }
     }
 
@@ -30,7 +38,11 @@ impl SampleOscillator {
         definition: &SampleDefinition,
         output_sample_rate: usize,
     ) -> Self {
-        let mut out = Self::new(output_sample_rate);
+        let mut out = Self::new(
+            output_sample_rate,
+            definition.interpolator,
+            definition.loop_mode.clone(),
+        );
         out.set_sample(definition);
         out
     }
@@ -54,15 +66,56 @@ impl SampleOscillator {
         self.input_sample_rate = sample.source_sample_rate;
         self.index = 0.0;
         self.index_increment = sample.source_sample_rate as f32 / self.output_sample_rate as f32;
-        self.table_length = sample.data.len() as f32;
+        self.table_length = sample.data.len();
     }
 
     /// Returns the index, then
     /// Increments the oscillator by its predefined amount
-    pub(crate) fn tick(&mut self) -> f32 {
+    /// Also handles any looping logic
+    pub(crate) fn tick(&mut self) -> Option<f32> {
         let out = self.index;
         self.index += self.index_increment;
-        self.index %= self.table_length;
-        out
+
+        match &self.loop_mode {
+            LoopMode::Oneshot => {
+                if self.index > self.table_length as f32 {
+                    return None;
+                }
+            }
+            LoopMode::Loop => self.index %= self.table_length as f32,
+            LoopMode::LoopRange(range) => {
+                if self.index > range.end as f32 {
+                    self.index = range.start as f32 + self.index.fract();
+                }
+            }
+        }
+        Some(out)
+    }
+
+    pub(crate) fn get_interpolated_indices(&self, index: f32) -> IndexInterpolatorResult {
+        if let LoopMode::LoopRange(range) = &self.loop_mode {
+            if self.index > range.start as f32 {
+                let index = self.index - range.start as f32;
+
+                let mut out = self
+                    .interpolator
+                    .get_indices(index, range.end - range.start);
+
+                match &mut out {
+                    IndexInterpolatorResult::Single(val) => *val += range.start,
+                    IndexInterpolatorResult::Multiple(values) => values
+                        .iter_mut()
+                        .for_each(|(index, _)| *index += range.start),
+                };
+
+                return out;
+            }
+        }
+        self.interpolator.get_indices(index, self.table_length)
+    }
+
+    /// Resets the index back to zero. Useful when retriggering the sample
+    pub(crate) fn reset(&mut self) {
+        self.index = 0.0;
     }
 }

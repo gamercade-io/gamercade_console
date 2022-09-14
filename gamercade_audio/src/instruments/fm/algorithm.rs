@@ -97,11 +97,11 @@ impl Algorithm {
 
             // [A > B] + [C > D]
             7 => &AlgorithmDefinition {
-                carriers: [false, true, false, true],
+                carriers: [false, false, true, true],
                 modulators: [
-                    ModulatedBy::Single(0),
                     ModulatedBy::None,
-                    ModulatedBy::Single(2),
+                    ModulatedBy::Single(0),
+                    ModulatedBy::Single(1),
                 ],
             },
 

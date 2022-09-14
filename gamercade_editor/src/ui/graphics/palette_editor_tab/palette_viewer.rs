@@ -1,15 +1,27 @@
 use eframe::egui::{Color32, ImageButton, TextureId, Ui, Vec2};
 use gamercade_core::{Color, Palette, PALETTE_COLORS};
 
+use crate::editor_data::EditorPalette;
+
 #[derive(Clone, Default, Debug)]
 pub struct PaletteViewer {
     pub(crate) selected_color: usize,
 }
 
 impl PaletteViewer {
-    pub(crate) fn draw(&mut self, ui: &mut Ui, palette: &mut Palette, palette_texture: TextureId) {
+    pub(crate) fn draw(
+        &mut self,
+        ui: &mut Ui,
+        palette: &mut EditorPalette,
+        palette_texture: TextureId,
+    ) {
         ui.group(|ui| {
             ui.label("Palette Viewer");
+
+            ui.label("Palette Name: ");
+            ui.text_edit_singleline(&mut palette.name);
+
+            let palette = &mut palette.palette;
 
             ui.horizontal(|ui| {
                 ui.spacing_mut().item_spacing = Vec2 { x: 0.0, y: 0.0 };

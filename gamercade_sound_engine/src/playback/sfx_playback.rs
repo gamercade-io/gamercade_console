@@ -49,4 +49,8 @@ impl SfxPlayback {
 
         self.chain_playback.phrase_playback.instrument.tick()
     }
+
+    pub fn replace_sound_rom_instance(&mut self, new_rom: &Arc<SoundRomInstance>) {
+        self.chain_playback.replace_sound_rom_instance(new_rom)
+    }
 }

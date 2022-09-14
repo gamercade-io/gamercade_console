@@ -72,6 +72,11 @@ impl SongPlayback {
                 .for_each(|(track, next)| {
                     track.set_chain_id(*next);
                 });
+        } else {
+            // Otherwise, just stop all of the playbacks
+            self.tracks.iter_mut().for_each(|track| {
+                track.set_chain_id(None);
+            });
         }
     }
 
@@ -128,5 +133,13 @@ impl SongPlayback {
             });
 
         TrackerFlow::Advance
+    }
+
+    pub(crate) fn replace_sound_rom_instance(&mut self, new_rom: &Arc<SoundRomInstance>) {
+        self.rom = new_rom.clone();
+
+        self.tracks
+            .iter_mut()
+            .for_each(|track| track.replace_sound_rom_instance(new_rom));
     }
 }

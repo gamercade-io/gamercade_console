@@ -5,6 +5,12 @@
 //! various values as primitive types such as i32 containing boolean values.
 //!
 //! The best way to get started is by importing the prelude via `use gamercade_rs::prelude::*`
+//!
+//! You must only use these functions inside of the callbacks required by the Gamercade console.
+//! These functions are `init()`, `update()` and `draw()`. Calling these functions outside of the
+//! designated callbacks will likely cause a panic.
+//!
+//! Learn more about the Gamercade Api from <https://gamercade.io/docs/api-reference>
 
 /// The raw, unsafe Gamerade Api. It is recommended to only
 /// use this in extreme circumstances.

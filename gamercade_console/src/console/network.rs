@@ -1,10 +1,10 @@
 use std::net::SocketAddr;
 
+use gamercade_core::{Buttons, InputState};
 use gamercade_sound_engine::SoundEngineData;
 use ggrs::{Config, PlayerType};
 use wasmtime::Global;
 
-use super::input::{Buttons, InputState};
 use super::WasmConsole;
 
 #[derive(Clone)]

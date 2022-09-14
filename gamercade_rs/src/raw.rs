@@ -4,7 +4,6 @@
 extern "C" {
     pub fn play_bgm(bgm_index: i32);
     pub fn play_sfx(sfx_index: i32, channel: i32);
-    pub fn bgm_is_active() -> i32;
     pub fn channel_is_active(channel: i32) -> i32;
     pub fn stop_bgm();
     pub fn stop_channel(channel: i32);
@@ -23,6 +22,10 @@ extern "C" {
     pub fn sprite_height(sprite_sheet: i32) -> i32;
     pub fn sprite_width(sprite_sheet: i32) -> i32;
     pub fn sprite_count(sprite_sheet: i32) -> i32;
+    pub fn bgm_length_secs(bgm_index: i32) -> f32;
+    pub fn bgm_length_frames(bgm_index: i32) -> i32;
+    pub fn sfx_length_secs(sfx_index: i32) -> f32;
+    pub fn sfx_length_frames(sfx_index: i32) -> i32;
 }
 
 // Graphics Params

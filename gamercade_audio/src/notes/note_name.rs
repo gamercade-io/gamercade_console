@@ -17,6 +17,12 @@ pub enum NoteName {
     GSharp,
 }
 
+#[derive(Debug, Clone, Copy, Eq, PartialEq)]
+pub enum NoteColor {
+    White,
+    Black,
+}
+
 impl NoteName {
     pub(crate) fn as_index_offset(self) -> usize {
         match self {
@@ -37,19 +43,37 @@ impl NoteName {
 
     pub(crate) fn as_str(self) -> TinyAsciiStr<2> {
         TinyAsciiStr::from_str(match self {
-            NoteName::A => "A ",
+            NoteName::A => "A-",
             NoteName::ASharp => "A#",
-            NoteName::B => "B ",
-            NoteName::C => "C ",
+            NoteName::B => "B-",
+            NoteName::C => "C-",
             NoteName::CSharp => "C#",
-            NoteName::D => "D ",
+            NoteName::D => "D-",
             NoteName::DSharp => "D#",
-            NoteName::E => "E ",
-            NoteName::F => "F ",
-            NoteName::FSharp => "F ",
-            NoteName::G => "G ",
+            NoteName::E => "E-",
+            NoteName::F => "F-",
+            NoteName::FSharp => "F#",
+            NoteName::G => "G-",
             NoteName::GSharp => "G#",
         })
         .unwrap()
+    }
+
+    pub fn get_key_color(self) -> NoteColor {
+        use NoteColor::*;
+        match self {
+            NoteName::A => White,
+            NoteName::ASharp => Black,
+            NoteName::B => White,
+            NoteName::C => White,
+            NoteName::CSharp => Black,
+            NoteName::D => White,
+            NoteName::DSharp => Black,
+            NoteName::E => White,
+            NoteName::F => White,
+            NoteName::FSharp => Black,
+            NoteName::G => White,
+            NoteName::GSharp => Black,
+        }
     }
 }

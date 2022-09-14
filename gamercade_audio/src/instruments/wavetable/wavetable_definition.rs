@@ -1,12 +1,24 @@
 use serde::{Deserialize, Serialize};
 
 use super::WavetableBitDepth;
-use crate::EnvelopeDefinition;
+use crate::{de_audio_data, ser_audio_data, EnvelopeDefinition, IndexInterpolator};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WavetableDefinition {
+    #[serde(serialize_with = "ser_audio_data", deserialize_with = "de_audio_data")]
     pub data: Box<[WavetableBitDepth]>,
     pub envelope: EnvelopeDefinition,
+    pub interpolator: IndexInterpolator,
+}
+
+impl Default for WavetableDefinition {
+    fn default() -> Self {
+        Self {
+            data: vec![0].into_boxed_slice(),
+            envelope: Default::default(),
+            interpolator: IndexInterpolator::default(),
+        }
+    }
 }
 
 impl WavetableDefinition {

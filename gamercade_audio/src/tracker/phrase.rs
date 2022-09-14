@@ -8,7 +8,7 @@ use crate::{
 };
 
 /// Newtype Chain Identifier
-#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone, Serialize, Deserialize, Default)]
 pub struct PhraseId(pub usize);
 
 /// A phrase is a series of notes tied to instruments, which when combined together form a chain.
@@ -77,4 +77,15 @@ pub struct PhraseEntry<N, T> {
     pub volume: PhraseVolumeType,
     pub instrument: T,
     pub effects: [Option<Effect>; EFFECT_COUNT],
+}
+
+impl Default for PhraseStorageType {
+    fn default() -> Self {
+        Self {
+            note: Default::default(),
+            volume: PhraseVolumeType::MAX / 2,
+            instrument: Default::default(),
+            effects: Default::default(),
+        }
+    }
 }

@@ -1,11 +1,13 @@
 mod audio_editor;
-mod chain_editor;
+mod audio_editor_help;
+mod audio_list;
 mod instrument_editor;
-mod pattern_editor;
-mod song_editor;
+mod oscilloscope;
+mod sequences;
 
 pub use audio_editor::*;
-pub use chain_editor::*;
-pub use instrument_editor::*;
-pub use pattern_editor::*;
-pub use song_editor::*;
+pub(crate) use audio_editor_help::*;
+pub(crate) use audio_list::*;
+pub(crate) use instrument_editor::*;
+pub(crate) use oscilloscope::*;
+use sequences::*;

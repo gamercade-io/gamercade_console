@@ -11,9 +11,9 @@ use crate::{Sfx, SongId, WavetableDefinition};
 #[derive(Debug)]
 pub struct SoundRomInstance {
     pub songs: Box<[Song]>,
-    pub chains: Box<[Chain]>,
-    pub phrases: Box<[Phrase]>,
-    pub instrument_bank: Box<[InstrumentDefinition]>,
+    pub chains: Box<[Option<Chain>]>,
+    pub phrases: Box<[Option<Phrase>]>,
+    pub instrument_bank: Box<[Option<InstrumentDefinition>]>,
     pub sfx: Box<[Sfx]>,
 }
 
@@ -32,6 +32,22 @@ pub enum InstrumentDefinitionKind {
     Sampler(Arc<SampleDefinition>),
 }
 
+impl From<InstrumentDataDefinition> for InstrumentDefinitionKind {
+    fn from(data: InstrumentDataDefinition) -> Self {
+        match data {
+            InstrumentDataDefinition::Wavetable(wavetable_def) => {
+                InstrumentDefinitionKind::Wavetable(Arc::new(wavetable_def))
+            }
+            InstrumentDataDefinition::FMSynth(fm_def) => {
+                InstrumentDefinitionKind::FMSynth(Arc::new(fm_def))
+            }
+            InstrumentDataDefinition::Sampler(sample) => {
+                InstrumentDefinitionKind::Sampler(Arc::new(sample))
+            }
+        }
+    }
+}
+
 impl SoundRomInstance {
     /// Generates a new sound engine. This struct is used throughout the audio system.
     /// Performs some light logic to prepare the generation of sound sources.
@@ -44,18 +60,10 @@ impl SoundRomInstance {
                 .into_iter()
                 .enumerate()
                 .map(|(index, instrument)| {
-                    let kind = match instrument {
-                        InstrumentDataDefinition::Wavetable(wavetable_def) => {
-                            InstrumentDefinitionKind::Wavetable(Arc::new(wavetable_def))
-                        }
-                        InstrumentDataDefinition::FMSynth(fm_def) => {
-                            InstrumentDefinitionKind::FMSynth(Arc::new(fm_def))
-                        }
-                        InstrumentDataDefinition::Sampler(sample) => {
-                            InstrumentDefinitionKind::Sampler(Arc::new(sample))
-                        }
-                    };
-                    InstrumentDefinition { id: index, kind }
+                    instrument.map(|instrument| InstrumentDefinition {
+                        id: index,
+                        kind: InstrumentDefinitionKind::from(instrument),
+                    })
                 })
                 .collect::<Vec<_>>()
                 .into_boxed_slice(),
@@ -73,25 +81,37 @@ impl Index<SongId> for SoundRomInstance {
 }
 
 impl Index<ChainId> for SoundRomInstance {
-    type Output = Chain;
+    type Output = Option<Chain>;
 
     fn index(&self, index: ChainId) -> &Self::Output {
-        &self.chains[index.0]
+        if let Some(chain) = self.chains.get(index.0) {
+            chain
+        } else {
+            &None
+        }
     }
 }
 
 impl Index<PhraseId> for SoundRomInstance {
-    type Output = Phrase;
+    type Output = Option<Phrase>;
 
     fn index(&self, index: PhraseId) -> &Self::Output {
-        &self.phrases[index.0]
+        if let Some(phrase) = self.phrases.get(index.0) {
+            phrase
+        } else {
+            &None
+        }
     }
 }
 
 impl Index<InstrumentId> for SoundRomInstance {
-    type Output = InstrumentDefinition;
+    type Output = Option<InstrumentDefinition>;
 
     fn index(&self, index: InstrumentId) -> &Self::Output {
-        &self.instrument_bank[index.0]
+        if let Some(instrument) = self.instrument_bank.get(index.0) {
+            instrument
+        } else {
+            &None
+        }
     }
 }

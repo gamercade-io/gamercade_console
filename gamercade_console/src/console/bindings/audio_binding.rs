@@ -29,9 +29,6 @@ derive_audio_api_binding! {
     play_bgm(bgm_index: i32),
     play_sfx(sfx_index: i32, channel: i32),
 
-    bgm_is_active(),
-    channel_is_active(channel: i32),
-
     stop_bgm(),
     stop_channel(channel: i32),
 

@@ -22,6 +22,9 @@ pub enum WavetableWaveform {
     InvertedHalfSine,
     InvertedAlternatingSine,
     InvertedCamelSine,
+
+    // Noise
+    Noise,
 }
 
 impl Default for WavetableWaveform {
@@ -117,6 +120,7 @@ impl WavetableWaveform {
             Self::InvertedHalfSine => inverted_half_sine(value),
             Self::InvertedAlternatingSine => inverted_alternating_sine(value),
             Self::InvertedCamelSine => inverted_camel_sine(value),
+            Self::Noise => (fastrand::f32() * 2.0) - 1.0,
         }
     }
 }

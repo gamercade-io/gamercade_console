@@ -28,9 +28,9 @@ impl PixelBuffer {
         sheet: &SpriteSheet,
         sprite_index: SpriteIndex,
         palette: &Palette,
-        x: i32,
-        y: i32,
+        (x, y): (i32, i32),
         transparency_mask: i64,
+        (flip_x, flip_y): (bool, bool),
     ) {
         let palette = palette.as_pixel_colors();
         let sprite_width = sheet.width;
@@ -53,7 +53,11 @@ impl PixelBuffer {
                 let target_pixel = start + x as i32 + (y as i32 * self.buffer_width as i32);
                 let target_pixel = target_pixel as usize * BYTES_PER_PIXEL;
 
-                let color_index = sprite[x + (y * sprite_width)];
+                let sprite_x = if flip_x { sprite_width - x - 1 } else { x };
+
+                let sprite_y = if flip_y { sprite_height - y - 1 } else { y };
+
+                let color_index = sprite[sprite_x + (sprite_y * sprite_width)];
                 let color = palette[color_index.0 as usize];
 
                 // We skip this color, due to transparency

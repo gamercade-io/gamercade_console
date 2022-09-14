@@ -2,9 +2,9 @@ use std::{process, sync::Arc, time::Duration};
 
 use arrayvec::ArrayVec;
 use gamercade_audio::{
-    Chain, ChainId, EnvelopeDefinition, InstrumentDataDefinition, InstrumentId, PatchDefinition,
-    Phrase, PhraseId, SampleBitDepth, SampleDefinition, Song, SongId, SoundRom,
-    WavetableDefinition, WavetableGenerator, WavetableWaveform,
+    Chain, ChainId, EnvelopeDefinition, IndexInterpolator, InstrumentDataDefinition, InstrumentId,
+    LoopMode, PatchDefinition, Phrase, PhraseId, SampleBitDepth, SampleDefinition, Song, SongId,
+    SoundRom, WavetableDefinition, WavetableGenerator, WavetableWaveform,
 };
 use gamercade_sound_engine::{SoundEngine, SoundEngineData, SoundRomInstance};
 use hound::WavReader;
@@ -35,17 +35,18 @@ pub fn main() {
 // the editor gets audio support.
 fn test_rom() -> SoundRomInstance {
     let instruments = vec![
-        InstrumentDataDefinition::FMSynth(PatchDefinition::default()),
-        InstrumentDataDefinition::Wavetable(WavetableDefinition {
+        Some(InstrumentDataDefinition::FMSynth(PatchDefinition::default())),
+        Some(InstrumentDataDefinition::Wavetable(WavetableDefinition {
             data: WavetableGenerator {
                 waveform: WavetableWaveform::Sine,
                 size: 64,
             }
             .generate(),
             envelope: EnvelopeDefinition::interesting(),
-        }),
-        InstrumentDataDefinition::Sampler(sampler_no_pitch()),
-        InstrumentDataDefinition::Sampler(sampler_pitched()),
+            interpolator: gamercade_audio::IndexInterpolator::Linear,
+        })),
+        Some(InstrumentDataDefinition::Sampler(sampler_no_pitch())),
+        Some(InstrumentDataDefinition::Sampler(sampler_pitched())),
     ];
 
     let mut chains0 = ArrayVec::new();
@@ -95,20 +96,20 @@ fn test_rom() -> SoundRomInstance {
     let rom = SoundRom {
         songs,
         chains: vec![
-            Chain { entries: chains0 },
-            Chain { entries: chains1 },
-            Chain { entries: chains2 },
-            Chain { entries: chains3 },
+            Some(Chain { entries: chains0 }),
+            Some(Chain { entries: chains1 }),
+            Some(Chain { entries: chains2 }),
+            Some(Chain { entries: chains3 }),
         ]
         .into_boxed_slice(),
         phrases: vec![
-            Phrase::c_scale(InstrumentId(0)),
-            Phrase::c_scale_reverse(InstrumentId(0)),
-            Phrase::c_scale(InstrumentId(1)),
-            Phrase::c_scale_reverse(InstrumentId(1)),
-            Phrase::c_scale(InstrumentId(2)),
-            Phrase::c_scale(InstrumentId(3)),
-            Phrase::c_scale_reverse(InstrumentId(3)),
+            Some(Phrase::c_scale(InstrumentId(0))),
+            Some(Phrase::c_scale_reverse(InstrumentId(0))),
+            Some(Phrase::c_scale(InstrumentId(1))),
+            Some(Phrase::c_scale_reverse(InstrumentId(1))),
+            Some(Phrase::c_scale(InstrumentId(2))),
+            Some(Phrase::c_scale(InstrumentId(3))),
+            Some(Phrase::c_scale_reverse(InstrumentId(3))),
         ]
         .into_boxed_slice(),
         instruments: instruments.into_boxed_slice(),
@@ -119,7 +120,7 @@ fn test_rom() -> SoundRomInstance {
 }
 
 fn sampler_no_pitch() -> SampleDefinition {
-    let reader = WavReader::open("./gamercade_audio/CantinaBand3.wav").unwrap();
+    let reader = WavReader::open("./gamercade_sound_engine/CantinaBand3.wav").unwrap();
     let spec = reader.spec();
     let channels = spec.channels;
     let source_sample_rate = spec.sample_rate as usize;
@@ -140,11 +141,13 @@ fn sampler_no_pitch() -> SampleDefinition {
         source_sample_rate,
         sample_frequency: None,
         envelope_definition: EnvelopeDefinition::always_on(),
+        interpolator: IndexInterpolator::default(),
+        loop_mode: LoopMode::Loop,
     }
 }
 
 fn sampler_pitched() -> SampleDefinition {
-    let reader = WavReader::open("./gamercade_audio/1_piano_mid.wav").unwrap();
+    let reader = WavReader::open("./gamercade_sound_engine/1_piano_mid.wav").unwrap();
     let spec = reader.spec();
     let channels = spec.channels;
     let source_sample_rate = spec.sample_rate as usize;
@@ -165,5 +168,7 @@ fn sampler_pitched() -> SampleDefinition {
         source_sample_rate,
         sample_frequency: Some(523.251), //This sample is pitched to C
         envelope_definition: EnvelopeDefinition::interesting(),
+        interpolator: IndexInterpolator::default(),
+        loop_mode: LoopMode::Oneshot,
     }
 }

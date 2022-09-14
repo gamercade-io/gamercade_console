@@ -1,4 +1,7 @@
-use gamercade_audio::{get_note, NoteId, PhraseEntry, PhraseStorageType};
+use gamercade_audio::{
+    get_note, to_scaled_value, InstrumentId, NoteId, PhraseEntry, PhraseStorageType,
+    PhraseVolumeType,
+};
 
 use crate::{
     InstrumentDefinition, InstrumentDefinitionKind, PatchInstance, SamplerInstance,
@@ -9,6 +12,7 @@ use crate::{
 pub struct InstrumentInstance {
     id: usize,
     kind: InstrumentInstanceKind,
+    volume: PhraseVolumeType,
 }
 
 #[derive(Debug, Clone)]
@@ -23,15 +27,19 @@ pub type InstrumentChannelType = PhraseEntry<f32, InstrumentDefinition>;
 pub fn new_instrument_channel_message(
     entry: &PhraseStorageType,
     rom: &SoundRomInstance,
-) -> InstrumentChannelType {
-    let note = get_note(entry.note).frequency;
-    let instrument = rom[entry.instrument].clone();
+) -> Option<InstrumentChannelType> {
+    if let Some(instrument) = &rom[entry.instrument] {
+        let note = get_note(entry.note).frequency;
+        let instrument = instrument.clone();
 
-    InstrumentChannelType {
-        note,
-        volume: entry.volume,
-        instrument,
-        effects: entry.effects.clone(),
+        Some(InstrumentChannelType {
+            note,
+            volume: entry.volume,
+            instrument,
+            effects: entry.effects.clone(),
+        })
+    } else {
+        None
     }
 }
 
@@ -42,6 +50,13 @@ impl InstrumentInstance {
             kind: InstrumentInstanceKind::Wavetable(WavetableInstance::no_sound(
                 output_sample_rate,
             )),
+            volume: 0,
+        }
+    }
+
+    pub fn force_refresh_instrument(&mut self, rom: &SoundRomInstance) {
+        if let Some(instrument) = &rom[InstrumentId(self.id)] {
+            self.update_from_instrument(instrument)
         }
     }
 
@@ -64,6 +79,7 @@ impl InstrumentInstance {
         Self {
             id: source.id,
             kind,
+            volume: PhraseVolumeType::MAX,
         }
     }
 
@@ -82,6 +98,8 @@ impl InstrumentInstance {
             self.update_from_instrument(&entry.instrument)
         }
 
+        self.volume = entry.volume;
+
         match &mut self.kind {
             InstrumentInstanceKind::Wavetable(wave) => {
                 wave.set_frequency(entry.note);
@@ -99,11 +117,13 @@ impl InstrumentInstance {
     }
 
     pub(crate) fn tick(&mut self) -> f32 {
-        match &mut self.kind {
+        let raw_output = match &mut self.kind {
             InstrumentInstanceKind::Wavetable(wv) => wv.tick(),
             InstrumentInstanceKind::FMSynth(fm) => fm.tick(),
             InstrumentInstanceKind::Sampler(sm) => sm.tick(),
-        }
+        };
+
+        raw_output * to_scaled_value(self.volume)
     }
 
     pub(crate) fn set_active(&mut self, active: bool) {
@@ -111,6 +131,14 @@ impl InstrumentInstance {
             InstrumentInstanceKind::Wavetable(wv) => wv.set_active(active),
             InstrumentInstanceKind::FMSynth(fm) => fm.set_active(active),
             InstrumentInstanceKind::Sampler(sm) => sm.set_active(active),
+        }
+    }
+
+    pub(crate) fn trigger(&mut self) {
+        match &mut self.kind {
+            InstrumentInstanceKind::Wavetable(wv) => wv.trigger(),
+            InstrumentInstanceKind::FMSynth(fm) => fm.trigger(),
+            InstrumentInstanceKind::Sampler(sm) => sm.trigger(),
         }
     }
 

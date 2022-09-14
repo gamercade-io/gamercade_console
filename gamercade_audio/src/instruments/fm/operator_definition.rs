@@ -1,7 +1,9 @@
 use serde::{Deserialize, Serialize};
 
 use super::FrequencyMultiplier;
-use crate::{EnvelopeDefinition, FMWaveform, OPERATOR_COUNT};
+use crate::{
+    Detune, EnvelopeDefinition, EnvelopeValue, FMWaveform, IndexInterpolator, OPERATOR_COUNT,
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OperatorDefinitionBundle {
@@ -11,34 +13,37 @@ pub struct OperatorDefinitionBundle {
 impl Default for OperatorDefinitionBundle {
     fn default() -> Self {
         let modulators_envelope = EnvelopeDefinition {
-            total_level: 0,
+            total_level: EnvelopeValue::zero(),
             ..Default::default()
         };
 
         let silent_modulator = OperatorDefinition {
             waveform: FMWaveform::Sine,
             frequency_multiplier: FrequencyMultiplier::one(),
-            detune: 0,
+            detune: Detune(0),
             envlope_definition: modulators_envelope,
+            interpolator: IndexInterpolator::default(),
         };
 
         let modulator_envelope = EnvelopeDefinition {
-            total_level: 49_152, // Random value to compare against audio-test
+            total_level: EnvelopeValue(170), // Random value to compare against audio-test
             ..EnvelopeDefinition::interesting()
         };
 
         let modulator = OperatorDefinition {
             waveform: FMWaveform::Sine,
             frequency_multiplier: FrequencyMultiplier::one(),
-            detune: 0,
+            detune: Detune(0),
             envlope_definition: modulator_envelope,
+            interpolator: IndexInterpolator::default(),
         };
 
         let carrier = OperatorDefinition {
             waveform: FMWaveform::Sine,
             frequency_multiplier: FrequencyMultiplier::one(),
-            detune: 0,
+            detune: Detune(0),
             envlope_definition: EnvelopeDefinition::interesting(),
+            interpolator: IndexInterpolator::default(),
         };
 
         Self {
@@ -56,6 +61,7 @@ impl Default for OperatorDefinitionBundle {
 pub struct OperatorDefinition {
     pub waveform: FMWaveform,
     pub frequency_multiplier: FrequencyMultiplier,
-    pub detune: i8,
+    pub detune: Detune,
     pub envlope_definition: EnvelopeDefinition,
+    pub interpolator: IndexInterpolator,
 }

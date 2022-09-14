@@ -1,14 +1,23 @@
-use std::mem::MaybeUninit;
+use std::{
+    iter::{Cycle, Peekable},
+    mem::MaybeUninit,
+};
 
 use serde::{Deserialize, Serialize};
 use strum::{EnumCount, IntoEnumIterator};
 use tinystr::TinyAsciiStr;
 
-use crate::{NoteName, Octave, TOTAL_NOTES_COUNT};
+use crate::{NoteName, NoteNameIter, Octave, OctaveIter, TOTAL_NOTES_COUNT};
 
 /// Newtype Note Id
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 pub struct NoteId(pub usize);
+
+impl Default for NoteId {
+    fn default() -> Self {
+        Self(TOTAL_NOTES_COUNT / 2)
+    }
+}
 
 impl TryFrom<i32> for NoteId {
     type Error = &'static str;
@@ -32,29 +41,64 @@ pub struct Note {
 }
 
 static mut NOTES_LUT: MaybeUninit<[Note; TOTAL_NOTES_COUNT]> = MaybeUninit::uninit();
-const FIRST_NOTE_OFFSET: usize = 2;
+pub const FIRST_NOTE_OFFSET: usize = 2;
+
+/// A type which implements .iter() which
+/// goes through all valid notes for this sound engine.
+pub struct NotesIter {
+    count: usize,
+    name_iter: Cycle<NoteNameIter>,
+    octave_iter: Peekable<OctaveIter>,
+}
+
+impl Default for NotesIter {
+    fn default() -> Self {
+        let octave_iter = Octave::iter().peekable(); //Start at 1
+        let mut name_iter = NoteName::iter().cycle(); // Start at A
+
+        name_iter.nth(FIRST_NOTE_OFFSET); // Advance to C1
+
+        Self {
+            count: 0,
+            name_iter,
+            octave_iter,
+        }
+    }
+}
+
+impl Iterator for NotesIter {
+    type Item = (NoteName, Octave);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.count >= TOTAL_NOTES_COUNT {
+            None
+        } else {
+            self.count += 1;
+            let name = self.name_iter.next().unwrap();
+
+            if name == NoteName::A {
+                self.octave_iter.next();
+            };
+
+            let octave = self.octave_iter.peek().unwrap();
+
+            Some((name, *octave))
+        }
+    }
+}
 
 /// Initializes the notes LUT
 pub fn initialize_notes() {
-    let mut octave_iter = Octave::iter().peekable(); //Start at 1
-    let mut name_iter = NoteName::iter().cycle(); // Start at A
-
-    name_iter.nth(FIRST_NOTE_OFFSET); // Advance to C1
+    let mut note_iter = NotesIter::default();
 
     unsafe {
         NOTES_LUT.write(std::array::from_fn(|index| {
             // C1 is 45 notes away from A4. (69 - 45 = 24)
             let index = index + 24;
 
-            let name = name_iter.next().unwrap();
+            let (name, octave) = note_iter.next().unwrap();
 
-            if name == NoteName::A {
-                octave_iter.next();
-            }
-
-            let octave = octave_iter.peek().unwrap().as_str();
-
-            let name = TinyAsciiStr::from_str(&[name.as_str().as_str(), octave.as_str()].concat())
+            let name = TinyAsciiStr::from_str(&[name.as_str().as_str(), &octave.as_str()].concat())
                 .unwrap();
             let frequency = note_to_frequency(index as isize);
 
