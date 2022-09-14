@@ -47,6 +47,12 @@ jobs:
         with:
           toolchain: stable
           components: clippy
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install build-essential librust-atk-sys-dev libgtk-3-dev \
+          gcc-multilib libpq-dev libxcb-shape0-dev libxcb-xfixes0-dev \
+          libasound2-dev portaudio19-dev libpulse-dev libdbus-1-dev
       - uses: Swatinem/rust-cache@v2
       - uses: actions-rs/cargo@v1
         with:
@@ -66,6 +72,12 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install build-essential librust-atk-sys-dev libgtk-3-dev \
+          gcc-multilib libpq-dev libxcb-shape0-dev libxcb-xfixes0-dev \
+          libasound2-dev portaudio19-dev libpulse-dev libdbus-1-dev
       - uses: Swatinem/rust-cache@v2
         # We use this `retry` action because the following `nextest` action can
         # fail to retrieve the pre-build library from the server.
@@ -90,6 +102,12 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install build-essential librust-atk-sys-dev libgtk-3-dev \
+          gcc-multilib libpq-dev libxcb-shape0-dev libxcb-xfixes0-dev \
+          libasound2-dev portaudio19-dev libpulse-dev libdbus-1-dev
       - uses: Swatinem/rust-cache@v2
       - uses: actions-rs/cargo@v1
         with:
@@ -118,6 +136,12 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install build-essential librust-atk-sys-dev libgtk-3-dev \
+          gcc-multilib libpq-dev libxcb-shape0-dev libxcb-xfixes0-dev \
+          libasound2-dev portaudio19-dev libpulse-dev libdbus-1-dev
       - uses: Swatinem/rust-cache@v2
       - uses: actions-rs/cargo@v1
         with:
