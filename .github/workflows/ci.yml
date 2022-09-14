@@ -1,0 +1,165 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - "**.md"
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "**/README.md"
+
+concurrency:
+  group: "${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  format:
+    name: Run cargo fmt
+    runs-on: ubuntu-latest
+    env:
+      CARGO_TERM_COLOR: always
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          components: rustfmt
+          default: true
+          override: true
+      - uses: Swatinem/rust-cache@v2
+      - uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --check
+
+  clippy:
+    name: Run cargo clippy
+    runs-on: ubuntu-latest
+    env:
+      CARGO_TERM_COLOR: always
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+      - uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --no-deps --all-targets
+
+  test:
+    name: Run cargo nextest
+    runs-on: ubuntu-latest
+    env:
+      CARGO_TERM_COLOR: always
+      NEXTEST_FAILURE_OUTPUT: final
+      NEXTEST_SUCCESS_OUTPUT: never
+      NEXTEST_STATUS_LEVEL: fail
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - uses: Swatinem/rust-cache@v2
+        # We use this `retry` action because the following `nextest` action can
+        # fail to retrieve the pre-build library from the server.
+      - uses: Wandalen/wretry.action@v1.0.25
+        with:
+          action: taiki-e/install-action@nextest
+          attempt_limit: 3
+          attempt_delay: 60000
+      - uses: actions-rs/cargo@v1
+        with:
+          command: nextest
+          args: run --fail-fast
+
+  doc:
+    name: Run cargo doc
+    runs-on: ubuntu-latest
+    env:
+      CARGO_TERM_COLOR: always
+      RUSTDOCFLAGS: -D warnings
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: actions-rs/cargo@v1
+        with:
+          command: doc
+          args: --workspace --no-deps --document-private-items
+
+  deploy:
+    name: Deploy Builds
+    needs: [format, clippy, test, doc]
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            release_suffix: ubuntu
+          - os: macos-latest
+            release_suffix: mac
+          - os: windows-latest
+            release_suffix: windows
+    runs-on: ${{ matrix.os }}
+    env:
+      CARGO_TERM_COLOR: always
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release
+
+      - name: Deploy Console for Mac & Linux
+        if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
+        uses: WebFreak001/deploy-nightly@v1.1.0
+        with:
+          upload_url: https://uploads.github.com/repos/gamercade-io/gamercade_console/releases/73475292/assets{?name,label} # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases in your browser and copy the full "upload_url" value including the {?name,label} part
+          release_id: 73475292 # same as above (id can just be taken out the upload_url, it's used to find old releases)
+          asset_path: ./target/release/console
+          asset_name: gamercade_console-${{ matrix.release_suffix }}
+          asset_content_type: application/zip # required by GitHub API
+
+      - name: Deploy Console for Windows
+        if: matrix.os == 'windows-latest'
+        uses: WebFreak001/deploy-nightly@v1.1.0
+        with:
+          upload_url: https://uploads.github.com/repos/gamercade-io/gamercade_console/releases/73475292/assets{?name,label} # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases in your browser and copy the full "upload_url" value including the {?name,label} part
+          release_id: 73475292 # same as above (id can just be taken out the upload_url, it's used to find old releases)
+          asset_path: ./target/release/console.exe
+          asset_name: gamercade_console-${{ matrix.release_suffix }}.exe
+          asset_content_type: application/zip # required by GitHub API
+
+      - name: Deploy Editor for Mac & Linux
+        if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
+        uses: WebFreak001/deploy-nightly@v1.1.0
+        with:
+          upload_url: https://uploads.github.com/repos/gamercade-io/gamercade_console/releases/73475292/assets{?name,label} # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases in your browser and copy the full "upload_url" value including the {?name,label} part
+          release_id: 73475292 # same as above (id can just be taken out the upload_url, it's used to find old releases)
+          asset_path: ./target/release/editor
+          asset_name: gamercade_editor-${{ matrix.release_suffix }}
+          asset_content_type: application/zip # required by GitHub API
+
+      - name: Deploy Editor for Windows
+        if: matrix.os == 'windows-latest'
+        uses: WebFreak001/deploy-nightly@v1.1.0
+        with:
+          upload_url: https://uploads.github.com/repos/gamercade-io/gamercade_console/releases/73475292/assets{?name,label} # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases in your browser and copy the full "upload_url" value including the {?name,label} part
+          release_id: 73475292 # same as above (id can just be taken out the upload_url, it's used to find old releases)
+          asset_path: ./target/release/editor.exe
+          asset_name: gamercade_editor-${{ matrix.release_suffix }}.exe
+          asset_content_type: application/zip # required by GitHub API
