@@ -162,10 +162,10 @@ impl PhraseEditor {
             command = Some(TrackerEditCommand::EditEntry(TrackerEditEntryCommand::Sub(
                 big_adjust,
             )))
-        } else if input_state.key_pressed(Key::Insert) {
-            command = Some(TrackerEditCommand::EditRow(TrackerEditRowCommand::Insert))
-        } else if input_state.key_pressed(Key::Delete) {
-            command = Some(TrackerEditCommand::EditRow(TrackerEditRowCommand::Delete))
+        } else if input_state.key_pressed(Key::Z) {
+            command = Some(TrackerEditCommand::EditRow(
+                TrackerEditRowCommand::InsertOrDelete,
+            ))
         };
 
         match command {
@@ -214,15 +214,14 @@ impl PhraseEditor {
     ) {
         let phrase_row = &mut phrase.entries[self.selected_entry.index];
         match (command, &phrase_row) {
-            (TrackerEditRowCommand::Delete, Some(_)) => {
+            (TrackerEditRowCommand::InsertOrDelete, Some(_)) => {
                 *phrase_row = None;
                 sync.notify_rom_changed();
             }
-            (TrackerEditRowCommand::Insert, None) => {
+            (TrackerEditRowCommand::InsertOrDelete, None) => {
                 *phrase_row = Some(PhraseEntry::default());
                 sync.notify_rom_changed();
             }
-            _ => (),
         }
     }
 

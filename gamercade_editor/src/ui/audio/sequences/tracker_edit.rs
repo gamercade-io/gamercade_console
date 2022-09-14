@@ -9,8 +9,7 @@ pub(crate) enum TrackerEditCommand {
 }
 
 pub(crate) enum TrackerEditRowCommand {
-    Insert,
-    Delete,
+    InsertOrDelete,
 }
 
 pub(crate) enum TrackerEditEntryCommand {

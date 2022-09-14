@@ -41,8 +41,7 @@ impl AudioEditorHelp {
 
             ui.label(RichText::new("How to modify values: ").strong());
             ui.label("Editing values can be done by holding [Shift] and pressing the related key.");
-            ui.label("Hold [Shift] and [Insert] to create a new entry.");
-            ui.label("Hold [Shift] and [Delete] to delete an entry.");
+            ui.label("Hold [Shift] and [Z] to create or delete entries.");
             ui.label("Hold [Shift] and press [Up] or [Down] arrows to increase or decrease a value.");
             ui.label("Hold [Shift] and press [Right] or [Left] arrows to increase or decrease a value by 16.");
         });

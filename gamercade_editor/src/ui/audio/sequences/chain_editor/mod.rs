@@ -96,10 +96,10 @@ impl ChainEditor {
             command = Some(TrackerEditCommand::EditEntry(TrackerEditEntryCommand::Sub(
                 16,
             )))
-        } else if input_state.key_pressed(Key::Insert) {
-            command = Some(TrackerEditCommand::EditRow(TrackerEditRowCommand::Insert))
-        } else if input_state.key_pressed(Key::Delete) {
-            command = Some(TrackerEditCommand::EditRow(TrackerEditRowCommand::Delete))
+        } else if input_state.key_pressed(Key::Z) {
+            command = Some(TrackerEditCommand::EditRow(
+                TrackerEditRowCommand::InsertOrDelete,
+            ))
         };
 
         match command {
@@ -132,15 +132,14 @@ impl ChainEditor {
         let chain_row = &mut chain.entries[self.selected_index];
 
         match (command, &chain_row) {
-            (TrackerEditRowCommand::Insert, None) => {
+            (TrackerEditRowCommand::InsertOrDelete, None) => {
                 *chain_row = Some(PhraseId::default());
                 sync.notify_rom_changed()
             }
-            (TrackerEditRowCommand::Delete, Some(_)) => {
+            (TrackerEditRowCommand::InsertOrDelete, Some(_)) => {
                 *chain_row = None;
                 sync.notify_rom_changed()
             }
-            _ => (),
         }
     }
 

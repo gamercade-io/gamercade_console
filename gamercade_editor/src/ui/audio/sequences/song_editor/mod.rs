@@ -159,10 +159,10 @@ impl SongEditor {
             command = Some(TrackerEditCommand::EditEntry(TrackerEditEntryCommand::Sub(
                 16,
             )))
-        } else if input_state.key_pressed(Key::Insert) {
-            command = Some(TrackerEditCommand::EditRow(TrackerEditRowCommand::Insert))
-        } else if input_state.key_pressed(Key::Delete) {
-            command = Some(TrackerEditCommand::EditRow(TrackerEditRowCommand::Delete))
+        } else if input_state.key_pressed(Key::Z) {
+            command = Some(TrackerEditCommand::EditRow(
+                TrackerEditRowCommand::InsertOrDelete,
+            ))
         };
 
         match command {
@@ -195,15 +195,14 @@ impl SongEditor {
         sync: &mut AudioSyncHelper,
     ) {
         match (command, &chain) {
-            (TrackerEditRowCommand::Insert, None) => {
+            (TrackerEditRowCommand::InsertOrDelete, None) => {
                 *chain = Some(ChainId::default());
                 sync.notify_rom_changed()
             }
-            (TrackerEditRowCommand::Delete, Some(_)) => {
+            (TrackerEditRowCommand::InsertOrDelete, Some(_)) => {
                 *chain = None;
                 sync.notify_rom_changed()
             }
-            _ => (),
         }
     }
 
