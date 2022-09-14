@@ -2,12 +2,12 @@ use serde::{Deserialize, Serialize};
 
 use gamercade_audio::SoundRom;
 
-use super::graphics::{FrameRate, GraphicsData, Screen};
+use super::graphics::{FrameRate, GraphicsData, Resolution};
 use crate::{ColorIndex, PaletteIndex, PixelBuffer, BYTES_PER_PIXEL};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Rom {
-    pub screen: Screen,
+    pub resolution: Resolution,
     pub frame_rate: FrameRate,
     pub player_count: (usize, usize),
     pub graphics: GraphicsData,
@@ -18,7 +18,7 @@ pub struct Rom {
 impl Default for Rom {
     fn default() -> Self {
         Self {
-            screen: Default::default(),
+            resolution: Default::default(),
             frame_rate: Default::default(),
             graphics: Default::default(),
             sounds: Default::default(),
@@ -46,10 +46,10 @@ impl Rom {
     }
 
     pub const fn height(&self) -> i32 {
-        self.screen.height()
+        self.resolution.height()
     }
 
     pub const fn width(&self) -> i32 {
-        self.screen.width()
+        self.resolution.width()
     }
 }

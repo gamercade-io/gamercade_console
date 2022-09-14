@@ -20,11 +20,11 @@ impl DrawContext {
     }
 
     pub fn try_get_xcord<T: Into<i32>>(&self, x: T) -> Option<XCord> {
-        self.rom.screen.try_get_xcord(x.into())
+        self.rom.resolution.try_get_xcord(x.into())
     }
 
     pub fn try_get_ycord<T: Into<i32>>(&self, y: T) -> Option<YCord> {
-        self.rom.screen.try_get_ycord(y.into())
+        self.rom.resolution.try_get_ycord(y.into())
     }
 
     pub fn validate_x<T: Into<i32>>(&self, x: T) -> Result<XCord, &'static str> {

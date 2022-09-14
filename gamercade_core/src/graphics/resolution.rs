@@ -1,8 +1,6 @@
 use serde::{Deserialize, Serialize};
-#[non_exhaustive]
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub struct Screen(Resolution);
 
+#[non_exhaustive]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Resolution {
@@ -15,7 +13,7 @@ pub enum Resolution {
     UltraHigh, // 1920 x 1080
 }
 
-impl Screen {
+impl Resolution {
     pub const ULTRALOW: (i32, i32) = (128, 72);
     pub const VERYLOW: (i32, i32) = (160, 90);
     pub const LOW: (i32, i32) = (320, 180);
@@ -24,20 +22,8 @@ impl Screen {
     pub const VERYHIGH: (i32, i32) = (1280, 720);
     pub const ULTRAHIGH: (i32, i32) = (1920, 1080);
 
-    pub const fn new(resolution: Resolution) -> Self {
-        Screen(resolution)
-    }
-
-    pub const fn resolution(&self) -> Resolution {
-        self.0
-    }
-
-    pub fn resolution_mut(&mut self) -> &mut Resolution {
-        &mut self.0
-    }
-
     pub const fn width(&self) -> i32 {
-        match self.0 {
+        match self {
             Resolution::UltraLow => Self::ULTRALOW.0,
             Resolution::VeryLow => Self::VERYLOW.0,
             Resolution::Low => Self::LOW.0,
@@ -49,7 +35,7 @@ impl Screen {
     }
 
     pub const fn height(&self) -> i32 {
-        match self.0 {
+        match self {
             Resolution::UltraLow => Self::ULTRALOW.1,
             Resolution::VeryLow => Self::VERYLOW.1,
             Resolution::Low => Self::LOW.1,
@@ -81,9 +67,9 @@ impl Screen {
     }
 }
 
-impl Default for Screen {
+impl Default for Resolution {
     fn default() -> Self {
-        Self(Resolution::Low)
+        Resolution::Low
     }
 }
 
@@ -96,7 +82,7 @@ pub struct XCord(usize);
 pub struct YCord(usize);
 
 impl XCord {
-    pub fn try_for_screen<T: TryInto<i32>>(value: T, screen: &Screen) -> Option<Self> {
+    pub fn try_for_screen<T: TryInto<i32>>(value: T, screen: &Resolution) -> Option<Self> {
         TryInto::try_into(value).map_or(None, |v| screen.try_get_xcord(v))
     }
 
@@ -106,7 +92,7 @@ impl XCord {
 }
 
 impl YCord {
-    pub fn try_for_screen<T: TryInto<i32>>(value: T, screen: &Screen) -> Option<Self> {
+    pub fn try_for_screen<T: TryInto<i32>>(value: T, screen: &Resolution) -> Option<Self> {
         TryInto::try_into(value).map_or(None, |v| screen.try_get_ycord(v))
     }
 
