@@ -14,6 +14,7 @@ pub enum Resolution {
 }
 
 impl Resolution {
+    // Width, Height
     pub const ULTRALOW: (i32, i32) = (128, 72);
     pub const VERYLOW: (i32, i32) = (160, 90);
     pub const LOW: (i32, i32) = (320, 180);
@@ -24,25 +25,25 @@ impl Resolution {
 
     pub const fn width(&self) -> i32 {
         match self {
-            Resolution::UltraLow => Self::ULTRALOW.0,
-            Resolution::VeryLow => Self::VERYLOW.0,
-            Resolution::Low => Self::LOW.0,
-            Resolution::Medium => Self::MEDIUM.0,
-            Resolution::High => Self::HIGH.0,
-            Resolution::VeryHigh => Self::VERYHIGH.0,
-            Resolution::UltraHigh => Self::ULTRAHIGH.0,
+            Self::UltraLow => Self::ULTRALOW.0,
+            Self::VeryLow => Self::VERYLOW.0,
+            Self::Low => Self::LOW.0,
+            Self::Medium => Self::MEDIUM.0,
+            Self::High => Self::HIGH.0,
+            Self::VeryHigh => Self::VERYHIGH.0,
+            Self::UltraHigh => Self::ULTRAHIGH.0,
         }
     }
 
     pub const fn height(&self) -> i32 {
         match self {
-            Resolution::UltraLow => Self::ULTRALOW.1,
-            Resolution::VeryLow => Self::VERYLOW.1,
-            Resolution::Low => Self::LOW.1,
-            Resolution::Medium => Self::MEDIUM.1,
-            Resolution::High => Self::HIGH.1,
-            Resolution::VeryHigh => Self::VERYHIGH.1,
-            Resolution::UltraHigh => Self::ULTRAHIGH.1,
+            Self::UltraLow => Self::ULTRALOW.1,
+            Self::VeryLow => Self::VERYLOW.1,
+            Self::Low => Self::LOW.1,
+            Self::Medium => Self::MEDIUM.1,
+            Self::High => Self::HIGH.1,
+            Self::VeryHigh => Self::VERYHIGH.1,
+            Self::UltraHigh => Self::ULTRAHIGH.1,
         }
     }
 

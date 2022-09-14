@@ -26,20 +26,6 @@ impl DrawContext {
     pub fn try_get_ycord<T: Into<i32>>(&self, y: T) -> Option<YCord> {
         self.rom.resolution.try_get_ycord(y.into())
     }
-
-    pub fn validate_x<T: Into<i32>>(&self, x: T) -> Result<XCord, &'static str> {
-        match self.try_get_xcord(x.into()) {
-            Some(x) => Ok(x),
-            None => Err("Invalid X screen coordinate"),
-        }
-    }
-
-    pub fn validate_y<T: Into<i32>>(&self, y: T) -> Result<YCord, &'static str> {
-        match self.try_get_ycord(y.into()) {
-            Some(y) => Ok(y),
-            None => Err("Invalid Y screen coordinate"),
-        }
-    }
 }
 
 impl DrawApi for DrawContext {
@@ -90,10 +76,10 @@ impl DrawApi for DrawContext {
             ..
         } = graphics_parameters.into();
 
-        if let (Ok(x), Ok(y)) = (self.validate_x(x), self.validate_y(y)) {
+        if let (Some(x), Some(y)) = (self.try_get_xcord(x), self.try_get_ycord(y)) {
             if let Some(palette) = self.rom.graphics.palette(palette_index) {
                 let color = palette[color_index];
-                self.set_pixel_safe(x, y, &color)
+                self.set_pixel_safe(x, y, color)
             }
         }
     }
@@ -268,11 +254,11 @@ impl DrawContext {
         self.rom.height()
     }
 
-    fn set_pixel_safe(&mut self, x: XCord, y: YCord, color: &Color) {
+    fn set_pixel_safe(&mut self, x: XCord, y: YCord, color: Color) {
         self.try_set_pixel_safe(Some(x), Some(y), color)
     }
 
-    fn try_set_pixel_safe(&mut self, x: Option<XCord>, y: Option<YCord>, color: &Color) {
+    fn try_set_pixel_safe(&mut self, x: Option<XCord>, y: Option<YCord>, color: Color) {
         if let (Some(x), Some(y)) = (x, y) {
             let pixel_index = self.x_y_cord_to_pixel_buffer_index(x, y);
             let color = color.into_pixel_data();
@@ -308,8 +294,8 @@ impl DrawContext {
         let mut y = y0;
 
         for x in x0..=x1 {
-            if let (Ok(valid_x), Ok(valid_y)) = (self.validate_x(x), self.validate_y(y)) {
-                self.set_pixel_safe(valid_x, valid_y, &color);
+            if let (Some(valid_x), Some(valid_y)) = (self.try_get_xcord(x), self.try_get_ycord(y)) {
+                self.set_pixel_safe(valid_x, valid_y, color);
                 if d > 0 {
                     y += y_adjust;
                     d += 2 * (dy - dx);
@@ -338,8 +324,8 @@ impl DrawContext {
         let mut x = x0;
 
         for y in y0..=y1 {
-            if let (Ok(valid_x), Ok(valid_y)) = (self.validate_x(x), self.validate_y(y)) {
-                self.set_pixel_safe(valid_x, valid_y, &color);
+            if let (Some(valid_x), Some(valid_y)) = (self.try_get_xcord(x), self.try_get_ycord(y)) {
+                self.set_pixel_safe(valid_x, valid_y, color);
                 if d > 0 {
                     x += x_adjust;
                     d += 2 * (dx - dy);
@@ -382,6 +368,7 @@ impl DrawContext {
             .for_each(|pixel| pixel.copy_from_slice(&color));
     }
 
+    /// Efficiently draws a horizontal line with direct array access
     fn draw_line_horizontal(&mut self, x0: i32, x1: i32, y: i32, color: Color) {
         if y < 0 || y > self.height() {
             return;
@@ -409,14 +396,8 @@ impl DrawContext {
             .for_each(|pixel| pixel.copy_from_slice(&color));
     }
 
-    fn draw_circle_points(
-        &mut self,
-        x0: usize,
-        y0: usize,
-        x: usize,
-        y: usize,
-        color: Color,
-    ) -> Result<(), &'static str> {
+    /// Draws the 8 circle points
+    fn draw_circle_points(&mut self, x0: usize, y0: usize, x: usize, y: usize, color: Color) {
         let up_x = self.try_get_ycord(y0.add(x) as i32);
         let up_y = self.try_get_ycord(y0.add(y) as i32);
         let down_x = self.try_get_ycord(y0.max(x).sub(y0.min(x)) as i32);
@@ -426,14 +407,13 @@ impl DrawContext {
         let right_x = self.try_get_xcord(x0.add(x) as i32);
         let right_y = self.try_get_xcord(x0.add(y) as i32);
 
-        self.try_set_pixel_safe(right_x, up_y, &color);
-        self.try_set_pixel_safe(right_x, down_y, &color);
-        self.try_set_pixel_safe(right_y, up_x, &color);
-        self.try_set_pixel_safe(right_y, down_x, &color);
-        self.try_set_pixel_safe(left_y, up_x, &color);
-        self.try_set_pixel_safe(left_y, down_x, &color);
-        self.try_set_pixel_safe(left_x, up_y, &color);
-        self.try_set_pixel_safe(left_x, down_y, &color);
-        Ok(())
+        self.try_set_pixel_safe(right_x, up_y, color);
+        self.try_set_pixel_safe(right_x, down_y, color);
+        self.try_set_pixel_safe(right_y, up_x, color);
+        self.try_set_pixel_safe(right_y, down_x, color);
+        self.try_set_pixel_safe(left_y, up_x, color);
+        self.try_set_pixel_safe(left_y, down_x, color);
+        self.try_set_pixel_safe(left_x, up_y, color);
+        self.try_set_pixel_safe(left_x, down_y, color);
     }
 }
