@@ -1,27 +1,19 @@
-name: Create Release
+name: Publish builds
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
+    paths-ignore:
+      - "**/README.md"
 
-env:
-  CARGO_TERM_COLOR: always
+concurrency:
+  group: "${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}"
+  cancel-in-progress: true
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    - name: Get dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install build-essential librust-atk-sys-dev libgtk-3-dev gcc-multilib libpq-dev libxcb-shape0-dev libxcb-xfixes0-dev libasound2-dev portaudio19-dev libpulse-dev libdbus-1-dev
-    - name: Run tests
-      run: cargo test --verbose
-          
-  build_release:
-    name: Build Release
-    needs: build
+  publish:
+    name: Publish Builds
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -33,38 +25,40 @@ jobs:
           - os: windows-latest
             release_suffix: windows
     runs-on: ${{ matrix.os }}
+    env:
+      CARGO_TERM_COLOR: always
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-        
-      - name: Linux Deps
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - name: Install dependencies
         if: matrix.os == 'ubuntu-latest'
-        run: | 
+        run: |
           sudo apt-get update
-          sudo apt-get install build-essential librust-atk-sys-dev libgtk-3-dev gcc-multilib libpq-dev libxcb-shape0-dev libxcb-xfixes0-dev libasound2-dev portaudio19-dev libpulse-dev libdbus-1-dev 
-          
-      - name: Update Rust
-        run: rustup update 
-      - name: Optimized build
-        run: cargo build --release
+          sudo apt-get install build-essential librust-atk-sys-dev libgtk-3-dev \
+          gcc-multilib libpq-dev libxcb-shape0-dev libxcb-xfixes0-dev \
+          libasound2-dev portaudio19-dev libpulse-dev libdbus-1-dev
+      - uses: Swatinem/rust-cache@v2
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release
 
-      - name: Deploy Release Mac & Linux Console
+      - name: Publish Console for Mac & Linux
         if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
         uses: WebFreak001/deploy-nightly@v1.1.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # automatically provided by github actions
         with:
           upload_url: https://uploads.github.com/repos/gamercade-io/gamercade_console/releases/73475292/assets{?name,label} # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases in your browser and copy the full "upload_url" value including the {?name,label} part
           release_id: 73475292 # same as above (id can just be taken out the upload_url, it's used to find old releases)
           asset_path: ./target/release/console
           asset_name: gamercade_console-${{ matrix.release_suffix }}
           asset_content_type: application/zip # required by GitHub API
-          
-      - name: Deploy Release Windows Console
+
+      - name: Publish Console for Windows
         if: matrix.os == 'windows-latest'
         uses: WebFreak001/deploy-nightly@v1.1.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # automatically provided by github actions
         with:
           upload_url: https://uploads.github.com/repos/gamercade-io/gamercade_console/releases/73475292/assets{?name,label} # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases in your browser and copy the full "upload_url" value including the {?name,label} part
           release_id: 73475292 # same as above (id can just be taken out the upload_url, it's used to find old releases)
@@ -72,23 +66,19 @@ jobs:
           asset_name: gamercade_console-${{ matrix.release_suffix }}.exe
           asset_content_type: application/zip # required by GitHub API
 
-      - name: Deploy Release Mac & Linux Editor
+      - name: Publish Editor for Mac & Linux
         if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
         uses: WebFreak001/deploy-nightly@v1.1.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # automatically provided by github actions
         with:
           upload_url: https://uploads.github.com/repos/gamercade-io/gamercade_console/releases/73475292/assets{?name,label} # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases in your browser and copy the full "upload_url" value including the {?name,label} part
           release_id: 73475292 # same as above (id can just be taken out the upload_url, it's used to find old releases)
           asset_path: ./target/release/editor
           asset_name: gamercade_editor-${{ matrix.release_suffix }}
           asset_content_type: application/zip # required by GitHub API
-          
-      - name: Deploy Release Windows Editor
+
+      - name: Publish Editor for Windows
         if: matrix.os == 'windows-latest'
         uses: WebFreak001/deploy-nightly@v1.1.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # automatically provided by github actions
         with:
           upload_url: https://uploads.github.com/repos/gamercade-io/gamercade_console/releases/73475292/assets{?name,label} # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases in your browser and copy the full "upload_url" value including the {?name,label} part
           release_id: 73475292 # same as above (id can just be taken out the upload_url, it's used to find old releases)
