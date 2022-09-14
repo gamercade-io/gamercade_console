@@ -96,6 +96,8 @@ impl SamplerEditor {
             });
 
         ui.horizontal(|ui| {
+            let last_index = instrument.data.len().saturating_sub(1);
+
             ui.label("Loop Mode:");
             if ui
                 .selectable_value(&mut instrument.loop_mode, LoopMode::Loop, "Loop")
@@ -112,7 +114,7 @@ impl SamplerEditor {
             if ui
                 .selectable_value(
                     &mut instrument.loop_mode,
-                    LoopMode::LoopRange(0..instrument.data.len() - 1),
+                    LoopMode::LoopRange(0..last_index),
                     "Loop Range",
                 )
                 .clicked()
@@ -123,16 +125,20 @@ impl SamplerEditor {
             if let LoopMode::LoopRange(range) = &mut instrument.loop_mode {
                 ui.label("Start:");
                 if ui
-                    .add(Slider::new(&mut range.start, 0..=range.end - 1))
+                    .add(Slider::new(
+                        &mut range.start,
+                        0..=range.end.saturating_sub(0),
+                    ))
                     .changed()
                 {
                     sync.notify_rom_changed()
                 };
+
                 ui.label("End:");
                 if ui
                     .add(Slider::new(
                         &mut range.end,
-                        range.start + 1..=instrument.data.len() - 1,
+                        (range.start + 1).min(last_index)..=last_index,
                     ))
                     .changed()
                 {
