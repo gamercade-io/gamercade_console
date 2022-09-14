@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[non_exhaustive]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Resolution {
     UltraLow,  // 128 x 72
@@ -12,38 +13,90 @@ pub enum Resolution {
     UltraHigh, // 1920 x 1080
 }
 
-impl Default for Resolution {
-    fn default() -> Self {
-        Self::Low
+impl Resolution {
+    pub const ULTRALOW: (i32, i32) = (128, 72);
+    pub const VERYLOW: (i32, i32) = (160, 90);
+    pub const LOW: (i32, i32) = (320, 180);
+    pub const MEDIUM: (i32, i32) = (480, 270);
+    pub const HIGH: (i32, i32) = (640, 360);
+    pub const VERYHIGH: (i32, i32) = (1280, 720);
+    pub const ULTRAHIGH: (i32, i32) = (1920, 1080);
+
+    pub const fn width(&self) -> i32 {
+        match self {
+            Resolution::UltraLow => Self::ULTRALOW.0,
+            Resolution::VeryLow => Self::VERYLOW.0,
+            Resolution::Low => Self::LOW.0,
+            Resolution::Medium => Self::MEDIUM.0,
+            Resolution::High => Self::HIGH.0,
+            Resolution::VeryHigh => Self::VERYHIGH.0,
+            Resolution::UltraHigh => Self::ULTRAHIGH.0,
+        }
+    }
+
+    pub const fn height(&self) -> i32 {
+        match self {
+            Resolution::UltraLow => Self::ULTRALOW.1,
+            Resolution::VeryLow => Self::VERYLOW.1,
+            Resolution::Low => Self::LOW.1,
+            Resolution::Medium => Self::MEDIUM.1,
+            Resolution::High => Self::HIGH.1,
+            Resolution::VeryHigh => Self::VERYHIGH.1,
+            Resolution::UltraHigh => Self::ULTRAHIGH.1,
+        }
+    }
+
+    pub const fn total_pixels(&self) -> i32 {
+        self.width() * self.height()
+    }
+
+    pub fn try_get_xcord<T: Into<i32>>(&self, value: T) -> Option<XCord> {
+        let v: i32 = value.into();
+        match 0 <= v && v < self.width() {
+            true => Some(XCord(v as usize)),
+            false => None,
+        }
+    }
+
+    pub fn try_get_ycord<T: Into<i32>>(&self, value: T) -> Option<YCord> {
+        let v: i32 = value.into();
+        match 0 <= v && v < self.height() {
+            true => Some(YCord(v as usize)),
+            false => None,
+        }
     }
 }
 
-impl Resolution {
-    pub fn width(self) -> i32 {
-        match self {
-            Self::UltraLow => 128,
-            Self::VeryLow => 160,
-            Self::Low => 320,
-            Self::Medium => 480,
-            Self::High => 640,
-            Self::VeryHigh => 1280,
-            Self::UltraHigh => 1920,
-        }
+impl Default for Resolution {
+    fn default() -> Self {
+        Resolution::Low
+    }
+}
+
+#[non_exhaustive]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
+pub struct XCord(usize);
+
+#[non_exhaustive]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
+pub struct YCord(usize);
+
+impl XCord {
+    pub fn try_for_screen<T: TryInto<i32>>(value: T, screen: &Resolution) -> Option<Self> {
+        TryInto::try_into(value).map_or(None, |v| screen.try_get_xcord(v))
     }
 
-    pub fn height(self) -> i32 {
-        match self {
-            Self::UltraLow => 72,
-            Self::VeryLow => 90,
-            Self::Low => 180,
-            Self::Medium => 270,
-            Self::High => 360,
-            Self::VeryHigh => 720,
-            Self::UltraHigh => 1080,
-        }
+    pub fn raw_value(&self) -> usize {
+        self.0
+    }
+}
+
+impl YCord {
+    pub fn try_for_screen<T: TryInto<i32>>(value: T, screen: &Resolution) -> Option<Self> {
+        TryInto::try_into(value).map_or(None, |v| screen.try_get_ycord(v))
     }
 
-    pub fn total_pixels(self) -> i32 {
-        self.width() * self.height()
+    pub fn raw_value(&self) -> usize {
+        self.0
     }
 }

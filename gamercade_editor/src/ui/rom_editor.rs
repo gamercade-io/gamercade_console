@@ -1,7 +1,9 @@
-use eframe::egui::{self, Ui};
-use gamercade_core::{FrameRate, Resolution};
-
 use crate::editor_data::EditorRom;
+use eframe::egui::{self, Ui};
+use gamercade_core::{
+    FrameRate,
+    Resolution::{High, Low, Medium, UltraHigh, UltraLow, VeryHigh, VeryLow},
+};
 
 #[derive(Debug, Clone, Default)]
 pub struct RomEditor {}
@@ -15,13 +17,13 @@ impl RomEditor {
                 rom.resolution.height()
             ));
             ui.horizontal(|ui| {
-                ui.selectable_value(&mut rom.resolution, Resolution::UltraLow, "Ultra Low");
-                ui.selectable_value(&mut rom.resolution, Resolution::VeryLow, "Very Low");
-                ui.selectable_value(&mut rom.resolution, Resolution::Low, "Low");
-                ui.selectable_value(&mut rom.resolution, Resolution::Medium, "Medium");
-                ui.selectable_value(&mut rom.resolution, Resolution::High, "High");
-                ui.selectable_value(&mut rom.resolution, Resolution::VeryHigh, "Very High");
-                ui.selectable_value(&mut rom.resolution, Resolution::UltraHigh, "Ultra High");
+                ui.selectable_value(&mut rom.resolution, UltraLow, "Ultra Low");
+                ui.selectable_value(&mut rom.resolution, VeryLow, "Very Low");
+                ui.selectable_value(&mut rom.resolution, Low, "Low");
+                ui.selectable_value(&mut rom.resolution, Medium, "Medium");
+                ui.selectable_value(&mut rom.resolution, High, "High");
+                ui.selectable_value(&mut rom.resolution, VeryHigh, "Very High");
+                ui.selectable_value(&mut rom.resolution, UltraHigh, "Ultra High");
             });
         });
 

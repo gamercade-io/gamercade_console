@@ -45,11 +45,11 @@ impl Rom {
             .for_each(|pixel| pixel.copy_from_slice(&color));
     }
 
-    pub fn height(&self) -> i32 {
+    pub const fn height(&self) -> i32 {
         self.resolution.height()
     }
 
-    pub fn width(&self) -> i32 {
+    pub const fn width(&self) -> i32 {
         self.resolution.width()
     }
 }
