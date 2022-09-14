@@ -88,11 +88,11 @@ impl Default for Screen {
 }
 
 #[non_exhaustive]
-#[derive(PartialEq, Eq, PartialOrd, Ord)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
 pub struct XCord(usize);
 
 #[non_exhaustive]
-#[derive(PartialEq, Eq, PartialOrd, Ord)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
 pub struct YCord(usize);
 
 impl XCord {
