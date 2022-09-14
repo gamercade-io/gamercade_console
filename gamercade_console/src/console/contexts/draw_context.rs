@@ -1,6 +1,9 @@
 use crate::api::DrawApi;
 use gamercade_core::{Color, GraphicsParameters, PixelBuffer, Rom, XCord, YCord, BYTES_PER_PIXEL};
-use std::sync::Arc;
+use std::{
+    ops::{Add, Sub},
+    sync::Arc,
+};
 
 #[derive(Clone)]
 pub struct DrawContext {
@@ -16,11 +19,11 @@ impl DrawContext {
         }
     }
 
-    pub fn try_get_xcord<T: TryInto<i32>>(&self, x: Option<T>) -> Option<XCord> {
+    pub fn try_get_xcord<T: Into<i32>>(&self, x: T) -> Option<XCord> {
         self.rom.resolution.try_get_xcord(x)
     }
 
-    pub fn try_get_ycord<T: TryInto<i32>>(&self, y: Option<T>) -> Option<YCord> {
+    pub fn try_get_ycord<T: Into<i32>>(&self, y: T) -> Option<YCord> {
         self.rom.resolution.try_get_ycord(y)
     }
 }
@@ -73,7 +76,7 @@ impl DrawApi for DrawContext {
             ..
         } = graphics_parameters.into();
 
-        if let (Some(x), Some(y)) = (self.try_get_xcord(Some(x)), self.try_get_ycord(Some(y))) {
+        if let (Some(x), Some(y)) = (self.try_get_xcord(x), self.try_get_ycord(y)) {
             if let Some(palette) = self.rom.graphics.palette(palette_index) {
                 let color = palette[color_index];
                 self.set_pixel_safe(x, y, color)
@@ -251,22 +254,22 @@ impl DrawContext {
     }
 
     fn set_pixel_safe(&mut self, x: XCord, y: YCord, color: Color) {
-        self.try_set_pixel_safe(Some(x), Some(y), color)
+        let pixel_index = self.x_y_cord_to_pixel_buffer_index(x, y);
+        let color = color.into_pixel_data();
+        if let Some(index_bound) = pixel_index.checked_add(BYTES_PER_PIXEL) {
+            if let Some(pixel_buffer) = self
+                .frame_buffer
+                .pixel_buffer
+                .get_mut(pixel_index..index_bound)
+            {
+                pixel_buffer.copy_from_slice(&color);
+            }
+        }
     }
 
     fn try_set_pixel_safe(&mut self, x: Option<XCord>, y: Option<YCord>, color: Color) {
         if let (Some(x), Some(y)) = (x, y) {
-            let pixel_index = self.x_y_cord_to_pixel_buffer_index(x, y);
-            let color = color.into_pixel_data();
-            if let Some(index_bound) = pixel_index.checked_add(BYTES_PER_PIXEL) {
-                if let Some(pixel_buffer) = self
-                    .frame_buffer
-                    .pixel_buffer
-                    .get_mut(pixel_index..index_bound)
-                {
-                    pixel_buffer.copy_from_slice(&color);
-                }
-            }
+            self.set_pixel_safe(x, y, color)
         }
     }
 
@@ -290,9 +293,7 @@ impl DrawContext {
         let mut y = y0;
 
         for x in x0..=x1 {
-            if let (Some(valid_x), Some(valid_y)) =
-                (self.try_get_xcord(Some(x)), self.try_get_ycord(Some(y)))
-            {
+            if let (Some(valid_x), Some(valid_y)) = (self.try_get_xcord(x), self.try_get_ycord(y)) {
                 self.set_pixel_safe(valid_x, valid_y, color);
                 if d > 0 {
                     y += y_adjust;
@@ -322,9 +323,7 @@ impl DrawContext {
         let mut x = x0;
 
         for y in y0..=y1 {
-            if let (Some(valid_x), Some(valid_y)) =
-                (self.try_get_xcord(Some(x)), self.try_get_ycord(Some(y)))
-            {
+            if let (Some(valid_x), Some(valid_y)) = (self.try_get_xcord(x), self.try_get_ycord(y)) {
                 self.set_pixel_safe(valid_x, valid_y, color);
                 if d > 0 {
                     x += x_adjust;
@@ -398,14 +397,14 @@ impl DrawContext {
 
     /// Draws the 8 circle points
     fn draw_circle_points(&mut self, x0: i32, y0: i32, x: i32, y: i32, color: Color) {
-        let up_x = self.try_get_ycord(y0.checked_add(x));
-        let up_y = self.try_get_ycord(y0.checked_add(y));
-        let down_x = self.try_get_ycord(y0.checked_sub(x));
-        let down_y = self.try_get_ycord(y0.checked_sub(y));
-        let left_x = self.try_get_xcord(x0.checked_sub(x));
-        let left_y = self.try_get_xcord(x0.checked_sub(y));
-        let right_x = self.try_get_xcord(x0.checked_add(x));
-        let right_y = self.try_get_xcord(x0.checked_add(y));
+        let up_x = self.try_get_ycord(y0.add(x));
+        let up_y = self.try_get_ycord(y0.add(y));
+        let down_x = self.try_get_ycord(y0.sub(x));
+        let down_y = self.try_get_ycord(y0.sub(y));
+        let left_x = self.try_get_xcord(x0.sub(x));
+        let left_y = self.try_get_xcord(x0.sub(y));
+        let right_x = self.try_get_xcord(x0.add(x));
+        let right_y = self.try_get_xcord(x0.add(y));
 
         self.try_set_pixel_safe(right_x, up_y, color);
         self.try_set_pixel_safe(right_x, down_y, color);
