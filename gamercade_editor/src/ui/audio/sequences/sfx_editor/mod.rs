@@ -33,13 +33,9 @@ impl SfxEditor {
             ui.text_edit_singleline(&mut selected_sfx.name);
 
             ui.label("Chain Index:");
-            if ui
-                .add(Slider::new(
-                    &mut selected_sfx.data.chain.0,
-                    0..=data.chains.len() - 1,
-                ))
-                .changed()
-            {
+            let slider = Slider::new(&mut selected_sfx.data.chain.0, 0..=data.chains.len() - 1)
+                .custom_formatter(|n, _| format!("{:02X}", n as usize));
+            if ui.add(slider).changed() {
                 sync.notify_rom_changed()
             }
 
