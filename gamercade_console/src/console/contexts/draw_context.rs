@@ -1,9 +1,6 @@
 use crate::api::DrawApi;
 use gamercade_core::{Color, GraphicsParameters, PixelBuffer, Rom, XCord, YCord, BYTES_PER_PIXEL};
-use std::{
-    ops::{Add, Sub},
-    sync::Arc,
-};
+use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct DrawContext {
@@ -19,12 +16,12 @@ impl DrawContext {
         }
     }
 
-    pub fn try_get_xcord<T: Into<i32>>(&self, x: T) -> Option<XCord> {
-        self.rom.resolution.try_get_xcord(x.into())
+    pub fn try_get_xcord<T: TryInto<i32>>(&self, x: Option<T>) -> Option<XCord> {
+        self.rom.resolution.try_get_xcord(x)
     }
 
-    pub fn try_get_ycord<T: Into<i32>>(&self, y: T) -> Option<YCord> {
-        self.rom.resolution.try_get_ycord(y.into())
+    pub fn try_get_ycord<T: TryInto<i32>>(&self, y: Option<T>) -> Option<YCord> {
+        self.rom.resolution.try_get_ycord(y)
     }
 }
 
@@ -76,7 +73,7 @@ impl DrawApi for DrawContext {
             ..
         } = graphics_parameters.into();
 
-        if let (Some(x), Some(y)) = (self.try_get_xcord(x), self.try_get_ycord(y)) {
+        if let (Some(x), Some(y)) = (self.try_get_xcord(Some(x)), self.try_get_ycord(Some(y))) {
             if let Some(palette) = self.rom.graphics.palette(palette_index) {
                 let color = palette[color_index];
                 self.set_pixel_safe(x, y, color)
@@ -184,9 +181,8 @@ impl DrawApi for DrawContext {
         let mut ddf_x = 0;
         let mut ddf_y = -2 * radius;
 
-        let radius = radius as usize;
-        let x0 = x as usize;
-        let y0 = y as usize;
+        let x0 = x;
+        let y0 = y;
         let mut x = 0;
         let mut y = radius;
 
@@ -294,7 +290,9 @@ impl DrawContext {
         let mut y = y0;
 
         for x in x0..=x1 {
-            if let (Some(valid_x), Some(valid_y)) = (self.try_get_xcord(x), self.try_get_ycord(y)) {
+            if let (Some(valid_x), Some(valid_y)) =
+                (self.try_get_xcord(Some(x)), self.try_get_ycord(Some(y)))
+            {
                 self.set_pixel_safe(valid_x, valid_y, color);
                 if d > 0 {
                     y += y_adjust;
@@ -324,7 +322,9 @@ impl DrawContext {
         let mut x = x0;
 
         for y in y0..=y1 {
-            if let (Some(valid_x), Some(valid_y)) = (self.try_get_xcord(x), self.try_get_ycord(y)) {
+            if let (Some(valid_x), Some(valid_y)) =
+                (self.try_get_xcord(Some(x)), self.try_get_ycord(Some(y)))
+            {
                 self.set_pixel_safe(valid_x, valid_y, color);
                 if d > 0 {
                     x += x_adjust;
@@ -397,15 +397,15 @@ impl DrawContext {
     }
 
     /// Draws the 8 circle points
-    fn draw_circle_points(&mut self, x0: usize, y0: usize, x: usize, y: usize, color: Color) {
-        let up_x = self.try_get_ycord(y0.add(x) as i32);
-        let up_y = self.try_get_ycord(y0.add(y) as i32);
-        let down_x = self.try_get_ycord(y0.max(x).sub(y0.min(x)) as i32);
-        let down_y = self.try_get_ycord(y0.max(y).sub(y0.min(y)) as i32);
-        let left_x = self.try_get_xcord(x0.max(x).sub(x0.min(x)) as i32);
-        let left_y = self.try_get_xcord(x0.max(y).sub(x0.min(y)) as i32);
-        let right_x = self.try_get_xcord(x0.add(x) as i32);
-        let right_y = self.try_get_xcord(x0.add(y) as i32);
+    fn draw_circle_points(&mut self, x0: i32, y0: i32, x: i32, y: i32, color: Color) {
+        let up_x = self.try_get_ycord(y0.checked_add(x));
+        let up_y = self.try_get_ycord(y0.checked_add(y));
+        let down_x = self.try_get_ycord(y0.checked_sub(x));
+        let down_y = self.try_get_ycord(y0.checked_sub(y));
+        let left_x = self.try_get_xcord(x0.checked_sub(x));
+        let left_y = self.try_get_xcord(x0.checked_sub(y));
+        let right_x = self.try_get_xcord(x0.checked_add(x));
+        let right_y = self.try_get_xcord(x0.checked_add(y));
 
         self.try_set_pixel_safe(right_x, up_y, color);
         self.try_set_pixel_safe(right_x, down_y, color);

@@ -51,20 +51,24 @@ impl Resolution {
         self.width() * self.height()
     }
 
-    pub fn try_get_xcord<T: Into<i32>>(&self, value: T) -> Option<XCord> {
-        let v: i32 = value.into();
-        match 0 <= v && v < self.width() {
-            true => Some(XCord(v as usize)),
-            false => None,
-        }
+    pub fn try_get_xcord<T: TryInto<i32>>(&self, value: Option<T>) -> Option<XCord> {
+        value.and_then(|v| match v.try_into() {
+            Ok(v) => match 0 <= v && v < self.width() {
+                true => Some(XCord(v as usize)),
+                false => None,
+            },
+            _ => None,
+        })
     }
 
-    pub fn try_get_ycord<T: Into<i32>>(&self, value: T) -> Option<YCord> {
-        let v: i32 = value.into();
-        match 0 <= v && v < self.height() {
-            true => Some(YCord(v as usize)),
-            false => None,
-        }
+    pub fn try_get_ycord<T: TryInto<i32>>(&self, value: Option<T>) -> Option<YCord> {
+        value.and_then(|v| match v.try_into() {
+            Ok(v) => match 0 <= v && v < self.height() {
+                true => Some(YCord(v as usize)),
+                false => None,
+            },
+            _ => None,
+        })
     }
 }
 
@@ -75,16 +79,16 @@ impl Default for Resolution {
 }
 
 #[non_exhaustive]
-#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug)]
 pub struct XCord(usize);
 
 #[non_exhaustive]
-#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug)]
 pub struct YCord(usize);
 
 impl XCord {
     pub fn try_for_screen<T: TryInto<i32>>(value: T, screen: &Resolution) -> Option<Self> {
-        TryInto::try_into(value).map_or(None, |v| screen.try_get_xcord(v))
+        TryInto::try_into(value).map_or(None, |v| screen.try_get_xcord(Some(v)))
     }
 
     pub fn raw_value(&self) -> usize {
@@ -94,7 +98,7 @@ impl XCord {
 
 impl YCord {
     pub fn try_for_screen<T: TryInto<i32>>(value: T, screen: &Resolution) -> Option<Self> {
-        TryInto::try_into(value).map_or(None, |v| screen.try_get_ycord(v))
+        TryInto::try_into(value).map_or(None, |v| screen.try_get_ycord(Some(v)))
     }
 
     pub fn raw_value(&self) -> usize {
