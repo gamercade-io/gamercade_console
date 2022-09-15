@@ -61,7 +61,6 @@ extern "C" {
 // Text
 extern "C" {
     pub fn console_log(text_ptr: i32, len: i32);
-    pub fn draw_text(text_ptr: i32, len: i32, x: i32, y: i32);
 }
 
 // Random
