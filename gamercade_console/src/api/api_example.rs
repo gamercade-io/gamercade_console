@@ -126,7 +126,7 @@ extern "C" {
     pub fn analog_right_y(player_id: i32) -> f32;
     pub fn trigger_left(player_id: i32) -> f32;
     pub fn trigger_right(player_id: i32) -> f32;
-    pub fn raw_input_state(played_id: i32) -> i64;
+    pub fn raw_input_state(player_id: i32) -> i64;
 }
 
 // Multiplayer

@@ -4,7 +4,6 @@
 extern "C" {
     pub fn play_bgm(bgm_index: i32);
     pub fn play_sfx(sfx_index: i32, channel: i32);
-    pub fn channel_is_active(channel: i32) -> i32;
     pub fn stop_bgm();
     pub fn stop_channel(channel: i32);
     pub fn play_note(note_id: i32, instrument_index: i32, channel: i32);
@@ -127,7 +126,7 @@ extern "C" {
     pub fn analog_right_y(player_id: i32) -> f32;
     pub fn trigger_left(player_id: i32) -> f32;
     pub fn trigger_right(player_id: i32) -> f32;
-    pub fn raw_input_state(played_id: i32) -> i64;
+    pub fn raw_input_state(player_id: i32) -> i64;
 }
 
 // Multiplayer
