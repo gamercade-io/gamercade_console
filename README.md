@@ -32,6 +32,14 @@ Every feature and function of Gamercade and its related tools are built with the
 - **Empower Creatives** - Gamercade is a platform for all kinds of people, of different backgrounds and experience levels. Programmers, designers, artists, and are all welcome. Gamercade should empower creators and allow them to always do their best work.
 - **"Neo Retro" Game Development** - Project scoping is important. Retro consoles are cool, but also constrained and complex. Gamercade provides the balance between retro and modern development. Games are limited by content, but creativity is unlimited.
 
+## Related Projects:
+
+ - [**gamercade_site**](https://github.com/gamercade-io/gamercade_site) - Project landing page and [documentation](https://gamercade.io/docs/intro).
+ - **Bindings and Example Projects**
+    - [**rust_template**](https://github.com/gamercade-io/rust_template) - Rust example project, making use of the `gamercade_rs` helper crate.
+    - [**nelua-gamercade**](https://codeberg.org/Andre-LA/nelua-gamercade) - Bindings and example game in the [Nelua](https://nelua.io/) programming language. By [Andre-LA](https://codeberg.org/Andre-LA).
+    - [**zig-template**](https://github.com/gamercade-io/zig-template) - Bindings and starter project for the [Zig](https://ziglang.org/) programming language.
+
 ## Community
 
 Currently, the community is mostly active on [Discord](https://discord.gg/Qafv2Fpt5j).
