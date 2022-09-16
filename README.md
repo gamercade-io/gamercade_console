@@ -39,6 +39,7 @@ Every feature and function of Gamercade and its related tools are built with the
     - [**rust_template**](https://github.com/gamercade-io/rust_template) - Rust example project, making use of the `gamercade_rs` helper crate.
     - [**nelua-gamercade**](https://codeberg.org/Andre-LA/nelua-gamercade) - Bindings and example game in the [Nelua](https://nelua.io/) programming language. By [Andre-LA](https://codeberg.org/Andre-LA).
     - [**zig-template**](https://github.com/gamercade-io/zig-template) - Bindings and starter project for the [Zig](https://ziglang.org/) programming language.
+    - [**gamercade-as**](https://github.com/NEARworld/gamercade-as) - Bindings and starter project for the [AssemblyScript](https://www.assemblyscript.org/) programming language.
 
 ## Community
 
