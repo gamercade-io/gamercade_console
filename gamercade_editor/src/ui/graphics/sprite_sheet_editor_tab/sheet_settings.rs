@@ -1,9 +1,8 @@
-use std::fmt::Write;
-use std::{fmt::Display, str::FromStr};
-
-use eframe::egui::{Button, TextEdit, Ui};
+use eframe::egui::{Button, Ui};
 
 use crate::editor_data::EditorSpriteSheet;
+
+use super::typed_text_entry;
 
 #[derive(Debug, Clone, Default)]
 pub struct SheetSettings {
@@ -25,12 +24,12 @@ impl SheetSettings {
             ui.label("Sprite Sheet Settings");
 
             ui.horizontal(|ui| {
-                entry(&mut self.buffer, is_editable, "Name", ui, name);
+                typed_text_entry(&mut self.buffer, is_editable, "Name", ui, name);
             });
 
             ui.horizontal(|ui| {
-                entry(&mut self.buffer, is_editable, "Width", ui, width);
-                entry(&mut self.buffer, is_editable, "Height", ui, height);
+                typed_text_entry(&mut self.buffer, is_editable, "Width", ui, width);
+                typed_text_entry(&mut self.buffer, is_editable, "Height", ui, height);
             });
 
             ui.horizontal(|ui| {
@@ -67,27 +66,6 @@ impl SheetSettings {
         }
 
         self.editable = EditState::Off;
-    }
-}
-
-fn entry<T: FromStr + Display>(
-    buffer: &mut String,
-    editable: bool,
-    label: &'static str,
-    ui: &mut Ui,
-    value: &mut T,
-) {
-    ui.label(label);
-
-    buffer.clear();
-    write!(buffer, "{}", value).unwrap();
-    let widget = TextEdit::singleline(buffer);
-    let response = ui.add_enabled(editable, widget);
-
-    if response.changed() {
-        if let Ok(new_val) = buffer.parse() {
-            *value = new_val
-        }
     }
 }
 
