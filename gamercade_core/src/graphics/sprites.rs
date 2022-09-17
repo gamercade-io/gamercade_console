@@ -1,4 +1,4 @@
-use std::ops::Index;
+use std::ops::{Index, Range};
 
 use serde::{Deserialize, Deserializer, Serialize};
 
@@ -95,7 +95,7 @@ impl SpriteSheet {
         self.height = new_height;
     }
 
-    pub(crate) fn step(&self) -> usize {
+    pub fn step(&self) -> usize {
         self.width * self.height
     }
 
@@ -159,15 +159,19 @@ impl SpriteSheet {
         self.sprites = new_sprites.into_boxed_slice();
         self.count -= 1;
     }
+
+    pub fn get_indices(&self, index: SpriteIndex) -> Range<usize> {
+        let step = self.step();
+        let index = index.0 as usize;
+        step * index..step * (index + 1)
+    }
 }
 
 impl Index<SpriteIndex> for SpriteSheet {
     type Output = [ColorIndex];
 
     fn index(&self, index: SpriteIndex) -> &Self::Output {
-        let step = self.step();
-        let index = index.0 as usize;
-        &self.sprites[step * index..step * (index + 1)]
+        &self.sprites[self.get_indices(index)]
     }
 }
 

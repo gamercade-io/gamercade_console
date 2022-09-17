@@ -82,8 +82,6 @@ impl SheetEditor {
                 });
             });
 
-            // TODO: add editor buttons:
-            // New, Copy, Move Left, Move Right
             ui.group(|ui| {
                 ui.vertical(|ui| {
                     ui.horizontal(|ui| {
@@ -97,16 +95,29 @@ impl SheetEditor {
                             self.selected_sprite = SpriteIndex(self.selected_sprite.0 + 1);
                         }
 
-                        if ui.button("Color Swap").clicked() {
-                            println!("TODO: Color Swap")
-                        }
+                        // TODO: Add this back later once we implement this feature
+                        // if ui.button("Color Swap").clicked() {
+                        //     println!("TODO: Color Swap")
+                        // }
+
+                        let index = self.selected_sprite.0;
 
                         if ui.button("Move Left").clicked() {
-                            println!("TODO: Move Left")
+                            if index != 0 {
+                                self.swap_sprites(sheet, index - 1);
+                                self.selected_sprite.0 -= 1;
+                            } else {
+                                println!("Can't move the first sprite left.")
+                            }
                         }
 
                         if ui.button("Move Right").clicked() {
-                            println!("TODO: Move Right")
+                            if index != sheet.count.saturating_sub(1) {
+                                self.swap_sprites(sheet, index);
+                                self.selected_sprite.0 += 1;
+                            } else {
+                                println!("Can't move the last sprite right.");
+                            }
                         }
                     });
 
@@ -132,14 +143,21 @@ impl SheetEditor {
                                 Err(e) => println!("{}", e),
                             }
                         }
-
-                        if ui.button("Export").clicked() {
-                            println!("TODO: Export")
-                        }
                     });
                 });
             });
         });
+    }
+
+    /// Swaps the first index sprite with the next index
+    fn swap_sprites(&mut self, sheet: &mut SpriteSheet, first_index: u8) {
+        let step = sheet.step();
+        let first_index = first_index as usize * step;
+        let last_index = first_index + (2 * step);
+        let len = last_index - first_index;
+        let two_sprites = &mut sheet.sprites[first_index..last_index];
+        let (first, second) = two_sprites.split_at_mut(len / 2);
+        first.swap_with_slice(second);
     }
 }
 
