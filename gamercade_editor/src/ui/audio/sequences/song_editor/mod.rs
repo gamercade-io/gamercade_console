@@ -250,10 +250,12 @@ fn song_length_seconds(song: &Song, chains: &[EditorAudioDataEntry<Option<Chain>
             .iter()
             .filter_map(|lane| {
                 lane.and_then(|chain| {
-                    chains[chain.0]
-                        .data
-                        .as_ref()
-                        .map(|chain| chain.chain_length_seconds(song.bpm))
+                    chains.get(chain.0).and_then(|chain| {
+                        chain
+                            .data
+                            .as_ref()
+                            .map(|chain| chain.chain_length_seconds(song.bpm))
+                    })
                 })
             })
             .reduce(f32::max);
