@@ -64,7 +64,10 @@ impl SongRow {
     pub(crate) fn draw(&self, ui: &mut Ui) -> Option<Option<usize>> {
         let mut output = None;
 
-        if self.row_index.draw(ui) || self.separator.draw(ui) {
+        let row_name_clicked = self.row_index.draw(ui);
+        let separator_clicked = self.separator.draw(ui);
+
+        if row_name_clicked || separator_clicked {
             output = Some(None);
         }
 
