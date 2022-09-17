@@ -81,7 +81,8 @@ impl PaletteEditor {
 
             ui.horizontal(|ui| {
                 let color = self.palette_viewer.get_color_mut(&mut palette.palette);
-                self.color_editor.draw(ui, color, texture_id);
+                self.color_editor
+                    .draw(ui, color, texture_id, self.palette_viewer.selected_color);
             });
         });
     }

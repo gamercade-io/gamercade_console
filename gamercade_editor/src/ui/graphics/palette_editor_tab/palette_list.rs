@@ -33,8 +33,9 @@ impl PaletteList {
                         .for_each(|(index, palette)| {
                             ui.horizontal(|ui| {
                                 let is_checked = self.selected_palette == index;
+                                let palette_name = format!("[{}] {}", index, palette.name);
 
-                                if ui.selectable_label(is_checked, &palette.name).clicked() {
+                                if ui.selectable_label(is_checked, &palette_name).clicked() {
                                     self.selected_palette = index
                                 };
 

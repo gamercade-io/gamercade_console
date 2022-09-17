@@ -8,7 +8,13 @@ pub struct ColorEditor {
 }
 
 impl ColorEditor {
-    pub fn draw(&mut self, ui: &mut Ui, current_color: &mut Color, texture_id: TextureId) {
+    pub fn draw(
+        &mut self,
+        ui: &mut Ui,
+        current_color: &mut Color,
+        texture_id: TextureId,
+        index: usize,
+    ) {
         if self.prev_color != *current_color {
             self.preview = *current_color;
             self.prev_color = *current_color;
@@ -17,6 +23,8 @@ impl ColorEditor {
         ui.group(|ui| {
             ui.vertical(|ui| {
                 ui.label("Color Editor");
+
+                ui.label(format!("Color index: {}", index));
 
                 draw_picker(ui, texture_id, "Current", false, current_color);
                 draw_picker(ui, texture_id, "Preview", true, &mut self.preview);
