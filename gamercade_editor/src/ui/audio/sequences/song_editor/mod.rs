@@ -2,7 +2,7 @@ use eframe::egui::{Grid, InputState, Key, Slider, Ui};
 
 mod song_list;
 mod song_row;
-use gamercade_audio::{Chain, ChainId, Song, SONG_TRACK_CHANNELS};
+use gamercade_audio::{Chain, ChainId, Song, PHRASE_STEPS_PER_BEAT, SONG_TRACK_CHANNELS};
 use song_list::*;
 use song_row::*;
 
@@ -244,11 +244,12 @@ impl SongEditor {
 // with slight modifications
 fn song_length_seconds(song: &Song, chains: &[EditorAudioDataEntry<Option<Chain>>]) -> f32 {
     let mut sum = 0.0;
+    let empty_pattern_length = (60.0 / song.bpm) * PHRASE_STEPS_PER_BEAT as f32;
 
     for row in song.tracks.iter() {
         let row_max = row
             .iter()
-            .filter_map(|lane| {
+            .map(|lane| {
                 lane.and_then(|chain| {
                     chains.get(chain.0).and_then(|chain| {
                         chain
@@ -257,6 +258,7 @@ fn song_length_seconds(song: &Song, chains: &[EditorAudioDataEntry<Option<Chain>
                             .map(|chain| chain.chain_length_seconds(song.bpm))
                     })
                 })
+                .unwrap_or(empty_pattern_length)
             })
             .reduce(f32::max);
 
