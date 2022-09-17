@@ -61,6 +61,8 @@ impl Oscilloscope {
         while let Ok(frame) = self.channel_outputs.pop() {
             if self.buffer.len() < BUFFER_LENGTH {
                 self.buffer.push_back(frame);
+            } else {
+                break;
             }
         }
 
