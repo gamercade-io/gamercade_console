@@ -12,6 +12,10 @@ const FLIP_Y_POSITION: u32 = 31;
 const MASK: u32 = u8::MAX as u32; // 8 bits
 const COLOR_MASK: u32 = MASK >> 2; // 6 bits
 
+// Graphics Parameters are as follows:
+// 32 bits to represent 3x 8bit numbers, a 6bit number, and two boolean flags
+// Y X CCCCCC IIIIIIII SSSSSSSS PPPPPPPP
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub struct GraphicsParameters {
     pub palette_index: PaletteIndex,
