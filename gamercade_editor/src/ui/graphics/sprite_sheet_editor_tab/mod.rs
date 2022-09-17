@@ -3,6 +3,9 @@ mod palette_preview;
 mod sheet_editor;
 mod sheet_list;
 mod sheet_settings;
+mod sprite_sheet_importer;
+
+use std::{fmt::Display, str::FromStr};
 
 use gamercade_core::{ColorIndex, Palette, SpriteIndex, SpriteSheetIndex};
 use hashbrown::HashMap;
@@ -12,7 +15,7 @@ use sheet_list::SheetList;
 use sheet_settings::SheetSettings;
 
 // Externals
-use eframe::egui::{TextureId, Ui};
+use eframe::egui::{TextEdit, TextureId, Ui};
 
 use super::PaletteEditor;
 use crate::editor_data::EditorGraphicsData;
@@ -35,11 +38,11 @@ impl SpriteSheetEditor {
         texture_id: TextureId,
     ) {
         ui.horizontal(|ui| {
-            self.list.draw(ui, data);
-
-            let sheet = &mut data.sprite_sheets[self.list.selected_sheet.0 as usize];
             let selected_palette = palette_editor.selected_palette_mut();
             let palette = &data.palettes[*selected_palette].palette;
+            self.list.draw(ui, &mut data.sprite_sheets, palette);
+
+            let sheet = &mut data.sprite_sheets[self.list.selected_sheet.0 as usize];
 
             ui.vertical(|ui| {
                 self.settings.draw(ui, sheet);
@@ -72,4 +75,26 @@ pub(crate) fn palette_to_map(palette: &Palette) -> HashMap<image::Rgba<u8>, Colo
             )
         })
         .collect()
+}
+
+use std::fmt::Write;
+pub(crate) fn typed_text_entry<T: FromStr + Display>(
+    buffer: &mut String,
+    editable: bool,
+    label: &'static str,
+    ui: &mut Ui,
+    value: &mut T,
+) {
+    ui.label(label);
+
+    buffer.clear();
+    write!(buffer, "{}", value).unwrap();
+    let widget = TextEdit::singleline(buffer);
+    let response = ui.add_enabled(editable, widget);
+
+    if response.changed() {
+        if let Ok(new_val) = buffer.parse() {
+            *value = new_val
+        }
+    }
 }

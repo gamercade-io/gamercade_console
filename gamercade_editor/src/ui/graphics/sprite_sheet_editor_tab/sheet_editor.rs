@@ -134,7 +134,7 @@ impl SheetEditor {
                             }
                         }
 
-                        if ui.button("Import").clicked() {
+                        if ui.button("Import Frame(s)").clicked() {
                             match try_load_sprites(sheet, palette) {
                                 Ok(new_sprites) => new_sprites.iter().for_each(|new_sprite| {
                                     sheet.add_new_sprite(self.selected_sprite, new_sprite);
@@ -178,6 +178,11 @@ fn try_load_sprites(
     let colors = palette_to_map(palette);
     let mut out_group = Vec::new();
 
+    let no_alpha_color_index = colors
+        .iter()
+        .find(|(color, _)| color.0[3] == 0)
+        .map(|(_, index)| *index);
+
     for image in images.iter() {
         // Check if dimensions match
         if sheet.width as u32 != image.width() || sheet.height as u32 != image.height() {
@@ -188,11 +193,6 @@ fn try_load_sprites(
 
         // Build the colors map, and load the sprite
         let mut new_sprite = Vec::with_capacity(image.len());
-
-        let no_alpha_color_index = colors
-            .iter()
-            .find(|(color, _)| color.0[3] == 0)
-            .map(|(_, index)| *index);
 
         for color in image.pixels() {
             if let (Some(no_alpha_color), 0) = (no_alpha_color_index, color.0[3]) {
