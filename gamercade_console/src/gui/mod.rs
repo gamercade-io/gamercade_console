@@ -54,8 +54,9 @@ impl Gui {
         session: &mut Option<P2PSession<WasmConsole>>,
         ctx: &Context,
     ) {
+        let mut is_open = self.window_open;
         egui::Window::new("Main Menu")
-            .open(&mut self.window_open)
+            .open(&mut is_open)
             .collapsible(false)
             .show(ctx, |ui| {
                 ui.group(|ui| {
@@ -211,6 +212,8 @@ impl Gui {
                                     };
 
                                     *session = Some(new_session);
+
+                                    self.window_open = false;
 
                                     self.wasm_console = Some(WasmConsole::new(
                                         rom,
