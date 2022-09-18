@@ -255,8 +255,6 @@ impl Gui {
                     };
                 }
             });
-
-        self.window_open = is_open;
     }
 }
 
