@@ -13,6 +13,7 @@ pub(crate) struct SpriteSheetImporter {
     pub(crate) image_buffer: ImageBufferBuffer,
     text_buffer: String,
     import_mode: ImportMode,
+    keep_empty_frames: bool,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -92,9 +93,16 @@ impl SpriteSheetImporter {
 
                     ui.separator();
 
+                    ui.checkbox(&mut self.keep_empty_frames, "Keep Empty Frames");
+
                     ui.horizontal(|ui| {
                         if ui.button("Import Sprite Sheet").clicked() {
-                            match try_import_sprite_sheet(&image.0, palette, self.import_mode) {
+                            match try_import_sprite_sheet(
+                                &image.0,
+                                palette,
+                                self.import_mode,
+                                self.keep_empty_frames,
+                            ) {
                                 Ok(new_sheet) => {
                                     data.push(EditorSpriteSheet {
                                         name: image.1.clone(),
@@ -140,6 +148,7 @@ fn try_import_sprite_sheet(
     image: &ImageBuffer<Rgba<u8>, Vec<u8>>,
     palette: &Palette,
     import_mode: ImportMode,
+    keep_empty_frames: bool,
 ) -> Result<SpriteSheet, &'static str> {
     let definition = match import_mode {
         ImportMode::RowsCols { rows, columns } => SheetDefinition {
@@ -196,7 +205,7 @@ fn try_import_sprite_sheet(
 
             // We only want to add sprites which have actual colors in them,
             // and can remove any which are completely transparent
-            if has_colors {
+            if has_colors || keep_empty_frames {
                 frame_count += 1;
 
                 if frame_count > u8::MAX as usize {
