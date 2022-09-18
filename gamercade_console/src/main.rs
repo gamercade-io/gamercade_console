@@ -164,9 +164,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     });
 }
 
+const DEFAULT_WINDOW_RESOLUTION: Resolution = Resolution::High;
+
 fn init_window(event_loop: &EventLoop<()>) -> Window {
-    let default_res = Resolution::High;
-    let size = LogicalSize::new(default_res.width() as f64, default_res.height() as f64);
+    let size = LogicalSize::new(
+        DEFAULT_WINDOW_RESOLUTION.width() as f64,
+        DEFAULT_WINDOW_RESOLUTION.height() as f64,
+    );
     WindowBuilder::new()
         .with_title("Gamercade Console")
         .with_inner_size(size)

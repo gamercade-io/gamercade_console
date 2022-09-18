@@ -8,7 +8,10 @@ use pixels::Pixels;
 use rfd::FileDialog;
 use winit::{dpi::PhysicalSize, window::Window};
 
-use crate::console::{InputMode, LocalInputManager, SessionDescriptor, WasmConsole};
+use crate::{
+    console::{InputMode, LocalInputManager, SessionDescriptor, WasmConsole},
+    DEFAULT_WINDOW_RESOLUTION,
+};
 
 pub mod framework;
 
@@ -224,8 +227,8 @@ impl Gui {
 
                                     pixels.resize_buffer(rom.width() as u32, rom.height() as u32);
                                     window.set_inner_size(PhysicalSize::new(
-                                        rom.width(),
-                                        rom.height(),
+                                        rom.width().max(DEFAULT_WINDOW_RESOLUTION.width()),
+                                        rom.height().max(DEFAULT_WINDOW_RESOLUTION.height()),
                                     ));
 
                                     let seed = u64::from_str_radix(&self.seed, 16).unwrap();
