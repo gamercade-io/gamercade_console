@@ -1,5 +1,7 @@
 use crate::raw;
-use gamercade_core::{SFX_CHANNELS, TOTAL_NOTES_COUNT};
+
+const SFX_CHANNELS: usize = 8;
+const TOTAL_NOTES_COUNT: usize = 96;
 
 /// Starts playing the passed in BGM index.
 /// If a song is already playing, it will stop.

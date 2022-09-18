@@ -2,8 +2,16 @@
 use super::{f32_to_option, i32_bool_to_option};
 use crate::raw;
 
-use gamercade_core::InputState;
 use paste::paste;
+
+#[derive(Clone, Copy)]
+pub struct RawInputState(pub i64);
+
+impl RawInputState {
+    pub fn is_valid(self) -> bool {
+        self.0 & 1 << 63 == 0
+    }
+}
 
 macro_rules! derive_input_api {
     (
@@ -58,9 +66,9 @@ macro_rules! derive_input_api {
 }
 
 /// Returns a raw input state. If the player_id is invalid, returns None.
-pub fn raw_input_state(player_id: usize) -> Option<InputState> {
+pub fn raw_input_state(player_id: usize) -> Option<RawInputState> {
     unsafe {
-        let raw: InputState = std::mem::transmute(raw::raw_input_state(player_id as i32));
+        let raw: RawInputState = std::mem::transmute(raw::raw_input_state(player_id as i32));
         if raw.is_valid() {
             Some(raw)
         } else {
