@@ -68,7 +68,12 @@ impl Functions {
 }
 
 impl WasmConsole {
-    pub fn new(rom: Rom, seed: u64, session: SessionDescriptor, max_prediction: usize) -> Self {
+    pub fn new(
+        rom: Rom,
+        seed: u64,
+        session: SessionDescriptor,
+        max_prediction: usize,
+    ) -> (Self, WasmConsoleState) {
         // Initialize sound output
 
         let rom = Arc::new(rom);
@@ -131,7 +136,9 @@ impl WasmConsole {
 
         out.call_init();
 
-        out
+        let initial_state = out.generate_save_state();
+
+        (out, initial_state)
     }
 
     fn generate_save_state(&mut self) -> WasmConsoleState {
@@ -175,7 +182,7 @@ impl WasmConsole {
         }
     }
 
-    fn load_save_state(&mut self, state: WasmConsoleState) {
+    pub fn load_save_state(&mut self, state: WasmConsoleState) {
         let WasmConsoleState {
             previous_buttons,
             memories,

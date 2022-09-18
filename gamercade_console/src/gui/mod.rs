@@ -9,7 +9,7 @@ use rfd::FileDialog;
 use winit::{dpi::PhysicalSize, window::Window};
 
 use crate::{
-    console::{InputMode, LocalInputManager, SessionDescriptor, WasmConsole},
+    console::{InputMode, LocalInputManager, SessionDescriptor, WasmConsole, WasmConsoleState},
     DEFAULT_WINDOW_RESOLUTION,
 };
 
@@ -25,6 +25,7 @@ pub struct Gui {
     pub seed: String,
 
     pub wasm_console: Option<WasmConsole>,
+    pub initial_state: Option<WasmConsoleState>,
 }
 
 const DEFAULT_SEED: &str = "a12cade";
@@ -40,6 +41,7 @@ impl Default for Gui {
             player_num: 1,
             port: String::new(),
             wasm_console: None,
+            initial_state: None,
         }
     }
 }
@@ -251,12 +253,15 @@ impl Gui {
 
                                         self.window_open = false;
 
-                                        self.wasm_console = Some(WasmConsole::new(
+                                        let (console, reset) = WasmConsole::new(
                                             rom,
                                             seed,
                                             session_descriptor,
                                             max_prediction,
-                                        ));
+                                        );
+
+                                        self.wasm_console = Some(console);
+                                        self.initial_state = Some(reset);
                                     }
                                 }
                             }
@@ -264,6 +269,14 @@ impl Gui {
                     };
 
                     let buttons_enabled = self.game_file.is_some() && session.is_some();
+
+                    if ui
+                        .add_enabled(buttons_enabled, Button::new("Reset Game"))
+                        .clicked()
+                    {
+                        let console = self.wasm_console.as_mut().unwrap();
+                        console.load_save_state(self.initial_state.as_ref().unwrap().clone());
+                    }
 
                     if ui
                         .add_enabled(buttons_enabled, Button::new("Quit Game"))
