@@ -1,6 +1,6 @@
 use std::{fs, io::Read, net::SocketAddr, path::PathBuf};
 
-use egui::{ComboBox, Context, Slider};
+use egui::{Button, ComboBox, Context, Slider};
 use gamercade_core::Rom;
 use ggrs::{P2PSession, PlayerType, SessionBuilder, SessionState, UdpNonBlockingSocket};
 use gilrs::Gilrs;
@@ -155,108 +155,124 @@ impl Gui {
                     "Launch Game"
                 };
 
-                let launch_game = egui::Button::new(launch_game_text);
-                if ui
-                    .add_enabled(self.game_file.is_some() && session.is_none(), launch_game)
-                    .clicked()
-                {
-                    let path = self.game_file.as_ref().unwrap();
-                    let (players, port) = match self.play_mode {
-                        PlayMode::SinglePlayer => (vec![PlayerType::Local], 8000),
-                        PlayMode::Networked => {
-                            let remote_addr = self.remote_addr.parse::<SocketAddr>();
-                            let port = self.port.parse::<u16>();
+                ui.separator();
 
-                            if remote_addr.is_err() {
-                                println!("Remote Addr is invalid");
-                                return;
-                            } else if port.is_err() {
-                                println!("Port is invalid");
-                                return;
-                            }
+                ui.horizontal(|ui| {
+                    let launch_game = egui::Button::new(launch_game_text);
+                    if ui
+                        .add_enabled(self.game_file.is_some() && session.is_none(), launch_game)
+                        .clicked()
+                    {
+                        let path = self.game_file.as_ref().unwrap();
+                        let (players, port) = match self.play_mode {
+                            PlayMode::SinglePlayer => (vec![PlayerType::Local], 8000),
+                            PlayMode::Networked => {
+                                let remote_addr = self.remote_addr.parse::<SocketAddr>();
+                                let port = self.port.parse::<u16>();
 
-                            let player_num = self.player_num;
-                            let remote_addr = remote_addr.unwrap();
-                            let port = port.unwrap();
-
-                            let players = if player_num == 1 {
-                                vec![PlayerType::Local, PlayerType::Remote(remote_addr)]
-                            } else if player_num == 2 {
-                                vec![PlayerType::Remote(remote_addr), PlayerType::Local]
-                            } else {
-                                println!("Player # should be 1 or 2");
-                                return;
-                            };
-
-                            (players, port)
-                        }
-                    };
-
-                    let players = players.into_boxed_slice();
-
-                    match fs::File::open(path) {
-                        Err(e) => println!("fs::File::open failed: {}", e),
-                        Ok(file) => {
-                            let mut reader = match zstd::Decoder::new(file) {
-                                Ok(reader) => reader,
-                                Err(e) => {
-                                    println!("creating decoder failed: {}", e);
+                                if remote_addr.is_err() {
+                                    println!("Remote Addr is invalid");
+                                    return;
+                                } else if port.is_err() {
+                                    println!("Port is invalid");
                                     return;
                                 }
-                            };
 
-                            let mut buffer = Vec::new();
-                            if let Err(e) = reader.read_to_end(&mut buffer) {
-                                println!("read_to_end failed: {}", e);
-                                return;
+                                let player_num = self.player_num;
+                                let remote_addr = remote_addr.unwrap();
+                                let port = port.unwrap();
+
+                                let players = if player_num == 1 {
+                                    vec![PlayerType::Local, PlayerType::Remote(remote_addr)]
+                                } else if player_num == 2 {
+                                    vec![PlayerType::Remote(remote_addr), PlayerType::Local]
+                                } else {
+                                    println!("Player # should be 1 or 2");
+                                    return;
+                                };
+
+                                (players, port)
                             }
+                        };
 
-                            match bincode::deserialize_from::<_, Rom>(&*buffer) {
-                                Err(e) => println!("bincode failed: {}", e),
-                                Ok(rom) => {
-                                    let num_players = if self.play_mode == PlayMode::SinglePlayer {
-                                        1
-                                    } else {
-                                        2
-                                    };
+                        let players = players.into_boxed_slice();
 
-                                    let session_descriptor = SessionDescriptor {
-                                        num_players,
-                                        player_types: players,
-                                    };
+                        match fs::File::open(path) {
+                            Err(e) => println!("fs::File::open failed: {}", e),
+                            Ok(file) => {
+                                let mut reader = match zstd::Decoder::new(file) {
+                                    Ok(reader) => reader,
+                                    Err(e) => {
+                                        println!("creating decoder failed: {}", e);
+                                        return;
+                                    }
+                                };
 
-                                    pixels.resize_buffer(rom.width() as u32, rom.height() as u32);
-                                    window.set_inner_size(PhysicalSize::new(
-                                        rom.width().max(DEFAULT_WINDOW_RESOLUTION.width()),
-                                        rom.height().max(DEFAULT_WINDOW_RESOLUTION.height()),
-                                    ));
+                                let mut buffer = Vec::new();
+                                if let Err(e) = reader.read_to_end(&mut buffer) {
+                                    println!("read_to_end failed: {}", e);
+                                    return;
+                                }
 
-                                    let seed = u64::from_str_radix(&self.seed, 16).unwrap();
+                                match bincode::deserialize_from::<_, Rom>(&*buffer) {
+                                    Err(e) => println!("bincode failed: {}", e),
+                                    Ok(rom) => {
+                                        let num_players =
+                                            if self.play_mode == PlayMode::SinglePlayer {
+                                                1
+                                            } else {
+                                                2
+                                            };
 
-                                    let (max_prediction, new_session) = {
-                                        let new_session = init_session(
-                                            &rom,
-                                            port,
-                                            &session_descriptor.player_types,
-                                        );
-                                        (new_session.max_prediction(), new_session)
-                                    };
+                                        let session_descriptor = SessionDescriptor {
+                                            num_players,
+                                            player_types: players,
+                                        };
 
-                                    *session = Some(new_session);
+                                        pixels
+                                            .resize_buffer(rom.width() as u32, rom.height() as u32);
+                                        window.set_inner_size(PhysicalSize::new(
+                                            rom.width().max(DEFAULT_WINDOW_RESOLUTION.width()),
+                                            rom.height().max(DEFAULT_WINDOW_RESOLUTION.height()),
+                                        ));
 
-                                    self.window_open = false;
+                                        let seed = u64::from_str_radix(&self.seed, 16).unwrap();
 
-                                    self.wasm_console = Some(WasmConsole::new(
-                                        rom,
-                                        seed,
-                                        session_descriptor,
-                                        max_prediction,
-                                    ));
+                                        let (max_prediction, new_session) = {
+                                            let new_session = init_session(
+                                                &rom,
+                                                port,
+                                                &session_descriptor.player_types,
+                                            );
+                                            (new_session.max_prediction(), new_session)
+                                        };
+
+                                        *session = Some(new_session);
+
+                                        self.window_open = false;
+
+                                        self.wasm_console = Some(WasmConsole::new(
+                                            rom,
+                                            seed,
+                                            session_descriptor,
+                                            max_prediction,
+                                        ));
+                                    }
                                 }
                             }
-                        }
+                        };
                     };
-                }
+
+                    let buttons_enabled = self.game_file.is_some() && session.is_some();
+
+                    if ui
+                        .add_enabled(buttons_enabled, Button::new("Quit Game"))
+                        .clicked()
+                    {
+                        self.wasm_console = None;
+                        *session = None;
+                    }
+                });
             });
     }
 }
