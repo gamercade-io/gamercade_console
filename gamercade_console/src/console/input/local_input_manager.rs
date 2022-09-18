@@ -1,6 +1,6 @@
-use gamercade_core::InputState;
+use gamercade_core::{ButtonCode, InputState};
 
-use super::{InputMode, KeyBindings, KeyType};
+use super::{key_bindings::AnalogSide, InputMode, KeyBindings, KeyType};
 
 #[derive(Debug, Default)]
 pub struct LocalInputManager {
@@ -40,7 +40,17 @@ fn generate_emulated_state(
         if input_helper.key_held(*code) {
             match input {
                 KeyType::ButtonCode(code) => output.buttons.enable_button(*code),
-                KeyType::Emulated(emulated) => emulated.adjust_input_state(&mut output),
+                KeyType::EmulatedAnalog(emulated) => emulated.adjust_input_state(&mut output),
+                KeyType::EmulatedTrigger(side) => match side {
+                    AnalogSide::Left => {
+                        output.buttons.enable_button(ButtonCode::LeftTrigger);
+                        output.left_trigger.set_value(1.0);
+                    }
+                    AnalogSide::Right => {
+                        output.buttons.enable_button(ButtonCode::RightTrigger);
+                        output.right_trigger.set_value(1.0)
+                    }
+                },
             }
         }
     });

@@ -84,6 +84,12 @@ impl AnalogTrigger {
     pub fn get_value(&self) -> f32 {
         (self.state & Self::MASK) as f32 / Self::MASK as f32
     }
+
+    pub fn set_value(&mut self, value: f32) {
+        assert!(value <= 1.0);
+        assert!(value >= 0.0);
+        self.state = (value * i8::MAX as f32) as i8;
+    }
 }
 
 #[repr(transparent)]
