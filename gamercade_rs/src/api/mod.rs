@@ -7,6 +7,9 @@ pub mod data;
 /// Functions for drawing graphics and primitives to the screen.
 pub mod draw;
 
+/// Functions for manipulating graphics parameters efficiently.
+pub mod graphics_parameters;
+
 /// Functions for query the state of controllers.
 ///
 /// Input falls into two different categories: Buttons and Axis values.

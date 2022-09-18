@@ -24,13 +24,9 @@ pub mod prelude {
     pub use crate::api::audio::*;
     pub use crate::api::data::*;
     pub use crate::api::draw::*;
+    pub use crate::api::graphics_parameters::*;
     pub use crate::api::input::*;
     pub use crate::api::multiplayer::*;
     pub use crate::api::random::*;
     pub use crate::api::text::*;
-    pub use gamercade_core::GraphicsParameters;
 }
-
-/// A useful struct for converting to/from Graphics parameters which are used
-/// throughout draw functions.
-pub use gamercade_core::GraphicsParameters;
