@@ -1,6 +1,6 @@
-use gamercade_core::{AnalogStick, AnalogTrigger, Buttons, InputState};
+use gamercade_core::InputState;
 
-use super::{InputMode, KeyBindings};
+use super::{InputMode, KeyBindings, KeyType};
 
 #[derive(Debug, Default)]
 pub struct LocalInputManager {
@@ -21,14 +21,7 @@ impl LocalInputManager {
 
     //TODO: This
     fn new_emulated_state(&self, helper: &winit_input_helper::WinitInputHelper) -> InputState {
-        //TODO: Update analog sticks & triggers
-        InputState {
-            left_stick: AnalogStick::default(),
-            right_stick: AnalogStick::default(),
-            left_trigger: AnalogTrigger::default(),
-            right_trigger: AnalogTrigger::default(),
-            buttons: generate_new_buttons(&self.keybinds, helper),
-        }
+        generate_emulated_state(&self.keybinds, helper)
     }
 
     //TODO: This
@@ -37,15 +30,18 @@ impl LocalInputManager {
     }
 }
 
-fn generate_new_buttons(
+fn generate_emulated_state(
     binds: &KeyBindings,
     input_helper: &winit_input_helper::WinitInputHelper,
-) -> Buttons {
-    let mut output = Buttons::default();
+) -> InputState {
+    let mut output = InputState::default();
 
     binds.buttons.iter().for_each(|(code, input)| {
         if input_helper.key_held(*code) {
-            output.enable_button(*input)
+            match input {
+                KeyType::ButtonCode(code) => output.buttons.enable_button(*code),
+                KeyType::Emulated(emulated) => emulated.adjust_input_state(&mut output),
+            }
         }
     });
 
