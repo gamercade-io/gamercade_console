@@ -1,10 +1,15 @@
 # Gamercade Editor
 
-Editor functionality for Gamercade and related projects.
+The Gamercade Editor.
 
-The editor is the only way to output the `.gcrom` files used by the editor. This is done by bundling raw `.wasm` output files with the game's art and sound assets.
+The editor's main purpose is to create, edit, and modify all assets used by Gamercade games. This is done through a variety of editors, such as the [Graphics Editor](https://gamercade.io/docs/graphics-editor), or the [Audio Editor](https://gamercade.io/docs/audio-editor).
+
+Currently, the editor is the only way to output the `.gcrom` files necessary to run games. This is done by bundling raw `.wasm` output files with the game's art and sound assets. An explanation of how to do this is available [here](https://github.com/gamercade-io/gamercade_console#building-bundling-and-running-a-game).
+
+For more documentation, please visit the [**Editor Docs**](https://gamercade.io/docs/editor) from the main page.
 
 Learn more about [Gamercade](https://gamercade.io).
+
 ## License
 
 Licensed under either of
