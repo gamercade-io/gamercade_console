@@ -1,13 +1,14 @@
 use std::{fs, io::Read, net::SocketAddr, path::PathBuf};
 
-use egui::{Context, Slider};
+use egui::{ComboBox, Context, Slider};
 use gamercade_core::Rom;
 use ggrs::{P2PSession, PlayerType, SessionBuilder, SessionState, UdpNonBlockingSocket};
+use gilrs::Gilrs;
 use pixels::Pixels;
 use rfd::FileDialog;
 use winit::{dpi::PhysicalSize, window::Window};
 
-use crate::console::{SessionDescriptor, WasmConsole};
+use crate::console::{InputMode, LocalInputManager, SessionDescriptor, WasmConsole};
 
 pub mod framework;
 
@@ -53,6 +54,8 @@ impl Gui {
         window: &Window,
         session: &mut Option<P2PSession<WasmConsole>>,
         ctx: &Context,
+        input: &mut LocalInputManager,
+        gilrs: &mut Gilrs,
     ) {
         let mut is_open = self.window_open;
         egui::Window::new("Main Menu")
@@ -78,12 +81,37 @@ impl Gui {
                     });
 
                     ui.horizontal(|ui| {
-                        ui.label("Random Seed: ");
+                        ui.label("Random Seed:");
                         ui.text_edit_singleline(&mut self.seed);
                         if u64::from_str_radix(&self.seed, 16).is_err() {
                             self.seed = DEFAULT_SEED.to_string()
                         }
                     })
+                });
+
+                ui.group(|ui| {
+                    ui.label("Controller Settings:");
+                    let combo_text = match input.input_mode {
+                        InputMode::Emulated => String::from("Keyboard"),
+                        InputMode::Gamepad(id) => format!("Gamepad: {}", id),
+                    };
+                    ComboBox::from_label("Select Controller")
+                        .selected_text(combo_text)
+                        .show_ui(ui, |ui| {
+                            ui.selectable_value(
+                                &mut input.input_mode,
+                                InputMode::Emulated,
+                                "Keyboard",
+                            );
+
+                            gilrs.gamepads().for_each(|(id, name)| {
+                                ui.selectable_value(
+                                    &mut input.input_mode,
+                                    InputMode::Gamepad(id),
+                                    name.name(),
+                                );
+                            });
+                        });
                 });
 
                 ui.group(|ui| {
@@ -227,6 +255,8 @@ impl Gui {
                     };
                 }
             });
+
+        self.window_open = is_open;
     }
 }
 

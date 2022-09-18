@@ -1,17 +1,19 @@
+mod gamepad_bindings;
 mod key_bindings;
+mod key_types;
 mod local_input_manager;
 mod player_input_entry;
 
+use gilrs::GamepadId;
 use key_bindings::*;
 pub use local_input_manager::*;
 pub use player_input_entry::*;
 
-#[derive(Debug)]
-// TODO: Implement `Gamepad` later.
+#[derive(Debug, PartialEq, Eq)]
 #[allow(dead_code)]
 pub enum InputMode {
     Emulated,
-    Gamepad,
+    Gamepad(GamepadId),
 }
 
 impl Default for InputMode {
