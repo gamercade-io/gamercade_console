@@ -277,10 +277,16 @@ impl DrawContext {
         (x.raw_value() + (y.raw_value() * self.width() as usize)) * BYTES_PER_PIXEL
     }
 
-    // TODO: Handle out of bounds pixels
     fn draw_line_low(&mut self, x0: i32, y0: i32, x1: i32, y1: i32, color: Color) {
         let dx = x1 - x0;
         let mut dy = y1 - y0;
+
+        let rem_limit = (dx + 1) / 2;
+        let mut x = x0.max(0);
+        let xe = x1.min(self.width() - 1);
+
+        let mut rem = ((x - x0) * dy % dx) - rem_limit;
+        let mut y = y0 + (x - x0) * dy / dx;
 
         let y_adjust = if dy < 0 {
             dy = -dy;
@@ -289,28 +295,29 @@ impl DrawContext {
             1
         };
 
-        let mut d = (2 * dy) - dx;
-        let mut y = y0;
-
-        for x in x0..=x1 {
+        while x <= xe {
             if let (Some(valid_x), Some(valid_y)) = (self.try_get_xcord(x), self.try_get_ycord(y)) {
                 self.set_pixel_safe(valid_x, valid_y, color);
-                if d > 0 {
-                    y += y_adjust;
-                    d += 2 * (dy - dx);
-                } else {
-                    d += 2 * dy;
-                }
-            } else {
-                return;
+            }
+            x += 1;
+            rem += dy;
+            if rem >= 0 {
+                rem -= dx;
+                y += y_adjust;
             }
         }
     }
 
-    // TODO: Handle out of bounds pixels
     fn draw_line_high(&mut self, x0: i32, y0: i32, x1: i32, y1: i32, color: Color) {
         let mut dx = x1 - x0;
         let dy = y1 - y0;
+
+        let rem_limit = (dy + 1) / 2;
+        let mut y = y0.max(0);
+        let ye = y1.min(self.height() - 1);
+
+        let mut rem = ((y - y0) * dx % dy) - rem_limit;
+        let mut x = x0 + (y - y0) * dx / dy;
 
         let x_adjust = if dx < 0 {
             dx = -dx;
@@ -319,20 +326,15 @@ impl DrawContext {
             1
         };
 
-        let mut d = (2 * dx) - dy;
-        let mut x = x0;
-
-        for y in y0..=y1 {
+        while y <= ye {
             if let (Some(valid_x), Some(valid_y)) = (self.try_get_xcord(x), self.try_get_ycord(y)) {
                 self.set_pixel_safe(valid_x, valid_y, color);
-                if d > 0 {
-                    x += x_adjust;
-                    d += 2 * (dx - dy);
-                } else {
-                    d += 2 * dx;
-                }
-            } else {
-                return;
+            }
+            y += 1;
+            rem += dx;
+            if rem >= 0 {
+                rem -= dy;
+                x += x_adjust;
             }
         }
     }
