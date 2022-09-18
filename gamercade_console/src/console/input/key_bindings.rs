@@ -3,37 +3,9 @@ use gamercade_core::{ButtonCode, InputState};
 use hashbrown::HashMap;
 use winit::event::VirtualKeyCode;
 
-#[derive(Debug)]
-pub(crate) enum KeyType {
-    ButtonCode(ButtonCode),
-    EmulatedAnalog(EmulatedAnalog),
-    EmulatedTrigger(AnalogSide),
-}
+use super::key_types::{Analog, AnalogAxis, AnalogDirection, AnalogSide, KeyType};
 
-#[derive(Debug, Clone, Copy)]
-pub(crate) struct EmulatedAnalog {
-    side: AnalogSide,
-    axis: AnalogAxis,
-    direction: AnalogDirection,
-}
-
-#[derive(Debug, Clone, Copy)]
-pub(crate) enum AnalogSide {
-    Left,
-    Right,
-}
-#[derive(Debug, Clone, Copy)]
-pub(crate) enum AnalogAxis {
-    X,
-    Y,
-}
-#[derive(Debug, Clone, Copy)]
-pub(crate) enum AnalogDirection {
-    Positive,
-    Negative,
-}
-
-impl EmulatedAnalog {
+impl Analog {
     pub(crate) fn adjust_input_state(self, input_state: &mut InputState) {
         let value = match self.direction {
             AnalogDirection::Positive => 1.0,
@@ -74,18 +46,12 @@ impl Default for KeyBindings {
                 VirtualKeyCode::E,
                 KeyType::ButtonCode(ButtonCode::LeftShoulder),
             ),
-            (
-                VirtualKeyCode::Q,
-                KeyType::EmulatedTrigger(AnalogSide::Left),
-            ),
+            (VirtualKeyCode::Q, KeyType::Trigger(AnalogSide::Left)),
             (
                 VirtualKeyCode::R,
                 KeyType::ButtonCode(ButtonCode::RightShoulder),
             ),
-            (
-                VirtualKeyCode::Y,
-                KeyType::EmulatedTrigger(AnalogSide::Right),
-            ),
+            (VirtualKeyCode::Y, KeyType::Trigger(AnalogSide::Right)),
             //DPad:
             (VirtualKeyCode::Up, KeyType::ButtonCode(ButtonCode::Up)),
             (VirtualKeyCode::Down, KeyType::ButtonCode(ButtonCode::Down)),
@@ -107,7 +73,7 @@ impl Default for KeyBindings {
             //Left Stick Axis
             (
                 VirtualKeyCode::W,
-                KeyType::EmulatedAnalog(EmulatedAnalog {
+                KeyType::Analog(Analog {
                     side: AnalogSide::Left,
                     axis: AnalogAxis::Y,
                     direction: AnalogDirection::Positive,
@@ -115,7 +81,7 @@ impl Default for KeyBindings {
             ),
             (
                 VirtualKeyCode::S,
-                KeyType::EmulatedAnalog(EmulatedAnalog {
+                KeyType::Analog(Analog {
                     side: AnalogSide::Left,
                     axis: AnalogAxis::Y,
                     direction: AnalogDirection::Negative,
@@ -123,7 +89,7 @@ impl Default for KeyBindings {
             ),
             (
                 VirtualKeyCode::A,
-                KeyType::EmulatedAnalog(EmulatedAnalog {
+                KeyType::Analog(Analog {
                     side: AnalogSide::Left,
                     axis: AnalogAxis::X,
                     direction: AnalogDirection::Negative,
@@ -131,7 +97,7 @@ impl Default for KeyBindings {
             ),
             (
                 VirtualKeyCode::D,
-                KeyType::EmulatedAnalog(EmulatedAnalog {
+                KeyType::Analog(Analog {
                     side: AnalogSide::Left,
                     axis: AnalogAxis::X,
                     direction: AnalogDirection::Positive,
@@ -140,7 +106,7 @@ impl Default for KeyBindings {
             //Right Stick Axis,
             (
                 VirtualKeyCode::T,
-                KeyType::EmulatedAnalog(EmulatedAnalog {
+                KeyType::Analog(Analog {
                     side: AnalogSide::Right,
                     axis: AnalogAxis::Y,
                     direction: AnalogDirection::Positive,
@@ -148,7 +114,7 @@ impl Default for KeyBindings {
             ),
             (
                 VirtualKeyCode::G,
-                KeyType::EmulatedAnalog(EmulatedAnalog {
+                KeyType::Analog(Analog {
                     side: AnalogSide::Right,
                     axis: AnalogAxis::Y,
                     direction: AnalogDirection::Negative,
@@ -156,7 +122,7 @@ impl Default for KeyBindings {
             ),
             (
                 VirtualKeyCode::F,
-                KeyType::EmulatedAnalog(EmulatedAnalog {
+                KeyType::Analog(Analog {
                     side: AnalogSide::Right,
                     axis: AnalogAxis::X,
                     direction: AnalogDirection::Negative,
@@ -164,7 +130,7 @@ impl Default for KeyBindings {
             ),
             (
                 VirtualKeyCode::H,
-                KeyType::EmulatedAnalog(EmulatedAnalog {
+                KeyType::Analog(Analog {
                     side: AnalogSide::Right,
                     axis: AnalogAxis::X,
                     direction: AnalogDirection::Positive,

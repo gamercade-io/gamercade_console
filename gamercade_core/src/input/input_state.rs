@@ -62,11 +62,11 @@ impl AnalogStick {
     }
 
     pub fn get_x_axis(&self) -> f32 {
-        (self.x_axis / i8::MAX) as f32
+        self.x_axis as f32 / i8::MAX as f32
     }
 
     pub fn get_y_axis(&self) -> f32 {
-        (self.y_axis / i8::MAX) as f32
+        self.y_axis as f32 / i8::MAX as f32
     }
 }
 

@@ -4,7 +4,9 @@ mod gui;
 
 use std::time::{Duration, Instant};
 
+use gamercade_core::Resolution;
 use ggrs::{GGRSError, P2PSession, SessionState};
+use gilrs::Gilrs;
 use pixels::{Pixels, SurfaceTexture};
 use winit::{
     dpi::LogicalSize,
@@ -18,7 +20,7 @@ use crate::{
     console::LocalInputManager,
     gui::{framework::Framework, Gui},
 };
-use console::{Console, WasmConsole};
+use console::{Console, InputMode, WasmConsole};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let event_loop = EventLoop::new();
@@ -38,8 +40,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     //let mut console = WasmConsole::new(rom.clone(), num_players);
 
+    let mut gilrs = Gilrs::new().unwrap();
+
     let mut input = WinitInputHelper::new();
-    let input_manager = LocalInputManager::default();
+    let mut input_manager = LocalInputManager::new(InputMode::default());
     let mut last_update = Instant::now();
     let mut accumulator = Duration::ZERO;
 
@@ -56,7 +60,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             framework.handle_event(event);
         }
 
-        framework.prepare(&mut pixels, &mut session, &window);
+        framework.prepare(
+            &mut pixels,
+            &mut session,
+            &window,
+            &mut input_manager,
+            &mut gilrs,
+        );
 
         // Handle input events
         if input.update(&event) {
@@ -103,11 +113,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         accumulator =
                             accumulator.saturating_sub(Duration::from_secs_f64(fps_delta));
 
+                        // Process all the gamepad events
+                        while gilrs.next_event().is_some() {}
+
                         // Generate all local inputs
                         // TODO: Refactor this to handle multiple local players correctly
                         for handle in session.local_player_handles() {
                             session
-                                .add_local_input(handle, input_manager.generate_input_state(&input))
+                                .add_local_input(
+                                    handle,
+                                    input_manager.generate_input_state(&input, &gilrs),
+                                )
                                 .unwrap();
                         }
 
@@ -149,7 +165,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn init_window(event_loop: &EventLoop<()>) -> Window {
-    let size = LogicalSize::new(320_f64, 180_f64);
+    let default_res = Resolution::High;
+    let size = LogicalSize::new(default_res.width() as f64, default_res.height() as f64);
     WindowBuilder::new()
         .with_title("Gamercade Console")
         .with_inner_size(size)

@@ -52,3 +52,6 @@ ggrs = "0.9.2"
 
 # File Picker Dialog
 rfd = "0.10.0"
+
+# Input
+gilrs = "0.9.0"
