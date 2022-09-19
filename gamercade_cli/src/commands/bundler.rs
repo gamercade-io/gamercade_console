@@ -1,10 +1,10 @@
 use std::path::PathBuf;
 
 use clap::Args;
-use gamercade_fs::{bundle, EditorRom};
+use gamercade_fs::EditorRom;
 use notify::{Config, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
 
-use crate::WATCH_POLL_INTERVAL;
+use crate::{commands::try_bundle_files, WATCH_POLL_INTERVAL};
 
 use super::{read_path, ReadFileResult};
 
@@ -22,6 +22,7 @@ pub(crate) struct BundleArgs {
     #[clap(short, long, value_parser)]
     output: PathBuf,
 
+    /// Automatically re-run on file changes
     #[clap(short, long, action)]
     watch: bool,
 }
@@ -73,31 +74,11 @@ pub(crate) fn run(args: &BundleArgs) -> Result<(), String> {
 fn try_bundle(args: &BundleArgs) -> Result<(), String> {
     let code = read_path(&args.code)?;
 
-    if let ReadFileResult::EditorRom(..) = code {
-        return Err("Code provider must be a .wasm or .gcrom".to_string());
-    }
-
     let assets = if let Some(assets) = &args.assets {
         read_path(assets)?
     } else {
         println!("No assets provided, using default data.");
         ReadFileResult::EditorRom(EditorRom::default())
-    };
-
-    if let ReadFileResult::Code(..) = assets {
-        return Err("Asset provider must be a .gce or .gcrom".to_string());
-    }
-
-    let bundled_rom = match (&code, &assets) {
-        (ReadFileResult::Rom(rom1), ReadFileResult::Rom(rom2)) => bundle(rom1, rom2),
-        (ReadFileResult::Rom(rom), ReadFileResult::EditorRom(editor_rom)) => {
-            bundle(rom, editor_rom)
-        }
-        (ReadFileResult::Code(code), ReadFileResult::Rom(rom)) => bundle(code, rom),
-        (ReadFileResult::Code(code), ReadFileResult::EditorRom(editor_rom)) => {
-            bundle(code, editor_rom)
-        }
-        _ => unreachable!(),
     };
 
     let path = match args
@@ -109,7 +90,9 @@ fn try_bundle(args: &BundleArgs) -> Result<(), String> {
         _ => args.output.clone().with_extension("gcrom"),
     };
 
+    let bundled_rom = try_bundle_files(&code, &assets)?;
     bundled_rom.try_save(&path)?;
+
     println!("Bundled rom output to: {}", path.to_string_lossy());
     Ok(())
 }
