@@ -17,13 +17,9 @@ draw() - Called once every frame, after update.
 
 Then, compile it to Wasm. You must then bundle your game with any related art assets via the [Gamercade Editor](https://github.com/gamercade-io/gamercade_editor).
 
-## Steps to Bundle & Export a game:
+## Running a game via CLI
 
-1. Open the Editor.
-2. On the File menu, click "Select game .wasm." Find and locate your previously exported .wasm file.
-3. On the File menu, click "Export game" and export.
-
-You can now play the game by opening it up via the Console.
+You can also pass the argument `-g [PATH OF .gcrom]` to automatically load and launch a single player game via the command line.
 
 ## Default Controls:
 

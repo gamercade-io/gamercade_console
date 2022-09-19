@@ -55,7 +55,7 @@ Follow these steps to get your first game project up and running. See the includ
 
 ## Building, Bundling, and Running A Game
 
-Building, bundling, and running games requires a few different steps, which all depend on eachother.
+Building, bundling, and running games requires a few different steps, which all depend on eachother. Below are steps on how to accomplish this using the editor through the GUI. Alternatively, a more efficient way can be done via the `gccl` tool. See the `gamercade_cli` folder for more information about how to invoke and use `gccl`.
 
 ### Building A Game (in Rust) - How to build a .wasm file
 
