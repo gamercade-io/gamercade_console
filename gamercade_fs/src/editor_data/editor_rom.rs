@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use gamercade_audio::SoundRom;
 use gamercade_core::{FrameRate, GraphicsData, Resolution};
 use serde::{Deserialize, Serialize};
@@ -13,6 +15,21 @@ pub struct EditorRom {
     pub player_count: (usize, usize),
     pub graphics: EditorGraphicsData,
     pub sounds: EditorSoundData,
+}
+
+impl EditorRom {
+    pub fn try_load(path: &PathBuf) -> Result<EditorRom, String> {
+        let text = std::fs::read_to_string(path).map_err(|e| e.to_string())?;
+        serde_json::from_str::<EditorRom>(&text).map_err(|e| e.to_string())
+    }
+
+    pub fn try_save(&self, path: &PathBuf) -> Result<(), String> {
+        std::fs::write(
+            path,
+            serde_json::to_string_pretty(self).expect("failed to serialize editor rom to json"),
+        )
+        .map_err(|e| e.to_string())
+    }
 }
 
 impl Default for EditorRom {

@@ -1,0 +1,15 @@
+[package]
+name = "gccl"
+version = "0.1.1"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "Gamercade Cli and Tools"
+homepage = "https://gamercade.io"
+repository = "https://github.com/gamercade-io/gamercade_console"
+keywords = ["gamedev"]
+
+[dependencies]
+gamercade_fs = { path = "../gamercade_fs" }
+
+clap = { version = "3.2.22", features = ["derive"] }
+notify = "5.0.0"

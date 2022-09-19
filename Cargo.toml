@@ -3,6 +3,7 @@ resolver = "2"
 
 members = [
     "gamercade_audio",
+    "gamercade_cli",
     "gamercade_console",
     "gamercade_core",
     "gamercade_editor",
