@@ -4,6 +4,8 @@ use clap::Args;
 use gamercade_fs::{bundle, EditorRom};
 use notify::{Config, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
 
+use crate::WATCH_POLL_INTERVAL;
+
 use super::{read_path, ReadFileResult};
 
 #[derive(Args, Debug, Clone)]
@@ -31,7 +33,7 @@ pub(crate) fn run(args: &BundleArgs) -> Result<(), String> {
         let (tx, rx) = std::sync::mpsc::channel();
 
         let config = Config::default()
-            .with_poll_interval(std::time::Duration::from_secs(1))
+            .with_poll_interval(WATCH_POLL_INTERVAL)
             .with_compare_contents(true);
 
         let mut watcher = RecommendedWatcher::new(tx, config).map_err(|e| e.to_string())?;
