@@ -11,6 +11,7 @@ path = "src/main.rs"
 
 [dependencies]
 # Gamercade Dependencies
+gamercade_fs = { path = "../gamercade_fs" }
 gamercade_core = { path = "../gamercade_core" }
 gamercade_audio = { path = "../gamercade_audio" }
 gamercade_sound_engine = { path = "../gamercade_sound_engine" }

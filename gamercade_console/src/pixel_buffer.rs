@@ -1,6 +1,9 @@
 use std::ops::{Index, IndexMut, Range};
 
-use crate::{Palette, Rom, SpriteIndex, SpriteSheet, BYTES_PER_PIXEL};
+use gamercade_core::{ColorIndex, PaletteIndex};
+
+use gamercade_core::{Palette, SpriteIndex, SpriteSheet, BYTES_PER_PIXEL};
+use gamercade_fs::Rom;
 
 #[derive(Clone)]
 pub struct PixelBuffer {
@@ -21,6 +24,21 @@ impl PixelBuffer {
             buffer_width: rom.resolution.width() as usize,
             buffer_height: rom.resolution.height() as usize,
         }
+    }
+
+    pub fn clear_buffer(&mut self, color: ColorIndex, palette: PaletteIndex, rom: &Rom) {
+        let color = if let Some(Some(color)) = rom
+            .graphics
+            .palette(palette)
+            .map(|palette| palette.colors.get(color.0 as usize))
+        {
+            color.into_pixel_data()
+        } else {
+            return;
+        };
+        self.pixel_buffer
+            .chunks_exact_mut(BYTES_PER_PIXEL)
+            .for_each(|pixel| pixel.copy_from_slice(&color));
     }
 
     pub fn draw_sprite(

@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
-use gamercade_core::{Rom, SpriteSheet};
+use gamercade_core::SpriteSheet;
+use gamercade_fs::Rom;
 
 use crate::api::DataApi;
 

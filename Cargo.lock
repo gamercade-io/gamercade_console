@@ -1653,6 +1653,7 @@ dependencies = [
  "fastrand",
  "gamercade_audio",
  "gamercade_core",
+ "gamercade_fs",
  "gamercade_sound_engine",
  "ggrs",
  "gilrs",
@@ -1674,7 +1675,6 @@ version = "0.1.0"
 dependencies = [
  "base64",
  "bytemuck",
- "gamercade_audio",
  "serde",
  "serde-big-array",
  "strum",
@@ -1688,6 +1688,7 @@ dependencies = [
  "eframe",
  "gamercade_audio",
  "gamercade_core",
+ "gamercade_fs",
  "gamercade_sound_engine",
  "hashbrown 0.12.3",
  "hound",
@@ -1698,6 +1699,16 @@ dependencies = [
  "serde_json",
  "tinystr",
  "zstd",
+]
+
+[[package]]
+name = "gamercade_fs"
+version = "0.1.1"
+dependencies = [
+ "gamercade_audio",
+ "gamercade_core",
+ "gamercade_sound_engine",
+ "serde",
 ]
 
 [[package]]

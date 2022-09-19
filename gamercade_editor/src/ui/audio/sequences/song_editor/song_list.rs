@@ -1,9 +1,8 @@
 use gamercade_audio::{Song, SONGS_MAX_COUNT};
 
-use crate::{
-    editor_data::{EditorAudioDataEntry, EditorSoundData},
-    ui::AudioList,
-};
+use gamercade_fs::{EditorAudioDataEntry, EditorSoundData};
+
+use crate::ui::AudioList;
 
 #[derive(Default)]
 pub(super) struct SongList {

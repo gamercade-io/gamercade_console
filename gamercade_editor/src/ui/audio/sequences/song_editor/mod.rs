@@ -6,10 +6,9 @@ use gamercade_audio::{Chain, ChainId, Song, PHRASE_STEPS_PER_BEAT, SONG_TRACK_CH
 use song_list::*;
 use song_row::*;
 
-use crate::{
-    editor_data::{EditorAudioDataEntry, EditorSoundData},
-    ui::{AudioList, AudioSyncHelper},
-};
+use gamercade_fs::{EditorAudioDataEntry, EditorSoundData};
+
+use crate::ui::{AudioList, AudioSyncHelper};
 
 use super::{
     HandleTrackerEditEntryCommand, TrackerEditCommand, TrackerEditEntryCommand,

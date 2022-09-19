@@ -12,7 +12,7 @@ use super::{
     Contexts, SessionDescriptor,
 };
 use crate::Console;
-use gamercade_core::Rom;
+use gamercade_fs::Rom;
 
 pub struct WasmConsole {
     pub(crate) rom: Arc<Rom>,

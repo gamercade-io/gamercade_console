@@ -1,7 +1,6 @@
 use eframe::epaint::Vec2;
 use ui::Editor;
 
-mod editor_data;
 mod ui;
 
 fn main() {

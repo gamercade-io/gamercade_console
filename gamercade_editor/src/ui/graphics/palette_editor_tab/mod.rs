@@ -13,7 +13,7 @@ use sprite_preview::SpritePreview;
 use eframe::egui::{SidePanel, TextureId, TopBottomPanel, Ui};
 
 use super::SpriteSheetEditor;
-use crate::editor_data::{EditorGraphicsData, EditorPalette};
+use gamercade_fs::{EditorGraphicsData, EditorPalette};
 
 #[derive(Clone, Default)]
 pub struct PaletteEditor {

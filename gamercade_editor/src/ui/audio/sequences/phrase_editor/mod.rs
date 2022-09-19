@@ -6,10 +6,9 @@ use super::{
     HandleTrackerEditEntryCommand, TrackerEditCommand, TrackerEditEntryCommand,
     TrackerEditRowCommand, TRACKER_TEXT_FONT_SIZE,
 };
-use crate::{
-    editor_data::EditorSoundData,
-    ui::{AudioList, AudioSyncHelper},
-};
+
+use crate::ui::{AudioList, AudioSyncHelper};
+use gamercade_fs::EditorSoundData;
 
 mod phrase_list;
 mod phrase_row;

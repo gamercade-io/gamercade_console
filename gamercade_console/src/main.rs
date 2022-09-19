@@ -1,6 +1,7 @@
 mod api;
 mod console;
 mod gui;
+mod pixel_buffer;
 
 use std::time::{Duration, Instant};
 

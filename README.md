@@ -91,6 +91,7 @@ This is the main workspace crate. Consider viewing the inner crates for more inf
 - `gamercade_console` - The console used to run & play games.
 - `gamercade_core` - Core shared types and functionality.
 - `gamercade_editor` - The editor used to bundle WASM code with assets.
+- `gamercade_fs` - File System management.
 - `gamercade_rs` - A safe wrapper around the raw Api.
 - `gamercade_sound_engine` - Closely related to gamercade_audio, responsible for actual sound output.
 - `gamercade_tools` - Useful assorted tools.

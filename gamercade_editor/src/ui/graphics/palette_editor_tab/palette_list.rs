@@ -1,11 +1,8 @@
+use crate::ui::{draw_palette_preview, import_image_dialog};
 use eframe::egui::{ScrollArea, TextureId, Ui};
-use hashbrown::HashSet;
-
-use crate::{
-    editor_data::{EditorGraphicsData, EditorPalette},
-    ui::{draw_palette_preview, import_image_dialog},
-};
 use gamercade_core::{Color, Palette, PALETTE_COLORS};
+use gamercade_fs::{EditorGraphicsData, EditorPalette};
+use hashbrown::HashSet;
 
 #[derive(Clone, Debug, Default)]
 pub struct PaletteList {

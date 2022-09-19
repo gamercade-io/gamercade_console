@@ -1,9 +1,7 @@
 use eframe::egui::{ScrollArea, SidePanel, TopBottomPanel, Ui};
+use gamercade_fs::{EditorAudioDataEntry, EditorSoundData};
 
-use crate::{
-    editor_data::{EditorAudioDataEntry, EditorSoundData},
-    ui::AudioSyncHelper,
-};
+use crate::ui::AudioSyncHelper;
 
 pub(crate) trait AudioList<T> {
     const MAX_ENTRY_COUNT: usize;

@@ -1,5 +1,7 @@
-use gamercade_core::{FrameRate, Resolution, Rom};
+use gamercade_core::{FrameRate, Resolution};
 use serde::{Deserialize, Serialize};
+
+use crate::Rom;
 
 use super::{EditorGraphicsData, EditorSoundData};
 

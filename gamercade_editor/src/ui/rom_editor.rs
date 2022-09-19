@@ -1,9 +1,9 @@
-use crate::editor_data::EditorRom;
 use eframe::egui::{self, Ui};
 use gamercade_core::{
     FrameRate,
     Resolution::{High, Low, Medium, UltraHigh, UltraLow, VeryHigh, VeryLow},
 };
+use gamercade_fs::EditorRom;
 
 #[derive(Debug, Clone, Default)]
 pub struct RomEditor {}

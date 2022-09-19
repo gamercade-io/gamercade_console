@@ -18,7 +18,7 @@ use sheet_settings::SheetSettings;
 use eframe::egui::{TextEdit, TextureId, Ui};
 
 use super::PaletteEditor;
-use crate::editor_data::EditorGraphicsData;
+use gamercade_fs::EditorGraphicsData;
 
 #[derive(Clone, Default)]
 pub struct SpriteSheetEditor {

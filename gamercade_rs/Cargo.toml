@@ -5,7 +5,7 @@ edition = "2021"
 license = "MIT OR Apache-2.0"
 description = "A safe wrapper around Gamercade's Raw Api"
 homepage = "https://gamercade.io"
-repository = "https://github.com/gamercade-io/gamercade_rs"
+repository = "https://github.com/gamercade-io/gamercade_console"
 keywords = ["gamedev"]
 
 [dependencies]

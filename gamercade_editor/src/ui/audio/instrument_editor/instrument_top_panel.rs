@@ -5,8 +5,9 @@ use eframe::{
 use gamercade_audio::{
     InstrumentDataDefinition, PatchDefinition, SampleDefinition, WavetableDefinition,
 };
+use gamercade_fs::EditorAudioDataEntry;
 
-use crate::{editor_data::EditorAudioDataEntry, ui::AudioSyncHelper};
+use crate::ui::AudioSyncHelper;
 
 use super::KeyboardMode;
 

@@ -5,12 +5,11 @@ mod network;
 mod wasm_console;
 
 pub use contexts::Contexts;
+use gamercade_fs::Rom;
 use ggrs::{Config, GGRSRequest};
 pub use input::*;
 pub use network::{SessionDescriptor, WasmConsoleState};
 pub use wasm_console::WasmConsole;
-
-use gamercade_core::Rom;
 
 pub trait Console: Sized + Config {
     fn call_init(&mut self);

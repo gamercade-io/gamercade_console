@@ -2,7 +2,7 @@ use eframe::egui::{Ui, Window};
 use gamercade_core::{Palette, SpriteSheet};
 use image::{ImageBuffer, Rgba};
 
-use crate::editor_data::EditorSpriteSheet;
+use gamercade_fs::EditorSpriteSheet;
 
 use super::{palette_to_map, typed_text_entry};
 

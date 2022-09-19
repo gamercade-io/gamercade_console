@@ -1,7 +1,8 @@
 use std::{fs, io::Read, net::SocketAddr, path::PathBuf};
 
 use egui::{Button, ComboBox, Context, Slider};
-use gamercade_core::Rom;
+
+use gamercade_fs::Rom;
 use ggrs::{P2PSession, PlayerType, SessionBuilder, SessionState, UdpNonBlockingSocket};
 use gilrs::Gilrs;
 use pixels::Pixels;

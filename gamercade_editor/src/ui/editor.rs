@@ -3,7 +3,7 @@ use std::{fs, io::Write, path::PathBuf};
 use eframe::egui::{self, menu, Context};
 use rfd::FileDialog;
 
-use crate::editor_data::EditorRom;
+use gamercade_fs::EditorRom;
 
 use super::{AudioEditor, GraphicsEditor, RomEditor};
 
