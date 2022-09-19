@@ -1705,6 +1705,7 @@ name = "gamercade_console"
 version = "0.1.0"
 dependencies = [
  "bytemuck",
+ "clap",
  "cpal",
  "egui 0.17.0",
  "egui-winit 0.17.0",

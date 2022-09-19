@@ -54,3 +54,6 @@ rfd = "0.10.0"
 
 # Input
 gilrs = "0.9.0"
+
+# Cli
+clap = { version = "3.2.22", features = ["derive"] }

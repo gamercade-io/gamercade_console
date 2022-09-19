@@ -30,4 +30,5 @@ impl Config for WasmConsole {
 pub struct SessionDescriptor {
     pub num_players: usize,
     pub player_types: Box<[PlayerType<SocketAddr>]>,
+    pub port: u16,
 }

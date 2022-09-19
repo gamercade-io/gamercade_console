@@ -1,10 +1,9 @@
-use std::path::PathBuf;
+use std::{path::PathBuf, process::Child};
 
 use clap::Args;
 use gamercade_fs::EditorRom;
-use notify::{Config, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
 
-use crate::{commands::try_bundle_files, WATCH_POLL_INTERVAL};
+use crate::{commands::try_bundle_files, watch::Watchable};
 
 use super::{read_path, ReadFileResult};
 
@@ -21,57 +20,27 @@ pub(crate) struct BundleArgs {
     /// Path of the output file.
     #[clap(short, long, value_parser)]
     output: PathBuf,
-
-    /// Automatically re-run on file changes
-    #[clap(short, long, action)]
-    watch: bool,
 }
 
-pub(crate) fn run(args: &BundleArgs) -> Result<(), String> {
-    if args.watch {
-        println!("\nWatching for file changes...\n");
+impl Watchable for BundleArgs {
+    fn get_watch_list(&self) -> Vec<PathBuf> {
+        let mut out = Vec::new();
 
-        let (tx, rx) = std::sync::mpsc::channel();
+        out.push(self.code.clone());
 
-        let config = Config::default()
-            .with_poll_interval(WATCH_POLL_INTERVAL)
-            .with_compare_contents(true);
+        if let Some(path) = &self.assets {
+            out.push(path.clone())
+        };
 
-        let mut watcher = RecommendedWatcher::new(tx, config).map_err(|e| e.to_string())?;
+        out
+    }
 
-        watcher
-            .watch(args.code.as_path(), RecursiveMode::NonRecursive)
-            .unwrap();
-
-        if let Some(path) = &args.assets {
-            watcher
-                .watch(path.as_path(), RecursiveMode::NonRecursive)
-                .unwrap();
-        }
-
-        for res in rx {
-            match res {
-                Ok(event) => match event.kind {
-                    EventKind::Create(_) | EventKind::Modify(_) => {
-                        println!("\nFile changes detected.");
-                        match try_bundle(args) {
-                            Ok(_) => (),
-                            Err(e) => println!("Failed to bundle: {}", e),
-                        }
-                    }
-                    _ => (),
-                },
-                Err(e) => return Err(e.to_string()),
-            }
-        }
-
-        Ok(())
-    } else {
-        try_bundle(args)
+    fn watchable(&self) -> bool {
+        true
     }
 }
 
-fn try_bundle(args: &BundleArgs) -> Result<(), String> {
+pub(crate) fn run(args: &BundleArgs) -> Result<Option<Child>, String> {
     let code = read_path(&args.code)?;
 
     let assets = if let Some(assets) = &args.assets {
@@ -94,5 +63,5 @@ fn try_bundle(args: &BundleArgs) -> Result<(), String> {
     bundled_rom.try_save(&path)?;
 
     println!("Bundled rom output to: {}", path.to_string_lossy());
-    Ok(())
+    Ok(None)
 }
