@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
-use gamercade_core::{FrameRate, GraphicsData, Resolution};
 use gamercade_audio::SoundRom;
+use gamercade_core::{FrameRate, GraphicsData, Resolution};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Rom {
