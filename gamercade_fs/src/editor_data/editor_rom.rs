@@ -1,7 +1,8 @@
-use gamercade_core::{FrameRate, Resolution};
+use gamercade_audio::SoundRom;
+use gamercade_core::{FrameRate, GraphicsData, Resolution};
 use serde::{Deserialize, Serialize};
 
-use crate::Rom;
+use crate::GameAssetProvider;
 
 use super::{EditorGraphicsData, EditorSoundData};
 
@@ -26,15 +27,24 @@ impl Default for EditorRom {
     }
 }
 
-impl EditorRom {
-    pub fn export_as_rom(&self, code: &[u8]) -> Rom {
-        Rom {
-            resolution: self.resolution,
-            frame_rate: self.frame_rate,
-            graphics: (&self.graphics).into(),
-            sounds: (&self.sounds).into(),
-            code: code.into(),
-            player_count: self.player_count,
-        }
+impl GameAssetProvider for EditorRom {
+    fn resolution(&self) -> Resolution {
+        self.resolution
+    }
+
+    fn frame_rate(&self) -> FrameRate {
+        self.frame_rate
+    }
+
+    fn player_count(&self) -> (usize, usize) {
+        self.player_count
+    }
+
+    fn graphics(&self) -> GraphicsData {
+        (&self.graphics).into()
+    }
+
+    fn sounds(&self) -> SoundRom {
+        (&self.sounds).into()
     }
 }

@@ -201,7 +201,7 @@ fn try_export_rom(rom: &EditorRom, wasm_path: &mut Option<PathBuf>) -> Result<()
             .set_title("Export Game .gcrom")
             .save_file()
         {
-            let rom = rom.export_as_rom(&wasm);
+            let rom = gamercade_fs::bundle(&wasm, rom);
             let rom =
                 bincode::serialize(&rom).map_err(|_| "failed to serialize editor rom to binary")?;
             let target = fs::File::create(path).map_err(|_| "failed to create file")?;

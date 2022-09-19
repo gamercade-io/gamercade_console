@@ -2,7 +2,9 @@
 
 Learn more about [Gamercade](https://gamercade.io).
 
-The main audio crate for Gamercade's File System: saving, loading, data serialization.
+The main audio crate for Gamercade's File System: saving, loading, data serialization. 
+
+Also provides the `bundler` interface which allows combining of game code (raw `.wasm` bytes), and game assets.
 
 ## License
 
