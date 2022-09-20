@@ -1,10 +1,8 @@
 use eframe::egui::Ui;
 use gamercade_audio::{InstrumentDataDefinition, INSTRUMENTS_MAX_COUNT};
+use gamercade_fs::{EditorAudioDataEntry, EditorSoundData};
 
-use crate::{
-    editor_data::{EditorAudioDataEntry, EditorSoundData},
-    ui::{AudioList, AudioSyncHelper},
-};
+use crate::ui::{AudioList, AudioSyncHelper};
 
 #[derive(Default)]
 pub struct InstrumentList {

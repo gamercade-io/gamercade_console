@@ -12,14 +12,13 @@ use std::sync::Arc;
 use audio_context::*;
 use data_context::DataContext;
 use draw_context::DrawContext;
+use gamercade_fs::Rom;
 use gamercade_sound_engine::SoundRomInstance;
 use graphics_parameter_context::GraphicsParameterContext;
 use input_context::InputContext;
 use multiplayer_context::MultiplayerContext;
 use random_context::RandomContext;
 use text_context::TextContext;
-
-use gamercade_core::Rom;
 
 use super::SessionDescriptor;
 pub struct Contexts {

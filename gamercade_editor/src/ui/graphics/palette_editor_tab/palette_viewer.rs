@@ -1,7 +1,7 @@
 use eframe::egui::{Color32, ImageButton, TextureId, Ui, Vec2};
 use gamercade_core::{Color, Palette, PALETTE_COLORS};
 
-use crate::editor_data::EditorPalette;
+use gamercade_fs::EditorPalette;
 
 #[derive(Clone, Default, Debug)]
 pub struct PaletteViewer {

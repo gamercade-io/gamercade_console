@@ -1,7 +1,8 @@
 use eframe::egui::Ui;
 use gamercade_core::{Palette, SpriteSheet, SpriteSheetIndex};
 
-use crate::{editor_data::EditorSpriteSheet, ui::import_image_dialog};
+use crate::ui::import_image_dialog;
+use gamercade_fs::EditorSpriteSheet;
 
 use super::sprite_sheet_importer::SpriteSheetImporter;
 

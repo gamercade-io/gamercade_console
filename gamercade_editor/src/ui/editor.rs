@@ -1,9 +1,9 @@
-use std::{fs, io::Write, path::PathBuf};
+use std::path::PathBuf;
 
 use eframe::egui::{self, menu, Context};
 use rfd::FileDialog;
 
-use crate::editor_data::EditorRom;
+use gamercade_fs::EditorRom;
 
 use super::{AudioEditor, GraphicsEditor, RomEditor};
 
@@ -134,28 +134,20 @@ impl Editor {
 }
 
 fn try_load_editor_rom(rom: &mut EditorRom) -> Result<(), &'static str> {
-    let text = if let Some(path) = FileDialog::new()
+    if let Some(path) = FileDialog::new()
         .add_filter("gce (.gce)", &["gce"])
         .pick_file()
     {
-        match fs::read_to_string(path) {
-            Ok(text) => text,
-            Err(_) => return Err("failed to read file to string."),
-        }
-    } else {
-        return Err("failed to read file");
-    };
-
-    match serde_json::from_str::<EditorRom>(&text) {
-        Ok(parsed) => {
-            *rom = parsed;
-            Ok(())
-        }
-        Err(e) => {
-            println!("{}", e);
-            Err("failed to parse text from file")
+        match EditorRom::try_load(&path) {
+            Ok(new_rom) => {
+                *rom = new_rom;
+                return Ok(());
+            }
+            Err(_) => return Err("Failed to load editor rom."),
         }
     }
+
+    Ok(())
 }
 
 fn try_save_editor_rom(rom: &EditorRom) -> Result<(), &'static str> {
@@ -163,11 +155,8 @@ fn try_save_editor_rom(rom: &EditorRom) -> Result<(), &'static str> {
         .add_filter("gce (.gce)", &["gce"])
         .save_file()
     {
-        fs::write(
-            path,
-            serde_json::to_string_pretty(rom).expect("failed to serialize editor rom to json"),
-        )
-        .map_err(|_| "failed to write file")
+        rom.try_save(&path)
+            .map_err(|_| "Failed to save editor rom.")
     } else {
         Ok(())
     }
@@ -194,25 +183,16 @@ fn try_export_rom(rom: &EditorRom, wasm_path: &mut Option<PathBuf>) -> Result<()
     };
 
     if let Some(path) = wasm_path {
-        let wasm = fs::read(path).map_err(|_| "failed to read as bytes")?;
+        let wasm = gamercade_fs::try_load_wasm(path).map_err(|_| "failed to read as bytes")?;
 
         if let Some(path) = FileDialog::new()
             .add_filter("gcrom (.gcrom)", &["gcrom"])
             .set_title("Export Game .gcrom")
             .save_file()
         {
-            let rom = rom.export_as_rom(&wasm);
-            let rom =
-                bincode::serialize(&rom).map_err(|_| "failed to serialize editor rom to binary")?;
-            let target = fs::File::create(path).map_err(|_| "failed to create file")?;
-            let mut encoder = zstd::Encoder::new(target, zstd::DEFAULT_COMPRESSION_LEVEL)
-                .map_err(|_| "failed to create encoder")?;
-
-            encoder
-                .write_all(&rom)
-                .map_err(|_| "failed to encoder.write")?;
-
-            encoder.finish().map_err(|_| "failed to finish writing")?;
+            let rom = gamercade_fs::bundle(&wasm, rom);
+            rom.try_save(&path)
+                .map_err(|_| "failed to finish writing")?;
         }
     }
 

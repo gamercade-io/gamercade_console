@@ -1,5 +1,6 @@
-use crate::api::DrawApi;
-use gamercade_core::{Color, GraphicsParameters, PixelBuffer, Rom, XCord, YCord, BYTES_PER_PIXEL};
+use crate::{api::DrawApi, pixel_buffer::PixelBuffer};
+use gamercade_core::{Color, GraphicsParameters, XCord, YCord, BYTES_PER_PIXEL};
+use gamercade_fs::Rom;
 use std::{
     ops::{Add, Sub},
     sync::Arc,
@@ -65,8 +66,8 @@ impl DrawApi for DrawContext {
             ..
         } = graphics_parameters.into();
 
-        self.rom
-            .clear_buffer(color_index, palette_index, &mut self.frame_buffer);
+        self.frame_buffer
+            .clear_buffer(color_index, palette_index, &self.rom);
     }
 
     fn set_pixel(&mut self, graphics_parameters: i32, x: i32, y: i32) {

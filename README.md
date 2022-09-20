@@ -55,7 +55,7 @@ Follow these steps to get your first game project up and running. See the includ
 
 ## Building, Bundling, and Running A Game
 
-Building, bundling, and running games requires a few different steps, which all depend on eachother.
+Building, bundling, and running games requires a few different steps, which all depend on eachother. Below are steps on how to accomplish this using the editor through the GUI. Alternatively, a more efficient way can be done via the `gccl` tool. See the `gamercade_cli` folder for more information about how to invoke and use `gccl`.
 
 ### Building A Game (in Rust) - How to build a .wasm file
 
@@ -88,9 +88,11 @@ A template example project is available at: [rust_template](https://github.com/g
 This is the main workspace crate. Consider viewing the inner crates for more information about the project. Each of them has their own README.
 
 - `gamercade_audio` - For all gamercade audio related things.
+- `gamercade_cli` - The `gccl` tools for development.
 - `gamercade_console` - The console used to run & play games.
 - `gamercade_core` - Core shared types and functionality.
 - `gamercade_editor` - The editor used to bundle WASM code with assets.
+- `gamercade_fs` - File System management, loading, saving etc.
 - `gamercade_rs` - A safe wrapper around the raw Api.
 - `gamercade_sound_engine` - Closely related to gamercade_audio, responsible for actual sound output.
 - `gamercade_tools` - Useful assorted tools.

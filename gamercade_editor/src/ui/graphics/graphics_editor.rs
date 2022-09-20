@@ -3,7 +3,8 @@ use eframe::egui::{
 };
 
 use super::{PaletteEditor, SpriteEditor, SpriteSheetEditor};
-use crate::editor_data::EditorGraphicsData;
+use gamercade_fs::EditorGraphicsData;
+
 use gamercade_core::{Palette, PALETTE_COLORS};
 
 const ROWS_PER_PALETTE_PREVIEW: usize = 8;

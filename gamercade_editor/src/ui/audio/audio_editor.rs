@@ -6,7 +6,7 @@ use gamercade_sound_engine::{
     SoundEngine, SoundEngineChannelType, SoundEngineData, SoundRomInstance,
 };
 
-use crate::editor_data::EditorSoundData;
+use gamercade_fs::EditorSoundData;
 
 use super::{
     AudioEditorHelp, ChainEditor, InstrumentEditor, Oscilloscope, OscilloscopeMode, PhraseEditor,

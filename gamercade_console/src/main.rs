@@ -1,9 +1,14 @@
 mod api;
 mod console;
 mod gui;
+mod pixel_buffer;
 
-use std::time::{Duration, Instant};
+use std::{
+    path::PathBuf,
+    time::{Duration, Instant},
+};
 
+use clap::Parser;
 use gamercade_core::Resolution;
 use ggrs::{GGRSError, P2PSession, SessionState};
 use gilrs::Gilrs;
@@ -22,23 +27,24 @@ use crate::{
 };
 use console::{Console, InputMode, WasmConsole};
 
+#[derive(Parser, Debug)]
+struct Cli {
+    /// Path to .gcrom to load.
+    #[clap(short, long, value_parser)]
+    game: Option<PathBuf>,
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let cli = Cli::parse();
+
     let event_loop = EventLoop::new();
 
     let window = init_window(&event_loop);
     let window_size = window.inner_size();
     let scale_factor = window.scale_factor() as f32;
 
-    //let (num_players, mut session) = init_session_fast(&rom);
-    //let (num_players, mut session) = init_session(&rom);
     let mut session: Option<P2PSession<WasmConsole>> = None;
     let mut pixels = init_pixels(&window);
-
-    //let rom = Arc::new(rom);
-
-    //let player_inputs = InputContext::new(num_players);
-
-    //let mut console = WasmConsole::new(rom.clone(), num_players);
 
     let mut gilrs = Gilrs::new().unwrap();
 
@@ -54,6 +60,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         &pixels,
         Gui::default(),
     );
+
+    if let Some(game_path) = &cli.game {
+        let seed = fastrand::u64(0..u64::MAX);
+        framework
+            .gui
+            .fast_launch_game(game_path.clone(), seed, &mut pixels, &window, &mut session);
+    }
 
     event_loop.run(move |event, _, control_flow| {
         if let Event::WindowEvent { event, .. } = &event {

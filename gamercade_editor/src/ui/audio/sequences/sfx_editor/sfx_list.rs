@@ -1,9 +1,7 @@
 use gamercade_audio::{Sfx, SFX_MAX_COUNT};
+use gamercade_fs::{EditorAudioDataEntry, EditorSoundData};
 
-use crate::{
-    editor_data::{EditorAudioDataEntry, EditorSoundData},
-    ui::AudioList,
-};
+use crate::ui::AudioList;
 
 #[derive(Default)]
 pub(super) struct SfxList {

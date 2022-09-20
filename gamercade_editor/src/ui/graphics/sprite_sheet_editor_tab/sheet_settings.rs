@@ -1,6 +1,6 @@
 use eframe::egui::{Button, Ui};
 
-use crate::editor_data::EditorSpriteSheet;
+use gamercade_fs::EditorSpriteSheet;
 
 use super::typed_text_entry;
 

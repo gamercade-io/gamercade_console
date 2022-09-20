@@ -1,10 +1,8 @@
 use eframe::egui::{Grid, InputState, Key, Slider, Ui};
 use gamercade_audio::{Chain, PhraseId, CHAIN_MAX_PHRASE_COUNT, DEFAULT_BPM};
+use gamercade_fs::EditorSoundData;
 
-use crate::{
-    editor_data::EditorSoundData,
-    ui::{AudioList, AudioSyncHelper},
-};
+use crate::ui::{AudioList, AudioSyncHelper};
 
 mod chain_list;
 mod chain_row;

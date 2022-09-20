@@ -1,6 +1,7 @@
 use eframe::egui::{TextureId, Ui};
 
-use crate::{editor_data::EditorPalette, ui::draw_palette_preview};
+use crate::ui::draw_palette_preview;
+use gamercade_fs::EditorPalette;
 
 #[derive(Debug, Clone, Default)]
 pub struct PalettePreview {}

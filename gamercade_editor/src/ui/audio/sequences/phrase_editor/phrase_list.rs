@@ -1,9 +1,7 @@
 use gamercade_audio::{Phrase, PHRASES_MAX_COUNT};
+use gamercade_fs::{EditorAudioDataEntry, EditorSoundData};
 
-use crate::{
-    editor_data::{EditorAudioDataEntry, EditorSoundData},
-    ui::AudioList,
-};
+use crate::ui::AudioList;
 
 #[derive(Debug, Default)]
 pub(super) struct PhraseList {
