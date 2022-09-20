@@ -16,11 +16,11 @@ Run the cli with `gccl`. Invoke one of the following commands:
 
 ### Bundle Mode
 
-This is how you can bundle and package game code and assets via command line. Usable by the `gccl bundle` command. Parameters:
+This is how you can bundle and package game code and assets via command line. Usable by the `gccl bundle` command. The usable parameters are:
 
 - `--code` or `-c` - a code provider. Can be a `.wasm` file or an already bundled `.gcrom`.
 - `--output` or `-o` - an output file. The path where you want to output the bundled `.gcrom`.
-- `--assets` or `-a` - an asset provider. Can be a `.gce` file, or an already bundled `.gcrom`.
+- `--assets` or `-a` - an optional asset provider. Can be a `.gce` file, or an already bundled `.gcrom`.
 
 For example, `gccl -w bundle -c [PATH TO CODE] -a [PATH TO ASSETS] -o my_game.gcrom` will load code, assets, bundle them together, and output it into `my_game.gcrom`
 
