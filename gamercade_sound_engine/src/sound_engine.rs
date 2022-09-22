@@ -3,10 +3,10 @@ use std::sync::Arc;
 use cpal::{
     default_host,
     traits::{DeviceTrait, HostTrait, StreamTrait},
-    Stream, StreamConfig,
+    Device, SampleFormat, Stream, StreamConfig, SupportedStreamConfig,
 };
 use gamercade_audio::{InstrumentId, PhraseId};
-use rtrb::{Producer, RingBuffer};
+use rtrb::{Consumer, Producer, RingBuffer};
 
 use crate::{
     initialize_globals, ChainPlayback, InstrumentInstance, SfxPlayback, SongPlayback,
@@ -166,129 +166,22 @@ impl SoundEngine {
 
     pub fn new(fps: usize, rom: &Arc<SoundRomInstance>, message_buffer_size: usize) -> Self {
         initialize_globals();
-        let device = default_host().default_output_device().unwrap();
+        let mut device = default_host().default_output_device().unwrap();
 
         let supported_config = device.default_output_config().unwrap();
         let output_sample_rate = supported_config.sample_rate().0 as usize;
-        let channels = supported_config.channels() as usize;
-        let config = StreamConfig::from(supported_config);
 
-        println!("Output Sample Rate: {}", output_sample_rate);
-        println!("Output channels: {}", channels);
-
-        let sound_frames_per_render_frame = output_sample_rate / fps;
-        let (producer, mut consumer) = RingBuffer::new(message_buffer_size);
-        let mut data = SoundEngineData::new(output_sample_rate, rom);
-
-        let mut sound_output_producer: Option<Producer<SoundOutputChannels>> = None;
-
-        let stream = device
-            .build_output_stream(
-                &config,
-                move |frames: &mut [f32], _: &cpal::OutputCallbackInfo| {
-                    let mut buffer_written = false;
-
-                    // Repeat indefinitely until we write a full buffer without
-                    // any new data inputs. If we receive a new data snapshot midway
-                    // during a buffer, it will cause some popping, so in this case
-                    // we need to just throw away whatever we have written and start again
-                    while !buffer_written {
-                        frames.chunks_exact_mut(channels).for_each(|frame| {
-                            while let Ok(next_data) = consumer.pop() {
-                                match next_data {
-                                    SoundEngineChannelType::SoundEngineData(next_data) => {
-                                        data = *next_data;
-                                        return;
-                                    }
-                                    SoundEngineChannelType::SoundRomInstance(new_rom) => {
-                                        data.replace_sound_rom_instance(&new_rom);
-                                    }
-                                    SoundEngineChannelType::PianoKeyPressed {
-                                        note_index,
-                                        instrument_index,
-                                        channel,
-                                    } => {
-                                        data.play_note(note_index as i32, instrument_index, channel)
-                                    }
-                                    SoundEngineChannelType::PianoKeyReleased { channel } => {
-                                        data.set_key_active(false, channel)
-                                    }
-                                    SoundEngineChannelType::TriggerNote {
-                                        note_index,
-                                        instrument_index,
-                                        channel,
-                                    } => data.trigger_note(
-                                        note_index as i32,
-                                        instrument_index,
-                                        channel,
-                                    ),
-                                    SoundEngineChannelType::UpdateOutputProducer(new_producer) => {
-                                        sound_output_producer = new_producer
-                                    }
-                                    SoundEngineChannelType::PlayPhrase {
-                                        phrase_index,
-                                        target_bpm,
-                                    } => {
-                                        let phrase = Some(PhraseId(phrase_index));
-                                        data.sfx[0].set_sfx_id(None);
-                                        data.sfx[0].oscillator.reset_bpm(target_bpm);
-                                        let phrase_playback =
-                                            &mut data.sfx[0].chain_playback.phrase_playback;
-
-                                        // Reset the instrument to force a refresh
-                                        phrase_playback.instrument =
-                                            InstrumentInstance::no_sound(output_sample_rate);
-                                        phrase_playback.set_phrase_id(phrase);
-                                    }
-                                    SoundEngineChannelType::PlaySfx(sfx) => {
-                                        data.play_sfx(Some(sfx), 0);
-                                    }
-                                    SoundEngineChannelType::StopSfx => data.play_sfx(None, 0),
-                                    SoundEngineChannelType::PlayBgm(bgm) => {
-                                        // Force a refresh of all instruments
-                                        data.bgm.tracks.iter_mut().for_each(|track| {
-                                            track.phrase_playback.instrument =
-                                                InstrumentInstance::no_sound(output_sample_rate);
-                                        });
-
-                                        data.play_bgm(Some(SongId(bgm)));
-                                    }
-                                    SoundEngineChannelType::StopBgm => data.play_bgm(None),
-                                };
-                            }
-
-                            let output = data.tick();
-
-                            if let Some(sound_output_producer) = &mut sound_output_producer {
-                                if !sound_output_producer.is_full() {
-                                    sound_output_producer.push(output.clone()).unwrap();
-                                }
-                            }
-
-                            let bgm_frame = output.get_bgm_output();
-                            let sfx_frame = output.get_sfx_output();
-                            let output = (bgm_frame + sfx_frame)
-                                / (SFX_CHANNELS + SONG_TRACK_CHANNELS) as f32;
-
-                            frame.iter_mut().for_each(|channel| {
-                                *channel = output;
-                            });
-                        });
-
-                        buffer_written = true;
-                    }
-                },
-                move |err| {
-                    // react to errors here.
-                    println!("{}", err);
-                },
-            )
-            .unwrap();
+        let (stream, producer) = SoundEngineRunner::initialize_stream(
+            rom,
+            &mut device,
+            supported_config,
+            message_buffer_size,
+        );
 
         stream.play().unwrap();
 
         Self {
-            sound_frames_per_render_frame,
+            sound_frames_per_render_frame: output_sample_rate / fps,
             output_sample_rate,
             _stream: stream,
             sound_thread_producer: producer,
@@ -311,5 +204,163 @@ impl SoundEngine {
 
     pub fn send(&mut self, message: SoundEngineChannelType) {
         self.sound_thread_producer.push(message).unwrap();
+    }
+}
+
+struct SoundEngineRunner {
+    channels: usize,
+    output_sample_rate: usize,
+    consumer: Consumer<SoundEngineChannelType>,
+    data: SoundEngineData,
+    sound_output_producer: Option<Producer<SoundOutputChannels>>,
+}
+
+impl SoundEngineRunner {
+    fn initialize_stream(
+        rom: &Arc<SoundRomInstance>,
+        device: &mut Device,
+        config: SupportedStreamConfig,
+        message_buffer_size: usize,
+    ) -> (Stream, Producer<SoundEngineChannelType>) {
+        let output_sample_rate = config.sample_rate().0 as usize;
+        let channels = config.channels() as usize;
+
+        let (producer, consumer) = RingBuffer::new(message_buffer_size);
+
+        println!("Output Sample Rate: {}", output_sample_rate);
+        println!("Output channels: {}", channels);
+
+        let data = SoundEngineData::new(output_sample_rate, rom);
+
+        (
+            Self {
+                channels,
+                output_sample_rate,
+                consumer,
+                data,
+                sound_output_producer: None,
+            }
+            .build_stream(device, config),
+            producer,
+        )
+    }
+
+    fn build_stream(self, device: &mut Device, config: SupportedStreamConfig) -> Stream {
+        let sample_format = config.sample_format();
+        let config = StreamConfig::from(config);
+
+        match sample_format {
+            SampleFormat::I16 => self.bind_output_stream::<i16>(device, config),
+            SampleFormat::U16 => self.bind_output_stream::<u16>(device, config),
+            SampleFormat::F32 => self.bind_output_stream::<f32>(device, config),
+        }
+    }
+
+    fn bind_output_stream<T: cpal::Sample>(
+        mut self,
+        device: &mut Device,
+        config: StreamConfig,
+    ) -> Stream {
+        let on_error = move |err| {
+            // react to errors here.
+            println!("{}", err);
+        };
+
+        device
+            .build_output_stream(
+                &config,
+                move |frames: &mut [T], _: &cpal::OutputCallbackInfo| {
+                    self.sound_engine_callback(frames);
+                },
+                on_error,
+            )
+            .unwrap()
+    }
+
+    fn sound_engine_callback<T: cpal::Sample>(&mut self, frames: &mut [T]) {
+        let mut buffer_written = false;
+        let data = &mut self.data;
+
+        // Repeat indefinitely until we write a full buffer without
+        // any new data inputs. If we receive a new data snapshot midway
+        // during a buffer, it will cause some popping, so in this case
+        // we need to just throw away whatever we have written and start again
+        while !buffer_written {
+            frames.chunks_exact_mut(self.channels).for_each(|frame| {
+                while let Ok(next_data) = self.consumer.pop() {
+                    match next_data {
+                        SoundEngineChannelType::SoundEngineData(next_data) => {
+                            *data = *next_data;
+                            return;
+                        }
+                        SoundEngineChannelType::SoundRomInstance(new_rom) => {
+                            data.replace_sound_rom_instance(&new_rom);
+                        }
+                        SoundEngineChannelType::PianoKeyPressed {
+                            note_index,
+                            instrument_index,
+                            channel,
+                        } => data.play_note(note_index as i32, instrument_index, channel),
+                        SoundEngineChannelType::PianoKeyReleased { channel } => {
+                            data.set_key_active(false, channel)
+                        }
+                        SoundEngineChannelType::TriggerNote {
+                            note_index,
+                            instrument_index,
+                            channel,
+                        } => data.trigger_note(note_index as i32, instrument_index, channel),
+                        SoundEngineChannelType::UpdateOutputProducer(new_producer) => {
+                            self.sound_output_producer = new_producer
+                        }
+                        SoundEngineChannelType::PlayPhrase {
+                            phrase_index,
+                            target_bpm,
+                        } => {
+                            let phrase = Some(PhraseId(phrase_index));
+                            data.sfx[0].set_sfx_id(None);
+                            data.sfx[0].oscillator.reset_bpm(target_bpm);
+                            let phrase_playback = &mut data.sfx[0].chain_playback.phrase_playback;
+
+                            // Reset the instrument to force a refresh
+                            phrase_playback.instrument =
+                                InstrumentInstance::no_sound(self.output_sample_rate);
+                            phrase_playback.set_phrase_id(phrase);
+                        }
+                        SoundEngineChannelType::PlaySfx(sfx) => {
+                            data.play_sfx(Some(sfx), 0);
+                        }
+                        SoundEngineChannelType::StopSfx => data.play_sfx(None, 0),
+                        SoundEngineChannelType::PlayBgm(bgm) => {
+                            // Force a refresh of all instruments
+                            data.bgm.tracks.iter_mut().for_each(|track| {
+                                track.phrase_playback.instrument =
+                                    InstrumentInstance::no_sound(self.output_sample_rate);
+                            });
+
+                            data.play_bgm(Some(SongId(bgm)));
+                        }
+                        SoundEngineChannelType::StopBgm => data.play_bgm(None),
+                    };
+                }
+
+                let output = data.tick();
+
+                if let Some(sound_output_producer) = &mut self.sound_output_producer {
+                    if !sound_output_producer.is_full() {
+                        sound_output_producer.push(output.clone()).unwrap();
+                    }
+                }
+
+                let bgm_frame = output.get_bgm_output();
+                let sfx_frame = output.get_sfx_output();
+                let output = (bgm_frame + sfx_frame) / (SFX_CHANNELS + SONG_TRACK_CHANNELS) as f32;
+
+                frame.iter_mut().for_each(|channel| {
+                    *channel = cpal::Sample::from::<f32>(&output);
+                });
+            });
+
+            buffer_written = true;
+        }
     }
 }
