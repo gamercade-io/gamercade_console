@@ -1,4 +1,3 @@
-mod api_example;
 mod audio_api;
 mod data_api;
 mod draw_api;
@@ -8,7 +7,6 @@ mod multiplayer_api;
 mod random_api;
 mod text_api;
 
-pub use api_example::*;
 pub use audio_api::*;
 pub use data_api::*;
 pub use draw_api::*;

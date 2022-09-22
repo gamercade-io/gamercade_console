@@ -29,6 +29,7 @@ macro_rules! derive_generate_input_api {
         Buttons { $($btn_name:ident: $btn_code:ident,)* },
         Analogs { $($anlg_name:ident,)* },
         Triggers { $($trg_name:ident,)* },
+        Mouse { $($mouse_name:ident,)* },
     ) => {
         paste! {
             impl InputApi for InputContext {
@@ -90,6 +91,60 @@ macro_rules! derive_generate_input_api {
                     }
                 )*
 
+                $(
+                    fn [<mouse_ $mouse_name _pressed>](&self, player_id: i32) -> i32 {
+                        if let Some(player_input) = &self.input_entries.get(player_id as usize) {
+                            let prev = player_input.previous_mouse.[<get_ $mouse_name _button_down>]();
+                            let curr = player_input.current_mouse.[<get_ $mouse_name _button_down>]();
+                            (prev == false && curr == true) as i32
+                        } else {
+                            -1
+                        }
+                    }
+
+                    fn [<mouse_ $mouse_name _released>](&self, player_id: i32) -> i32 {
+                        if let Some(player_input) = &self.input_entries.get(player_id as usize) {
+                            let prev = player_input.previous_mouse.[<get_ $mouse_name _button_down>]();
+                            let curr = player_input.current_mouse.[<get_ $mouse_name _button_down>]();
+                            (prev == true && curr == false) as i32
+                        } else {
+                            -1
+                        }
+                    }
+
+                    fn [<mouse_ $mouse_name _held>](&self, player_id: i32) -> i32 {
+                        if let Some(player_input) = &self.input_entries.get(player_id as usize) {
+                            player_input.current_mouse.[<get_ $mouse_name _button_down>]() as i32
+                        } else {
+                            -1
+                        }
+                    }
+                )*
+
+                fn mouse_x(&self, player_id: i32) -> i32 {
+                    if let Some(player_input) = &self.input_entries.get(player_id as usize) {
+                        player_input.current_mouse.get_x_pos() as i32
+                    } else {
+                        -1
+                    }
+                }
+
+                fn mouse_y(&self, player_id: i32) -> i32 {
+                    if let Some(player_input) = &self.input_entries.get(player_id as usize) {
+                        player_input.current_mouse.get_x_pos() as i32
+                    } else {
+                        -1
+                    }
+                }
+
+                fn raw_mouse_state(&self, player_id: i32) -> i32 {
+                    if let Some(player_input) = self.input_entries.get(player_id as usize) {
+                        player_input.current_mouse.0 as i32
+                    } else {
+                        -1
+                    }
+                }
+
                 fn raw_input_state(&self, player_id: i32) -> i64 {
                     let state = if let Some(player_input) = self.input_entries.get(player_id as usize) {
                         player_input.current
@@ -130,5 +185,10 @@ derive_generate_input_api! {
     Triggers {
         left,
         right,
+    },
+    Mouse {
+        left,
+        right,
+        middle,
     },
 }

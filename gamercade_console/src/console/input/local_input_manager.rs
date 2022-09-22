@@ -1,5 +1,9 @@
-use gamercade_core::{ButtonCode, InputState};
+use gamercade_core::{ButtonCode, InputState, MouseState};
 use gilrs::{Axis, Button, Gamepad, GamepadId, Gilrs};
+use pixels::Pixels;
+use winit_input_helper::WinitInputHelper;
+
+use crate::console::network::NetworkInputState;
 
 use super::{
     gamepad_bindings::GamepadBindings,
@@ -25,12 +29,20 @@ impl LocalInputManager {
 
     pub fn generate_input_state(
         &self,
+        pixels: &Pixels,
         helper: &winit_input_helper::WinitInputHelper,
         gilrs: &Gilrs,
-    ) -> InputState {
-        match self.input_mode {
+    ) -> NetworkInputState {
+        let input_state = match self.input_mode {
             InputMode::Emulated => self.new_emulated_state(helper),
             InputMode::Gamepad(id) => self.new_gamepad_state(id, gilrs),
+        };
+
+        let mouse_state = generate_mouse_state(pixels, helper);
+
+        NetworkInputState {
+            input_state,
+            mouse_state,
         }
     }
 
@@ -107,4 +119,21 @@ fn generate_emulated_state(
     });
 
     output
+}
+
+fn generate_mouse_state(pixels: &Pixels, helper: &WinitInputHelper) -> MouseState {
+    let mut out = MouseState::default();
+
+    if let Some(position) = helper.mouse() {
+        if let Ok((x, y)) = pixels.window_pos_to_pixel(position) {
+            out.set_x_pos(x as u32);
+            out.set_y_pos(y as u32);
+        }
+    }
+
+    out.set_left_button(helper.mouse_held(0));
+    out.set_right_button(helper.mouse_held(1));
+    out.set_middle_button(helper.mouse_held(2));
+
+    out
 }

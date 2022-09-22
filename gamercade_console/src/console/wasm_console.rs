@@ -282,7 +282,8 @@ impl Console for WasmConsole {
                         .iter_mut()
                         .zip(inputs.iter())
                         .for_each(|(current, new)| {
-                            current.current = new.0;
+                            current.current = new.0.input_state;
+                            current.current_mouse = new.0.mouse_state;
                         });
 
                     // Call update
@@ -303,6 +304,7 @@ impl Console for WasmConsole {
                         .iter_mut()
                         .for_each(|inputs| {
                             inputs.previous = inputs.current.buttons;
+                            inputs.previous_mouse = inputs.current_mouse;
                         });
                 }
             }

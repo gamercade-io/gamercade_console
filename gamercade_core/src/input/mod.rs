@@ -1,8 +1,10 @@
 mod input_code;
 mod input_state;
+mod mouse_state;
 
 pub use input_code::*;
 pub use input_state::*;
+pub use mouse_state::*;
 
 pub trait AsApiCode: Sized {
     fn to_api_code(&self) -> u8;

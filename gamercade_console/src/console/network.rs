@@ -1,6 +1,7 @@
 use std::net::SocketAddr;
 
-use gamercade_core::{Buttons, InputState};
+use bytemuck::{Pod, Zeroable};
+use gamercade_core::{Buttons, InputState, MouseState};
 use gamercade_sound_engine::SoundEngineData;
 use ggrs::{Config, PlayerType};
 use wasmtime::Global;
@@ -20,8 +21,15 @@ pub struct SaveStateDefinition {
     pub(crate) mutable_globals: Vec<String>,
 }
 
+#[derive(Pod, Zeroable, Clone, Copy, PartialEq, Eq)]
+#[repr(C)]
+pub struct NetworkInputState {
+    pub input_state: InputState,
+    pub mouse_state: MouseState,
+}
+
 impl Config for WasmConsole {
-    type Input = InputState;
+    type Input = NetworkInputState;
     type State = WasmConsoleState;
     type Address = SocketAddr;
 }

@@ -135,7 +135,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                             session
                                 .add_local_input(
                                     handle,
-                                    input_manager.generate_input_state(&input, &gilrs),
+                                    input_manager.generate_input_state(&pixels, &input, &gilrs),
                                 )
                                 .unwrap();
                         }

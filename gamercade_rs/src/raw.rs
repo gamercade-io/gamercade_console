@@ -127,7 +127,22 @@ extern "C" {
     pub fn analog_right_y(player_id: i32) -> f32;
     pub fn trigger_left(player_id: i32) -> f32;
     pub fn trigger_right(player_id: i32) -> f32;
+
+    pub fn mouse_left_pressed(player_id: i32) -> i32;
+    pub fn mouse_left_released(player_id: i32) -> i32;
+    pub fn mouse_left_held(player_id: i32) -> i32;
+    pub fn mouse_right_pressed(player_id: i32) -> i32;
+    pub fn mouse_right_released(player_id: i32) -> i32;
+    pub fn mouse_right_held(player_id: i32) -> i32;
+    pub fn mouse_middle_pressed(player_id: i32) -> i32;
+    pub fn mouse_middle_released(player_id: i32) -> i32;
+    pub fn mouse_middle_held(player_id: i32) -> i32;
+
+    pub fn mouse_x(player_id: i32) -> i32;
+    pub fn mouse_y(player_id: i32) -> i32;
+
     pub fn raw_input_state(player_id: i32) -> i64;
+    pub fn raw_mouse_state(player_id: i32) -> i32;
 }
 
 // Multiplayer
