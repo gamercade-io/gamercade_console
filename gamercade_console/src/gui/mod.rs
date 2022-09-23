@@ -246,7 +246,8 @@ impl Gui {
 
         self.window_open = false;
 
-        let (console, reset) = WasmConsole::new(rom, seed, session_descriptor, max_prediction);
+        let (mut console, reset) = WasmConsole::new(rom, seed, session_descriptor, max_prediction);
+        console.sync_mouse(window);
 
         self.wasm_console = Some(console);
         self.initial_state = Some(reset);

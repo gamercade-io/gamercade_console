@@ -155,6 +155,12 @@ macro_rules! derive_bind_wasm_input_api {
                         caller.data().input_context.raw_input_state(id)
                     }).unwrap();
                 }
+
+                fn bind_lock_mouse(&mut self) {
+                    self.func_wrap("env", "lock_mouse", |mut caller: Caller<'_, Contexts>, locked: i32| {
+                        caller.data_mut().input_context.lock_mouse(locked)
+                    }).unwrap();
+                }
             }
         }
     };

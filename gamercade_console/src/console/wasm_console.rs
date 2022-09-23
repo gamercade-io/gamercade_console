@@ -3,6 +3,7 @@ use std::sync::Arc;
 use gamercade_sound_engine::{SoundEngine, SoundEngineData, SoundRomInstance};
 use ggrs::GGRSRequest;
 use wasmtime::{Engine, ExternType, Instance, Linker, Module, Mutability, Store, TypedFunc};
+use winit::{dpi::PhysicalPosition, window::Window};
 
 type GameFunc = TypedFunc<(), ()>;
 
@@ -136,6 +137,8 @@ impl WasmConsole {
 
         out.call_init();
 
+        out.sync_audio();
+
         let initial_state = out.generate_save_state();
 
         (out, initial_state)
@@ -231,6 +234,26 @@ impl WasmConsole {
         if self.store.data_mut().audio_context.changed {
             self.sound_engine.sync_audio_thread(&self.audio_out);
             self.store.data_mut().audio_context.changed = false;
+        }
+    }
+
+    pub(crate) fn sync_mouse(&mut self, window: &Window) {
+        match self.store.data().input_context.mouse_locked {
+            true => {
+                let position = window.inner_size();
+                window
+                    .set_cursor_position(PhysicalPosition::new(
+                        position.width / 2,
+                        position.height / 2,
+                    ))
+                    .unwrap();
+                window.set_cursor_grab(true).unwrap();
+                window.set_cursor_visible(false);
+            }
+            false => {
+                window.set_cursor_grab(false).unwrap();
+                window.set_cursor_visible(true);
+            }
         }
     }
 }

@@ -171,6 +171,11 @@ pub fn raw_mouse_state(player_id: usize) -> Option<RawMouseState> {
     }
 }
 
+/// Locks the local mouse and hides it
+pub fn lock_mouse(locked: bool) {
+    unsafe { raw::lock_mouse(locked as i32) }
+}
+
 derive_input_api! {
     Buttons {
         a,

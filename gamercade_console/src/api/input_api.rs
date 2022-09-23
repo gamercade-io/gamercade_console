@@ -43,6 +43,8 @@ macro_rules! derive_bind_input_api {
                     fn [<mouse_wheel_ $mwheel_name>](&self, player_id: i32) -> i32;
                 )*
 
+                fn lock_mouse(&mut self, locked: i32);
+
                 fn raw_input_state(&self, player_id: i32) -> i64;
                 fn raw_mouse_state(&self, player_id: i32) -> i64;
             }
@@ -80,6 +82,7 @@ macro_rules! derive_bind_input_api {
 
                 fn bind_raw_input_state(&mut self);
                 fn bind_raw_mouse_state(&mut self);
+                fn bind_lock_mouse(&mut self);
 
                 fn bind_input_api(&mut self) {
                     $(
@@ -112,6 +115,7 @@ macro_rules! derive_bind_input_api {
                         self.[<bind_mouse_wheel_ $mwheel_name>]();
                     )*
 
+                    self.bind_lock_mouse();
                     self.bind_raw_input_state();
                     self.bind_raw_mouse_state();
                 }

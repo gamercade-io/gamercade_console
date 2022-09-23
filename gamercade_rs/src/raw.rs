@@ -147,6 +147,7 @@ extern "C" {
     pub fn mouse_wheel_down(player_id: i32) -> i32;
     pub fn mouse_wheel_left(player_id: i32) -> i32;
     pub fn mouse_wheel_right(player_id: i32) -> i32;
+    pub fn lock_mouse(locked: i32);
 
     pub fn raw_input_state(player_id: i32) -> i64;
     pub fn raw_mouse_state(player_id: i32) -> i64;

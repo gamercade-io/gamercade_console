@@ -8,6 +8,7 @@ use crate::console::PlayerInputEntry;
 #[derive(Clone)]
 pub struct InputContext {
     pub(crate) input_entries: Box<[PlayerInputEntry]>,
+    pub(crate) mouse_locked: bool,
 }
 
 impl InputContext {
@@ -16,6 +17,7 @@ impl InputContext {
             input_entries: (0..num_players)
                 .map(|_| PlayerInputEntry::default())
                 .collect(),
+            mouse_locked: false,
         }
     }
 }
@@ -169,6 +171,14 @@ macro_rules! derive_generate_input_api {
                     };
 
                     unsafe { std::mem::transmute(state) }
+                }
+
+                fn lock_mouse(&mut self, locked: i32) {
+                    if locked != 0 {
+                        self.mouse_locked = true
+                    } else {
+                        self.mouse_locked = false
+                    };
                 }
             }
         }
