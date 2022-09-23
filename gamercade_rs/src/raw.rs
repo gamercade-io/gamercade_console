@@ -138,11 +138,18 @@ extern "C" {
     pub fn mouse_middle_released(player_id: i32) -> i32;
     pub fn mouse_middle_held(player_id: i32) -> i32;
 
-    pub fn mouse_x(player_id: i32) -> i32;
-    pub fn mouse_y(player_id: i32) -> i32;
+    pub fn mouse_x_pos(player_id: i32) -> i32;
+    pub fn mouse_y_pos(player_id: i32) -> i32;
+    pub fn mouse_x_delta(player_id: i32) -> i32;
+    pub fn mouse_y_delta(player_id: i32) -> i32;
+
+    pub fn mouse_wheel_up(player_id: i32) -> i32;
+    pub fn mouse_wheel_down(player_id: i32) -> i32;
+    pub fn mouse_wheel_left(player_id: i32) -> i32;
+    pub fn mouse_wheel_right(player_id: i32) -> i32;
 
     pub fn raw_input_state(player_id: i32) -> i64;
-    pub fn raw_mouse_state(player_id: i32) -> i32;
+    pub fn raw_mouse_state(player_id: i32) -> i64;
 }
 
 // Multiplayer

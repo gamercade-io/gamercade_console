@@ -15,7 +15,7 @@ use gilrs::Gilrs;
 use pixels::{Pixels, SurfaceTexture};
 use winit::{
     dpi::LogicalSize,
-    event::{Event, VirtualKeyCode},
+    event::{DeviceEvent, Event, VirtualKeyCode},
     event_loop::{ControlFlow, EventLoop},
     window::{Window, WindowBuilder},
 };
@@ -71,6 +71,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     event_loop.run(move |event, _, control_flow| {
         if let Event::WindowEvent { event, .. } = &event {
             framework.handle_event(event);
+        }
+
+        // TODO: handle mouse states
+        if let Event::DeviceEvent { event, .. } = &event {
+            if let DeviceEvent::MouseMotion { delta } = event {}
         }
 
         framework.prepare(

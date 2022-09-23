@@ -29,7 +29,11 @@ macro_rules! derive_generate_input_api {
         Buttons { $($btn_name:ident: $btn_code:ident,)* },
         Analogs { $($anlg_name:ident,)* },
         Triggers { $($trg_name:ident,)* },
-        Mouse { $($mouse_name:ident,)* },
+        Mouse {
+            Buttons { $($mbtn_name:ident,)* },
+            Axis { $($maxis_name:ident,)* },
+            Wheel { $($mwheel_name:ident,)* },
+         },
     ) => {
         paste! {
             impl InputApi for InputContext {
@@ -92,56 +96,68 @@ macro_rules! derive_generate_input_api {
                 )*
 
                 $(
-                    fn [<mouse_ $mouse_name _pressed>](&self, player_id: i32) -> i32 {
+                    fn [<mouse_ $mbtn_name _pressed>](&self, player_id: i32) -> i32 {
                         if let Some(player_input) = &self.input_entries.get(player_id as usize) {
-                            let prev = player_input.previous_mouse.[<get_ $mouse_name _button_down>]();
-                            let curr = player_input.current_mouse.[<get_ $mouse_name _button_down>]();
+                            let prev = player_input.previous_mouse.[<get_ $mbtn_name _button_down>]();
+                            let curr = player_input.current_mouse.[<get_ $mbtn_name _button_down>]();
                             (prev == false && curr == true) as i32
                         } else {
                             -1
                         }
                     }
 
-                    fn [<mouse_ $mouse_name _released>](&self, player_id: i32) -> i32 {
+                    fn [<mouse_ $mbtn_name _released>](&self, player_id: i32) -> i32 {
                         if let Some(player_input) = &self.input_entries.get(player_id as usize) {
-                            let prev = player_input.previous_mouse.[<get_ $mouse_name _button_down>]();
-                            let curr = player_input.current_mouse.[<get_ $mouse_name _button_down>]();
+                            let prev = player_input.previous_mouse.[<get_ $mbtn_name _button_down>]();
+                            let curr = player_input.current_mouse.[<get_ $mbtn_name _button_down>]();
                             (prev == true && curr == false) as i32
                         } else {
                             -1
                         }
                     }
 
-                    fn [<mouse_ $mouse_name _held>](&self, player_id: i32) -> i32 {
+                    fn [<mouse_ $mbtn_name _held>](&self, player_id: i32) -> i32 {
                         if let Some(player_input) = &self.input_entries.get(player_id as usize) {
-                            player_input.current_mouse.[<get_ $mouse_name _button_down>]() as i32
+                            player_input.current_mouse.[<get_ $mbtn_name _button_down>]() as i32
                         } else {
                             -1
                         }
                     }
                 )*
 
-                fn mouse_x(&self, player_id: i32) -> i32 {
-                    if let Some(player_input) = &self.input_entries.get(player_id as usize) {
-                        player_input.current_mouse.get_x_pos() as i32
-                    } else {
-                        -1
+                $(
+                    fn [<mouse_ $maxis_name _pos>](&self, player_id: i32) -> i32 {
+                        if let Some(player_input) = &self.input_entries.get(player_id as usize) {
+                            player_input.current_mouse.[<get_ $maxis_name _pos>]() as i32
+                        } else {
+                            -1
+                        }
                     }
-                }
 
-                fn mouse_y(&self, player_id: i32) -> i32 {
-                    if let Some(player_input) = &self.input_entries.get(player_id as usize) {
-                        player_input.current_mouse.get_x_pos() as i32
-                    } else {
-                        -1
+                    fn [<mouse_ $maxis_name _delta>](&self, player_id: i32) -> i32 {
+                        if let Some(player_input) = &self.input_entries.get(player_id as usize) {
+                            player_input.current_mouse.[<get_ $maxis_name _delta>]() as i32
+                        } else {
+                            i32::MIN
+                        }
                     }
-                }
+                )*
 
-                fn raw_mouse_state(&self, player_id: i32) -> i32 {
+                $(
+                    fn [<mouse_wheel_ $mwheel_name>](&self, player_id: i32) -> i32 {
+                        if let Some(player_input) = &self.input_entries.get(player_id as usize) {
+                            player_input.current_mouse.[<get_wheel_ $mwheel_name>]() as i32
+                        } else {
+                            -1
+                        }
+                    }
+                )*
+
+                fn raw_mouse_state(&self, player_id: i32) -> i64 {
                     if let Some(player_input) = self.input_entries.get(player_id as usize) {
-                        player_input.current_mouse.0 as i32
+                        player_input.current_mouse.0 as i64
                     } else {
-                        -1
+                        1 << gamercade_core::MOUSE_INVALID_BIT
                     }
                 }
 
@@ -187,8 +203,20 @@ derive_generate_input_api! {
         right,
     },
     Mouse {
-        left,
-        right,
-        middle,
+        Buttons {
+            left,
+            right,
+            middle,
+        },
+        Axis {
+            x,
+            y,
+        },
+        Wheel {
+            up,
+            down,
+            left,
+            right,
+        },
     },
 }

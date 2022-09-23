@@ -1,24 +1,25 @@
-#![allow(missing_docs)]
-use super::{f32_to_option, i32_bool_to_option};
+use super::{f32_to_option, i32_bool_to_option, i32_u32_to_option};
 use crate::raw;
 
 use paste::paste;
 
 #[derive(Clone, Copy)]
+/// A Raw Input State. Contains buttons and analog stick data.
 pub struct RawInputState(pub i64);
 
 impl RawInputState {
-    pub fn is_valid(self) -> bool {
+    fn is_valid(self) -> bool {
         self.0 & 1 << 63 == 0
     }
 }
 
 #[derive(Clone, Copy)]
-pub struct RawMouseState(pub i32);
+/// A Raw Mouse state. Contains X/Y positions, deltas, and button states.
+pub struct RawMouseState(pub i64);
 
 impl RawMouseState {
-    pub fn is_valid(self) -> bool {
-        self.0 >= 0
+    fn is_valid(self) -> bool {
+        self.0 & 1 << 31 == 0
     }
 }
 
@@ -27,21 +28,31 @@ macro_rules! derive_input_api {
         Buttons { $($btn_name:ident,)* },
         Analogs { $($anlg_name:ident,)* },
         Triggers { $($trg_name:ident,)* },
-        Mouse { $($mouse_name:ident,)* },
+        Mouse {
+            Buttons { $($mbtn_name:ident,)* },
+            Axis { $($maxis_name:ident,)* },
+            Wheel { $($mwheel_name:ident,)* },
+         },
     ) => {
         paste! {
             // BUTTON MACRO
             $(
+                /// Returns true if $btn_name was just pressed this frame.
+                /// Returns None is player_id is invalid.
                 pub fn [<button_ $btn_name _pressed>](player_id: usize) -> Option<bool> {
                     let val = unsafe { raw::[<button_ $btn_name _pressed>](player_id as i32) };
                     i32_bool_to_option(val)
                 }
 
+                /// Returns true if $btn_name was just released this frame.
+                /// Returns None is player_id is invalid.
                 pub fn [<button_ $btn_name _released>](player_id: usize) -> Option<bool> {
                     let val = unsafe { raw::[<button_ $btn_name _released>](player_id as i32) };
                     i32_bool_to_option(val)
                 }
 
+                /// Returns true if $btn_name is held this frame.
+                /// Returns None is player_id is invalid.
                 pub fn [<button_ $btn_name _held>](player_id: usize) -> Option<bool> {
                     let val = unsafe { raw::[<button_ $btn_name _held>](player_id as i32) };
                     i32_bool_to_option(val)
@@ -51,11 +62,15 @@ macro_rules! derive_input_api {
 
             // ANALOG MACRO
             $(
+                /// Returns the $anlg_name stick's X value.
+                /// Returns None is player_id is invalid.
                 pub fn [<analog_ $anlg_name _x>](player_id: usize) -> Option<f32> {
                     let val = unsafe { raw::[<analog_ $anlg_name _x>](player_id as i32) };
                     f32_to_option(val)
                 }
 
+                /// Returns the $anlg_name stick's Y value.
+                /// Returns None is player_id is invalid.
                 pub fn [<analog_ $anlg_name _y>](player_id: usize) -> Option<f32> {
                     let val = unsafe { raw::[<analog_ $anlg_name _y>](player_id as i32) };
                     f32_to_option(val)
@@ -65,25 +80,63 @@ macro_rules! derive_input_api {
 
             // MOUSE MACRO
             $(
-                pub fn [<mouse_ $mouse_name _pressed>](player_id: usize) -> Option<bool> {
-                    let val = unsafe { raw::[<mouse_ $mouse_name _pressed>](player_id as i32) };
+                /// Returns true if $mbtn_name was just pressed this frame.
+                /// Returns None is player_id is invalid.
+                pub fn [<mouse_ $mbtn_name _pressed>](player_id: usize) -> Option<bool> {
+                    let val = unsafe { raw::[<mouse_ $mbtn_name _pressed>](player_id as i32) };
                     i32_bool_to_option(val)
                 }
 
-                pub fn [<mouse_ $mouse_name _released>](player_id: usize) -> Option<bool> {
-                    let val = unsafe { raw::[<mouse_ $mouse_name _released>](player_id as i32) };
+                /// Returns true if $mbtn_name was just released this frame.
+                /// Returns None is player_id is invalid.
+                pub fn [<mouse_ $mbtn_name _released>](player_id: usize) -> Option<bool> {
+                    let val = unsafe { raw::[<mouse_ $mbtn_name _released>](player_id as i32) };
                     i32_bool_to_option(val)
                 }
 
-                pub fn [<mouse_ $mouse_name _held>](player_id: usize) -> Option<bool> {
-                    let val = unsafe { raw::[<mouse_ $mouse_name _held>](player_id as i32) };
+                /// Returns true if $mbtn_name is held this frame.
+                /// Returns None is player_id is invalid.
+                pub fn [<mouse_ $mbtn_name _held>](player_id: usize) -> Option<bool> {
+                    let val = unsafe { raw::[<mouse_ $mbtn_name _held>](player_id as i32) };
                     i32_bool_to_option(val)
                 }
             )*
+
+            $(
+                /// Returns the mouse's $maxis_name position in pixel coordinates.
+                /// Returns None is player_id is invalid.
+                pub fn [<mouse_ $maxis_name _pos>](player_id: usize) -> Option<u32> {
+                    let val = unsafe { raw::[<mouse_ $maxis_name _pos>](player_id as i32) };
+                    i32_u32_to_option(val)
+                }
+
+                /// Returns the mouse's $maxis_name delta movement.
+                /// Returns None is player_id is invalid.
+                pub fn [<mouse_ $maxis_name _delta>](player_id: usize) -> Option<i32> {
+                    let val = unsafe { raw::[<mouse_ $maxis_name _delta>](player_id as i32) };
+                    if val == i32::MIN {
+                        None
+                    } else {
+                        Some(val)
+                    }
+                }
+            )*
+
+            $(
+                /// Returns true if the mouse wheels $maxis_name was moved this frame.
+                /// Returns None is player_id is invalid.
+                pub fn [<mouse_wheel_ $mwheel_name>](player_id: usize) -> Option<bool> {
+                    let val = unsafe { raw::[<mouse_wheel_ $mwheel_name>](player_id as i32) };
+                    i32_bool_to_option(val)
+                }
+            )*
+
             // END MOUSE MACRO
 
             // TRIGGER MACRO
             $(
+                //Returns the $trg_name trigger's value.
+                /// Returns None is player_id is invalid.
                 pub fn [<trigger_ $trg_name>](player_id: usize) -> Option<f32>{
                     let val = unsafe { raw::[<trigger_ $trg_name>](player_id as i32) };
                     f32_to_option(val)
@@ -118,18 +171,6 @@ pub fn raw_mouse_state(player_id: usize) -> Option<RawMouseState> {
     }
 }
 
-/// Returns the mouse's x coordinate. If the player_id is invalid, returns None.
-pub fn mouse_x(player_id: usize) -> Option<usize> {
-    let val = unsafe { raw::mouse_x(player_id as i32) };
-    val.try_into().ok()
-}
-
-/// Returns the mouse's y coordinate. If the player_id is invalid, returns None.
-pub fn mouse_y(player_id: usize) -> Option<usize> {
-    let val = unsafe { raw::mouse_y(player_id as i32) };
-    val.try_into().ok()
-}
-
 derive_input_api! {
     Buttons {
         a,
@@ -158,8 +199,20 @@ derive_input_api! {
         right,
     },
     Mouse {
-        left,
-        right,
-        middle,
+        Buttons {
+            left,
+            right,
+            middle,
+        },
+        Axis {
+            x,
+            y,
+        },
+        Wheel {
+            up,
+            down,
+            left,
+            right,
+        },
     },
 }
