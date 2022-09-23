@@ -1784,8 +1784,7 @@ name = "gamercade_tools"
 version = "0.1.0"
 dependencies = [
  "gamercade_core",
- "serde",
- "serde_json",
+ "gamercade_fs",
 ]
 
 [[package]]

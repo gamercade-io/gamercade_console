@@ -1,13 +1,7 @@
-use std::{fs::File, io::Write};
+use std::{path::PathBuf};
 
 use gamercade_core::{Color, Palette};
-use serde::{Deserialize, Serialize};
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct EditorPalette {
-    pub name: String,
-    pub palette: Palette,
-}
+use gamercade_fs::{EditorPalette, EditorRom};
 
 fn main() {
     let step_rg = 256_f32 / 31.0;
@@ -38,8 +32,12 @@ fn main() {
         })
         .collect::<Vec<_>>();
 
-    let text = serde_json::to_string(&all_palettes).unwrap();
+    let mut rom = EditorRom::default();
 
-    let mut file = File::create("5r5g4b output.json").unwrap();
-    file.write_all(text.as_bytes()).unwrap();
+    rom.graphics.palettes = all_palettes;
+
+    let mut path = PathBuf::new();
+    path.set_file_name("5r5g4b_color.gce");
+
+    rom.try_save(&path).unwrap();
 }
