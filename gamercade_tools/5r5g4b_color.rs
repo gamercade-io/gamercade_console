@@ -1,4 +1,4 @@
-use std::{path::PathBuf};
+use std::path::PathBuf;
 
 use gamercade_core::{Color, Palette};
 use gamercade_fs::{EditorPalette, EditorRom};

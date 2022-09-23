@@ -1,4 +1,4 @@
-use std::{ffi::OsStr, path::PathBuf};
+use std::path::PathBuf;
 
 use gamercade_audio::SoundRom;
 use gamercade_core::{FrameRate, GraphicsData, Resolution};
@@ -24,12 +24,6 @@ impl EditorRom {
     }
 
     pub fn try_save(&self, path: &PathBuf) -> Result<(), String> {
-        let path = if path.extension() != Some(OsStr::new("gce")) {
-            path.with_extension("gce")
-        } else {
-            path.clone()
-        };
-
         std::fs::write(
             path,
             serde_json::to_string_pretty(self).expect("failed to serialize editor rom to json"),
