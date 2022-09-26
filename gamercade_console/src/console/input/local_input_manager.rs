@@ -1,11 +1,25 @@
-use gamercade_core::{ButtonCode, InputState};
+use gamercade_core::{ButtonCode, InputState, MouseState};
 use gilrs::{Axis, Button, Gamepad, GamepadId, Gilrs};
+use pixels::Pixels;
+use winit_input_helper::WinitInputHelper;
+
+use crate::console::network::NetworkInputState;
 
 use super::{
     gamepad_bindings::GamepadBindings,
     key_types::{AnalogSide, KeyType},
     InputMode, KeyBindings,
 };
+
+#[derive(Default)]
+pub struct MouseEventCollector {
+    pub wheel_up: bool,
+    pub wheel_down: bool,
+    pub wheel_left: bool,
+    pub wheel_right: bool,
+    pub delta_x: i16,
+    pub delta_y: i16,
+}
 
 #[derive(Debug)]
 pub struct LocalInputManager {
@@ -25,12 +39,21 @@ impl LocalInputManager {
 
     pub fn generate_input_state(
         &self,
+        pixels: &Pixels,
+        mouse_events: &MouseEventCollector,
         helper: &winit_input_helper::WinitInputHelper,
         gilrs: &Gilrs,
-    ) -> InputState {
-        match self.input_mode {
+    ) -> NetworkInputState {
+        let input_state = match self.input_mode {
             InputMode::Emulated => self.new_emulated_state(helper),
             InputMode::Gamepad(id) => self.new_gamepad_state(id, gilrs),
+        };
+
+        let mouse_state = generate_mouse_state(pixels, mouse_events, helper);
+
+        NetworkInputState {
+            input_state,
+            mouse_state,
         }
     }
 
@@ -107,4 +130,40 @@ fn generate_emulated_state(
     });
 
     output
+}
+
+fn generate_mouse_state(
+    pixels: &Pixels,
+    mouse_events: &MouseEventCollector,
+    helper: &WinitInputHelper,
+) -> MouseState {
+    let mut out = MouseState::default();
+
+    match helper
+        .mouse()
+        .map(|mouse| pixels.window_pos_to_pixel(mouse))
+    {
+        Some(Ok((x, y))) => {
+            out.set_x_pos(x as u32);
+            out.set_y_pos(y as u32);
+        }
+        _ => {
+            out.set_x_pos(u32::MAX);
+            out.set_y_pos(u32::MAX);
+        }
+    }
+
+    out.set_left_button(helper.mouse_held(0));
+    out.set_right_button(helper.mouse_held(1));
+    out.set_middle_button(helper.mouse_held(2));
+
+    out.set_x_delta(mouse_events.delta_x as i32);
+    out.set_y_delta(mouse_events.delta_y as i32);
+
+    out.set_wheel_up(mouse_events.wheel_up);
+    out.set_wheel_down(mouse_events.wheel_down);
+    out.set_wheel_left(mouse_events.wheel_left);
+    out.set_wheel_right(mouse_events.wheel_right);
+
+    out
 }

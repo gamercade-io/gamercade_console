@@ -8,6 +8,7 @@ use crate::console::PlayerInputEntry;
 #[derive(Clone)]
 pub struct InputContext {
     pub(crate) input_entries: Box<[PlayerInputEntry]>,
+    pub(crate) mouse_locked: bool,
 }
 
 impl InputContext {
@@ -16,6 +17,7 @@ impl InputContext {
             input_entries: (0..num_players)
                 .map(|_| PlayerInputEntry::default())
                 .collect(),
+            mouse_locked: false,
         }
     }
 }
@@ -29,6 +31,11 @@ macro_rules! derive_generate_input_api {
         Buttons { $($btn_name:ident: $btn_code:ident,)* },
         Analogs { $($anlg_name:ident,)* },
         Triggers { $($trg_name:ident,)* },
+        Mouse {
+            Buttons { $($mbtn_name:ident,)* },
+            Axis { $($maxis_name:ident,)* },
+            Wheel { $($mwheel_name:ident,)* },
+         },
     ) => {
         paste! {
             impl InputApi for InputContext {
@@ -90,6 +97,72 @@ macro_rules! derive_generate_input_api {
                     }
                 )*
 
+                $(
+                    fn [<mouse_ $mbtn_name _pressed>](&self, player_id: i32) -> i32 {
+                        if let Some(player_input) = &self.input_entries.get(player_id as usize) {
+                            let prev = player_input.previous_mouse.[<get_ $mbtn_name _button_down>]();
+                            let curr = player_input.current_mouse.[<get_ $mbtn_name _button_down>]();
+                            (prev == false && curr == true) as i32
+                        } else {
+                            -1
+                        }
+                    }
+
+                    fn [<mouse_ $mbtn_name _released>](&self, player_id: i32) -> i32 {
+                        if let Some(player_input) = &self.input_entries.get(player_id as usize) {
+                            let prev = player_input.previous_mouse.[<get_ $mbtn_name _button_down>]();
+                            let curr = player_input.current_mouse.[<get_ $mbtn_name _button_down>]();
+                            (prev == true && curr == false) as i32
+                        } else {
+                            -1
+                        }
+                    }
+
+                    fn [<mouse_ $mbtn_name _held>](&self, player_id: i32) -> i32 {
+                        if let Some(player_input) = &self.input_entries.get(player_id as usize) {
+                            player_input.current_mouse.[<get_ $mbtn_name _button_down>]() as i32
+                        } else {
+                            -1
+                        }
+                    }
+                )*
+
+                $(
+                    fn [<mouse_ $maxis_name _pos>](&self, player_id: i32) -> i32 {
+                        if let Some(player_input) = &self.input_entries.get(player_id as usize) {
+                            player_input.current_mouse.[<get_ $maxis_name _pos>]() as i32
+                        } else {
+                            -1
+                        }
+                    }
+
+                    fn [<mouse_ $maxis_name _delta>](&self, player_id: i32) -> i32 {
+                        if let Some(player_input) = &self.input_entries.get(player_id as usize) {
+                            player_input.current_mouse.[<get_ $maxis_name _delta>]() as i32
+                        } else {
+                            i32::MIN
+                        }
+                    }
+                )*
+
+                $(
+                    fn [<mouse_wheel_ $mwheel_name>](&self, player_id: i32) -> i32 {
+                        if let Some(player_input) = &self.input_entries.get(player_id as usize) {
+                            player_input.current_mouse.[<get_wheel_ $mwheel_name>]() as i32
+                        } else {
+                            -1
+                        }
+                    }
+                )*
+
+                fn raw_mouse_state(&self, player_id: i32) -> i64 {
+                    if let Some(player_input) = self.input_entries.get(player_id as usize) {
+                        player_input.current_mouse.0 as i64
+                    } else {
+                        1 << gamercade_core::MOUSE_INVALID_BIT
+                    }
+                }
+
                 fn raw_input_state(&self, player_id: i32) -> i64 {
                     let state = if let Some(player_input) = self.input_entries.get(player_id as usize) {
                         player_input.current
@@ -98,6 +171,14 @@ macro_rules! derive_generate_input_api {
                     };
 
                     unsafe { std::mem::transmute(state) }
+                }
+
+                fn lock_mouse(&mut self, locked: i32) {
+                    if locked != 0 {
+                        self.mouse_locked = true
+                    } else {
+                        self.mouse_locked = false
+                    };
                 }
             }
         }
@@ -130,5 +211,22 @@ derive_generate_input_api! {
     Triggers {
         left,
         right,
+    },
+    Mouse {
+        Buttons {
+            left,
+            right,
+            middle,
+        },
+        Axis {
+            x,
+            y,
+        },
+        Wheel {
+            up,
+            down,
+            left,
+            right,
+        },
     },
 }

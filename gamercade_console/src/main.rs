@@ -15,7 +15,7 @@ use gilrs::Gilrs;
 use pixels::{Pixels, SurfaceTexture};
 use winit::{
     dpi::LogicalSize,
-    event::{Event, VirtualKeyCode},
+    event::{DeviceEvent, Event, MouseScrollDelta, VirtualKeyCode},
     event_loop::{ControlFlow, EventLoop},
     window::{Window, WindowBuilder},
 };
@@ -25,7 +25,7 @@ use crate::{
     console::LocalInputManager,
     gui::{framework::Framework, Gui},
 };
-use console::{Console, InputMode, WasmConsole};
+use console::{Console, InputMode, MouseEventCollector, WasmConsole};
 
 #[derive(Parser, Debug)]
 struct Cli {
@@ -68,9 +68,48 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             .fast_launch_game(game_path.clone(), seed, &mut pixels, &window, &mut session);
     }
 
+    let mut mouse_events = MouseEventCollector::default();
+
     event_loop.run(move |event, _, control_flow| {
         if let Event::WindowEvent { event, .. } = &event {
             framework.handle_event(event);
+        }
+
+        if session.is_some() {
+            if let Event::DeviceEvent { event, .. } = &event {
+                if let DeviceEvent::MouseMotion { delta } = event {
+                    mouse_events.delta_x += delta.0 as i16;
+                    mouse_events.delta_y += delta.1 as i16;
+                }
+
+                if let DeviceEvent::MouseWheel { delta } = event {
+                    let mut out_x = 0.0;
+                    let mut out_y = 0.0;
+
+                    match delta {
+                        MouseScrollDelta::LineDelta(x, y) => {
+                            out_x += x;
+                            out_y += y;
+                        }
+                        MouseScrollDelta::PixelDelta(d) => {
+                            out_x += d.x as f32;
+                            out_y += d.y as f32
+                        }
+                    }
+
+                    if out_y > 0.0 {
+                        mouse_events.wheel_down = true
+                    } else if out_y < 0.0 {
+                        mouse_events.wheel_up = true
+                    }
+
+                    if out_x > 0.0 {
+                        mouse_events.wheel_right = true
+                    } else if out_x < 0.0 {
+                        mouse_events.wheel_left = true
+                    }
+                }
+            }
         }
 
         framework.prepare(
@@ -129,13 +168,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         // Process all the gamepad events
                         while gilrs.next_event().is_some() {}
 
+                        let shared_mouse = std::mem::take(&mut mouse_events);
+
                         // Generate all local inputs
                         // TODO: Refactor this to handle multiple local players correctly
                         for handle in session.local_player_handles() {
                             session
                                 .add_local_input(
                                     handle,
-                                    input_manager.generate_input_state(&input, &gilrs),
+                                    input_manager.generate_input_state(
+                                        &pixels,
+                                        &shared_mouse,
+                                        &input,
+                                        &gilrs,
+                                    ),
                                 )
                                 .unwrap();
                         }
@@ -152,6 +198,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
                     // If sound changed, update the output
                     console.sync_audio();
+
+                    // Sync the mouse lock state
+                    console.sync_mouse(&window);
 
                     // Render the game
                     console.call_draw();
