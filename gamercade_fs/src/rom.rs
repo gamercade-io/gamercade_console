@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use gamercade_audio::SoundRom;
 use gamercade_core::{FrameRate, GraphicsData, Resolution};
 
-use crate::{GameAssetProvider, GameCodeProvider};
+use crate::{bundle, EditorRom, GameAssetProvider, GameCodeProvider};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Rom {
@@ -45,14 +45,26 @@ impl Rom {
 
     pub fn try_load(path: &PathBuf) -> Result<Self, String> {
         let file = fs::File::open(path).map_err(|e| e.to_string())?;
-        let mut reader = zstd::Decoder::new(file).map_err(|e| e.to_string())?;
 
-        let mut buffer = Vec::new();
+        match path.extension().and_then(|path| path.to_str()) {
+            Some("gce") => {
+                let mut reader = zstd::Decoder::new(file).map_err(|e| e.to_string())?;
 
-        // We don't care about how many bytes are read
-        let _ = reader.read_to_end(&mut buffer).map_err(|e| e.to_string());
+                let mut buffer = Vec::new();
 
-        bincode::deserialize_from::<_, Rom>(&*buffer).map_err(|e| e.to_string())
+                // We don't care about how many bytes are read
+                let _ = reader.read_to_end(&mut buffer).map_err(|e| e.to_string());
+
+                bincode::deserialize_from::<_, Rom>(&*buffer).map_err(|e| e.to_string())
+            }
+            Some("wasm") => {
+                println!("No assets provided. Using default Asset pack.");
+                let code = crate::try_load_wasm(path)?;
+                let assets = EditorRom::default();
+                Ok(bundle(&code, &assets))
+            }
+            _ => Err("Invalid file extension.".to_string()),
+        }
     }
 
     pub fn try_save(&self, path: &PathBuf) -> Result<(), String> {

@@ -72,7 +72,7 @@ impl Gui {
                     ui.horizontal(|ui| {
                         if ui.button("Select Game").clicked() {
                             self.game_file = FileDialog::new()
-                                .add_filter("gcrom (.gcrom)", &["gcrom"])
+                                .add_filter("gcrom (.gcrom), wasm (.wasm)", &["gcrom", "wasm"])
                                 .pick_file();
                         };
 
