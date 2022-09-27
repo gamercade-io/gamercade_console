@@ -47,7 +47,7 @@ impl Rom {
         let file = fs::File::open(path).map_err(|e| e.to_string())?;
 
         match path.extension().and_then(|path| path.to_str()) {
-            Some("gce") => {
+            Some("gcrom") => {
                 let mut reader = zstd::Decoder::new(file).map_err(|e| e.to_string())?;
 
                 let mut buffer = Vec::new();
