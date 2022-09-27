@@ -83,6 +83,10 @@ A template example project is available at: [rust_template](https://github.com/g
 1. Select the `.gcrom` file you wish to run, and click open.
 1. Launch the game by pressing the "Launch Game" button.
 
+### Running a Game as raw `.wasm`
+
+If you are not using any custom assets, or are okay with the default color palettes, you can also run the raw `.wasm` files directly from the console. This can be done by following the steps outlined in "Building a Game" section above, or whatever workflow your programming language of choice requires for outputting a `.wasm` binary.
+
 # For Contributors
 
 This is the main workspace crate. Consider viewing the inner crates for more information about the project. Each of them has their own README.
