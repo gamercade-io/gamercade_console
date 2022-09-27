@@ -62,3 +62,9 @@ pub fn line(graphics_parameters: GraphicsParameters, x0: i32, y0: i32, x1: i32, 
 pub fn sprite(graphics_parameters: GraphicsParameters, transparency_mask: u64, x: i32, y: i32) {
     unsafe { raw::sprite(graphics_parameters.0, transparency_mask as i64, x, y) }
 }
+
+/// Writes multiple pixels into the frame buffer, starting from the passed index and will
+/// continue until the data slice has been consumed.
+pub fn write_pixel_buffer(start_index: usize, data: &[GraphicsParameters]) {
+    unsafe { raw::write_pixel_buffer(start_index as i32, data.as_ptr() as i32, data.len() as i32) }
+}
