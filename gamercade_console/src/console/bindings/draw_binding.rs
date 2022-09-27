@@ -1,7 +1,8 @@
 use crate::api::{DrawApi, DrawApiBinding};
 use crate::console::Contexts;
+use gamercade_core::BYTES_PER_PIXEL;
 use paste::paste;
-use wasmtime::{Caller, Linker};
+use wasmtime::{Caller, Extern, Linker, Trap};
 
 macro_rules! derive_draw_api_binding {
     ($($ident:ident ($($name:ident:$args:ty $(,)? )*) $(,)?)*) => {
@@ -17,6 +18,30 @@ macro_rules! derive_draw_api_binding {
                         }).unwrap();
                     }
                 )*
+
+                fn bind_write_pixel_buffer(&mut self) {
+                    self.func_wrap(
+                        "env",
+                        "write_pixel_buffer",
+                        |mut caller: Caller<'_, Contexts>, start_index: i32, parameters_ptr: i32, len: i32| {
+                            let mem = match caller.get_export("memory") {
+                                Some(Extern::Memory(mem)) => mem,
+                                _ => return Err(Trap::new("failed to find host memory")),
+                            };
+
+                            let (data, store) = mem.data_and_store_mut(&mut caller);
+
+                            let data = match data
+                                .get(parameters_ptr as u32 as usize..)
+                                .and_then(|arr| arr.get(..len as u32 as usize * BYTES_PER_PIXEL))
+                            {
+                                Some(data) => bytemuck::cast_slice(data),
+                                None => return Err(Trap::new("invalid data")),
+                            };
+
+                            Ok(store.draw_context.write_pixel_buffer(start_index as usize, data))
+                    }).unwrap();
+                }
             }
         }
     };

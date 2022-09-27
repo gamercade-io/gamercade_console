@@ -25,6 +25,8 @@ pub trait DrawApi {
     fn line(&mut self, graphics_parameters: i32, x0: i32, y0: i32, x1: i32, y1: i32);
 
     fn sprite(&mut self, graphics_parameters: i32, transparency_mask: i64, x: i32, y: i32);
+
+    fn write_pixel_buffer(&mut self, start_index: usize, data: &[u32]);
 }
 
 derive_bind_draw_api! {
@@ -36,4 +38,5 @@ derive_bind_draw_api! {
     bind_rect_filled,
     bind_line,
     bind_sprite,
+    bind_write_pixel_buffer,
 }

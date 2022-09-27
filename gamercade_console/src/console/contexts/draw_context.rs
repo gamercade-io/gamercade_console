@@ -243,6 +243,30 @@ impl DrawApi for DrawContext {
             self.draw_line_horizontal(x0 - y, x0 + y, y0 - x, color);
         }
     }
+
+    fn write_pixel_buffer(&mut self, start_index: usize, data: &[u32]) {
+        (start_index
+            ..data
+                .len()
+                .min(self.frame_buffer.pixel_buffer.len() / BYTES_PER_PIXEL))
+            .zip(data.iter())
+            .for_each(|(index, gp)| {
+                let GraphicsParameters {
+                    color_index,
+                    palette_index,
+                    ..
+                } = GraphicsParameters::from(*gp);
+
+                let color = match self.rom.graphics.palette(palette_index) {
+                    Some(palette) => palette[color_index],
+                    None => return,
+                };
+
+                self.frame_buffer.pixel_buffer
+                    [index * BYTES_PER_PIXEL..(index + 1) * BYTES_PER_PIXEL]
+                    .copy_from_slice(&color.into_pixel_data());
+            });
+    }
 }
 
 impl DrawContext {
