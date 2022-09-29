@@ -1,4 +1,4 @@
-use gamercade_core::{ButtonCode, InputState, MouseState};
+use gamercade_core::{AnalogStick as AS, ButtonCode, InputState, MouseState};
 use gilrs::{Axis, Button, Gamepad, GamepadId, Gilrs};
 use pixels::Pixels;
 use winit_input_helper::WinitInputHelper;
@@ -7,7 +7,7 @@ use crate::console::network::NetworkInputState;
 
 use super::{
     gamepad_bindings::GamepadBindings,
-    key_types::{AnalogSide, KeyType},
+    key_types::{AnalogStick, KeyType, TriggerSide},
     InputMode, KeyBindings, LocalKeyboardId, LocalPlayerId,
 };
 
@@ -121,13 +121,15 @@ fn generate_emulated_state(
             if input_helper.key_held(*code) {
                 match input {
                     KeyType::Button(code) => output.buttons.enable_button(*code),
-                    KeyType::AnalogStick(emulated) => emulated.adjust_input_state(&mut output),
+                    KeyType::AnalogStick(analog_stick) => {
+                        adjust_input_state(analog_stick, &mut output)
+                    }
                     KeyType::Trigger(side) => match side {
-                        AnalogSide::Left => {
+                        TriggerSide::LeftTrigger => {
                             output.buttons.enable_button(ButtonCode::LeftTrigger);
                             output.left_trigger.set_value(1.0);
                         }
-                        AnalogSide::Right => {
+                        TriggerSide::RightTrigger => {
                             output.buttons.enable_button(ButtonCode::RightTrigger);
                             output.right_trigger.set_value(1.0)
                         }
@@ -174,4 +176,55 @@ fn generate_mouse_state(
     out.set_wheel_right(mouse_events.wheel_right);
 
     out
+}
+
+fn adjust_input_state(analog_stick: &AnalogStick, input_state: &mut InputState) {
+    let value;
+    let stick;
+    let func: fn(&mut AS, f32);
+
+    match analog_stick {
+        AnalogStick::LeftXPositive => {
+            value = 1.0;
+            stick = &mut input_state.left_stick;
+            func = AS::set_x_axis;
+        }
+        AnalogStick::LeftXNegative => {
+            value = -1.0;
+            stick = &mut input_state.left_stick;
+            func = AS::set_x_axis;
+        }
+        AnalogStick::LeftYPositive => {
+            value = 1.0;
+            stick = &mut input_state.left_stick;
+            func = AS::set_y_axis;
+        }
+        AnalogStick::LeftYNegative => {
+            value = -1.0;
+            stick = &mut input_state.left_stick;
+            func = AS::set_y_axis;
+        }
+        AnalogStick::RightXPositive => {
+            value = 1.0;
+            stick = &mut input_state.right_stick;
+            func = AS::set_x_axis;
+        }
+        AnalogStick::RightXNegative => {
+            value = -1.0;
+            stick = &mut input_state.right_stick;
+            func = AS::set_x_axis;
+        }
+        AnalogStick::RightYPositive => {
+            value = 1.0;
+            stick = &mut input_state.right_stick;
+            func = AS::set_y_axis;
+        }
+        AnalogStick::RightYNegative => {
+            value = -1.0;
+            stick = &mut input_state.right_stick;
+            func = AS::set_y_axis;
+        }
+    }
+
+    func(stick, value)
 }

@@ -1,33 +1,14 @@
 use std::path::PathBuf;
 
-use gamercade_core::{ButtonCode, InputState};
+use gamercade_core::ButtonCode;
 
 use hashbrown::HashMap;
 use serde::{Deserialize, Serialize};
 use winit::event::VirtualKeyCode;
 
-use super::key_types::{Analog, AnalogAxis, AnalogDirection, AnalogSide, KeyType};
+use super::key_types::{AnalogStick, KeyType, TriggerSide};
 
-const INPUT_FILE_NAME: &str = "input.json";
-
-impl Analog {
-    pub(crate) fn adjust_input_state(self, input_state: &mut InputState) {
-        let value = match self.direction {
-            AnalogDirection::Positive => 1.0,
-            AnalogDirection::Negative => -1.0,
-        };
-
-        let stick = match self.side {
-            AnalogSide::Left => &mut input_state.left_stick,
-            AnalogSide::Right => &mut input_state.right_stick,
-        };
-
-        match self.axis {
-            AnalogAxis::X => stick.set_x_axis(value),
-            AnalogAxis::Y => stick.set_y_axis(value),
-        };
-    }
-}
+const INPUT_FILE_NAME: &str = "keyboardInput.json";
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(transparent)]
@@ -81,89 +62,63 @@ impl Default for KeyBindings {
             (VirtualKeyCode::B, KeyType::Button(ButtonCode::RightStick)),
             //Shoulders
             (VirtualKeyCode::E, KeyType::Button(ButtonCode::LeftShoulder)),
-            (VirtualKeyCode::Q, KeyType::Trigger(AnalogSide::Left)),
+            (
+                VirtualKeyCode::Q,
+                KeyType::Trigger(TriggerSide::LeftTrigger),
+            ),
             (
                 VirtualKeyCode::R,
                 KeyType::Button(ButtonCode::RightShoulder),
             ),
-            (VirtualKeyCode::Y, KeyType::Trigger(AnalogSide::Right)),
+            (
+                VirtualKeyCode::Y,
+                KeyType::Trigger(TriggerSide::RightTrigger),
+            ),
             //DPad:
             (VirtualKeyCode::Up, KeyType::Button(ButtonCode::Up)),
             (VirtualKeyCode::Down, KeyType::Button(ButtonCode::Down)),
             (VirtualKeyCode::Left, KeyType::Button(ButtonCode::Left)),
             (VirtualKeyCode::Right, KeyType::Button(ButtonCode::Right)),
             //Buttons:
-            (VirtualKeyCode::U, KeyType::Button(ButtonCode::A)),
-            (VirtualKeyCode::I, KeyType::Button(ButtonCode::B)),
-            (VirtualKeyCode::J, KeyType::Button(ButtonCode::C)),
-            (VirtualKeyCode::K, KeyType::Button(ButtonCode::D)),
+            (VirtualKeyCode::U, KeyType::Button(ButtonCode::ButtonA)),
+            (VirtualKeyCode::I, KeyType::Button(ButtonCode::ButtonB)),
+            (VirtualKeyCode::J, KeyType::Button(ButtonCode::ButtonC)),
+            (VirtualKeyCode::K, KeyType::Button(ButtonCode::ButtonD)),
             (VirtualKeyCode::Key5, KeyType::Button(ButtonCode::Start)),
             (VirtualKeyCode::Key6, KeyType::Button(ButtonCode::Select)),
             //Left Stick Axis
             (
                 VirtualKeyCode::W,
-                KeyType::AnalogStick(Analog {
-                    side: AnalogSide::Left,
-                    axis: AnalogAxis::Y,
-                    direction: AnalogDirection::Positive,
-                }),
+                KeyType::AnalogStick(AnalogStick::LeftYPositive),
             ),
             (
                 VirtualKeyCode::S,
-                KeyType::AnalogStick(Analog {
-                    side: AnalogSide::Left,
-                    axis: AnalogAxis::Y,
-                    direction: AnalogDirection::Negative,
-                }),
+                KeyType::AnalogStick(AnalogStick::LeftYNegative),
             ),
             (
                 VirtualKeyCode::A,
-                KeyType::AnalogStick(Analog {
-                    side: AnalogSide::Left,
-                    axis: AnalogAxis::X,
-                    direction: AnalogDirection::Negative,
-                }),
+                KeyType::AnalogStick(AnalogStick::LeftXNegative),
             ),
             (
                 VirtualKeyCode::D,
-                KeyType::AnalogStick(Analog {
-                    side: AnalogSide::Left,
-                    axis: AnalogAxis::X,
-                    direction: AnalogDirection::Positive,
-                }),
+                KeyType::AnalogStick(AnalogStick::LeftXPositive),
             ),
             //Right Stick Axis,
             (
                 VirtualKeyCode::T,
-                KeyType::AnalogStick(Analog {
-                    side: AnalogSide::Right,
-                    axis: AnalogAxis::Y,
-                    direction: AnalogDirection::Positive,
-                }),
+                KeyType::AnalogStick(AnalogStick::RightYPositive),
             ),
             (
                 VirtualKeyCode::G,
-                KeyType::AnalogStick(Analog {
-                    side: AnalogSide::Right,
-                    axis: AnalogAxis::Y,
-                    direction: AnalogDirection::Negative,
-                }),
+                KeyType::AnalogStick(AnalogStick::RightYNegative),
             ),
             (
                 VirtualKeyCode::F,
-                KeyType::AnalogStick(Analog {
-                    side: AnalogSide::Right,
-                    axis: AnalogAxis::X,
-                    direction: AnalogDirection::Negative,
-                }),
+                KeyType::AnalogStick(AnalogStick::RightXNegative),
             ),
             (
                 VirtualKeyCode::H,
-                KeyType::AnalogStick(Analog {
-                    side: AnalogSide::Right,
-                    axis: AnalogAxis::X,
-                    direction: AnalogDirection::Positive,
-                }),
+                KeyType::AnalogStick(AnalogStick::RightXPositive),
             ),
         ]
         .into_iter()
