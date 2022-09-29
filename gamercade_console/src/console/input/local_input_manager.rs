@@ -31,7 +31,7 @@ pub struct LocalInputManager {
 impl LocalInputManager {
     pub fn new(input_mode: InputMode) -> Self {
         Self {
-            keybinds: KeyBindings::default(),
+            keybinds: KeyBindings::load(),
             gamepad_binds: GamepadBindings::default(),
             input_mode,
         }
@@ -113,8 +113,8 @@ fn generate_emulated_state(
     binds.buttons.iter().for_each(|(code, input)| {
         if input_helper.key_held(*code) {
             match input {
-                KeyType::ButtonCode(code) => output.buttons.enable_button(*code),
-                KeyType::Analog(emulated) => emulated.adjust_input_state(&mut output),
+                KeyType::Button(code) => output.buttons.enable_button(*code),
+                KeyType::AnalogStick(emulated) => emulated.adjust_input_state(&mut output),
                 KeyType::Trigger(side) => match side {
                     AnalogSide::Left => {
                         output.buttons.enable_button(ButtonCode::LeftTrigger);

@@ -1,8 +1,9 @@
+use serde::{Deserialize, Serialize};
 use strum::EnumIter;
 
 use super::AsApiCode;
 
-#[derive(Debug, Copy, Clone, EnumIter)]
+#[derive(Debug, Copy, Clone, EnumIter, Serialize, Deserialize, Eq, PartialEq, Hash)]
 pub enum ButtonCode {
     // DPad
     Up,
