@@ -44,7 +44,15 @@ impl ControllerGui {
                 .iter_mut()
                 .enumerate()
                 .for_each(|(player_id, input_mode)| {
-                    let combo_text = format!("{:?}", input_mode);
+                    let combo_text = match &input_mode {
+                        InputMode::Emulated(keyboard_index) => {
+                            format!("Keyboard {}", keyboard_index.0)
+                        }
+                        InputMode::Gamepad(gamepad_id) => {
+                            format!("{} [{}]", gilrs.gamepad(*gamepad_id).name(), gamepad_id)
+                        }
+                    };
+
                     ComboBox::from_label(format!("Player {} Settings:", player_id))
                         .selected_text(combo_text)
                         .show_ui(ui, |ui| {
@@ -56,11 +64,11 @@ impl ControllerGui {
                                 );
                             });
 
-                            gilrs.gamepads().for_each(|(id, name)| {
+                            gilrs.gamepads().for_each(|(id, gamepad)| {
                                 ui.selectable_value(
                                     input_mode,
                                     InputMode::Gamepad(id),
-                                    name.name(),
+                                    format!("{} [{}]", gamepad.name(), id),
                                 );
                             });
                         });
