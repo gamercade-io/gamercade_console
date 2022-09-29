@@ -1,5 +1,7 @@
 use gamercade_core::{ButtonCode, InputState, MouseState};
+use ggrs::PlayerHandle;
 use gilrs::{Axis, Button, Gamepad, GamepadId, Gilrs};
+use hashbrown::HashMap;
 use pixels::Pixels;
 use winit_input_helper::WinitInputHelper;
 
@@ -8,7 +10,7 @@ use crate::console::network::NetworkInputState;
 use super::{
     gamepad_bindings::GamepadBindings,
     key_types::{AnalogSide, KeyType},
-    InputMode, KeyBindings,
+    InputMode, KeyBindings, LocalControllerId,
 };
 
 #[derive(Default)]
@@ -26,6 +28,7 @@ pub struct LocalInputManager {
     keybinds: KeyBindings,
     gamepad_binds: GamepadBindings,
     pub(crate) input_mode: InputMode,
+    network_to_local: HashMap<PlayerHandle, LocalControllerId>,
 }
 
 impl LocalInputManager {
@@ -33,19 +36,21 @@ impl LocalInputManager {
         Self {
             keybinds: KeyBindings::load(),
             gamepad_binds: GamepadBindings::default(),
+            network_to_local: HashMap::default(),
             input_mode,
         }
     }
 
     pub fn generate_input_state(
         &self,
+        player_handle: PlayerHandle,
         pixels: &Pixels,
         mouse_events: &MouseEventCollector,
         helper: &winit_input_helper::WinitInputHelper,
         gilrs: &Gilrs,
     ) -> NetworkInputState {
         let input_state = match self.input_mode {
-            InputMode::Emulated => self.new_emulated_state(helper),
+            InputMode::Emulated => self.new_emulated_state(player_handle, helper),
             InputMode::Gamepad(id) => self.new_gamepad_state(id, gilrs),
         };
 
@@ -57,8 +62,16 @@ impl LocalInputManager {
         }
     }
 
-    fn new_emulated_state(&self, helper: &winit_input_helper::WinitInputHelper) -> InputState {
-        generate_emulated_state(&self.keybinds, helper)
+    fn new_emulated_state(
+        &self,
+        player_handle: PlayerHandle,
+        helper: &winit_input_helper::WinitInputHelper,
+    ) -> InputState {
+        if let Some(local_controller) = self.network_to_local.get(&player_handle) {
+            generate_emulated_state(*local_controller, &self.keybinds, helper)
+        } else {
+            InputState::default()
+        }
     }
 
     //TODO: This
@@ -105,29 +118,32 @@ fn generate_gamepad_state(binds: &GamepadBindings, gamepad: &Gamepad) -> InputSt
 }
 
 fn generate_emulated_state(
+    player_id: LocalControllerId,
     binds: &KeyBindings,
     input_helper: &winit_input_helper::WinitInputHelper,
 ) -> InputState {
     let mut output = InputState::default();
 
-    binds.buttons.iter().for_each(|(code, input)| {
-        if input_helper.key_held(*code) {
-            match input {
-                KeyType::Button(code) => output.buttons.enable_button(*code),
-                KeyType::AnalogStick(emulated) => emulated.adjust_input_state(&mut output),
-                KeyType::Trigger(side) => match side {
-                    AnalogSide::Left => {
-                        output.buttons.enable_button(ButtonCode::LeftTrigger);
-                        output.left_trigger.set_value(1.0);
-                    }
-                    AnalogSide::Right => {
-                        output.buttons.enable_button(ButtonCode::RightTrigger);
-                        output.right_trigger.set_value(1.0)
-                    }
-                },
+    if let Some(buttons) = binds.buttons.get(&player_id) {
+        buttons.iter().for_each(|(code, input)| {
+            if input_helper.key_held(*code) {
+                match input {
+                    KeyType::Button(code) => output.buttons.enable_button(*code),
+                    KeyType::AnalogStick(emulated) => emulated.adjust_input_state(&mut output),
+                    KeyType::Trigger(side) => match side {
+                        AnalogSide::Left => {
+                            output.buttons.enable_button(ButtonCode::LeftTrigger);
+                            output.left_trigger.set_value(1.0);
+                        }
+                        AnalogSide::Right => {
+                            output.buttons.enable_button(ButtonCode::RightTrigger);
+                            output.right_trigger.set_value(1.0)
+                        }
+                    },
+                }
             }
-        }
-    });
+        });
+    }
 
     output
 }

@@ -6,7 +6,10 @@ use hashbrown::HashMap;
 use serde::{Deserialize, Serialize};
 use winit::event::VirtualKeyCode;
 
-use super::key_types::{Analog, AnalogAxis, AnalogDirection, AnalogSide, KeyType};
+use super::{
+    key_types::{Analog, AnalogAxis, AnalogDirection, AnalogSide, KeyType},
+    LocalControllerId,
+};
 
 const INPUT_FILE_NAME: &str = "input.json";
 
@@ -32,7 +35,7 @@ impl Analog {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(transparent)]
 pub(crate) struct KeyBindings {
-    pub buttons: HashMap<VirtualKeyCode, KeyType>,
+    pub buttons: HashMap<LocalControllerId, HashMap<VirtualKeyCode, KeyType>>,
 }
 
 impl KeyBindings {
@@ -75,7 +78,7 @@ impl KeyBindings {
 
 impl Default for KeyBindings {
     fn default() -> Self {
-        let buttons = [
+        let p0 = [
             //Sticks
             (VirtualKeyCode::X, KeyType::Button(ButtonCode::LeftStick)),
             (VirtualKeyCode::B, KeyType::Button(ButtonCode::RightStick)),
@@ -168,6 +171,9 @@ impl Default for KeyBindings {
         ]
         .into_iter()
         .collect::<HashMap<VirtualKeyCode, KeyType>>();
+
+        let mut buttons = HashMap::new();
+        buttons.insert(LocalControllerId(0), p0);
 
         Self { buttons }
     }

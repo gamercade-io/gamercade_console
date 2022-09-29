@@ -21,3 +21,7 @@ impl Default for InputMode {
         Self::Emulated
     }
 }
+
+use serde::{Deserialize, Serialize};
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Serialize, Deserialize)]
+pub(crate) struct LocalControllerId(pub(crate) usize);

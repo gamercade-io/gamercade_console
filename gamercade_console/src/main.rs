@@ -171,12 +171,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         let shared_mouse = std::mem::take(&mut mouse_events);
 
                         // Generate all local inputs
-                        // TODO: Refactor this to handle multiple local players correctly
                         for handle in session.local_player_handles() {
                             session
                                 .add_local_input(
                                     handle,
                                     input_manager.generate_input_state(
+                                        handle,
                                         &pixels,
                                         &shared_mouse,
                                         &input,
