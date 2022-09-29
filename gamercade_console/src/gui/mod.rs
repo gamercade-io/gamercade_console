@@ -1,6 +1,6 @@
 use std::{net::SocketAddr, path::PathBuf};
 
-use egui::{Button, ComboBox, Context, Slider};
+use egui::{Button, Context};
 
 use gamercade_fs::Rom;
 use ggrs::{P2PSession, PlayerType, SessionBuilder, SessionState, UdpNonBlockingSocket};
@@ -10,23 +10,26 @@ use rfd::FileDialog;
 use winit::{dpi::PhysicalSize, window::Window};
 
 use crate::{
-    console::{InputMode, LocalInputManager, SessionDescriptor, WasmConsole, WasmConsoleState},
+    console::{LocalInputManager, SessionDescriptor, WasmConsole, WasmConsoleState},
     DEFAULT_WINDOW_RESOLUTION,
 };
 
+use self::{controller_gui::ControllerGui, play_mode_gui::PlayModeGui};
+pub mod controller_gui;
 pub mod framework;
+pub mod play_mode_gui;
 
 pub struct Gui {
     pub window_open: bool,
     pub game_file: Option<PathBuf>,
-    pub play_mode: PlayMode,
-    pub remote_addr: String,
-    pub player_num: usize,
-    pub port: String,
+
     pub seed: String,
 
     pub wasm_console: Option<WasmConsole>,
     pub initial_state: Option<WasmConsoleState>,
+
+    pub play_mode_gui: PlayModeGui,
+    pub controller_gui: ControllerGui,
 }
 
 const DEFAULT_SEED: &str = "a12cade";
@@ -37,20 +40,14 @@ impl Default for Gui {
             seed: DEFAULT_SEED.to_string(),
             window_open: true,
             game_file: None,
-            play_mode: PlayMode::SinglePlayer,
-            remote_addr: String::new(),
-            player_num: 1,
-            port: String::new(),
+
             wasm_console: None,
             initial_state: None,
+
+            play_mode_gui: PlayModeGui::default(),
+            controller_gui: ControllerGui::default(),
         }
     }
-}
-
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub enum PlayMode {
-    SinglePlayer,
-    Networked,
 }
 
 impl Gui {
@@ -95,58 +92,9 @@ impl Gui {
                     })
                 });
 
-                ui.group(|ui| {
-                    ui.label("Controller Settings:");
-                    let combo_text = match input.input_mode {
-                        InputMode::Emulated => String::from("Keyboard"),
-                        InputMode::Gamepad(id) => format!("Gamepad: {}", id),
-                    };
-                    ComboBox::from_label("Select Controller")
-                        .selected_text(combo_text)
-                        .show_ui(ui, |ui| {
-                            ui.selectable_value(
-                                &mut input.input_mode,
-                                InputMode::Emulated,
-                                "Keyboard",
-                            );
+                self.controller_gui.draw(ui, input, gilrs);
 
-                            gilrs.gamepads().for_each(|(id, name)| {
-                                ui.selectable_value(
-                                    &mut input.input_mode,
-                                    InputMode::Gamepad(id),
-                                    name.name(),
-                                );
-                            });
-                        });
-                });
-
-                ui.group(|ui| {
-                    ui.label("Play Mode:");
-                    ui.horizontal(|ui| {
-                        ui.selectable_value(
-                            &mut self.play_mode,
-                            PlayMode::SinglePlayer,
-                            "Single Player",
-                        );
-                        ui.selectable_value(&mut self.play_mode, PlayMode::Networked, "Networked");
-                    });
-
-                    let enabled = self.play_mode == PlayMode::Networked;
-
-                    if enabled {
-                        ui.horizontal(|ui| {
-                            ui.label("Remote Address:");
-                            ui.text_edit_singleline(&mut self.remote_addr);
-                        });
-
-                        ui.add(Slider::new(&mut self.player_num, 1..=2).text("Player Number"));
-
-                        ui.horizontal(|ui| {
-                            ui.label("Local Port: ");
-                            ui.text_edit_singleline(&mut self.port);
-                        });
-                    }
-                });
+                self.play_mode_gui.draw(ui);
 
                 let launch_game_text = if let Some(session) = session {
                     if session.current_state() == SessionState::Synchronizing {
@@ -256,38 +204,8 @@ impl Gui {
         window: &Window,
     ) -> Option<P2PSession<WasmConsole>> {
         let path = self.game_file.as_ref().unwrap();
-        let (players, port) = match self.play_mode {
-            PlayMode::SinglePlayer => (vec![PlayerType::Local], 8000),
-            PlayMode::Networked => {
-                let remote_addr = self.remote_addr.parse::<SocketAddr>();
-                let port = self.port.parse::<u16>();
 
-                if remote_addr.is_err() {
-                    println!("Remote Addr is invalid");
-                    return None;
-                } else if port.is_err() {
-                    println!("Port is invalid");
-                    return None;
-                }
-
-                let player_num = self.player_num;
-                let remote_addr = remote_addr.unwrap();
-                let port = port.unwrap();
-
-                let players = if player_num == 1 {
-                    vec![PlayerType::Local, PlayerType::Remote(remote_addr)]
-                } else if player_num == 2 {
-                    vec![PlayerType::Remote(remote_addr), PlayerType::Local]
-                } else {
-                    println!("Player # should be 1 or 2");
-                    return None;
-                };
-
-                (players, port)
-            }
-        };
-
-        let players = players.into_boxed_slice();
+        let session_descriptor = self.play_mode_gui.generate_session_descriptor()?;
 
         let rom = match Rom::try_load(path) {
             Err(e) => {
@@ -295,18 +213,6 @@ impl Gui {
                 return None;
             }
             Ok(rom) => rom,
-        };
-
-        let num_players = if self.play_mode == PlayMode::SinglePlayer {
-            1
-        } else {
-            2
-        };
-
-        let session_descriptor = SessionDescriptor {
-            num_players,
-            player_types: players,
-            port,
         };
 
         let seed = u64::from_str_radix(&self.seed, 16).unwrap();
