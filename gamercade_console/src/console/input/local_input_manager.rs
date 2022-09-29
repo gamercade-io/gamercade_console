@@ -8,7 +8,7 @@ use crate::console::network::NetworkInputState;
 use super::{
     gamepad_bindings::GamepadBindings,
     key_types::{AnalogSide, KeyType},
-    InputMode, KeyBindings, LocalControllerId,
+    InputMode, KeyBindings, LocalKeyboardId, LocalPlayerId,
 };
 
 #[derive(Default)]
@@ -23,31 +23,32 @@ pub struct MouseEventCollector {
 
 #[derive(Debug)]
 pub struct LocalInputManager {
-    keybinds: KeyBindings,
+    pub(crate) keyboard_bindings: KeyBindings,
     gamepad_binds: GamepadBindings,
-    pub(crate) input_mode: InputMode,
+    pub(crate) player_bindings: Vec<InputMode>,
 }
 
 impl LocalInputManager {
-    pub fn new(input_mode: InputMode) -> Self {
+    pub fn new() -> Self {
         Self {
-            keybinds: KeyBindings::load(),
+            keyboard_bindings: KeyBindings::load(),
             gamepad_binds: GamepadBindings::default(),
-            input_mode,
+            player_bindings: vec![InputMode::Emulated(LocalKeyboardId(0))],
         }
     }
 
     pub fn generate_input_state(
         &self,
-        local_controller: LocalControllerId,
+        local_player: LocalPlayerId,
         pixels: &Pixels,
         mouse_events: &MouseEventCollector,
         helper: &winit_input_helper::WinitInputHelper,
         gilrs: &Gilrs,
     ) -> NetworkInputState {
-        let input_state = match self.input_mode {
-            InputMode::Emulated => self.new_emulated_state(local_controller, helper),
-            InputMode::Gamepad(id) => self.new_gamepad_state(id, gilrs),
+        let input_state = match self.player_bindings.get(local_player.0) {
+            Some(InputMode::Emulated(keyboard_id)) => self.new_emulated_state(*keyboard_id, helper),
+            Some(InputMode::Gamepad(gamepad_id)) => self.new_gamepad_state(*gamepad_id, gilrs),
+            None => InputState::default(),
         };
 
         let mouse_state = generate_mouse_state(pixels, mouse_events, helper);
@@ -60,10 +61,10 @@ impl LocalInputManager {
 
     fn new_emulated_state(
         &self,
-        local_controller: LocalControllerId,
+        keyboard_id: LocalKeyboardId,
         helper: &winit_input_helper::WinitInputHelper,
     ) -> InputState {
-        generate_emulated_state(local_controller, &self.keybinds, helper)
+        generate_emulated_state(keyboard_id, &self.keyboard_bindings, helper)
     }
 
     fn new_gamepad_state(&self, id: GamepadId, gilrs: &Gilrs) -> InputState {
@@ -109,13 +110,13 @@ fn generate_gamepad_state(binds: &GamepadBindings, gamepad: &Gamepad) -> InputSt
 }
 
 fn generate_emulated_state(
-    player_id: LocalControllerId,
+    player_id: LocalKeyboardId,
     binds: &KeyBindings,
     input_helper: &winit_input_helper::WinitInputHelper,
 ) -> InputState {
     let mut output = InputState::default();
 
-    if let Some(buttons) = binds.buttons.get(&player_id) {
+    if let Some(buttons) = binds.buttons.get(player_id.0) {
         buttons.iter().for_each(|(code, input)| {
             if input_helper.key_held(*code) {
                 match input {

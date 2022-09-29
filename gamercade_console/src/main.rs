@@ -25,7 +25,7 @@ use crate::{
     console::LocalInputManager,
     gui::{framework::Framework, Gui},
 };
-use console::{Console, InputMode, LocalControllerId, MouseEventCollector, WasmConsole};
+use console::{Console, LocalPlayerId, MouseEventCollector, WasmConsole};
 
 #[derive(Parser, Debug)]
 struct Cli {
@@ -49,7 +49,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut gilrs = Gilrs::new().unwrap();
 
     let mut input = WinitInputHelper::new();
-    let mut input_manager = LocalInputManager::new(InputMode::default());
+    let mut input_manager = LocalInputManager::new();
     let mut last_update = Instant::now();
     let mut accumulator = Duration::ZERO;
 
@@ -171,7 +171,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         let shared_mouse = std::mem::take(&mut mouse_events);
 
                         // Generate all local inputs
-                        let mut local_player_id = LocalControllerId(0);
+                        let mut local_player_id = LocalPlayerId(0);
                         for handle in session.local_player_handles() {
                             session
                                 .add_local_input(

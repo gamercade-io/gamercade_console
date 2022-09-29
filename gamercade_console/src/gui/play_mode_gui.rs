@@ -34,14 +34,12 @@ impl Default for PlayModeGui {
     fn default() -> Self {
         Self {
             play_mode: PlayMode::Local,
-            local_player_count: 1,
         }
     }
 }
 
 pub struct PlayModeGui {
     pub(crate) play_mode: PlayMode,
-    pub(crate) local_player_count: usize,
 }
 
 impl PlayModeGui {
@@ -66,8 +64,6 @@ impl PlayModeGui {
                 };
             });
 
-            ui.add(Slider::new(&mut self.local_player_count, 1..=4).text("Local Player Count"));
-
             if let PlayMode::Networked(networked) = &mut self.play_mode {
                 ui.horizontal(|ui| {
                     ui.label("Local Port: ");
@@ -91,13 +87,15 @@ impl PlayModeGui {
         });
     }
 
-    pub(crate) fn generate_session_descriptor(&self) -> Option<SessionDescriptor> {
+    pub(crate) fn generate_session_descriptor(
+        &self,
+        local_player_count: usize,
+    ) -> Option<SessionDescriptor> {
         let mut player_types = Vec::new();
 
         let port = match &self.play_mode {
             PlayMode::Local => {
-                player_types
-                    .extend(std::iter::repeat(PlayerType::Local).take(self.local_player_count));
+                player_types.extend(std::iter::repeat(PlayerType::Local).take(local_player_count));
                 8000
             }
             PlayMode::Networked(networked) => {
@@ -117,7 +115,7 @@ impl PlayModeGui {
 
                 if networked.instance_id == 1 {
                     player_types
-                        .extend(std::iter::repeat(PlayerType::Local).take(self.local_player_count));
+                        .extend(std::iter::repeat(PlayerType::Local).take(local_player_count));
                     player_types.extend(
                         std::iter::repeat(PlayerType::Remote(remote_addr))
                             .take(networked.remote_player_count),
@@ -128,7 +126,7 @@ impl PlayModeGui {
                             .take(networked.remote_player_count),
                     );
                     player_types
-                        .extend(std::iter::repeat(PlayerType::Local).take(self.local_player_count));
+                        .extend(std::iter::repeat(PlayerType::Local).take(local_player_count));
                 } else {
                     println!("Player # should be 1 or 2");
                     return None;

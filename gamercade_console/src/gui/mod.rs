@@ -92,7 +92,8 @@ impl Gui {
                     })
                 });
 
-                self.controller_gui.draw(ui, input, gilrs);
+                self.controller_gui
+                    .draw(ui, session.is_none(), input, gilrs);
 
                 self.play_mode_gui.draw(ui);
 
@@ -205,7 +206,9 @@ impl Gui {
     ) -> Option<P2PSession<WasmConsole>> {
         let path = self.game_file.as_ref().unwrap();
 
-        let session_descriptor = self.play_mode_gui.generate_session_descriptor()?;
+        let session_descriptor = self
+            .play_mode_gui
+            .generate_session_descriptor(self.controller_gui.local_player_count)?;
 
         let rom = match Rom::try_load(path) {
             Err(e) => {

@@ -1,31 +1,69 @@
-use egui::{ComboBox, Ui};
+use egui::{ComboBox, Slider, Ui};
 use gilrs::Gilrs;
 
-use crate::console::{InputMode, LocalInputManager};
+use crate::console::{InputMode, LocalInputManager, LocalKeyboardId};
 
-#[derive(Default)]
-pub struct ControllerGui {}
+pub struct ControllerGui {
+    pub local_player_count: usize,
+}
+
+impl Default for ControllerGui {
+    fn default() -> Self {
+        Self {
+            local_player_count: 1,
+        }
+    }
+}
 
 impl ControllerGui {
-    pub(crate) fn draw(&self, ui: &mut Ui, input: &mut LocalInputManager, gilrs: &Gilrs) {
+    pub(crate) fn draw(
+        &mut self,
+        ui: &mut Ui,
+        can_adjust_player_count: bool,
+        input: &mut LocalInputManager,
+        gilrs: &Gilrs,
+    ) {
         ui.group(|ui| {
             ui.label("Controller Settings:");
-            let combo_text = match input.input_mode {
-                InputMode::Emulated => String::from("Keyboard"),
-                InputMode::Gamepad(id) => format!("Gamepad: {}", id),
-            };
-            ComboBox::from_label("Select Controller")
-                .selected_text(combo_text)
-                .show_ui(ui, |ui| {
-                    ui.selectable_value(&mut input.input_mode, InputMode::Emulated, "Keyboard");
 
-                    gilrs.gamepads().for_each(|(id, name)| {
-                        ui.selectable_value(
-                            &mut input.input_mode,
-                            InputMode::Gamepad(id),
-                            name.name(),
-                        );
-                    });
+            if ui
+                .add_enabled(
+                    can_adjust_player_count,
+                    Slider::new(&mut self.local_player_count, 1..=4).text("Local Player Count"),
+                )
+                .changed()
+            {
+                input.player_bindings.resize(
+                    self.local_player_count,
+                    InputMode::Emulated(LocalKeyboardId(0)),
+                );
+            };
+
+            input
+                .player_bindings
+                .iter_mut()
+                .enumerate()
+                .for_each(|(player_id, input_mode)| {
+                    let combo_text = format!("{:?}", input_mode);
+                    ComboBox::from_label(format!("Player {} Settings:", player_id))
+                        .selected_text(combo_text)
+                        .show_ui(ui, |ui| {
+                            (0..input.keyboard_bindings.buttons.len()).for_each(|keyboard_index| {
+                                ui.selectable_value(
+                                    input_mode,
+                                    InputMode::Emulated(LocalKeyboardId(keyboard_index)),
+                                    format!("Keyboard {}", keyboard_index),
+                                );
+                            });
+
+                            gilrs.gamepads().for_each(|(id, name)| {
+                                ui.selectable_value(
+                                    input_mode,
+                                    InputMode::Gamepad(id),
+                                    name.name(),
+                                );
+                            });
+                        });
                 });
         });
     }
