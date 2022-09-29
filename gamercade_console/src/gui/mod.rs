@@ -166,7 +166,7 @@ impl Gui {
                         .add_enabled(self.game_file.is_some() && session.is_none(), launch_game)
                         .clicked()
                     {
-                        self.try_launch_game(pixels, window, session)
+                        *session = self.try_launch_game(pixels, window);
                     }
 
                     let buttons_enabled = self.game_file.is_some() && session.is_some();
@@ -197,12 +197,11 @@ impl Gui {
         seed: u64,
         pixels: &mut Pixels,
         window: &Window,
-        session: &mut Option<P2PSession<WasmConsole>>,
-    ) {
+    ) -> Option<P2PSession<WasmConsole>> {
         let rom = match Rom::try_load(&game_path) {
             Err(e) => {
                 println!("{}", e);
-                return;
+                return None;
             }
             Ok(rom) => rom,
         };
@@ -215,7 +214,7 @@ impl Gui {
             port: 8000,
         };
 
-        self.init_with_console(seed, rom, pixels, window, session_descriptor, session);
+        Some(self.init_with_console(seed, rom, pixels, window, session_descriptor))
     }
 
     fn init_with_console(
@@ -225,8 +224,7 @@ impl Gui {
         pixels: &mut Pixels,
         window: &Window,
         session_descriptor: SessionDescriptor,
-        session: &mut Option<P2PSession<WasmConsole>>,
-    ) {
+    ) -> P2PSession<WasmConsole> {
         pixels.resize_buffer(rom.width() as u32, rom.height() as u32);
         window.set_inner_size(PhysicalSize::new(
             rom.width().max(DEFAULT_WINDOW_RESOLUTION.width()),
@@ -242,8 +240,6 @@ impl Gui {
             (new_session.max_prediction(), new_session)
         };
 
-        *session = Some(new_session);
-
         self.window_open = false;
 
         let (mut console, reset) = WasmConsole::new(rom, seed, session_descriptor, max_prediction);
@@ -251,14 +247,14 @@ impl Gui {
 
         self.wasm_console = Some(console);
         self.initial_state = Some(reset);
+        new_session
     }
 
     pub(crate) fn try_launch_game(
         &mut self,
         pixels: &mut Pixels,
         window: &Window,
-        session: &mut Option<P2PSession<WasmConsole>>,
-    ) {
+    ) -> Option<P2PSession<WasmConsole>> {
         let path = self.game_file.as_ref().unwrap();
         let (players, port) = match self.play_mode {
             PlayMode::SinglePlayer => (vec![PlayerType::Local], 8000),
@@ -268,10 +264,10 @@ impl Gui {
 
                 if remote_addr.is_err() {
                     println!("Remote Addr is invalid");
-                    return;
+                    return None;
                 } else if port.is_err() {
                     println!("Port is invalid");
-                    return;
+                    return None;
                 }
 
                 let player_num = self.player_num;
@@ -284,7 +280,7 @@ impl Gui {
                     vec![PlayerType::Remote(remote_addr), PlayerType::Local]
                 } else {
                     println!("Player # should be 1 or 2");
-                    return;
+                    return None;
                 };
 
                 (players, port)
@@ -296,7 +292,7 @@ impl Gui {
         let rom = match Rom::try_load(path) {
             Err(e) => {
                 println!("{}", e);
-                return;
+                return None;
             }
             Ok(rom) => rom,
         };
@@ -315,7 +311,7 @@ impl Gui {
 
         let seed = u64::from_str_radix(&self.seed, 16).unwrap();
 
-        self.init_with_console(seed, rom, pixels, window, session_descriptor, session);
+        Some(self.init_with_console(seed, rom, pixels, window, session_descriptor))
     }
 }
 

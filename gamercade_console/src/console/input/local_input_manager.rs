@@ -1,7 +1,5 @@
 use gamercade_core::{ButtonCode, InputState, MouseState};
-use ggrs::PlayerHandle;
 use gilrs::{Axis, Button, Gamepad, GamepadId, Gilrs};
-use hashbrown::HashMap;
 use pixels::Pixels;
 use winit_input_helper::WinitInputHelper;
 
@@ -28,7 +26,6 @@ pub struct LocalInputManager {
     keybinds: KeyBindings,
     gamepad_binds: GamepadBindings,
     pub(crate) input_mode: InputMode,
-    network_to_local: HashMap<PlayerHandle, LocalControllerId>,
 }
 
 impl LocalInputManager {
@@ -36,21 +33,20 @@ impl LocalInputManager {
         Self {
             keybinds: KeyBindings::load(),
             gamepad_binds: GamepadBindings::default(),
-            network_to_local: HashMap::default(),
             input_mode,
         }
     }
 
     pub fn generate_input_state(
         &self,
-        player_handle: PlayerHandle,
+        local_controller: LocalControllerId,
         pixels: &Pixels,
         mouse_events: &MouseEventCollector,
         helper: &winit_input_helper::WinitInputHelper,
         gilrs: &Gilrs,
     ) -> NetworkInputState {
         let input_state = match self.input_mode {
-            InputMode::Emulated => self.new_emulated_state(player_handle, helper),
+            InputMode::Emulated => self.new_emulated_state(local_controller, helper),
             InputMode::Gamepad(id) => self.new_gamepad_state(id, gilrs),
         };
 
@@ -64,17 +60,12 @@ impl LocalInputManager {
 
     fn new_emulated_state(
         &self,
-        player_handle: PlayerHandle,
+        local_controller: LocalControllerId,
         helper: &winit_input_helper::WinitInputHelper,
     ) -> InputState {
-        if let Some(local_controller) = self.network_to_local.get(&player_handle) {
-            generate_emulated_state(*local_controller, &self.keybinds, helper)
-        } else {
-            InputState::default()
-        }
+        generate_emulated_state(local_controller, &self.keybinds, helper)
     }
 
-    //TODO: This
     fn new_gamepad_state(&self, id: GamepadId, gilrs: &Gilrs) -> InputState {
         if let Some(gamepad) = gilrs.connected_gamepad(id) {
             generate_gamepad_state(&self.gamepad_binds, &gamepad)

@@ -25,7 +25,7 @@ use crate::{
     console::LocalInputManager,
     gui::{framework::Framework, Gui},
 };
-use console::{Console, InputMode, MouseEventCollector, WasmConsole};
+use console::{Console, InputMode, LocalControllerId, MouseEventCollector, WasmConsole};
 
 #[derive(Parser, Debug)]
 struct Cli {
@@ -63,9 +63,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     if let Some(game_path) = &cli.game {
         let seed = fastrand::u64(0..u64::MAX);
-        framework
+        session = framework
             .gui
-            .fast_launch_game(game_path.clone(), seed, &mut pixels, &window, &mut session);
+            .fast_launch_game(game_path.clone(), seed, &mut pixels, &window);
     }
 
     let mut mouse_events = MouseEventCollector::default();
@@ -171,12 +171,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         let shared_mouse = std::mem::take(&mut mouse_events);
 
                         // Generate all local inputs
+                        let mut local_player_id = LocalControllerId(0);
                         for handle in session.local_player_handles() {
                             session
                                 .add_local_input(
                                     handle,
                                     input_manager.generate_input_state(
-                                        handle,
+                                        local_player_id,
                                         &pixels,
                                         &shared_mouse,
                                         &input,
@@ -184,6 +185,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                                     ),
                                 )
                                 .unwrap();
+                            local_player_id.0 += 1;
                         }
 
                         // Update internal state

@@ -4,7 +4,7 @@ use crate::{api::MultiplayerApi, console::SessionDescriptor};
 
 #[derive(Clone)]
 pub struct MultiplayerContext {
-    session: SessionDescriptor,
+    pub(crate) session: SessionDescriptor,
 }
 
 impl MultiplayerContext {
