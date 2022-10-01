@@ -9,15 +9,16 @@ use key_bindings::*;
 pub use local_input_manager::*;
 pub use player_input_entry::*;
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 #[allow(dead_code)]
 pub enum InputMode {
-    Emulated,
+    Emulated(LocalKeyboardId),
     Gamepad(GamepadId),
 }
 
-impl Default for InputMode {
-    fn default() -> Self {
-        Self::Emulated
-    }
-}
+use serde::{Deserialize, Serialize};
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Serialize, Deserialize)]
+pub struct LocalKeyboardId(pub usize);
+
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Serialize, Deserialize)]
+pub struct LocalPlayerId(pub usize);

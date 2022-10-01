@@ -1,31 +1,28 @@
 use gamercade_core::ButtonCode;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy)]
+#[serde(untagged)]
 pub(crate) enum KeyType {
-    ButtonCode(ButtonCode),
-    Analog(Analog),
-    Trigger(AnalogSide),
+    Button(ButtonCode),
+    AnalogStick(AnalogStick),
+    Trigger(TriggerSide),
 }
 
-#[derive(Debug, Clone, Copy)]
-pub(crate) struct Analog {
-    pub(crate) side: AnalogSide,
-    pub(crate) axis: AnalogAxis,
-    pub(crate) direction: AnalogDirection,
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+pub(crate) enum AnalogStick {
+    LeftXPositive,
+    LeftXNegative,
+    LeftYPositive,
+    LeftYNegative,
+    RightXPositive,
+    RightXNegative,
+    RightYPositive,
+    RightYNegative,
 }
 
-#[derive(Debug, Clone, Copy)]
-pub(crate) enum AnalogSide {
-    Left,
-    Right,
-}
-#[derive(Debug, Clone, Copy)]
-pub(crate) enum AnalogAxis {
-    X,
-    Y,
-}
-#[derive(Debug, Clone, Copy)]
-pub(crate) enum AnalogDirection {
-    Positive,
-    Negative,
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+pub(crate) enum TriggerSide {
+    LeftTrigger,
+    RightTrigger,
 }

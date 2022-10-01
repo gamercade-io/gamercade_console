@@ -187,10 +187,10 @@ macro_rules! derive_generate_input_api {
 
 derive_generate_input_api! {
     Buttons {
-        a: A,
-        b: B,
-        c: C,
-        d: D,
+        a: ButtonA,
+        b: ButtonB,
+        c: ButtonC,
+        d: ButtonD,
         up: Up,
         down: Down,
         left: Left,
