@@ -5,17 +5,21 @@ import "common.proto";
 package users;
 
 service UsersService {
-    rpc GetUserInfo(common.UUID) returns (UserInfo);
+    rpc GetUserInfo(UserRequest) returns (UserInfo);
     rpc GetUsersInfo(UsersRequest) returns (UsersResponse);
 }
 
+message UserRequest {
+    uint32 user_id = 1;
+}
+
 message UserInfo {
-    common.UUID user_id = 1;
+    uint32 user_id = 1;
     string username = 2;
 }
 
 message UsersRequest {
-    repeated common.UUID user_ids = 1;
+    repeated uint32 user_ids = 1;
 }
 
 message UsersResponse {

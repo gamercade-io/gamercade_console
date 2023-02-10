@@ -22,7 +22,7 @@ pub fn spawn() -> ChatThreadChannels {
     // Subscribe to global chat
     pending_subscriptions
         .try_send(ChatChannel {
-            game_uuid: None,
+            game_id: 0,
             room_uuid: None,
         })
         .unwrap();

@@ -10,7 +10,7 @@ service ChatService {
 }
 
 message ChatChannel {
-    common.UUID game_uuid = 1;
+    uint32 game_id = 1;
     common.UUID room_uuid = 2;
 }
 
@@ -20,6 +20,6 @@ message ClientChatMessage {
 }
 
 message ServerChatMessage {
-    common.UUID user_uuid = 1;
+    uint32 user_id = 1;
     string message_text = 2;
 }

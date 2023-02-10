@@ -1,0 +1,76 @@
+syntax = "proto3";
+
+import "common.proto";
+
+package games;
+
+service GamesService {
+    rpc GetGameInfo(GameInfoRequest) returns (GameInfoBasic);
+    rpc GetGamesInfo(GamesInfoRequest) returns (GamesInfoResponse);
+    rpc GetGameDetailedInfo(GameInfoRequest) returns (GameInfoDetailed);
+}
+
+message GameInfoRequest {
+    uint32 game_id = 1;
+}
+
+message GamesInfoRequest {
+    repeated uint32 game_ids = 1;
+}
+
+message GamesInfoResponse {
+    repeated GameInfoBasic games_info = 1;
+}
+
+enum Tags {
+    UNKNOWN = 0;
+
+    // Player Count
+    SINGLEPLAYER = 1;
+    MULTIPLAYER = 2;
+    LOCAL_MULTIPLAYER = 3;
+
+    // Play Style
+    PVP = 4;
+    PVE = 5;
+    COOP = 6;
+    COMPETITIVE = 7;
+    ASYMMETRIC = 8;
+
+    // Genre
+    ACTION = 9;
+    PLATFORMER = 10;
+    SHOOTER = 11;
+    FIGHTING = 12;
+    PUZZLE = 13;
+    RPG = 14;
+    STRATEGY = 15;
+    DRIVING = 16;
+    SPORTS = 17;
+    TURNBASED = 18;
+
+    // Controls
+    MOUSE = 19;
+    KEYBOARD = 20;
+    CONTROLLER = 21;
+}
+
+message GameInfoBasic {
+    uint32 game_id = 1;
+    uint32 author_id = 2;
+    string image_path = 3;
+    string download_path = 4;
+    string hash = 5;
+    string short_description = 6;
+    uint32 size = 7;
+    repeated Tags tags = 8;
+}
+
+message GameInfoDetailed {
+    GameInfoBasic basic_info = 1;
+    repeated string additional_images = 2;
+    string long_description = 3;
+    string game_version = 4;
+    string release_date = 5;
+    string last_updated = 6;
+}

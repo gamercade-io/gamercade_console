@@ -6,6 +6,10 @@ pub mod common {
     tonic::include_proto!("common");
 }
 
+pub mod games {
+    tonic::include_proto!("games");
+}
+
 pub mod platform {
     tonic::include_proto!("platform");
 }
