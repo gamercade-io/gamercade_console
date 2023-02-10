@@ -67,19 +67,16 @@ enum Tags {
 message GameInfoBasic {
     uint32 game_id = 1;
     uint32 author_id = 2;
-    string image_path = 3;
-    string download_path = 4;
-    string hash = 5;
-    string short_description = 6;
-    uint32 size = 7;
-    repeated Tags tags = 8;
+    string hash = 3;
+    string short_description = 4;
+    uint32 size = 5;
+    repeated Tags tags = 6;
 }
 
 message GameInfoDetailed {
     GameInfoBasic basic_info = 1;
-    repeated string additional_images = 2;
-    string long_description = 3;
-    string game_version = 4;
-    string release_date = 5;
-    string last_updated = 6;
+    string long_description = 2;
+    string game_version = 3;
+    string release_date = 4;
+    string last_updated = 5;
 }

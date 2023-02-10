@@ -9,5 +9,9 @@ service PlatformService {
 }
 
 message HomeView {
+    repeated GameEntry game_entries = 1;
+}
 
+message GameEntry {
+    uint32 game_id = 1;
 }

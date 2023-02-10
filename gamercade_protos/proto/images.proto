@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package images;
+
+
+service UsersService {
+    rpc GetGameThumbnail(GameImageRequest) returns (stream GameThumbnailResponse);
+    rpc GetGameImages(GameImageRequest) returns (stream GameImagesResponse);
+}
+
+message GameImageRequest {
+    uint32 game_id = 1;
+}
+
+message GameThumbnailResponse {
+    bytes data = 1;
+}
+
+message GameImagesResponse {
+    uint32 image_id = 1;
+    bytes data = 2;
+}

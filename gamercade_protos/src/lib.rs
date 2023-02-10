@@ -10,6 +10,10 @@ pub mod games {
     tonic::include_proto!("games");
 }
 
+pub mod images {
+    tonic::include_proto!("images");
+}
+
 pub mod platform {
     tonic::include_proto!("platform");
 }
