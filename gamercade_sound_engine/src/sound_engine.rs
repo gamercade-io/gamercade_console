@@ -227,8 +227,8 @@ impl SoundEngineRunner {
 
         let (producer, consumer) = RingBuffer::new(message_buffer_size);
 
-        println!("Output Sample Rate: {}", output_sample_rate);
-        println!("Output channels: {}", channels);
+        println!("Output Sample Rate: {output_sample_rate}");
+        println!("Output channels: {channels}");
 
         let data = SoundEngineData::new(output_sample_rate, rom);
 
@@ -263,7 +263,7 @@ impl SoundEngineRunner {
     ) -> Stream {
         let on_error = move |err| {
             // react to errors here.
-            println!("{}", err);
+            println!("{err}");
         };
 
         device

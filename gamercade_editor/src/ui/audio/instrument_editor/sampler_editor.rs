@@ -56,7 +56,7 @@ impl SamplerEditor {
                     self.generate_sample_plot(&instrument.data);
                     sync.notify_rom_changed();
                 }
-                Err(e) => println!("{}", e),
+                Err(e) => println!("{e}"),
             };
         }
 
@@ -150,8 +150,8 @@ impl SamplerEditor {
                 let start = instrument.data[range.start];
                 let end = instrument.data[range.end];
 
-                ui.label(format!("Start Value: {}", start));
-                ui.label(format!("End Value: {}", end));
+                ui.label(format!("Start Value: {start}"));
+                ui.label(format!("End Value: {end}"));
                 ui.label(format!(
                     "Difference: {}",
                     SampleBitDepth::abs_diff(start, end)

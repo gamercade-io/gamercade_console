@@ -110,7 +110,7 @@ impl SpriteSheetImporter {
                                     });
                                     done = true;
                                 }
-                                Err(e) => println!("{}", e),
+                                Err(e) => println!("{e}"),
                             }
                         };
 

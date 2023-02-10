@@ -59,7 +59,7 @@ impl Editor {
 
                     if ui.button("Open").clicked() {
                         if let Err(e) = try_load_editor_rom(&mut self.rom) {
-                            println!("{}", e);
+                            println!("{e}");
                         }
                         self.audio_editor.audio_sync_helper.notify_rom_changed();
                         ui.close_menu();
@@ -67,7 +67,7 @@ impl Editor {
 
                     if ui.button("Save").clicked() {
                         if let Err(e) = try_save_editor_rom(&self.rom) {
-                            println!("{}", e);
+                            println!("{e}");
                         }
                         ui.close_menu();
                     }
@@ -82,14 +82,14 @@ impl Editor {
                     ui.separator();
                     if ui.button("Select game .wasm").clicked() {
                         if let Err(e) = try_select_wasm(&mut self.wasm_path) {
-                            println!("{}", e);
+                            println!("{e}");
                         };
                         ui.close_menu();
                     }
 
                     if ui.button("Export Game").clicked() {
                         if let Err(e) = try_export_rom(&self.rom, &mut self.wasm_path) {
-                            println!("{}", e);
+                            println!("{e}");
                         }
                         ui.close_menu();
                     }

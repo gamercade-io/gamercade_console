@@ -132,8 +132,8 @@ fn sampler_no_pitch() -> SampleDefinition {
     println!("Sampler no pitch: ");
     println!("bit depth: {:?}", spec.bits_per_sample);
     println!("sample format: {:?}", spec.sample_format);
-    println!("channels: {}", channels);
-    println!("source sample rate {:?}", source_sample_rate);
+    println!("channels: {channels}");
+    println!("source sample rate {source_sample_rate:?}");
     println!("-----");
 
     SampleDefinition {
@@ -159,8 +159,8 @@ fn sampler_pitched() -> SampleDefinition {
     println!("Sampler pitched pitch: ");
     println!("bit depth: {:?}", spec.bits_per_sample);
     println!("sample format: {:?}", spec.sample_format);
-    println!("channels: {}", channels);
-    println!("source sample rate {:?}", source_sample_rate);
+    println!("channels: {channels}");
+    println!("source sample rate {source_sample_rate:?}");
     println!("-----");
 
     SampleDefinition {

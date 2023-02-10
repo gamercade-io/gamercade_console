@@ -43,7 +43,7 @@ impl GraphicsParameters {
     pub const fn color_index(mut self, color_index: u8) -> Self {
         let color_index = color_index as i32 & COLOR_MASK;
         self.0 &= !(COLOR_MASK << COLOR_INDEX_POSITION);
-        self.0 |= (color_index as i32) << COLOR_INDEX_POSITION;
+        self.0 |= color_index << COLOR_INDEX_POSITION;
         self
     }
 

@@ -71,7 +71,7 @@ impl WavetableEditor {
             .include_y(WavetableBitDepth::MIN as f64 * 1.1)
             .label_formatter(move |_, point| {
                 let (x, y) = plot_point_to_x_y(point, last_index);
-                format!("Idx:{}\nVal:{}", x, y)
+                format!("Idx:{x}\nVal:{y}")
             })
             .show(ui, |plot_ui| {
                 plot_ui.line(line);

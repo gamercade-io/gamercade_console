@@ -55,7 +55,7 @@ impl SfxEditor {
                 None => String::from("invalid chain"),
             };
 
-            ui.label(format!("Length (seconds): {}", length_text));
+            ui.label(format!("Length (seconds): {length_text}"));
 
             if ui.button("Play").clicked() || ui.input().key_pressed(Key::Space) {
                 sync.play_sfx(selected_sfx.data.clone());

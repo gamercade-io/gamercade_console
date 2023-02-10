@@ -88,7 +88,7 @@ pub(crate) fn typed_text_entry<T: FromStr + Display>(
     ui.label(label);
 
     buffer.clear();
-    write!(buffer, "{}", value).unwrap();
+    write!(buffer, "{value}").unwrap();
     let widget = TextEdit::singleline(buffer);
     let response = ui.add_enabled(editable, widget);
 

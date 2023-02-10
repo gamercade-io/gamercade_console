@@ -103,7 +103,7 @@ This is the main workspace crate. Consider viewing the inner crates for more inf
 
 ## Minimum Supported Rust Version
 
-Gamercade runs on **Stable Rust 1.63 or later**.
+Gamercade runs on **Stable Rust 1.66 or later**.
 
 ## License
 

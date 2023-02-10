@@ -65,7 +65,7 @@ pub fn main() {
         let mut child = match cli.command.run() {
             Ok(child) => child,
             Err(e) => {
-                println!("{}", e);
+                println!("{e}");
                 return;
             }
         };
@@ -96,22 +96,22 @@ pub fn main() {
 
                         if let Some(child) = &mut child {
                             if let Err(e) = child.kill() {
-                                println!("{}", e);
+                                println!("{e}");
                                 return;
                             }
                         }
 
                         match cli.command.run() {
                             Ok(new_child) => child = new_child,
-                            Err(e) => println!("Failed to run: {}", e),
+                            Err(e) => println!("Failed to run: {e}"),
                         }
                     }
                     _ => (),
                 },
-                Err(e) => println!("{}", e),
+                Err(e) => println!("{e}"),
             }
         }
     } else if let Err(e) = cli.command.run() {
-        println!("{}", e);
+        println!("{e}");
     }
 }

@@ -49,18 +49,18 @@ impl ControllerGui {
                             format!("Keyboard {}", keyboard_index.0)
                         }
                         InputMode::Gamepad(gamepad_id) => {
-                            format!("{} [{}]", gilrs.gamepad(*gamepad_id).name(), gamepad_id)
+                            format!("{} [{gamepad_id}]", gilrs.gamepad(*gamepad_id).name())
                         }
                     };
 
-                    ComboBox::from_label(format!("Player {} Settings:", player_id))
+                    ComboBox::from_label(format!("Player {player_id} Settings:"))
                         .selected_text(combo_text)
                         .show_ui(ui, |ui| {
                             (0..input.keyboard_bindings.buttons.len()).for_each(|keyboard_index| {
                                 ui.selectable_value(
                                     input_mode,
                                     InputMode::Emulated(LocalKeyboardId(keyboard_index)),
-                                    format!("Keyboard {}", keyboard_index),
+                                    format!("Keyboard {keyboard_index}"),
                                 );
                             });
 
@@ -68,7 +68,7 @@ impl ControllerGui {
                                 ui.selectable_value(
                                     input_mode,
                                     InputMode::Gamepad(id),
-                                    format!("{} [{}]", gamepad.name(), id),
+                                    format!("{} [{id}]", gamepad.name()),
                                 );
                             });
                         });

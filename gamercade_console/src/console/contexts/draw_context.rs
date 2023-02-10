@@ -378,7 +378,7 @@ impl DrawContext {
         }
 
         let start = start.max(0) as usize;
-        let end = end.min(self.height() as i32) as usize;
+        let end = end.min(self.height()) as usize;
 
         let width = self.width() as usize;
         let start_index = (start * width) + x as usize;
@@ -407,7 +407,7 @@ impl DrawContext {
         }
 
         let start = start.max(0) as usize;
-        let end = end.min(self.width() as i32 - 1) as usize;
+        let end = end.min(self.width() - 1) as usize;
         let y = y as usize;
 
         let start_index = (y * self.width() as usize) + start;

@@ -23,30 +23,27 @@ impl KeyBindings {
             match std::fs::read(INPUT_FILE_NAME) {
                 Ok(file) => match serde_json::from_slice::<Self>(&file) {
                     Ok(key_bindings) => {
-                        println!("Successfully loaded key bindings from: {}", INPUT_FILE_NAME);
+                        println!("Successfully loaded key bindings from: {INPUT_FILE_NAME}",);
                         return key_bindings;
                     }
                     Err(e) => {
-                        println!("{} found, but unable to parse: {}", INPUT_FILE_NAME, e);
+                        println!("{INPUT_FILE_NAME} found, but unable to parse: {e}");
                     }
                 },
-                Err(e) => println!("{} found, but unable to read: {}", INPUT_FILE_NAME, e),
+                Err(e) => println!("{INPUT_FILE_NAME} found, but unable to read: {e}"),
             };
 
             println!("Using default config.");
             Self::default()
         } else {
-            println!(
-                "{} not found. Generating default input file.",
-                INPUT_FILE_NAME
-            );
+            println!("{INPUT_FILE_NAME} not found. Generating default input file.");
             let bindings = Self::default();
 
             let json = serde_json::to_string_pretty(&bindings).unwrap();
 
             match std::fs::write(path, json) {
-                Ok(()) => println!("Successfully generated default {}", INPUT_FILE_NAME),
-                Err(e) => println!("Error writing {}: {}", INPUT_FILE_NAME, e),
+                Ok(()) => println!("Successfully generated default {INPUT_FILE_NAME}"),
+                Err(e) => println!("Error writing {INPUT_FILE_NAME}: {e}"),
             };
 
             bindings

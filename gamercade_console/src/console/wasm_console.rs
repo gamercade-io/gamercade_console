@@ -37,21 +37,21 @@ impl Functions {
         let init_fn = match instance.get_typed_func(&mut *store, "init") {
             Ok(init_fn) => Some(init_fn),
             Err(e) => {
-                println!("init function not found: {}", e);
+                println!("init function not found: {e}");
                 None
             }
         };
         let update_fn = match instance.get_typed_func(&mut *store, "update") {
             Ok(update_fn) => Some(update_fn),
             Err(e) => {
-                println!("update function not found: {}", e);
+                println!("update function not found: {e}");
                 None
             }
         };
         let draw_fn = match instance.get_typed_func(&mut *store, "draw") {
             Ok(draw_fn) => Some(draw_fn),
             Err(e) => {
-                println!("draw function not found: {}", e);
+                println!("draw function not found: {e}");
                 None
             }
         };

@@ -58,7 +58,7 @@ impl PaletteList {
                         println!("Max of 256 Palettes");
                     } else {
                         data.palettes.push(EditorPalette {
-                            name: format!("Palette {}", count),
+                            name: format!("Palette {count}"),
                             palette: Palette::default(),
                         })
                     }
@@ -92,7 +92,7 @@ impl PaletteList {
                                 data.palettes.insert(new_index, loaded);
                                 self.selected_palette = new_index;
                             }
-                            Err(e) => println!("{}", e),
+                            Err(e) => println!("{e}"),
                         }
                     }
                 };
@@ -146,8 +146,7 @@ fn try_load_palette() -> Result<EditorPalette, String> {
             }
             a => {
                 return Err(format!(
-                    "Image contains pixel with alpha value {}. Alpha must be 0 or 255",
-                    a
+                    "Image contains pixel with alpha value {a}. Alpha must be 0 or 255"
                 ))
             }
         }
@@ -156,8 +155,7 @@ fn try_load_palette() -> Result<EditorPalette, String> {
     let color_count = colors.len();
     if color_count > PALETTE_COLORS {
         return Err(format!(
-            "Image has {} colors. Maximum allowed is {}.",
-            color_count, PALETTE_COLORS
+            "Image has {color_count} colors. Maximum allowed is {PALETTE_COLORS}."
         ));
     }
 

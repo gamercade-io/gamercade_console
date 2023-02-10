@@ -27,7 +27,7 @@ where
 {
     if deserializer.is_human_readable() {
         let text: String = Deserialize::deserialize(deserializer)?;
-        let bytes = base64::decode(&text).map_err(serde::de::Error::custom)?;
+        let bytes = base64::decode(text).map_err(serde::de::Error::custom)?;
         let bytes: Vec<ColorIndex> = unsafe { std::mem::transmute(bytes) };
         Ok(bytes.into_boxed_slice())
     } else {
