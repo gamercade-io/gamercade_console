@@ -48,7 +48,7 @@ impl SheetList {
                         if ui.button("New").clicked() {
                             let count = data.len() + 1;
                             data.push(EditorSpriteSheet {
-                                name: format!("Sprite Sheet {}", count),
+                                name: format!("Sprite Sheet {count}"),
                                 sprite_sheet: SpriteSheet::default(),
                             })
                         };
@@ -56,7 +56,7 @@ impl SheetList {
                         if ui.button("Import Sprite Sheet").clicked() {
                             match import_image_dialog("Import Sprite Sheet...") {
                                 Ok(image) => self.importer.image_buffer = Some(image),
-                                Err(e) => println!("{}", e),
+                                Err(e) => println!("{e}"),
                             }
                         };
 

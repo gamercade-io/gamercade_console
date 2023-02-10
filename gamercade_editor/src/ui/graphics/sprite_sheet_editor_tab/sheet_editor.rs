@@ -140,7 +140,7 @@ impl SheetEditor {
                                     sheet.add_new_sprite(self.selected_sprite, new_sprite);
                                     self.selected_sprite = SpriteIndex(self.selected_sprite.0 + 1);
                                 }),
-                                Err(e) => println!("{}", e),
+                                Err(e) => println!("{e}"),
                             }
                         }
                     });
@@ -201,8 +201,7 @@ fn try_load_sprites(
                 new_sprite.push(*index)
             } else {
                 return Err(format!(
-                    "Image contains a color not found in the palette: {:?}",
-                    color
+                    "Image contains a color not found in the palette: {color:?}"
                 ));
             }
         }

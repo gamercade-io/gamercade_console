@@ -36,7 +36,7 @@ impl PhraseRow {
             None
         };
 
-        let row = TrackerText::new(&format!("{:X}:", row), DEFAULT_TEXT_COLOR, bg_color);
+        let row = TrackerText::new(&format!("{row:X}:"), DEFAULT_TEXT_COLOR, bg_color);
         let separator = TrackerText::separator(bg_color);
 
         if let Some(entry) = entry {

@@ -23,7 +23,7 @@ where
 {
     let bytes = if deserializer.is_human_readable() {
         let text: String = serde::Deserialize::deserialize(deserializer)?;
-        base64::decode(&text).map_err(serde::de::Error::custom)?
+        base64::decode(text).map_err(serde::de::Error::custom)?
     } else {
         serde::Deserialize::deserialize(deserializer)?
     };

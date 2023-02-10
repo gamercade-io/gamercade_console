@@ -40,6 +40,7 @@ Every feature and function of Gamercade and its related tools are built with the
     - [**nelua-gamercade**](https://codeberg.org/Andre-LA/nelua-gamercade) - Bindings and example game in the [Nelua](https://nelua.io/) programming language. By [Andre-LA](https://codeberg.org/Andre-LA).
     - [**zig-template**](https://github.com/gamercade-io/zig-template) - Bindings and starter project for the [Zig](https://ziglang.org/) programming language.
     - [**gamercade-as**](https://github.com/NEARworld/gamercade-as) - Bindings and starter project for the [AssemblyScript](https://www.assemblyscript.org/) programming language. By [NEARworld](https://github.com/NEARworld).
+    - [**Gamercade.c3**](https://github.com/Its-Kenta/Gamercade.c3) - Bindings and starter project for the [C3](https://c3-lang.org/) programming language. By [Kenta](https://github.com/Its-Kenta/).
 
 ## Community
 
@@ -103,7 +104,7 @@ This is the main workspace crate. Consider viewing the inner crates for more inf
 
 ## Minimum Supported Rust Version
 
-Gamercade runs on **Stable Rust 1.63 or later**.
+Gamercade runs on **Stable Rust 1.66 or later**.
 
 ## License
 

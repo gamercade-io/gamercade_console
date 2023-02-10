@@ -5,6 +5,6 @@ pub struct TextContext;
 
 impl TextApi for TextContext {
     fn console_log(&self, text: &str) {
-        println!("{}", text);
+        println!("{text}");
     }
 }

@@ -149,7 +149,7 @@ impl Gui {
     ) -> Option<P2PSession<WasmConsole>> {
         let rom = match Rom::try_load(&game_path) {
             Err(e) => {
-                println!("{}", e);
+                println!("{e}");
                 return None;
             }
             Ok(rom) => rom,
@@ -212,7 +212,7 @@ impl Gui {
 
         let rom = match Rom::try_load(path) {
             Err(e) => {
-                println!("{}", e);
+                println!("{e}");
                 return None;
             }
             Ok(rom) => rom,

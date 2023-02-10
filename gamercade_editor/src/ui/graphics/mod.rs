@@ -31,7 +31,7 @@ pub(crate) fn import_image_dialog(title: &str) -> Result<(image::RgbaImage, Stri
 
     let image = match image::open(path) {
         Ok(image) => image.into_rgba8(),
-        Err(e) => return Err(format!("Failed to load iamge: {:?}", e)),
+        Err(e) => return Err(format!("Failed to load iamge: {e:?}")),
     };
 
     Ok((image, image_name))
@@ -56,7 +56,7 @@ pub(crate) fn import_many_images_dialog(title: &str) -> Result<Vec<image::RgbaIm
     for path in paths.iter() {
         match image::open(path) {
             Ok(image) => out.push(image.into_rgba8()),
-            Err(e) => return Err(format!("Failed to load iamge: {:?}", e)),
+            Err(e) => return Err(format!("Failed to load iamge: {e:?}")),
         }
     }
 

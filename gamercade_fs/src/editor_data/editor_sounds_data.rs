@@ -43,7 +43,7 @@ fn from_rom<T: Clone>(target: &[T], name: &str) -> Vec<EditorAudioDataEntry<T>> 
         .iter()
         .enumerate()
         .map(|(index, item)| EditorAudioDataEntry {
-            name: format!("{} {}", name, index),
+            name: format!("{name} {index}"),
             data: item.clone(),
         })
         .collect::<Vec<_>>()

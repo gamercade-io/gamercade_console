@@ -24,7 +24,7 @@ impl ChainRow {
             None
         };
 
-        let row_index = TrackerText::new(&format!("{:X}:", row), DEFAULT_TEXT_COLOR, bg_color);
+        let row_index = TrackerText::new(&format!("{row:X}:"), DEFAULT_TEXT_COLOR, bg_color);
         let separator = TrackerText::separator(bg_color);
 
         let phrase = if let Some(phrase) = entry {
