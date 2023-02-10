@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+import "common.proto";
+
+package platform;
+
+service PlatformService {
+    rpc GetHomeView(common.Empty) returns (HomeView);
+}
+
+message HomeView {
+
+}

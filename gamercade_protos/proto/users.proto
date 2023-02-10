@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+import "common.proto";
+
+package users;
+
+service UsersService {
+    rpc GetUserInfo(common.UUID) returns (UserInfo);
+    rpc GetUsersInfo(UsersRequest) returns (UsersResponse);
+}
+
+message UserInfo {
+    common.UUID user_id = 1;
+    string username = 2;
+}
+
+message UsersRequest {
+    repeated common.UUID user_ids = 1;
+}
+
+message UsersResponse {
+    repeated UserInfo users = 1;
+}

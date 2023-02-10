@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+import "common.proto";
+
+package chat;
+
+service ChatService {
+    rpc SubscribeChatChannel(ChatChannel) returns (stream ServerChatMessage);
+    rpc SendChatMessage(ClientChatMessage) returns (common.Empty);
+}
+
+message ChatChannel {
+    common.UUID game_uuid = 1;
+    common.UUID channel_uuid = 2;
+}
+
+message ClientChatMessage {
+    ChatChannel chat_channel = 1;
+    string message_text = 2;
+}
+
+message ServerChatMessage {
+    common.UUID user_uuid = 1;
+    string message_text = 2;
+}

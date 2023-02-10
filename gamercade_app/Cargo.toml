@@ -1,0 +1,17 @@
+[package]
+name = "gamercade_app"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "Main gamercade application"
+homepage = "https://gamercade.io"
+repository = "https://github.com/gamercade-io/gamercade_app"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+gamercade_protos = { path = "../gamercade_protos" }
+
+tokio = { version = "1.25.0", features = ["full"] }
+tokio-stream = "0.1.11"
+tonic = "0.8.3"
