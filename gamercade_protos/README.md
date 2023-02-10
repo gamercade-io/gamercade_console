@@ -1,6 +1,6 @@
-# Gamercade App
+# Gamercade Protos
 
-Primary client application for interacting with the Gamercade Platform.
+Proto Definitions for gRPC between client and back end.
 
 ## License
 

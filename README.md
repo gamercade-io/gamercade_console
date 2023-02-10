@@ -106,6 +106,10 @@ This is the main workspace crate. Consider viewing the inner crates for more inf
 
 Gamercade runs on **Stable Rust 1.66 or later**.
 
+## Requirements
+
+- When building from source, you may need to install `protoc` https://protobuf.dev/
+
 ## License
 
 Licensed under either of
