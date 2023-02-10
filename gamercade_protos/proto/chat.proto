@@ -11,7 +11,7 @@ service ChatService {
 
 message ChatChannel {
     common.UUID game_uuid = 1;
-    common.UUID channel_uuid = 2;
+    common.UUID room_uuid = 2;
 }
 
 message ClientChatMessage {
