@@ -8,6 +8,10 @@ service GamesService {
     rpc GetGameInfo(GameInfoRequest) returns (GameInfoBasic);
     rpc GetGamesInfo(GamesInfoRequest) returns (GamesInfoResponse);
     rpc GetGameDetailedInfo(GameInfoRequest) returns (GameInfoDetailed);
+
+    // TODO: Upload a game
+    // TODO: Vote/Comment/Rate a game
+    // TODO: Download a game
 }
 
 message GameInfoRequest {

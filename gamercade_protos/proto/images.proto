@@ -2,10 +2,11 @@ syntax = "proto3";
 
 package images;
 
-
 service UsersService {
     rpc GetGameThumbnail(GameImageRequest) returns (stream GameThumbnailResponse);
     rpc GetGameImages(GameImageRequest) returns (stream GameImagesResponse);
+
+    // TODO: Uploading images
 }
 
 message GameImageRequest {
