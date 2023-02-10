@@ -53,6 +53,15 @@ enum Tags {
     MOUSE = 19;
     KEYBOARD = 20;
     CONTROLLER = 21;
+
+    // Feel
+    FANTASY = 22;
+    SCIFI = 23;
+    HISTORICAL = 24;
+    HORROR = 25;
+    FUNNY = 26;
+    CUTE = 27;
+    CASUAL = 28;
 }
 
 message GameInfoBasic {
