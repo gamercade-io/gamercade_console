@@ -32,7 +32,7 @@ enum Tags {
     // Player Count
     SINGLEPLAYER = 1;
     MULTIPLAYER = 2;
-    LOCAL_MULTIPLAYER = 3;
+    LOCALMULTIPLAYER = 3;
 
     // Play Style
     PVP = 4;
@@ -52,20 +52,21 @@ enum Tags {
     DRIVING = 16;
     SPORTS = 17;
     TURNBASED = 18;
+    SIMULATION = 19;
 
     // Controls
-    MOUSE = 19;
-    KEYBOARD = 20;
-    CONTROLLER = 21;
+    MOUSE = 20;
+    KEYBOARD = 21;
+    CONTROLLER = 22;
 
     // Feel
-    FANTASY = 22;
-    SCIFI = 23;
-    HISTORICAL = 24;
-    HORROR = 25;
-    FUNNY = 26;
-    CUTE = 27;
-    CASUAL = 28;
+    FANTASY = 23;
+    SCIFI = 24;
+    HISTORICAL = 25;
+    HORROR = 26;
+    FUNNY = 27;
+    CUTE = 28;
+    CASUAL = 29;
 }
 
 message GameInfoBasic {
