@@ -1797,6 +1797,7 @@ dependencies = [
  "gamercade_audio",
  "gamercade_core",
  "gamercade_fs",
+ "gamercade_protos",
  "gamercade_sound_engine",
  "ggrs",
  "gilrs",
@@ -1859,6 +1860,7 @@ name = "gamercade_protos"
 version = "0.1.0"
 dependencies = [
  "prost",
+ "serde",
  "tonic",
  "tonic-build",
 ]

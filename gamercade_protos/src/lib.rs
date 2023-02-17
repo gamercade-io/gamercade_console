@@ -21,3 +21,6 @@ pub mod platform {
 pub mod users {
     tonic::include_proto!("users");
 }
+
+mod network_session;
+pub use network_session::*;
