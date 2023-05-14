@@ -1,4 +1,4 @@
-use gamercade_protos::chat::{ChatChannel, ClientChatMessage};
+use gamercade_interface::chat::{ChatChannel, ClientChatMessage};
 
 use super::{
     chat_thread::{self, ChatThreadChannels},

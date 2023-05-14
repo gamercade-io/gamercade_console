@@ -2,7 +2,7 @@ mod chat_client;
 mod chat_thread;
 
 pub use chat_client::ChatClient;
-use gamercade_protos::chat::{ChatChannel, ServerChatMessage};
+use gamercade_interface::chat::{ChatChannel, ServerChatMessage};
 
 pub const MAX_CONCURRENT_MESSAGES: usize = 8;
 

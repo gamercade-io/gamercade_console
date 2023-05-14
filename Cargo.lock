@@ -1764,7 +1764,7 @@ dependencies = [
 name = "gamercade_app"
 version = "0.1.0"
 dependencies = [
- "gamercade_protos",
+ "gamercade_interface",
  "tokio",
  "tokio-stream",
  "tonic",
@@ -1797,7 +1797,7 @@ dependencies = [
  "gamercade_audio",
  "gamercade_core",
  "gamercade_fs",
- "gamercade_protos",
+ "gamercade_interface",
  "gamercade_sound_engine",
  "ggrs",
  "gilrs",
@@ -1856,7 +1856,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "gamercade_protos"
+name = "gamercade_interface"
 version = "0.1.0"
 dependencies = [
  "prost",

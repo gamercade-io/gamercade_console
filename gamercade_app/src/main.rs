@@ -2,7 +2,7 @@ mod chat;
 mod ips;
 
 use chat::ChatClient;
-use gamercade_protos::chat::ChatChannel;
+use gamercade_interface::chat::ChatChannel;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

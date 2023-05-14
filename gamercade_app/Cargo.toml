@@ -10,7 +10,7 @@ repository = "https://github.com/gamercade-io/gamercade_app"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-gamercade_protos = { path = "../gamercade_protos" }
+gamercade_interface = { path = "../gamercade_interface" }
 
 tokio = { version = "1.25.0", features = ["full"] }
 tokio-stream = "0.1.11"

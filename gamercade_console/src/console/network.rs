@@ -2,7 +2,7 @@ use std::net::SocketAddr;
 
 use bytemuck::{Pod, Zeroable};
 use gamercade_core::{Buttons, InputState, MouseState};
-use gamercade_protos::{NetworkSession, NetworkedPlayerType};
+use gamercade_interface::{NetworkSession, NetworkedPlayerType};
 use gamercade_sound_engine::SoundEngineData;
 use ggrs::{Config, PlayerType};
 use wasmtime::Global;

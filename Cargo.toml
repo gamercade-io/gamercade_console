@@ -9,7 +9,7 @@ members = [
     "gamercade_core",
     "gamercade_editor",
     "gamercade_fs",
-    "gamercade_protos",
+    "gamercade_interface",
     "gamercade_rs",
     "gamercade_sound_engine",
     "gamercade_tools",

@@ -1,6 +1,6 @@
 use tokio::{select, sync::mpsc};
 
-use gamercade_protos::chat::{
+use gamercade_interface::chat::{
     chat_service_client::ChatServiceClient, ChatChannel, ClientChatMessage,
 };
 use tokio_stream::StreamExt;

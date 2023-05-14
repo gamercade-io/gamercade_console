@@ -15,7 +15,7 @@ gamercade_fs = { path = "../gamercade_fs" }
 gamercade_core = { path = "../gamercade_core" }
 gamercade_audio = { path = "../gamercade_audio" }
 gamercade_sound_engine = { path = "../gamercade_sound_engine" }
-gamercade_protos = { path = "../gamercade_protos" }
+gamercade_interface = { path = "../gamercade_interface" }
 
 # General Improvements
 hashbrown = { version = "0.12.3", features = ["serde"] }
