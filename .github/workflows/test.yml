@@ -77,13 +77,8 @@ jobs:
           gcc-multilib libpq-dev libxcb-shape0-dev libxcb-xfixes0-dev \
           libasound2-dev portaudio19-dev libpulse-dev libdbus-1-dev libudev-dev
       - uses: Swatinem/rust-cache@v2
-        # We use this `retry` action because the following `nextest` action can
-        # fail to retrieve the pre-build library from the server.
-      - uses: Wandalen/wretry.action@v1.0.25
-        with:
-          action: taiki-e/install-action@nextest
-          attempt_limit: 3
-          attempt_delay: 60000
+      - name: Install nextest
+        uses: taiki-e/install-action@nextest
       - uses: actions-rs/cargo@v1
         with:
           command: nextest
