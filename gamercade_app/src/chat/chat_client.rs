@@ -26,7 +26,7 @@ impl ChatClient {
         self.channels
             .outbox
             .try_send(ClientChatMessage {
-                chat_channel: Some(chat_channel),
+                channel: Some(chat_channel),
                 message_text: message.into(),
             })
             .map_err(|e| match e {

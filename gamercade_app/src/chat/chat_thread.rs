@@ -1,8 +1,9 @@
 use tokio::{select, sync::mpsc};
 
 use gamercade_interface::chat::{
-    chat_service_client::ChatServiceClient, ChatChannel, ClientChatMessage,
+    chat_channel::Channel, chat_service_client::ChatServiceClient, ChatChannel, ClientChatMessage,
 };
+use gamercade_interface::common::Empty;
 use tokio_stream::StreamExt;
 
 use crate::{chat::ReceivedChatMessage, ips::CHAT_IP};
@@ -22,8 +23,7 @@ pub fn spawn() -> ChatThreadChannels {
     // Subscribe to global chat
     pending_subscriptions
         .try_send(ChatChannel {
-            game_id: 0,
-            room_uuid: None,
+            channel: Some(Channel::Global(Empty {})),
         })
         .unwrap();
 

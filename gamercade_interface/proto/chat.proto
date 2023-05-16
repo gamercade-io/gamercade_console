@@ -10,12 +10,15 @@ service ChatService {
 }
 
 message ChatChannel {
-    uint32 game_id = 1;
-    common.UUID room_uuid = 2;
+    oneof channel {
+        common.Empty global = 1;
+        uint32 game_id = 2;
+        common.UUID room_uuid = 3;
+    }
 }
 
 message ClientChatMessage {
-    ChatChannel chat_channel = 1;
+    ChatChannel channel = 1;
     string message_text = 2;
 }
 
