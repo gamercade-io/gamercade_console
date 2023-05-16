@@ -13,7 +13,7 @@ macro_rules! derive_data_api_binding {
                             "env",
                             stringify!($ident),
                             |caller: Caller<'_, Contexts>, $($name: $args,)*| {
-                                caller.data().data_context.$ident($($name as $args,)*)
+                                caller.data().data_context.$ident($($name,)*)
                         }).unwrap();
                     }
                 )*

@@ -16,7 +16,7 @@ macro_rules! derive_audio_api_binding {
                             |mut caller: Caller<'_, Contexts>, $($name: $args,)*| {
                                 let mut context = &mut caller.data_mut().audio_context;
                                 context.changed = true;
-                                context.$ident($($name as $args,)*)
+                                context.$ident($($name,)*)
                         }).unwrap();
                     }
                 )*

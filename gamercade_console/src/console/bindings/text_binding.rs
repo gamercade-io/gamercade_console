@@ -34,7 +34,7 @@ macro_rules! derive_text_api_binding {
                                     Err(_) => return Err(Trap::new("string is not valid utf-8")),
                                 };
 
-                                Ok(caller.data().text_context.$ident(text, $($name as $args,)*))
+                                Ok(caller.data().text_context.$ident(text, $($name,)*))
                         }).unwrap();
                     }
 
@@ -64,7 +64,7 @@ macro_rules! derive_text_api_binding {
                                     Err(_) => return Err(Trap::new("string is not valid utf-16")),
                                 };
 
-                                Ok(caller.data().text_context.$ident(&text, $($name as $args,)*))
+                                Ok(caller.data().text_context.$ident(&text, $($name,)*))
                         }).unwrap();
                     }
                 )*
