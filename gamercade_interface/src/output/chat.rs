@@ -81,7 +81,7 @@ pub mod chat_service_client {
         /// Attempt to create a new client by connecting to a given endpoint.
         pub async fn connect<D>(dst: D) -> Result<Self, tonic::transport::Error>
         where
-            D: std::convert::TryInto<tonic::transport::Endpoint>,
+            D: TryInto<tonic::transport::Endpoint>,
             D::Error: Into<StdError>,
         {
             let conn = tonic::transport::Endpoint::new(dst)?.connect().await?;
@@ -137,10 +137,26 @@ pub mod chat_service_client {
             self.inner = self.inner.accept_compressed(encoding);
             self
         }
+        /// Limits the maximum size of a decoded message.
+        ///
+        /// Default: `4MB`
+        #[must_use]
+        pub fn max_decoding_message_size(mut self, limit: usize) -> Self {
+            self.inner = self.inner.max_decoding_message_size(limit);
+            self
+        }
+        /// Limits the maximum size of an encoded message.
+        ///
+        /// Default: `usize::MAX`
+        #[must_use]
+        pub fn max_encoding_message_size(mut self, limit: usize) -> Self {
+            self.inner = self.inner.max_encoding_message_size(limit);
+            self
+        }
         pub async fn subscribe_chat_channel(
             &mut self,
             request: impl tonic::IntoRequest<super::ChatChannel>,
-        ) -> Result<
+        ) -> std::result::Result<
             tonic::Response<tonic::codec::Streaming<super::ServerChatMessage>>,
             tonic::Status,
         > {
@@ -157,12 +173,18 @@ pub mod chat_service_client {
             let path = http::uri::PathAndQuery::from_static(
                 "/chat.ChatService/SubscribeChatChannel",
             );
-            self.inner.server_streaming(request.into_request(), path, codec).await
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("chat.ChatService", "SubscribeChatChannel"));
+            self.inner.server_streaming(req, path, codec).await
         }
         pub async fn send_chat_message(
             &mut self,
             request: impl tonic::IntoRequest<super::ClientChatMessage>,
-        ) -> Result<tonic::Response<super::ChatMessageResponse>, tonic::Status> {
+        ) -> std::result::Result<
+            tonic::Response<super::ChatMessageResponse>,
+            tonic::Status,
+        > {
             self.inner
                 .ready()
                 .await
@@ -176,7 +198,10 @@ pub mod chat_service_client {
             let path = http::uri::PathAndQuery::from_static(
                 "/chat.ChatService/SendChatMessage",
             );
-            self.inner.unary(request.into_request(), path, codec).await
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("chat.ChatService", "SendChatMessage"));
+            self.inner.unary(req, path, codec).await
         }
     }
 }
@@ -189,24 +214,32 @@ pub mod chat_service_server {
     pub trait ChatService: Send + Sync + 'static {
         /// Server streaming response type for the SubscribeChatChannel method.
         type SubscribeChatChannelStream: futures_core::Stream<
-                Item = Result<super::ServerChatMessage, tonic::Status>,
+                Item = std::result::Result<super::ServerChatMessage, tonic::Status>,
             >
             + Send
             + 'static;
         async fn subscribe_chat_channel(
             &self,
             request: tonic::Request<super::ChatChannel>,
-        ) -> Result<tonic::Response<Self::SubscribeChatChannelStream>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<Self::SubscribeChatChannelStream>,
+            tonic::Status,
+        >;
         async fn send_chat_message(
             &self,
             request: tonic::Request<super::ClientChatMessage>,
-        ) -> Result<tonic::Response<super::ChatMessageResponse>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::ChatMessageResponse>,
+            tonic::Status,
+        >;
     }
     #[derive(Debug)]
     pub struct ChatServiceServer<T: ChatService> {
         inner: _Inner<T>,
         accept_compression_encodings: EnabledCompressionEncodings,
         send_compression_encodings: EnabledCompressionEncodings,
+        max_decoding_message_size: Option<usize>,
+        max_encoding_message_size: Option<usize>,
     }
     struct _Inner<T>(Arc<T>);
     impl<T: ChatService> ChatServiceServer<T> {
@@ -219,6 +252,8 @@ pub mod chat_service_server {
                 inner,
                 accept_compression_encodings: Default::default(),
                 send_compression_encodings: Default::default(),
+                max_decoding_message_size: None,
+                max_encoding_message_size: None,
             }
         }
         pub fn with_interceptor<F>(
@@ -242,6 +277,22 @@ pub mod chat_service_server {
             self.send_compression_encodings.enable(encoding);
             self
         }
+        /// Limits the maximum size of a decoded message.
+        ///
+        /// Default: `4MB`
+        #[must_use]
+        pub fn max_decoding_message_size(mut self, limit: usize) -> Self {
+            self.max_decoding_message_size = Some(limit);
+            self
+        }
+        /// Limits the maximum size of an encoded message.
+        ///
+        /// Default: `usize::MAX`
+        #[must_use]
+        pub fn max_encoding_message_size(mut self, limit: usize) -> Self {
+            self.max_encoding_message_size = Some(limit);
+            self
+        }
     }
     impl<T, B> tonic::codegen::Service<http::Request<B>> for ChatServiceServer<T>
     where
@@ -255,7 +306,7 @@ pub mod chat_service_server {
         fn poll_ready(
             &mut self,
             _cx: &mut Context<'_>,
-        ) -> Poll<Result<(), Self::Error>> {
+        ) -> Poll<std::result::Result<(), Self::Error>> {
             Poll::Ready(Ok(()))
         }
         fn call(&mut self, req: http::Request<B>) -> Self::Future {
@@ -278,7 +329,7 @@ pub mod chat_service_server {
                             &mut self,
                             request: tonic::Request<super::ChatChannel>,
                         ) -> Self::Future {
-                            let inner = self.0.clone();
+                            let inner = Arc::clone(&self.0);
                             let fut = async move {
                                 (*inner).subscribe_chat_channel(request).await
                             };
@@ -287,6 +338,8 @@ pub mod chat_service_server {
                     }
                     let accept_compression_encodings = self.accept_compression_encodings;
                     let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
                     let inner = self.inner.clone();
                     let fut = async move {
                         let inner = inner.0;
@@ -296,6 +349,10 @@ pub mod chat_service_server {
                             .apply_compression_config(
                                 accept_compression_encodings,
                                 send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
                             );
                         let res = grpc.server_streaming(method, req).await;
                         Ok(res)
@@ -318,7 +375,7 @@ pub mod chat_service_server {
                             &mut self,
                             request: tonic::Request<super::ClientChatMessage>,
                         ) -> Self::Future {
-                            let inner = self.0.clone();
+                            let inner = Arc::clone(&self.0);
                             let fut = async move {
                                 (*inner).send_chat_message(request).await
                             };
@@ -327,6 +384,8 @@ pub mod chat_service_server {
                     }
                     let accept_compression_encodings = self.accept_compression_encodings;
                     let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
                     let inner = self.inner.clone();
                     let fut = async move {
                         let inner = inner.0;
@@ -336,6 +395,10 @@ pub mod chat_service_server {
                             .apply_compression_config(
                                 accept_compression_encodings,
                                 send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
                             );
                         let res = grpc.unary(method, req).await;
                         Ok(res)
@@ -364,12 +427,14 @@ pub mod chat_service_server {
                 inner,
                 accept_compression_encodings: self.accept_compression_encodings,
                 send_compression_encodings: self.send_compression_encodings,
+                max_decoding_message_size: self.max_decoding_message_size,
+                max_encoding_message_size: self.max_encoding_message_size,
             }
         }
     }
     impl<T: ChatService> Clone for _Inner<T> {
         fn clone(&self) -> Self {
-            Self(self.0.clone())
+            Self(Arc::clone(&self.0))
         }
     }
     impl<T: std::fmt::Debug> std::fmt::Debug for _Inner<T> {
