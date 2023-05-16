@@ -57,7 +57,7 @@ impl SfxEditor {
 
             ui.label(format!("Length (seconds): {length_text}"));
 
-            if ui.button("Play").clicked() || ui.input().key_pressed(Key::Space) {
+            if ui.button("Play").clicked() || ui.input(|i| i.key_pressed(Key::Space)) {
                 sync.play_sfx(selected_sfx.data.clone());
             }
 

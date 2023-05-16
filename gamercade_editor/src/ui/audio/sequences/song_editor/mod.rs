@@ -51,7 +51,7 @@ impl SongEditor {
                 song_length_seconds(song, &data.chains)
             ));
 
-            if ui.button("Play").clicked() || ui.input().key_pressed(Key::Space) {
+            if ui.button("Play").clicked() || ui.input(|i| i.key_pressed(Key::Space)) {
                 sync.play_bgm(self.song_list.selected_song);
             }
 
@@ -84,16 +84,17 @@ impl SongEditor {
                 sync.notify_rom_changed();
             }
 
-            let input = ui.input();
-            if input.modifiers.shift {
-                let song_channels = &mut song.tracks[self.selected_entry.selected_row];
-                if let Some(selected_channel) = self.selected_entry.selected_channel {
-                    let chain = song_channels.get_mut(selected_channel).unwrap();
-                    self.handle_shift_input(&input, chain, sync);
+            ui.input(|input| {
+                if input.modifiers.shift {
+                    let song_channels = &mut song.tracks[self.selected_entry.selected_row];
+                    if let Some(selected_channel) = self.selected_entry.selected_channel {
+                        let chain = song_channels.get_mut(selected_channel).unwrap();
+                        self.handle_shift_input(&input, chain, sync);
+                    }
+                } else {
+                    self.handle_input(&input, song);
                 }
-            } else {
-                self.handle_input(&input, song);
-            }
+            });
         } else {
             ui.label("No Songs exist! Please create one.");
         }

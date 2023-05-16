@@ -174,7 +174,9 @@ impl Gui {
         window: &Window,
         session_descriptor: SessionDescriptor,
     ) -> P2PSession<WasmConsole> {
-        pixels.resize_buffer(rom.width() as u32, rom.height() as u32);
+        pixels
+            .resize_buffer(rom.width() as u32, rom.height() as u32)
+            .expect("Failed to resize buffer");
         window.set_inner_size(PhysicalSize::new(
             rom.width().max(DEFAULT_WINDOW_RESOLUTION.width()),
             rom.height().max(DEFAULT_WINDOW_RESOLUTION.height()),

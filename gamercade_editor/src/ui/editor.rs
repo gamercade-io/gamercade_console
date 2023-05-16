@@ -143,7 +143,10 @@ fn try_load_editor_rom(rom: &mut EditorRom) -> Result<(), &'static str> {
                 *rom = new_rom;
                 return Ok(());
             }
-            Err(_) => return Err("Failed to load editor rom."),
+            Err(e) => {
+                println!("{e}");
+                return Err("Failed to load editor rom");
+            }
         }
     }
 

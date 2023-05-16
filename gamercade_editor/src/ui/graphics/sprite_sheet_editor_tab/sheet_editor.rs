@@ -1,5 +1,6 @@
 use eframe::egui::{
-    self, ColorImage, ImageButton, ScrollArea, TextureFilter, TextureHandle, Ui, Vec2,
+    self, ColorImage, ImageButton, ScrollArea, TextureFilter, TextureHandle, TextureOptions, Ui,
+    Vec2,
 };
 
 use super::palette_to_map;
@@ -52,14 +53,23 @@ impl SheetEditor {
 
                                 let image = match self.texture_handles.get_mut(index.0 as usize) {
                                     Some(handle) => {
-                                        handle.set(rgb, TextureFilter::Nearest);
+                                        handle.set(
+                                            rgb,
+                                            TextureOptions {
+                                                magnification: TextureFilter::Nearest,
+                                                minification: TextureFilter::Nearest,
+                                            },
+                                        );
                                         handle
                                     }
                                     None => {
                                         self.texture_handles.push(ui.ctx().load_texture(
                                             format!("sprite_{}", index.0),
                                             rgb,
-                                            TextureFilter::Nearest,
+                                            TextureOptions {
+                                                magnification: TextureFilter::Nearest,
+                                                minification: TextureFilter::Nearest,
+                                            },
                                         ));
                                         &mut self.texture_handles[index.0 as usize]
                                     }

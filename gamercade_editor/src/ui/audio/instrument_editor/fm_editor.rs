@@ -1,5 +1,5 @@
 use eframe::{
-    egui::{ComboBox, Image, Slider, TextureFilter, Ui, Window},
+    egui::{ComboBox, Image, Slider, TextureFilter, TextureOptions, Ui, Window},
     epaint::{ColorImage, TextureHandle, Vec2},
 };
 use gamercade_audio::{
@@ -51,7 +51,10 @@ impl FMHelp {
                     ui.ctx().load_texture(
                         "fm algorithm diagram",
                         ColorImage::from_rgba_unmultiplied(size, &image),
-                        TextureFilter::Nearest,
+                        TextureOptions {
+                            magnification: TextureFilter::Nearest,
+                            minification: TextureFilter::Nearest,
+                        },
                     )
                 });
 

@@ -54,6 +54,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut accumulator = Duration::ZERO;
 
     let mut framework = Framework::new(
+        &event_loop,
         window_size.width,
         window_size.height,
         scale_factor,
@@ -123,7 +124,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         // Handle input events
         if input.update(&event) {
             // Close events
-            if input.key_pressed(VirtualKeyCode::Escape) || input.quit() {
+            if input.key_pressed(VirtualKeyCode::Escape)
+                || input.close_requested()
+                || input.destroyed()
+            {
                 *control_flow = ControlFlow::Exit;
                 return;
             }
@@ -139,7 +143,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             // Resize the window
             if let Some(size) = input.window_resized() {
-                pixels.resize_surface(size.width, size.height);
+                pixels
+                    .resize_surface(size.width, size.height)
+                    .expect("Failed to resize surface");
                 framework.resize(size.width, size.height);
             }
 
@@ -206,14 +212,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
                     // Render the game
                     console.call_draw();
-                    console.blit(pixels.get_frame());
+                    console.blit(pixels.frame_mut());
                 };
             };
 
             let render_result = pixels.render_with(|encoder, render_target, context| {
-                //TODO: Handle this correctly
                 context.scaling_renderer.render(encoder, render_target);
-                framework.render(encoder, render_target, context)?;
+                framework.render(encoder, render_target, context);
 
                 Ok(())
             });

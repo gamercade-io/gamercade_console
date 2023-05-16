@@ -1,5 +1,5 @@
 use eframe::{
-    egui::{ImageButton, Key, TextureFilter, Ui},
+    egui::{ImageButton, Key, TextureFilter, TextureOptions, Ui},
     epaint::{Color32, ColorImage, TextureHandle, Vec2},
 };
 use gamercade_audio::{NoteColor, NoteName, NotesIter, TOTAL_NOTES_COUNT};
@@ -77,8 +77,7 @@ impl PianoRoll {
         sync: &mut AudioSyncHelper,
         selected_instrument: usize,
     ) {
-        let input = ui.input();
-        let next_keys = std::array::from_fn(|index| input.key_down(KEYS[index]));
+        let next_keys = std::array::from_fn(|index| ui.input(|i| i.key_down(KEYS[index])));
 
         self.key_states
             .iter()
@@ -99,7 +98,6 @@ impl PianoRoll {
             });
 
         self.key_states = next_keys;
-        drop(input);
     }
 
     pub(crate) fn draw(
@@ -123,9 +121,9 @@ impl PianoRoll {
             // Arrow keys going left or right
             ui.horizontal(|ui| {
                 let go_left = ui.button("<--").clicked()
-                    || (piano_active && ui.input().key_pressed(Key::ArrowLeft));
+                    || (piano_active && ui.input(|i| i.key_pressed(Key::ArrowLeft)));
                 let go_right = ui.button("-->").clicked()
-                    || (piano_active && ui.input().key_pressed(Key::ArrowRight));
+                    || (piano_active && ui.input(|i| i.key_pressed(Key::ArrowRight)));
 
                 if go_left && self.bottom_note_index > 0 {
                     self.bottom_note_index -= 12
@@ -153,7 +151,10 @@ impl PianoRoll {
                 ui.ctx().load_texture(
                     "default piano texture",
                     ColorImage::from_rgba_unmultiplied([1, 1], &[255, 255, 255, 255]),
-                    TextureFilter::Nearest,
+                    TextureOptions {
+                        magnification: TextureFilter::Nearest,
+                        minification: TextureFilter::Nearest,
+                    },
                 )
             })
             .id();

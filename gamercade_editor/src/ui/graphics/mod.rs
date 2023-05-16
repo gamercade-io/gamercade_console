@@ -3,7 +3,7 @@ mod palette_editor_tab;
 mod sprite_editor_tab;
 mod sprite_sheet_editor_tab;
 
-use eframe::egui::TextureFilter;
+use eframe::egui::{TextureFilter, TextureOptions};
 pub use graphics_editor::*;
 pub use palette_editor_tab::*;
 pub use sprite_editor_tab::*;
@@ -71,11 +71,24 @@ pub(crate) fn load_buffered_image<'a>(
 ) -> &'a eframe::egui::TextureHandle {
     match handle {
         Some(handle) => {
-            handle.set(rgb, TextureFilter::Nearest);
+            handle.set(
+                rgb,
+                TextureOptions {
+                    magnification: TextureFilter::Nearest,
+                    minification: TextureFilter::Nearest,
+                },
+            );
             handle
         }
         None => {
-            *handle = Some(ui.ctx().load_texture(label, rgb, TextureFilter::Nearest));
+            *handle = Some(ui.ctx().load_texture(
+                label,
+                rgb,
+                TextureOptions {
+                    magnification: TextureFilter::Nearest,
+                    minification: TextureFilter::Nearest,
+                },
+            ));
             handle.as_ref().unwrap()
         }
     }

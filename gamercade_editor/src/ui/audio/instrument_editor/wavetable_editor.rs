@@ -54,7 +54,7 @@ impl WavetableEditor {
         ];
         let line_segment = Line::new(lerp_segment).color(Color32::DARK_GREEN);
 
-        let primary_pointer_down = ui.input().pointer.primary_down();
+        let primary_pointer_down = ui.input(|i| i.pointer.primary_down());
 
         ui.label(&format!("Wavetable Length: {}", instrument.data.len()));
         Plot::new("Wavetable Plot")
