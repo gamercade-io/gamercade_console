@@ -109,7 +109,7 @@ impl PhraseEditor {
         ui.label("Bpm: ");
         ui.add(Slider::new(&mut self.target_bpm, 0.0..=500.0));
 
-        if ui.button("Play").clicked() || ui.input().key_pressed(Key::Space) {
+        if ui.button("Play").clicked() || ui.input(|i| i.key_pressed(Key::Space)) {
             sync.play_phrase(self.phrase_list.selected_phrase, self.target_bpm);
         }
 
@@ -120,13 +120,13 @@ impl PhraseEditor {
         if let Some(phrase) = &mut selected_phrase.data {
             self.phrase_editor_inner(ui, phrase);
 
-            let input = ui.input();
-
-            if input.modifiers.shift {
-                self.handle_shift_input(&input, phrase, sync);
-            } else {
-                self.handle_input(&input)
-            }
+            ui.input(|input| {
+                if input.modifiers.shift {
+                    self.handle_shift_input(&input, phrase, sync);
+                } else {
+                    self.handle_input(&input)
+                }
+            });
         }
     }
 

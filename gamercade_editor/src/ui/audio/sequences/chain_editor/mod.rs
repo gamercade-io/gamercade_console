@@ -49,7 +49,7 @@ impl ChainEditor {
         ui.label("Bpm: ");
         ui.add(Slider::new(&mut self.target_bpm, 0.0..=500.0));
 
-        if ui.button("Play").clicked() || ui.input().key_pressed(Key::Space) {
+        if ui.button("Play").clicked() || ui.input(|i| i.key_pressed(Key::Space)) {
             sync.play_chain(self.chain_list.selected_chain, self.target_bpm);
         }
 
@@ -60,13 +60,13 @@ impl ChainEditor {
         if let Some(chain) = &mut selected_chain.data {
             self.chain_editor_inner(ui, chain);
 
-            let input = ui.input();
-
-            if input.modifiers.shift {
-                self.handle_shift_input(&input, chain, sync);
-            } else {
-                self.handle_input(&input)
-            }
+            ui.input(|input| {
+                if input.modifiers.shift {
+                    self.handle_shift_input(&input, chain, sync);
+                } else {
+                    self.handle_input(&input)
+                }
+            });
         };
     }
 

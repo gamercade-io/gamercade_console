@@ -10,6 +10,9 @@ pub use instrument_data_definition::*;
 pub use sampler::*;
 pub use wavetable::*;
 
+use base64::{engine::GeneralPurpose, Engine};
+const BASE64ENGINE: GeneralPurpose = base64::engine::general_purpose::STANDARD;
+
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum InstrumentKind {
     Sampler,
@@ -23,7 +26,9 @@ where
 {
     let bytes = if deserializer.is_human_readable() {
         let text: String = serde::Deserialize::deserialize(deserializer)?;
-        base64::decode(text).map_err(serde::de::Error::custom)?
+        BASE64ENGINE
+            .decode(text)
+            .map_err(serde::de::Error::custom)?
     } else {
         serde::Deserialize::deserialize(deserializer)?
     };
@@ -40,7 +45,7 @@ where
 {
     let data: Vec<u8> = data.iter().flat_map(|x| x.to_be_bytes()).collect();
     if serializer.is_human_readable() {
-        let data = base64::encode(data);
+        let data = BASE64ENGINE.encode(data);
         serializer.serialize_str(&data)
     } else {
         serializer.serialize_bytes(&data)

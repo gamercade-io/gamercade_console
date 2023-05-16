@@ -15,4 +15,5 @@ fn main() {
         options,
         Box::new(|_cc| Box::<Editor>::default()),
     )
+    .expect("Failed to run window");
 }

@@ -2,7 +2,7 @@ use crate::api::{DrawApi, DrawApiBinding};
 use crate::console::Contexts;
 use gamercade_core::BYTES_PER_PIXEL;
 use paste::paste;
-use wasmtime::{Caller, Extern, Linker, Trap};
+use wasmtime::{Caller, Extern, Linker};
 
 macro_rules! derive_draw_api_binding {
     ($($ident:ident ($($name:ident:$args:ty $(,)? )*) $(,)?)*) => {
@@ -26,7 +26,7 @@ macro_rules! derive_draw_api_binding {
                         |mut caller: Caller<'_, Contexts>, start_index: i32, parameters_ptr: i32, len: i32| {
                             let mem = match caller.get_export("memory") {
                                 Some(Extern::Memory(mem)) => mem,
-                                _ => return Err(Trap::new("failed to find host memory")),
+                                _ => return Err(wasmtime::Error::msg("Failed to find hose memory")),
                             };
 
                             let (data, store) = mem.data_and_store_mut(&mut caller);
@@ -36,7 +36,7 @@ macro_rules! derive_draw_api_binding {
                                 .and_then(|arr| arr.get(..len as u32 as usize * BYTES_PER_PIXEL))
                             {
                                 Some(data) => bytemuck::cast_slice(data),
-                                None => return Err(Trap::new("invalid data")),
+                                None => return Err(wasmtime::Error::msg("Invalid data"),)
                             };
 
                             Ok(store.draw_context.write_pixel_buffer(start_index as usize, data))

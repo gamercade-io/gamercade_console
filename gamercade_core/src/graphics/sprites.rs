@@ -4,6 +4,9 @@ use serde::{Deserialize, Deserializer, Serialize};
 
 use crate::{ColorIndex, SpriteIter, PALETTE_COLORS};
 
+use base64::{engine::GeneralPurpose, Engine};
+const BASE64ENGINE: GeneralPurpose = base64::engine::general_purpose::STANDARD;
+
 #[derive(Clone, Copy, Debug, Serialize, Deserialize, Default, PartialEq, Eq)]
 pub struct SpriteSheetIndex(pub u8);
 
@@ -27,7 +30,9 @@ where
 {
     if deserializer.is_human_readable() {
         let text: String = Deserialize::deserialize(deserializer)?;
-        let bytes = base64::decode(text).map_err(serde::de::Error::custom)?;
+        let bytes = BASE64ENGINE
+            .decode(text)
+            .map_err(serde::de::Error::custom)?;
         let bytes: Vec<ColorIndex> = unsafe { std::mem::transmute(bytes) };
         Ok(bytes.into_boxed_slice())
     } else {
@@ -43,7 +48,7 @@ where
 {
     let sprites: &[u8] = unsafe { std::mem::transmute(sprites) };
     if serializer.is_human_readable() {
-        let sprites = base64::encode(sprites);
+        let sprites = BASE64ENGINE.encode(sprites);
         serializer.serialize_str(&sprites)
     } else {
         serializer.serialize_bytes(sprites)

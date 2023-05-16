@@ -11,5 +11,5 @@ keywords = ["gamedev"]
 [dependencies]
 gamercade_fs = { path = "../gamercade_fs" }
 
-clap = { version = "3.2.22", features = ["derive"] }
-notify = "5.0.0"
+clap = { version = "4.2.7", features = ["derive"] }
+notify = "5.1.0"

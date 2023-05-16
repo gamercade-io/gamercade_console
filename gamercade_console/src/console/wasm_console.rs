@@ -3,7 +3,10 @@ use std::sync::Arc;
 use gamercade_sound_engine::{SoundEngine, SoundEngineData, SoundRomInstance};
 use ggrs::GGRSRequest;
 use wasmtime::{Engine, ExternType, Instance, Linker, Module, Mutability, Store, TypedFunc};
-use winit::{dpi::PhysicalPosition, window::Window};
+use winit::{
+    dpi::PhysicalPosition,
+    window::{CursorGrabMode, Window},
+};
 
 type GameFunc = TypedFunc<(), ()>;
 
@@ -247,11 +250,17 @@ impl WasmConsole {
                         position.height / 2,
                     ))
                     .unwrap();
-                window.set_cursor_grab(true).unwrap();
+                if window.set_cursor_grab(CursorGrabMode::Confined).is_err()
+                    && window.set_cursor_grab(CursorGrabMode::Locked).is_err()
+                {
+                    println!("Error: Failed to lock mouse");
+                }
                 window.set_cursor_visible(false);
             }
             false => {
-                window.set_cursor_grab(false).unwrap();
+                if let Err(e) = window.set_cursor_grab(CursorGrabMode::None) {
+                    println!("{e}");
+                }
                 window.set_cursor_visible(true);
             }
         }

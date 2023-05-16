@@ -253,10 +253,11 @@ impl SoundEngineRunner {
             SampleFormat::I16 => self.bind_output_stream::<i16>(device, config),
             SampleFormat::U16 => self.bind_output_stream::<u16>(device, config),
             SampleFormat::F32 => self.bind_output_stream::<f32>(device, config),
+            sample_format => panic!("Unsupported sample format! {sample_format}"),
         }
     }
 
-    fn bind_output_stream<T: cpal::Sample>(
+    fn bind_output_stream<T: cpal::Sample + cpal::FromSample<f32> + cpal::SizedSample>(
         mut self,
         device: &mut Device,
         config: StreamConfig,
@@ -273,11 +274,12 @@ impl SoundEngineRunner {
                     self.sound_engine_callback(frames);
                 },
                 on_error,
+                None,
             )
             .unwrap()
     }
 
-    fn sound_engine_callback<T: cpal::Sample>(&mut self, frames: &mut [T]) {
+    fn sound_engine_callback<T: cpal::Sample + cpal::FromSample<f32>>(&mut self, frames: &mut [T]) {
         let mut buffer_written = false;
         let data = &mut self.data;
 
@@ -356,7 +358,7 @@ impl SoundEngineRunner {
                 let output = (bgm_frame + sfx_frame) / (SFX_CHANNELS + SONG_TRACK_CHANNELS) as f32;
 
                 frame.iter_mut().for_each(|channel| {
-                    *channel = cpal::Sample::from::<f32>(&output);
+                    *channel = cpal::Sample::from_sample(output);
                 });
             });
 
