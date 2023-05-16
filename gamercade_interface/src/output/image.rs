@@ -19,15 +19,15 @@ pub struct GameImagesResponse {
     pub data: ::prost::alloc::vec::Vec<u8>,
 }
 /// Generated client implementations.
-pub mod users_service_client {
+pub mod images_service_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
     use tonic::codegen::*;
     use tonic::codegen::http::Uri;
     #[derive(Debug, Clone)]
-    pub struct UsersServiceClient<T> {
+    pub struct ImagesServiceClient<T> {
         inner: tonic::client::Grpc<T>,
     }
-    impl UsersServiceClient<tonic::transport::Channel> {
+    impl ImagesServiceClient<tonic::transport::Channel> {
         /// Attempt to create a new client by connecting to a given endpoint.
         pub async fn connect<D>(dst: D) -> Result<Self, tonic::transport::Error>
         where
@@ -38,7 +38,7 @@ pub mod users_service_client {
             Ok(Self::new(conn))
         }
     }
-    impl<T> UsersServiceClient<T>
+    impl<T> ImagesServiceClient<T>
     where
         T: tonic::client::GrpcService<tonic::body::BoxBody>,
         T::Error: Into<StdError>,
@@ -56,7 +56,7 @@ pub mod users_service_client {
         pub fn with_interceptor<F>(
             inner: T,
             interceptor: F,
-        ) -> UsersServiceClient<InterceptedService<T, F>>
+        ) -> ImagesServiceClient<InterceptedService<T, F>>
         where
             F: tonic::service::Interceptor,
             T::ResponseBody: Default,
@@ -70,7 +70,7 @@ pub mod users_service_client {
                 http::Request<tonic::body::BoxBody>,
             >>::Error: Into<StdError> + Send + Sync,
         {
-            UsersServiceClient::new(InterceptedService::new(inner, interceptor))
+            ImagesServiceClient::new(InterceptedService::new(inner, interceptor))
         }
         /// Compress requests with the given encoding.
         ///
@@ -105,7 +105,7 @@ pub mod users_service_client {
                 })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
-                "/images.UsersService/GetGameThumbnail",
+                "/image.ImagesService/GetGameThumbnail",
             );
             self.inner.server_streaming(request.into_request(), path, codec).await
         }
@@ -127,19 +127,19 @@ pub mod users_service_client {
                 })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
-                "/images.UsersService/GetGameImages",
+                "/image.ImagesService/GetGameImages",
             );
             self.inner.server_streaming(request.into_request(), path, codec).await
         }
     }
 }
 /// Generated server implementations.
-pub mod users_service_server {
+pub mod images_service_server {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
     use tonic::codegen::*;
-    /// Generated trait containing gRPC methods that should be implemented for use with UsersServiceServer.
+    /// Generated trait containing gRPC methods that should be implemented for use with ImagesServiceServer.
     #[async_trait]
-    pub trait UsersService: Send + Sync + 'static {
+    pub trait ImagesService: Send + Sync + 'static {
         /// Server streaming response type for the GetGameThumbnail method.
         type GetGameThumbnailStream: futures_core::Stream<
                 Item = Result<super::GameThumbnailResponse, tonic::Status>,
@@ -162,13 +162,13 @@ pub mod users_service_server {
         ) -> Result<tonic::Response<Self::GetGameImagesStream>, tonic::Status>;
     }
     #[derive(Debug)]
-    pub struct UsersServiceServer<T: UsersService> {
+    pub struct ImagesServiceServer<T: ImagesService> {
         inner: _Inner<T>,
         accept_compression_encodings: EnabledCompressionEncodings,
         send_compression_encodings: EnabledCompressionEncodings,
     }
     struct _Inner<T>(Arc<T>);
-    impl<T: UsersService> UsersServiceServer<T> {
+    impl<T: ImagesService> ImagesServiceServer<T> {
         pub fn new(inner: T) -> Self {
             Self::from_arc(Arc::new(inner))
         }
@@ -202,9 +202,9 @@ pub mod users_service_server {
             self
         }
     }
-    impl<T, B> tonic::codegen::Service<http::Request<B>> for UsersServiceServer<T>
+    impl<T, B> tonic::codegen::Service<http::Request<B>> for ImagesServiceServer<T>
     where
-        T: UsersService,
+        T: ImagesService,
         B: Body + Send + 'static,
         B::Error: Into<StdError> + Send + 'static,
     {
@@ -220,11 +220,11 @@ pub mod users_service_server {
         fn call(&mut self, req: http::Request<B>) -> Self::Future {
             let inner = self.inner.clone();
             match req.uri().path() {
-                "/images.UsersService/GetGameThumbnail" => {
+                "/image.ImagesService/GetGameThumbnail" => {
                     #[allow(non_camel_case_types)]
-                    struct GetGameThumbnailSvc<T: UsersService>(pub Arc<T>);
+                    struct GetGameThumbnailSvc<T: ImagesService>(pub Arc<T>);
                     impl<
-                        T: UsersService,
+                        T: ImagesService,
                     > tonic::server::ServerStreamingService<super::GameImageRequest>
                     for GetGameThumbnailSvc<T> {
                         type Response = super::GameThumbnailResponse;
@@ -261,11 +261,11 @@ pub mod users_service_server {
                     };
                     Box::pin(fut)
                 }
-                "/images.UsersService/GetGameImages" => {
+                "/image.ImagesService/GetGameImages" => {
                     #[allow(non_camel_case_types)]
-                    struct GetGameImagesSvc<T: UsersService>(pub Arc<T>);
+                    struct GetGameImagesSvc<T: ImagesService>(pub Arc<T>);
                     impl<
-                        T: UsersService,
+                        T: ImagesService,
                     > tonic::server::ServerStreamingService<super::GameImageRequest>
                     for GetGameImagesSvc<T> {
                         type Response = super::GameImagesResponse;
@@ -317,7 +317,7 @@ pub mod users_service_server {
             }
         }
     }
-    impl<T: UsersService> Clone for UsersServiceServer<T> {
+    impl<T: ImagesService> Clone for ImagesServiceServer<T> {
         fn clone(&self) -> Self {
             let inner = self.inner.clone();
             Self {
@@ -327,7 +327,7 @@ pub mod users_service_server {
             }
         }
     }
-    impl<T: UsersService> Clone for _Inner<T> {
+    impl<T: ImagesService> Clone for _Inner<T> {
         fn clone(&self) -> Self {
             Self(self.0.clone())
         }
@@ -337,7 +337,7 @@ pub mod users_service_server {
             write!(f, "{:?}", self.0)
         }
     }
-    impl<T: UsersService> tonic::server::NamedService for UsersServiceServer<T> {
-        const NAME: &'static str = "images.UsersService";
+    impl<T: ImagesService> tonic::server::NamedService for ImagesServiceServer<T> {
+        const NAME: &'static str = "image.ImagesService";
     }
 }

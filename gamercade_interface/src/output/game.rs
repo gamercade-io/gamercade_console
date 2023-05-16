@@ -6,13 +6,13 @@ pub struct GameInfoRequest {
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct GamesInfoRequest {
+pub struct MultipleGamesInfoRequest {
     #[prost(uint32, repeated, tag = "1")]
     pub game_ids: ::prost::alloc::vec::Vec<u32>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct GamesInfoResponse {
+pub struct MultipleGamesInfoResponse {
     #[prost(message, repeated, tag = "1")]
     pub games_info: ::prost::alloc::vec::Vec<GameInfoBasic>,
 }
@@ -23,8 +23,8 @@ pub struct GameInfoBasic {
     pub game_id: u32,
     #[prost(uint32, tag = "2")]
     pub author_id: u32,
-    #[prost(string, tag = "3")]
-    pub hash: ::prost::alloc::string::String,
+    #[prost(uint32, tag = "3")]
+    pub hash: u32,
     #[prost(string, tag = "4")]
     pub short_description: ::prost::alloc::string::String,
     #[prost(uint32, tag = "5")]
@@ -162,15 +162,15 @@ impl Tags {
     }
 }
 /// Generated client implementations.
-pub mod games_service_client {
+pub mod game_service_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
     use tonic::codegen::*;
     use tonic::codegen::http::Uri;
     #[derive(Debug, Clone)]
-    pub struct GamesServiceClient<T> {
+    pub struct GameServiceClient<T> {
         inner: tonic::client::Grpc<T>,
     }
-    impl GamesServiceClient<tonic::transport::Channel> {
+    impl GameServiceClient<tonic::transport::Channel> {
         /// Attempt to create a new client by connecting to a given endpoint.
         pub async fn connect<D>(dst: D) -> Result<Self, tonic::transport::Error>
         where
@@ -181,7 +181,7 @@ pub mod games_service_client {
             Ok(Self::new(conn))
         }
     }
-    impl<T> GamesServiceClient<T>
+    impl<T> GameServiceClient<T>
     where
         T: tonic::client::GrpcService<tonic::body::BoxBody>,
         T::Error: Into<StdError>,
@@ -199,7 +199,7 @@ pub mod games_service_client {
         pub fn with_interceptor<F>(
             inner: T,
             interceptor: F,
-        ) -> GamesServiceClient<InterceptedService<T, F>>
+        ) -> GameServiceClient<InterceptedService<T, F>>
         where
             F: tonic::service::Interceptor,
             T::ResponseBody: Default,
@@ -213,7 +213,7 @@ pub mod games_service_client {
                 http::Request<tonic::body::BoxBody>,
             >>::Error: Into<StdError> + Send + Sync,
         {
-            GamesServiceClient::new(InterceptedService::new(inner, interceptor))
+            GameServiceClient::new(InterceptedService::new(inner, interceptor))
         }
         /// Compress requests with the given encoding.
         ///
@@ -230,7 +230,7 @@ pub mod games_service_client {
             self.inner = self.inner.accept_compressed(encoding);
             self
         }
-        pub async fn get_game_info(
+        pub async fn get_single_game_info(
             &mut self,
             request: impl tonic::IntoRequest<super::GameInfoRequest>,
         ) -> Result<tonic::Response<super::GameInfoBasic>, tonic::Status> {
@@ -245,14 +245,14 @@ pub mod games_service_client {
                 })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
-                "/games.GamesService/GetGameInfo",
+                "/game.GameService/GetSingleGameInfo",
             );
             self.inner.unary(request.into_request(), path, codec).await
         }
-        pub async fn get_games_info(
+        pub async fn get_multiple_games_info(
             &mut self,
-            request: impl tonic::IntoRequest<super::GamesInfoRequest>,
-        ) -> Result<tonic::Response<super::GamesInfoResponse>, tonic::Status> {
+            request: impl tonic::IntoRequest<super::MultipleGamesInfoRequest>,
+        ) -> Result<tonic::Response<super::MultipleGamesInfoResponse>, tonic::Status> {
             self.inner
                 .ready()
                 .await
@@ -264,7 +264,7 @@ pub mod games_service_client {
                 })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
-                "/games.GamesService/GetGamesInfo",
+                "/game.GameService/GetMultipleGamesInfo",
             );
             self.inner.unary(request.into_request(), path, codec).await
         }
@@ -283,40 +283,40 @@ pub mod games_service_client {
                 })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
-                "/games.GamesService/GetGameDetailedInfo",
+                "/game.GameService/GetGameDetailedInfo",
             );
             self.inner.unary(request.into_request(), path, codec).await
         }
     }
 }
 /// Generated server implementations.
-pub mod games_service_server {
+pub mod game_service_server {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
     use tonic::codegen::*;
-    /// Generated trait containing gRPC methods that should be implemented for use with GamesServiceServer.
+    /// Generated trait containing gRPC methods that should be implemented for use with GameServiceServer.
     #[async_trait]
-    pub trait GamesService: Send + Sync + 'static {
-        async fn get_game_info(
+    pub trait GameService: Send + Sync + 'static {
+        async fn get_single_game_info(
             &self,
             request: tonic::Request<super::GameInfoRequest>,
         ) -> Result<tonic::Response<super::GameInfoBasic>, tonic::Status>;
-        async fn get_games_info(
+        async fn get_multiple_games_info(
             &self,
-            request: tonic::Request<super::GamesInfoRequest>,
-        ) -> Result<tonic::Response<super::GamesInfoResponse>, tonic::Status>;
+            request: tonic::Request<super::MultipleGamesInfoRequest>,
+        ) -> Result<tonic::Response<super::MultipleGamesInfoResponse>, tonic::Status>;
         async fn get_game_detailed_info(
             &self,
             request: tonic::Request<super::GameInfoRequest>,
         ) -> Result<tonic::Response<super::GameInfoDetailed>, tonic::Status>;
     }
     #[derive(Debug)]
-    pub struct GamesServiceServer<T: GamesService> {
+    pub struct GameServiceServer<T: GameService> {
         inner: _Inner<T>,
         accept_compression_encodings: EnabledCompressionEncodings,
         send_compression_encodings: EnabledCompressionEncodings,
     }
     struct _Inner<T>(Arc<T>);
-    impl<T: GamesService> GamesServiceServer<T> {
+    impl<T: GameService> GameServiceServer<T> {
         pub fn new(inner: T) -> Self {
             Self::from_arc(Arc::new(inner))
         }
@@ -350,9 +350,9 @@ pub mod games_service_server {
             self
         }
     }
-    impl<T, B> tonic::codegen::Service<http::Request<B>> for GamesServiceServer<T>
+    impl<T, B> tonic::codegen::Service<http::Request<B>> for GameServiceServer<T>
     where
-        T: GamesService,
+        T: GameService,
         B: Body + Send + 'static,
         B::Error: Into<StdError> + Send + 'static,
     {
@@ -368,13 +368,13 @@ pub mod games_service_server {
         fn call(&mut self, req: http::Request<B>) -> Self::Future {
             let inner = self.inner.clone();
             match req.uri().path() {
-                "/games.GamesService/GetGameInfo" => {
+                "/game.GameService/GetSingleGameInfo" => {
                     #[allow(non_camel_case_types)]
-                    struct GetGameInfoSvc<T: GamesService>(pub Arc<T>);
+                    struct GetSingleGameInfoSvc<T: GameService>(pub Arc<T>);
                     impl<
-                        T: GamesService,
+                        T: GameService,
                     > tonic::server::UnaryService<super::GameInfoRequest>
-                    for GetGameInfoSvc<T> {
+                    for GetSingleGameInfoSvc<T> {
                         type Response = super::GameInfoBasic;
                         type Future = BoxFuture<
                             tonic::Response<Self::Response>,
@@ -386,7 +386,7 @@ pub mod games_service_server {
                         ) -> Self::Future {
                             let inner = self.0.clone();
                             let fut = async move {
-                                (*inner).get_game_info(request).await
+                                (*inner).get_single_game_info(request).await
                             };
                             Box::pin(fut)
                         }
@@ -396,7 +396,7 @@ pub mod games_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let inner = inner.0;
-                        let method = GetGameInfoSvc(inner);
+                        let method = GetSingleGameInfoSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
@@ -408,25 +408,25 @@ pub mod games_service_server {
                     };
                     Box::pin(fut)
                 }
-                "/games.GamesService/GetGamesInfo" => {
+                "/game.GameService/GetMultipleGamesInfo" => {
                     #[allow(non_camel_case_types)]
-                    struct GetGamesInfoSvc<T: GamesService>(pub Arc<T>);
+                    struct GetMultipleGamesInfoSvc<T: GameService>(pub Arc<T>);
                     impl<
-                        T: GamesService,
-                    > tonic::server::UnaryService<super::GamesInfoRequest>
-                    for GetGamesInfoSvc<T> {
-                        type Response = super::GamesInfoResponse;
+                        T: GameService,
+                    > tonic::server::UnaryService<super::MultipleGamesInfoRequest>
+                    for GetMultipleGamesInfoSvc<T> {
+                        type Response = super::MultipleGamesInfoResponse;
                         type Future = BoxFuture<
                             tonic::Response<Self::Response>,
                             tonic::Status,
                         >;
                         fn call(
                             &mut self,
-                            request: tonic::Request<super::GamesInfoRequest>,
+                            request: tonic::Request<super::MultipleGamesInfoRequest>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
                             let fut = async move {
-                                (*inner).get_games_info(request).await
+                                (*inner).get_multiple_games_info(request).await
                             };
                             Box::pin(fut)
                         }
@@ -436,7 +436,7 @@ pub mod games_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let inner = inner.0;
-                        let method = GetGamesInfoSvc(inner);
+                        let method = GetMultipleGamesInfoSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
@@ -448,11 +448,11 @@ pub mod games_service_server {
                     };
                     Box::pin(fut)
                 }
-                "/games.GamesService/GetGameDetailedInfo" => {
+                "/game.GameService/GetGameDetailedInfo" => {
                     #[allow(non_camel_case_types)]
-                    struct GetGameDetailedInfoSvc<T: GamesService>(pub Arc<T>);
+                    struct GetGameDetailedInfoSvc<T: GameService>(pub Arc<T>);
                     impl<
-                        T: GamesService,
+                        T: GameService,
                     > tonic::server::UnaryService<super::GameInfoRequest>
                     for GetGameDetailedInfoSvc<T> {
                         type Response = super::GameInfoDetailed;
@@ -503,7 +503,7 @@ pub mod games_service_server {
             }
         }
     }
-    impl<T: GamesService> Clone for GamesServiceServer<T> {
+    impl<T: GameService> Clone for GameServiceServer<T> {
         fn clone(&self) -> Self {
             let inner = self.inner.clone();
             Self {
@@ -513,7 +513,7 @@ pub mod games_service_server {
             }
         }
     }
-    impl<T: GamesService> Clone for _Inner<T> {
+    impl<T: GameService> Clone for _Inner<T> {
         fn clone(&self) -> Self {
             Self(self.0.clone())
         }
@@ -523,7 +523,7 @@ pub mod games_service_server {
             write!(f, "{:?}", self.0)
         }
     }
-    impl<T: GamesService> tonic::server::NamedService for GamesServiceServer<T> {
-        const NAME: &'static str = "games.GamesService";
+    impl<T: GameService> tonic::server::NamedService for GameServiceServer<T> {
+        const NAME: &'static str = "game.GameService";
     }
 }

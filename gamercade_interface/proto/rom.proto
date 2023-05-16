@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package rom;
+
+service RomService {
+    rpc UploadRom(stream UploadRomStream) returns (UploadRomResponse);
+    rpc DownloadRom(DownloadRomRequest) returns (stream DownloadRomStream);
+}
+
+message UploadRomStream {
+    bytes data = 1;
+}
+
+message UploadRomResponse {
+
+}
+
+message DownloadRomRequest {
+    uint32 game_id = 1;
+}
+
+message DownloadRomStream {
+    bytes data = 1;
+}

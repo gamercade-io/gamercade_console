@@ -2,27 +2,25 @@ syntax = "proto3";
 
 import "common.proto";
 
-package games;
+package game;
 
-service GamesService {
-    rpc GetGameInfo(GameInfoRequest) returns (GameInfoBasic);
-    rpc GetGamesInfo(GamesInfoRequest) returns (GamesInfoResponse);
+service GameService {
+    rpc GetSingleGameInfo(GameInfoRequest) returns (GameInfoBasic);
+    rpc GetMultipleGamesInfo(MultipleGamesInfoRequest) returns (MultipleGamesInfoResponse);
     rpc GetGameDetailedInfo(GameInfoRequest) returns (GameInfoDetailed);
 
-    // TODO: Upload a game
     // TODO: Vote/Comment/Rate a game
-    // TODO: Download a game
 }
 
 message GameInfoRequest {
     uint32 game_id = 1;
 }
 
-message GamesInfoRequest {
+message MultipleGamesInfoRequest {
     repeated uint32 game_ids = 1;
 }
 
-message GamesInfoResponse {
+message MultipleGamesInfoResponse {
     repeated GameInfoBasic games_info = 1;
 }
 
@@ -72,7 +70,7 @@ enum Tags {
 message GameInfoBasic {
     uint32 game_id = 1;
     uint32 author_id = 2;
-    string hash = 3;
+    uint32 hash = 3;
     string short_description = 4;
     uint32 size = 5;
     repeated Tags tags = 6;
