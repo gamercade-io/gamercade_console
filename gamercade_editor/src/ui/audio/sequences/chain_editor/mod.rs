@@ -62,9 +62,9 @@ impl ChainEditor {
 
             ui.input(|input| {
                 if input.modifiers.shift {
-                    self.handle_shift_input(&input, chain, sync);
+                    self.handle_shift_input(input, chain, sync);
                 } else {
-                    self.handle_input(&input)
+                    self.handle_input(input)
                 }
             });
         };

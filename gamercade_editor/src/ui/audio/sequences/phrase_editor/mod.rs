@@ -122,9 +122,9 @@ impl PhraseEditor {
 
             ui.input(|input| {
                 if input.modifiers.shift {
-                    self.handle_shift_input(&input, phrase, sync);
+                    self.handle_shift_input(input, phrase, sync);
                 } else {
-                    self.handle_input(&input)
+                    self.handle_input(input)
                 }
             });
         }
