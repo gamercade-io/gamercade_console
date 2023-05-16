@@ -10,15 +10,8 @@ repository = "https://github.com/gamercade-io/gamercade_rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-<<<<<<< HEAD
-serde = { version = "1.0.144", features = ["derive"] }
-serde-big-array = "0.4.1"
-base64 = "0.13.0"
-bytemuck = { version = "1.12.1", features = ["derive"] }
-=======
 serde = { version = "1.0.163", features = ["derive"] }
 serde-big-array = "0.5.1"
 base64 = "0.21.0"
 bytemuck = { version = "1.13.1", features = ["derive"] }
->>>>>>> update_deps
 strum = { version = "0.24.1", features = ["derive"] }
