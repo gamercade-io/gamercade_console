@@ -19,6 +19,14 @@ pub mod chat_channel {
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct ServerChatMessage {
+    #[prost(uint32, tag = "1")]
+    pub user_id: u32,
+    #[prost(string, tag = "2")]
+    pub message_text: ::prost::alloc::string::String,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ClientChatMessage {
     #[prost(message, optional, tag = "1")]
     pub channel: ::core::option::Option<ChatChannel>,
@@ -27,11 +35,38 @@ pub struct ClientChatMessage {
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct ServerChatMessage {
-    #[prost(uint32, tag = "1")]
-    pub user_id: u32,
-    #[prost(string, tag = "2")]
-    pub message_text: ::prost::alloc::string::String,
+pub struct ChatMessageResponse {
+    #[prost(enumeration = "ChatMessageResponseEnum", tag = "1")]
+    pub response: i32,
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+#[repr(i32)]
+pub enum ChatMessageResponseEnum {
+    Ok = 0,
+    Invalidchannel = 1,
+    Invaliduser = 2,
+}
+impl ChatMessageResponseEnum {
+    /// String value of the enum field names used in the ProtoBuf definition.
+    ///
+    /// The values are not transformed in any way and thus are considered stable
+    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+    pub fn as_str_name(&self) -> &'static str {
+        match self {
+            ChatMessageResponseEnum::Ok => "OK",
+            ChatMessageResponseEnum::Invalidchannel => "INVALIDCHANNEL",
+            ChatMessageResponseEnum::Invaliduser => "INVALIDUSER",
+        }
+    }
+    /// Creates an enum from field names used in the ProtoBuf definition.
+    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+        match value {
+            "OK" => Some(Self::Ok),
+            "INVALIDCHANNEL" => Some(Self::Invalidchannel),
+            "INVALIDUSER" => Some(Self::Invaliduser),
+            _ => None,
+        }
+    }
 }
 /// Generated client implementations.
 pub mod chat_service_client {
@@ -127,7 +162,7 @@ pub mod chat_service_client {
         pub async fn send_chat_message(
             &mut self,
             request: impl tonic::IntoRequest<super::ClientChatMessage>,
-        ) -> Result<tonic::Response<super::super::common::Empty>, tonic::Status> {
+        ) -> Result<tonic::Response<super::ChatMessageResponse>, tonic::Status> {
             self.inner
                 .ready()
                 .await
@@ -165,7 +200,7 @@ pub mod chat_service_server {
         async fn send_chat_message(
             &self,
             request: tonic::Request<super::ClientChatMessage>,
-        ) -> Result<tonic::Response<super::super::common::Empty>, tonic::Status>;
+        ) -> Result<tonic::Response<super::ChatMessageResponse>, tonic::Status>;
     }
     #[derive(Debug)]
     pub struct ChatServiceServer<T: ChatService> {
@@ -274,7 +309,7 @@ pub mod chat_service_server {
                         T: ChatService,
                     > tonic::server::UnaryService<super::ClientChatMessage>
                     for SendChatMessageSvc<T> {
-                        type Response = super::super::common::Empty;
+                        type Response = super::ChatMessageResponse;
                         type Future = BoxFuture<
                             tonic::Response<Self::Response>,
                             tonic::Status,

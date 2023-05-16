@@ -6,7 +6,7 @@ package chat;
 
 service ChatService {
     rpc SubscribeChatChannel(ChatChannel) returns (stream ServerChatMessage);
-    rpc SendChatMessage(ClientChatMessage) returns (common.Empty);
+    rpc SendChatMessage(ClientChatMessage) returns (ChatMessageResponse);
 }
 
 message ChatChannel {
@@ -17,12 +17,22 @@ message ChatChannel {
     }
 }
 
+message ServerChatMessage {
+    uint32 user_id = 1;
+    string message_text = 2;
+}
+
 message ClientChatMessage {
     ChatChannel channel = 1;
     string message_text = 2;
 }
 
-message ServerChatMessage {
-    uint32 user_id = 1;
-    string message_text = 2;
+message ChatMessageResponse {
+    ChatMessageResponseEnum response = 1;
+}
+
+enum ChatMessageResponseEnum {
+    OK = 0;
+    INVALIDCHANNEL = 1;
+    INVALIDUSER = 2;
 }
