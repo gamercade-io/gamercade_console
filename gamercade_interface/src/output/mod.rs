@@ -1,3 +1,6 @@
+pub mod auth {
+    include!("auth.rs");
+}
 pub mod chat {
     include!("chat.rs");
 }
