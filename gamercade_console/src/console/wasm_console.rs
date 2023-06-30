@@ -267,7 +267,7 @@ impl WasmConsole {
     }
 }
 
-fn call<T>(func: &Option<GameFunc>, store: &mut Store<T>) {
+fn call<T>(func: Option<&GameFunc>, store: &mut Store<T>) {
     if let Some(func) = func {
         func.call(store, ()).unwrap()
     }
@@ -275,15 +275,15 @@ fn call<T>(func: &Option<GameFunc>, store: &mut Store<T>) {
 
 impl Console for WasmConsole {
     fn call_init(&mut self) {
-        call(&self.functions.init_fn, &mut self.store);
+        call(self.functions.init_fn.as_ref(), &mut self.store);
     }
 
     fn call_update(&mut self) {
-        call(&self.functions.update_fn, &mut self.store);
+        call(self.functions.update_fn.as_ref(), &mut self.store);
     }
 
     fn call_draw(&mut self) {
-        call(&self.functions.draw_fn, &mut self.store);
+        call(self.functions.draw_fn.as_ref(), &mut self.store);
     }
 
     fn rom(&self) -> &Rom {

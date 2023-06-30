@@ -172,7 +172,8 @@ impl ChainEditor {
                     .enumerate()
                     .for_each(|(row, entry)| {
                         ui.horizontal_centered(|ui| {
-                            let phrase_row = ChainRow::new(row, entry, self.selected_index);
+                            let phrase_row =
+                                ChainRow::new(row, entry.to_owned(), self.selected_index);
                             if phrase_row.draw(ui) {
                                 self.selected_index = row;
                             }
