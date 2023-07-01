@@ -1,4 +1,4 @@
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub enum AuthState {
     // Default State
     #[default]
@@ -8,6 +8,7 @@ pub enum AuthState {
     TokensHeld(AuthToken),
 }
 
+#[derive(Debug)]
 pub struct AuthToken {
     pub access_token: String,
     pub refresh_token: String,

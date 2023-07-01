@@ -30,11 +30,11 @@ impl Default for AuthClient {
 
 impl AuthClient {
     /// Asynchronously sends a login request to the Auth thread
-    pub fn try_login(&self, username: String, password: String) {
-        if let Err(_e) = self
-            .sender
-            .blocking_send(LoginRequest { username, password })
-        {
+    pub fn try_login(&self, username: &str, password: &str) {
+        if let Err(_e) = self.sender.try_send(LoginRequest {
+            username: username.to_string(),
+            password: password.to_string(),
+        }) {
             panic!("Couldn't send login request over channel.");
         };
     }
@@ -76,6 +76,7 @@ impl AuthTask {
                         password: login.password,
                     }).await {
                         Ok(response) => {
+                            println!("Trying to login...");
                             let response = response.into_inner();
                             let mut write = self.auth_state.write().await;
                             *write = AuthState::TokensHeld(AuthToken {
@@ -83,6 +84,7 @@ impl AuthTask {
                                 refresh_token: response.refresh_token,
                                 expires_at: response.expires_at,
                             });
+                            println!("Logged in successfully: {:?}", write);
                         },
                         Err(e) => {
                             println!("{e}");
