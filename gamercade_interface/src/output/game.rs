@@ -443,7 +443,8 @@ pub mod game_service_server {
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                (*inner).get_single_game_info(request).await
+                                <T as GameService>::get_single_game_info(&inner, request)
+                                    .await
                             };
                             Box::pin(fut)
                         }
@@ -489,7 +490,8 @@ pub mod game_service_server {
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                (*inner).get_multiple_games_info(request).await
+                                <T as GameService>::get_multiple_games_info(&inner, request)
+                                    .await
                             };
                             Box::pin(fut)
                         }
@@ -535,7 +537,8 @@ pub mod game_service_server {
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                (*inner).get_game_detailed_info(request).await
+                                <T as GameService>::get_game_detailed_info(&inner, request)
+                                    .await
                             };
                             Box::pin(fut)
                         }

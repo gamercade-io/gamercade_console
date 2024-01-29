@@ -228,7 +228,9 @@ pub mod auth_service_server {
                             request: tonic::Request<super::LoginRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut = async move { (*inner).login(request).await };
+                            let fut = async move {
+                                <T as AuthService>::login(&inner, request).await
+                            };
                             Box::pin(fut)
                         }
                     }

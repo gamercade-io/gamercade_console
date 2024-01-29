@@ -163,7 +163,7 @@ pub mod images_service_server {
     #[async_trait]
     pub trait ImagesService: Send + Sync + 'static {
         /// Server streaming response type for the GetGameThumbnail method.
-        type GetGameThumbnailStream: futures_core::Stream<
+        type GetGameThumbnailStream: tonic::codegen::tokio_stream::Stream<
                 Item = std::result::Result<super::GameThumbnailResponse, tonic::Status>,
             >
             + Send
@@ -176,7 +176,7 @@ pub mod images_service_server {
             tonic::Status,
         >;
         /// Server streaming response type for the GetGameImages method.
-        type GetGameImagesStream: futures_core::Stream<
+        type GetGameImagesStream: tonic::codegen::tokio_stream::Stream<
                 Item = std::result::Result<super::GameImagesResponse, tonic::Status>,
             >
             + Send
@@ -287,7 +287,8 @@ pub mod images_service_server {
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                (*inner).get_game_thumbnail(request).await
+                                <T as ImagesService>::get_game_thumbnail(&inner, request)
+                                    .await
                             };
                             Box::pin(fut)
                         }
@@ -334,7 +335,7 @@ pub mod images_service_server {
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                (*inner).get_game_images(request).await
+                                <T as ImagesService>::get_game_images(&inner, request).await
                             };
                             Box::pin(fut)
                         }

@@ -168,7 +168,7 @@ pub mod rom_service_server {
             tonic::Status,
         >;
         /// Server streaming response type for the DownloadRom method.
-        type DownloadRomStream: futures_core::Stream<
+        type DownloadRomStream: tonic::codegen::tokio_stream::Stream<
                 Item = std::result::Result<super::DownloadRomStream, tonic::Status>,
             >
             + Send
@@ -279,7 +279,9 @@ pub mod rom_service_server {
                             >,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut = async move { (*inner).upload_rom(request).await };
+                            let fut = async move {
+                                <T as RomService>::upload_rom(&inner, request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -325,7 +327,7 @@ pub mod rom_service_server {
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                (*inner).download_rom(request).await
+                                <T as RomService>::download_rom(&inner, request).await
                             };
                             Box::pin(fut)
                         }

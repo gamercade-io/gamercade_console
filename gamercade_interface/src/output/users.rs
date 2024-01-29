@@ -266,7 +266,7 @@ pub mod users_service_server {
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                (*inner).get_user_info(request).await
+                                <T as UsersService>::get_user_info(&inner, request).await
                             };
                             Box::pin(fut)
                         }
@@ -312,7 +312,7 @@ pub mod users_service_server {
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                (*inner).get_users_info(request).await
+                                <T as UsersService>::get_users_info(&inner, request).await
                             };
                             Box::pin(fut)
                         }

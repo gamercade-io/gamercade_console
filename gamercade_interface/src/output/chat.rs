@@ -213,7 +213,7 @@ pub mod chat_service_server {
     #[async_trait]
     pub trait ChatService: Send + Sync + 'static {
         /// Server streaming response type for the SubscribeChatChannel method.
-        type SubscribeChatChannelStream: futures_core::Stream<
+        type SubscribeChatChannelStream: tonic::codegen::tokio_stream::Stream<
                 Item = std::result::Result<super::ServerChatMessage, tonic::Status>,
             >
             + Send
@@ -331,7 +331,8 @@ pub mod chat_service_server {
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                (*inner).subscribe_chat_channel(request).await
+                                <T as ChatService>::subscribe_chat_channel(&inner, request)
+                                    .await
                             };
                             Box::pin(fut)
                         }
@@ -377,7 +378,7 @@ pub mod chat_service_server {
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                (*inner).send_chat_message(request).await
+                                <T as ChatService>::send_chat_message(&inner, request).await
                             };
                             Box::pin(fut)
                         }

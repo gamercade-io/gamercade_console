@@ -30,6 +30,10 @@ impl eframe::App for App {
                 self.username.clear();
                 self.password.clear();
             }
+
+            if ui.button("Login as Guest").clicked() {
+                println!("TODO: Login as guest!")
+            }
             // },
         });
     }

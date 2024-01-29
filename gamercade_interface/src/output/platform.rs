@@ -228,7 +228,7 @@ pub mod platform_service_server {
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                (*inner).get_home_view(request).await
+                                <T as PlatformService>::get_home_view(&inner, request).await
                             };
                             Box::pin(fut)
                         }
