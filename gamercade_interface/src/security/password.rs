@@ -39,28 +39,36 @@ impl PasswordStrength {
     }
 }
 
-pub fn valid_password(password: &str) -> Result<PasswordStrength, PasswordValidationError> {
+pub fn length_check(password: &str) -> Result<PasswordStrength, PasswordValidationError> {
     // Length Checks
     let len = password.len();
 
-    let mut strength = match len {
-        x if (0..8).contains(&x) => return Err(PasswordValidationError::TooShort),
-        x if (8..10).contains(&x) => PasswordStrength::VeryWeak,
-        x if (10..14).contains(&x) => PasswordStrength::Weak,
-        x if (14..18).contains(&x) => PasswordStrength::Medium,
-        x if (18..20).contains(&x) => PasswordStrength::Strong,
-        x if (20..65).contains(&x) => PasswordStrength::VeryStrong,
-        _ => return Err(PasswordValidationError::TooLong),
-    };
+    match len {
+        x if (0..8).contains(&x) => Err(PasswordValidationError::TooShort),
+        x if (8..10).contains(&x) => Ok(PasswordStrength::VeryWeak),
+        x if (10..14).contains(&x) => Ok(PasswordStrength::Weak),
+        x if (14..18).contains(&x) => Ok(PasswordStrength::Medium),
+        x if (18..20).contains(&x) => Ok(PasswordStrength::Strong),
+        x if (20..65).contains(&x) => Ok(PasswordStrength::VeryStrong),
+        _ => Err(PasswordValidationError::TooLong),
+    }
+}
 
+pub fn get_password_strength(password: &str) -> Result<PasswordStrength, PasswordValidationError> {
+    // First check length
+    let mut strength = length_check(password)?;
+
+    // Character Checks
     if !password.is_ascii() {
         return Err(PasswordValidationError::InvalidCharacters);
     }
 
+    // Common Password Check
     if COMMON_PASSWORDS.binary_search(&password).is_ok() {
         return Err(PasswordValidationError::CommonPassword);
     }
 
+    // Strength Increment
     let mut has_lower = false;
     let mut has_upper = false;
     let mut has_number = false;
