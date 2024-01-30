@@ -2,6 +2,9 @@
 
 Proto Definitions for gRPC between client and back end.
 
+Banned passwords list from:
+https://github.com/danielmiessler/SecLists/blob/master/Passwords/Common-Credentials/10-million-password-list-top-10000.txt
+
 ## License
 
 Licensed under either of

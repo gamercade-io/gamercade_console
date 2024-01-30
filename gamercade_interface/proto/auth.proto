@@ -5,16 +5,37 @@ import "common.proto";
 package auth;
 
 service AuthService {
+    rpc SignUp(SignUpRequest) returns (common.Empty);
     rpc Login(LoginRequest) returns (LoginResponse);
+    rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
     // TODO: handle refresh tokens?
 }
 
-message LoginRequest {
+message SignUpRequest {
     string username = 1;
-    string password = 2;
+    string email = 2;
+    string password = 3;
+}
+
+message LoginRequest {
+    string password = 1;
+    oneof provider {
+        string username = 2;
+        string email = 3;
+    };
 }
 
 message LoginResponse {
+    string access_token = 1;
+    string refresh_token = 2;
+    uint64 expires_at = 3;
+}
+
+message RefreshTokenRequest {
+    string refresh_token = 1;
+}
+
+message RefreshTokenResponse {
     string access_token = 1;
     string refresh_token = 2;
     uint64 expires_at = 3;
