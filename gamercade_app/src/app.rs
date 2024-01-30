@@ -25,16 +25,16 @@ impl eframe::App for App {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             match self.active_view {
-                ActiveView::Login => self.draw_login(ctx, ui),
-                ActiveView::SignUp => self.draw_sign_up(ctx, ui),
-                ActiveView::Browsing => self.draw_browsing(ctx, ui),
+                ActiveView::Login => self.draw_login(ui),
+                ActiveView::SignUp => self.draw_sign_up(ui),
+                ActiveView::Browsing => self.draw_browsing(ui),
             };
         });
     }
 }
 
 impl App {
-    fn draw_login(&mut self, ctx: &egui::Context, ui: &mut Ui) {
+    fn draw_login(&mut self, ui: &mut Ui) {
         ui.horizontal(|ui| {
             ui.label("Username: ");
             ui.text_edit_singleline(&mut self.username);
@@ -62,7 +62,7 @@ impl App {
         }
     }
 
-    fn draw_sign_up(&mut self, ctx: &egui::Context, ui: &mut Ui) {
+    fn draw_sign_up(&mut self, ui: &mut Ui) {
         ui.horizontal(|ui| {
             ui.label("Username: ");
             ui.text_edit_singleline(&mut self.username);
@@ -94,7 +94,7 @@ impl App {
         }
     }
 
-    fn draw_browsing(&mut self, ctx: &egui::Context, ui: &mut Ui) {
+    fn draw_browsing(&mut self, ui: &mut Ui) {
         ui.label("Browsing");
     }
 
