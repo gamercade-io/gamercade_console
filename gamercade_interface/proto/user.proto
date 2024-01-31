@@ -7,6 +7,8 @@ package users;
 service UsersService {
     rpc GetUserInfo(UserRequest) returns (UserInfo);
     rpc GetUsersInfo(UsersRequest) returns (UsersResponse);
+
+    rpc UpdateEmail(UpdateEmailRequest) returns (common.Empty);
 }
 
 message UserRequest {
@@ -24,4 +26,8 @@ message UsersRequest {
 
 message UsersResponse {
     repeated UserInfo users = 1;
+}
+
+message UpdateEmailRequest {
+    string new_email = 1;
 }

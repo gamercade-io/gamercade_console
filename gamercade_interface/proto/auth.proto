@@ -8,6 +8,7 @@ service AuthService {
     rpc SignUp(SignUpRequest) returns (common.Empty);
     rpc Login(LoginRequest) returns (LoginResponse);
     rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
+    rpc UpdatePassword(UpdatePasswordRequest) returns (common.Empty);
     // TODO: handle refresh tokens?
 }
 
@@ -41,3 +42,6 @@ message RefreshTokenResponse {
     uint64 expires_at = 3;
 }
 
+message UpdatePasswordRequest {
+    string new_password = 1;
+}

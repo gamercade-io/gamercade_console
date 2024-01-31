@@ -24,55 +24,11 @@ message MultipleGamesInfoResponse {
     repeated GameInfoBasic games_info = 1;
 }
 
-enum Tags {
-    UNKNOWN = 0;
-
-    // Player Count
-    SINGLEPLAYER = 1;
-    MULTIPLAYER = 2;
-    LOCALMULTIPLAYER = 3;
-
-    // Play Style
-    PVP = 4;
-    PVE = 5;
-    COOP = 6;
-    COMPETITIVE = 7;
-    ASYMMETRIC = 8;
-
-    // Genre
-    ACTION = 9;
-    PLATFORMER = 10;
-    SHOOTER = 11;
-    FIGHTING = 12;
-    PUZZLE = 13;
-    RPG = 14;
-    STRATEGY = 15;
-    DRIVING = 16;
-    SPORTS = 17;
-    TURNBASED = 18;
-    SIMULATION = 19;
-
-    // Controls
-    MOUSE = 20;
-    KEYBOARD = 21;
-    CONTROLLER = 22;
-
-    // Feel
-    FANTASY = 23;
-    SCIFI = 24;
-    HISTORICAL = 25;
-    HORROR = 26;
-    FUNNY = 27;
-    CUTE = 28;
-    CASUAL = 29;
-}
-
 message GameInfoBasic {
     uint32 game_id = 1;
-    uint32 author_id = 2;
-    uint32 hash = 3;
-    string short_description = 4;
-    repeated Tags tags = 5;
+    uint32 hash = 2;
+    string short_description = 3;
+    repeated string tags = 4;
 }
 
 message GameInfoDetailed {

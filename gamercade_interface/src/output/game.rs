@@ -22,13 +22,11 @@ pub struct GameInfoBasic {
     #[prost(uint32, tag = "1")]
     pub game_id: u32,
     #[prost(uint32, tag = "2")]
-    pub author_id: u32,
-    #[prost(uint32, tag = "3")]
     pub hash: u32,
-    #[prost(string, tag = "4")]
+    #[prost(string, tag = "3")]
     pub short_description: ::prost::alloc::string::String,
-    #[prost(enumeration = "Tags", repeated, tag = "5")]
-    pub tags: ::prost::alloc::vec::Vec<i32>,
+    #[prost(string, repeated, tag = "4")]
+    pub tags: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -43,121 +41,6 @@ pub struct GameInfoDetailed {
     pub release_date: ::prost::alloc::string::String,
     #[prost(string, tag = "5")]
     pub last_updated: ::prost::alloc::string::String,
-}
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
-#[repr(i32)]
-pub enum Tags {
-    Unknown = 0,
-    /// Player Count
-    Singleplayer = 1,
-    Multiplayer = 2,
-    Localmultiplayer = 3,
-    /// Play Style
-    Pvp = 4,
-    Pve = 5,
-    Coop = 6,
-    Competitive = 7,
-    Asymmetric = 8,
-    /// Genre
-    Action = 9,
-    Platformer = 10,
-    Shooter = 11,
-    Fighting = 12,
-    Puzzle = 13,
-    Rpg = 14,
-    Strategy = 15,
-    Driving = 16,
-    Sports = 17,
-    Turnbased = 18,
-    Simulation = 19,
-    /// Controls
-    Mouse = 20,
-    Keyboard = 21,
-    Controller = 22,
-    /// Feel
-    Fantasy = 23,
-    Scifi = 24,
-    Historical = 25,
-    Horror = 26,
-    Funny = 27,
-    Cute = 28,
-    Casual = 29,
-}
-impl Tags {
-    /// String value of the enum field names used in the ProtoBuf definition.
-    ///
-    /// The values are not transformed in any way and thus are considered stable
-    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
-    pub fn as_str_name(&self) -> &'static str {
-        match self {
-            Tags::Unknown => "UNKNOWN",
-            Tags::Singleplayer => "SINGLEPLAYER",
-            Tags::Multiplayer => "MULTIPLAYER",
-            Tags::Localmultiplayer => "LOCALMULTIPLAYER",
-            Tags::Pvp => "PVP",
-            Tags::Pve => "PVE",
-            Tags::Coop => "COOP",
-            Tags::Competitive => "COMPETITIVE",
-            Tags::Asymmetric => "ASYMMETRIC",
-            Tags::Action => "ACTION",
-            Tags::Platformer => "PLATFORMER",
-            Tags::Shooter => "SHOOTER",
-            Tags::Fighting => "FIGHTING",
-            Tags::Puzzle => "PUZZLE",
-            Tags::Rpg => "RPG",
-            Tags::Strategy => "STRATEGY",
-            Tags::Driving => "DRIVING",
-            Tags::Sports => "SPORTS",
-            Tags::Turnbased => "TURNBASED",
-            Tags::Simulation => "SIMULATION",
-            Tags::Mouse => "MOUSE",
-            Tags::Keyboard => "KEYBOARD",
-            Tags::Controller => "CONTROLLER",
-            Tags::Fantasy => "FANTASY",
-            Tags::Scifi => "SCIFI",
-            Tags::Historical => "HISTORICAL",
-            Tags::Horror => "HORROR",
-            Tags::Funny => "FUNNY",
-            Tags::Cute => "CUTE",
-            Tags::Casual => "CASUAL",
-        }
-    }
-    /// Creates an enum from field names used in the ProtoBuf definition.
-    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
-        match value {
-            "UNKNOWN" => Some(Self::Unknown),
-            "SINGLEPLAYER" => Some(Self::Singleplayer),
-            "MULTIPLAYER" => Some(Self::Multiplayer),
-            "LOCALMULTIPLAYER" => Some(Self::Localmultiplayer),
-            "PVP" => Some(Self::Pvp),
-            "PVE" => Some(Self::Pve),
-            "COOP" => Some(Self::Coop),
-            "COMPETITIVE" => Some(Self::Competitive),
-            "ASYMMETRIC" => Some(Self::Asymmetric),
-            "ACTION" => Some(Self::Action),
-            "PLATFORMER" => Some(Self::Platformer),
-            "SHOOTER" => Some(Self::Shooter),
-            "FIGHTING" => Some(Self::Fighting),
-            "PUZZLE" => Some(Self::Puzzle),
-            "RPG" => Some(Self::Rpg),
-            "STRATEGY" => Some(Self::Strategy),
-            "DRIVING" => Some(Self::Driving),
-            "SPORTS" => Some(Self::Sports),
-            "TURNBASED" => Some(Self::Turnbased),
-            "SIMULATION" => Some(Self::Simulation),
-            "MOUSE" => Some(Self::Mouse),
-            "KEYBOARD" => Some(Self::Keyboard),
-            "CONTROLLER" => Some(Self::Controller),
-            "FANTASY" => Some(Self::Fantasy),
-            "SCIFI" => Some(Self::Scifi),
-            "HISTORICAL" => Some(Self::Historical),
-            "HORROR" => Some(Self::Horror),
-            "FUNNY" => Some(Self::Funny),
-            "CUTE" => Some(Self::Cute),
-            "CASUAL" => Some(Self::Casual),
-            _ => None,
-        }
-    }
 }
 /// Generated client implementations.
 pub mod game_service_client {
