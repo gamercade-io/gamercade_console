@@ -148,8 +148,8 @@ impl AuthTask {
 
     async fn handle_refresh(
         &mut self,
-        client: &mut AuthServiceClient<Channel>,
-        request: RefreshTokenRequest,
+        _client: &mut AuthServiceClient<Channel>,
+        _request: RefreshTokenRequest,
     ) {
         todo!()
     }

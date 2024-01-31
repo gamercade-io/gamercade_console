@@ -1,4 +1,3 @@
-pub mod common_passwords;
-pub use common_passwords::COMMON_PASSWORDS;
+mod common_passwords;
 
 pub mod password;

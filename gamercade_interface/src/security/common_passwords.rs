@@ -1,7 +1,7 @@
 // TODO: Could be worth it to generate a build script here which also
 // Additionally removes any passwords less than 8 characters long
 
-pub const COMMON_PASSWORDS: [&str; 10000] = [
+pub(crate) const COMMON_PASSWORDS: [&str; 10000] = [
     "?????",
     "??????",
     "*****",

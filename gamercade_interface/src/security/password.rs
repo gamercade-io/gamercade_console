@@ -1,4 +1,4 @@
-use super::COMMON_PASSWORDS;
+use super::common_passwords::COMMON_PASSWORDS;
 
 pub enum PasswordValidationError {
     TooShort,
@@ -39,6 +39,7 @@ impl PasswordStrength {
     }
 }
 
+/// Returns the length of a password including strength based on length.
 pub fn length_check(password: &str) -> Result<PasswordStrength, PasswordValidationError> {
     // Length Checks
     let len = password.len();
@@ -54,6 +55,15 @@ pub fn length_check(password: &str) -> Result<PasswordStrength, PasswordValidati
     }
 }
 
+/// Returns true if the password exists in the common password database.
+/// Any common password should be rejected for security reasons.
+pub fn is_common_password(password: &str) -> bool {
+    // TODO: Benchmark binary search, hashmap, or Vec lookup for common passwords
+    COMMON_PASSWORDS.binary_search(&password).is_ok()
+}
+
+/// Check the strength of the password. Will return Ok with the strength,
+/// otherwise returns an Err with the reason for rejecting.
 pub fn get_password_strength(password: &str) -> Result<PasswordStrength, PasswordValidationError> {
     // First check length
     let mut strength = length_check(password)?;
@@ -64,7 +74,7 @@ pub fn get_password_strength(password: &str) -> Result<PasswordStrength, Passwor
     }
 
     // Common Password Check
-    if COMMON_PASSWORDS.binary_search(&password).is_ok() {
+    if is_common_password(password) {
         return Err(PasswordValidationError::CommonPassword);
     }
 

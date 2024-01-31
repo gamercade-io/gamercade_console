@@ -6,5 +6,7 @@ pub use network_session::*;
 
 pub mod security;
 
+pub mod filter;
+
 pub const USERNAME_LENGTH_MIN: usize = 1;
 pub const USERNAME_LENGTH_MAX: usize = 32;
