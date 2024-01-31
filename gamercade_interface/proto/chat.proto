@@ -12,7 +12,7 @@ service ChatService {
 message ChatChannel {
     oneof channel {
         common.Empty global = 1;
-        uint32 game_id = 2;
+        uint32 channel_id = 2;
         common.UUID room_uuid = 3;
     }
 }

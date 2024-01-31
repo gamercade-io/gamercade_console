@@ -27,9 +27,7 @@ pub struct GameInfoBasic {
     pub hash: u32,
     #[prost(string, tag = "4")]
     pub short_description: ::prost::alloc::string::String,
-    #[prost(uint32, tag = "5")]
-    pub size: u32,
-    #[prost(enumeration = "Tags", repeated, tag = "6")]
+    #[prost(enumeration = "Tags", repeated, tag = "5")]
     pub tags: ::prost::alloc::vec::Vec<i32>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]

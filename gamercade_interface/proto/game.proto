@@ -72,8 +72,7 @@ message GameInfoBasic {
     uint32 author_id = 2;
     uint32 hash = 3;
     string short_description = 4;
-    uint32 size = 5;
-    repeated Tags tags = 6;
+    repeated Tags tags = 5;
 }
 
 message GameInfoDetailed {

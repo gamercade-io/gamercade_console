@@ -46,10 +46,10 @@ pub fn length_check(password: &str) -> Result<PasswordStrength, PasswordValidati
 
     match len {
         x if (0..8).contains(&x) => Err(PasswordValidationError::TooShort),
-        x if (8..10).contains(&x) => Ok(PasswordStrength::VeryWeak),
-        x if (10..14).contains(&x) => Ok(PasswordStrength::Weak),
-        x if (14..18).contains(&x) => Ok(PasswordStrength::Medium),
-        x if (18..20).contains(&x) => Ok(PasswordStrength::Strong),
+        8 => Ok(PasswordStrength::VeryWeak),
+        x if (9..12).contains(&x) => Ok(PasswordStrength::Weak),
+        x if (12..17).contains(&x) => Ok(PasswordStrength::Medium),
+        x if (17..20).contains(&x) => Ok(PasswordStrength::Strong),
         x if (20..65).contains(&x) => Ok(PasswordStrength::VeryStrong),
         _ => Err(PasswordValidationError::TooLong),
     }
