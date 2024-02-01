@@ -5,11 +5,9 @@ import "common.proto";
 package auth;
 
 service AuthService {
-    rpc SignUp(SignUpRequest) returns (common.Empty);
-    rpc Login(LoginRequest) returns (LoginResponse);
-    rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
+    rpc SignUp(SignUpRequest) returns (SessionResponse);
+    rpc Login(LoginRequest) returns (SessionResponse);
     rpc UpdatePassword(UpdatePasswordRequest) returns (common.Empty);
-    // TODO: handle refresh tokens?
 }
 
 message SignUpRequest {
@@ -26,22 +24,11 @@ message LoginRequest {
     };
 }
 
-message LoginResponse {
-    string access_token = 1;
-    string refresh_token = 2;
-    uint64 expires_at = 3;
-}
-
-message RefreshTokenRequest {
-    string refresh_token = 1;
-}
-
-message RefreshTokenResponse {
-    string access_token = 1;
-    string refresh_token = 2;
-    uint64 expires_at = 3;
+message SessionResponse {
+    string session = 1;
 }
 
 message UpdatePasswordRequest {
-    string new_password = 1;
+    string previous_password = 1;
+    string new_password = 2;
 }
