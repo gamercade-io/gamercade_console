@@ -3,6 +3,7 @@ use eframe::egui;
 mod app;
 mod auth;
 mod ips;
+mod view;
 
 #[tokio::main]
 async fn main() -> Result<(), eframe::Error> {

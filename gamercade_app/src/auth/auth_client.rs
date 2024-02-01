@@ -1,19 +1,19 @@
 use std::sync::Arc;
 
-use gamercade_interface::auth::{
-    auth_service_client::AuthServiceClient, login_request::Provider, LoginRequest,
-    RefreshTokenRequest, SignUpRequest,
-};
-use tokio::{
-    select,
-    sync::{
-        mpsc::{channel, Receiver, Sender},
-        RwLock,
+use gamercade_interface::{
+    auth::{
+        auth_service_client::AuthServiceClient, login_request::Provider, LoginRequest,
+        SignUpRequest,
     },
+    Session,
+};
+use tokio::sync::{
+    mpsc::{channel, Receiver, Sender},
+    RwLock,
 };
 use tonic::transport::Channel;
 
-use crate::{auth::auth_state::AuthToken, ips::AUTH_IP};
+use crate::ips::AUTH_IP;
 
 use super::auth_state::AuthState;
 
@@ -25,7 +25,6 @@ pub struct AuthClient {
 pub enum AuthClientRequest {
     Login(LoginRequest),
     SignUp(SignUpRequest),
-    RefreshToken(RefreshTokenRequest),
 }
 
 impl Default for AuthClient {
@@ -87,21 +86,18 @@ impl AuthTask {
         }
     }
 
-    async fn run(mut self) -> ! {
+    async fn run(mut self) {
         let mut client = AuthServiceClient::connect(AUTH_IP).await.unwrap();
 
-        loop {
-            select! {
-                // Handle Requests
-                Some(request) = self.main_thread_receiver.recv() => {
-                    match request {
-                        AuthClientRequest::Login(login) => self.handle_login(&mut client, login).await,
-                        AuthClientRequest::SignUp(signup) => self.handle_sign_up(&mut client, signup).await,
-                        AuthClientRequest::RefreshToken(refresh) => self.handle_refresh(&mut client, refresh).await,
-                    }
-                }
+        // Handle Requests
+        while let Some(request) = self.main_thread_receiver.recv().await {
+            match request {
+                AuthClientRequest::Login(login) => self.handle_login(&mut client, login).await,
+                AuthClientRequest::SignUp(signup) => self.handle_sign_up(&mut client, signup).await,
             }
         }
+
+        println!("auth_client died.");
     }
 
     async fn handle_login(
@@ -113,14 +109,16 @@ impl AuthTask {
         match client.login(request).await {
             Ok(response) => {
                 let response = response.into_inner();
-                let mut write = self.auth_state.write().await;
-                *write = AuthState::TokensHeld(AuthToken {
-                    access_token: response.access_token,
-                    refresh_token: response.refresh_token,
-                    expires_at: response.expires_at,
-                });
-                // TODO: Update the login page / move to browsing
-                println!("Logged in successfully: {:?}", write);
+
+                if let Ok(session) = Session::try_from(response.session.as_slice()) {
+                    let mut write = self.auth_state.write().await;
+                    *write = AuthState::SessionHeld(session);
+                    println!("Logged in successfully: {:?}", write);
+                    // TODO: Update the login page / move to browsing
+                } else {
+                    println!("Error parsing session from server")
+                    // TODO: Handle this
+                }
             }
             Err(e) => {
                 println!("{e}");
@@ -144,13 +142,5 @@ impl AuthTask {
                 println!("{e}");
             }
         }
-    }
-
-    async fn handle_refresh(
-        &mut self,
-        _client: &mut AuthServiceClient<Channel>,
-        _request: RefreshTokenRequest,
-    ) {
-        todo!()
     }
 }

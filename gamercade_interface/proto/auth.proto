@@ -25,7 +25,7 @@ message LoginRequest {
 }
 
 message SessionResponse {
-    string session = 1;
+    bytes session = 1;
 }
 
 message UpdatePasswordRequest {
