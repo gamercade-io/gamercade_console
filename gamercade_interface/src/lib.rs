@@ -11,12 +11,22 @@ pub mod filter;
 pub const USERNAME_LENGTH_MIN: usize = 1;
 pub const USERNAME_LENGTH_MAX: usize = 32;
 
+pub const SESSION_METADATA_KEY: &str = "gc-session";
+
 #[derive(Debug)]
 pub struct Session([u8; 16]);
 
 impl Session {
+    pub fn get_metadata_key() -> &'static str {
+        SESSION_METADATA_KEY
+    }
+
     pub fn new(bytes: [u8; 16]) -> Self {
         Self(bytes)
+    }
+
+    pub fn bytes(&self) -> &[u8; 16] {
+        &self.0
     }
 }
 
