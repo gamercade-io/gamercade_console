@@ -12,16 +12,16 @@ service UsersService {
 }
 
 message UserRequest {
-    uint32 user_id = 1;
+    fixed64 user_id = 1;
 }
 
 message UserInfo {
-    uint32 user_id = 1;
+    fixed64 user_id = 1;
     string username = 2;
 }
 
 message UsersRequest {
-    repeated uint32 user_ids = 1;
+    repeated fixed64 user_ids = 1;
 }
 
 message UsersResponse {

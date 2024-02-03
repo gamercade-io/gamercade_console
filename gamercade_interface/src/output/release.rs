@@ -1,34 +1,43 @@
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct UploadRomStream {
-    #[prost(bytes = "vec", tag = "1")]
-    pub data: ::prost::alloc::vec::Vec<u8>,
+pub struct CreateReleaseRequest {
+    #[prost(fixed64, tag = "1")]
+    pub game_id: u64,
+    #[prost(string, tag = "2")]
+    pub release_name: ::prost::alloc::string::String,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct UploadRomResponse {}
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct DownloadRomRequest {
-    #[prost(uint32, tag = "1")]
-    pub game_id: u32,
+pub struct CreateReleaseResponse {
+    #[prost(fixed64, tag = "1")]
+    pub release_id: u64,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct DownloadRomStream {
-    #[prost(bytes = "vec", tag = "1")]
-    pub data: ::prost::alloc::vec::Vec<u8>,
+pub struct UpdateReleaseRequest {
+    #[prost(fixed64, tag = "1")]
+    pub release_id: u64,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct ReleaseResponse {
+    #[prost(fixed64, tag = "1")]
+    pub release_id: u64,
+    #[prost(string, tag = "2")]
+    pub release_name: ::prost::alloc::string::String,
+    #[prost(bytes = "vec", tag = "3")]
+    pub checksum: ::prost::alloc::vec::Vec<u8>,
 }
 /// Generated client implementations.
-pub mod rom_service_client {
+pub mod release_service_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
     use tonic::codegen::*;
     use tonic::codegen::http::Uri;
     #[derive(Debug, Clone)]
-    pub struct RomServiceClient<T> {
+    pub struct ReleaseServiceClient<T> {
         inner: tonic::client::Grpc<T>,
     }
-    impl RomServiceClient<tonic::transport::Channel> {
+    impl ReleaseServiceClient<tonic::transport::Channel> {
         /// Attempt to create a new client by connecting to a given endpoint.
         pub async fn connect<D>(dst: D) -> Result<Self, tonic::transport::Error>
         where
@@ -39,7 +48,7 @@ pub mod rom_service_client {
             Ok(Self::new(conn))
         }
     }
-    impl<T> RomServiceClient<T>
+    impl<T> ReleaseServiceClient<T>
     where
         T: tonic::client::GrpcService<tonic::body::BoxBody>,
         T::Error: Into<StdError>,
@@ -57,7 +66,7 @@ pub mod rom_service_client {
         pub fn with_interceptor<F>(
             inner: T,
             interceptor: F,
-        ) -> RomServiceClient<InterceptedService<T, F>>
+        ) -> ReleaseServiceClient<InterceptedService<T, F>>
         where
             F: tonic::service::Interceptor,
             T::ResponseBody: Default,
@@ -71,7 +80,7 @@ pub mod rom_service_client {
                 http::Request<tonic::body::BoxBody>,
             >>::Error: Into<StdError> + Send + Sync,
         {
-            RomServiceClient::new(InterceptedService::new(inner, interceptor))
+            ReleaseServiceClient::new(InterceptedService::new(inner, interceptor))
         }
         /// Compress requests with the given encoding.
         ///
@@ -104,33 +113,11 @@ pub mod rom_service_client {
             self.inner = self.inner.max_encoding_message_size(limit);
             self
         }
-        pub async fn upload_rom(
+        pub async fn create_new_release(
             &mut self,
-            request: impl tonic::IntoStreamingRequest<Message = super::UploadRomStream>,
+            request: impl tonic::IntoRequest<super::CreateReleaseRequest>,
         ) -> std::result::Result<
-            tonic::Response<super::UploadRomResponse>,
-            tonic::Status,
-        > {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
-            let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/rom.RomService/UploadRom");
-            let mut req = request.into_streaming_request();
-            req.extensions_mut().insert(GrpcMethod::new("rom.RomService", "UploadRom"));
-            self.inner.client_streaming(req, path, codec).await
-        }
-        pub async fn download_rom(
-            &mut self,
-            request: impl tonic::IntoRequest<super::DownloadRomRequest>,
-        ) -> std::result::Result<
-            tonic::Response<tonic::codec::Streaming<super::DownloadRomStream>>,
+            tonic::Response<super::CreateReleaseResponse>,
             tonic::Status,
         > {
             self.inner
@@ -144,45 +131,61 @@ pub mod rom_service_client {
                 })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
-                "/rom.RomService/DownloadRom",
+                "/release.ReleaseService/CreateNewRelease",
             );
             let mut req = request.into_request();
             req.extensions_mut()
-                .insert(GrpcMethod::new("rom.RomService", "DownloadRom"));
-            self.inner.server_streaming(req, path, codec).await
+                .insert(GrpcMethod::new("release.ReleaseService", "CreateNewRelease"));
+            self.inner.unary(req, path, codec).await
+        }
+        pub async fn update_release(
+            &mut self,
+            request: impl tonic::IntoRequest<super::UpdateReleaseRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::ReleaseResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/release.ReleaseService/UpdateRelease",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("release.ReleaseService", "UpdateRelease"));
+            self.inner.unary(req, path, codec).await
         }
     }
 }
 /// Generated server implementations.
-pub mod rom_service_server {
+pub mod release_service_server {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
     use tonic::codegen::*;
-    /// Generated trait containing gRPC methods that should be implemented for use with RomServiceServer.
+    /// Generated trait containing gRPC methods that should be implemented for use with ReleaseServiceServer.
     #[async_trait]
-    pub trait RomService: Send + Sync + 'static {
-        async fn upload_rom(
+    pub trait ReleaseService: Send + Sync + 'static {
+        async fn create_new_release(
             &self,
-            request: tonic::Request<tonic::Streaming<super::UploadRomStream>>,
+            request: tonic::Request<super::CreateReleaseRequest>,
         ) -> std::result::Result<
-            tonic::Response<super::UploadRomResponse>,
+            tonic::Response<super::CreateReleaseResponse>,
             tonic::Status,
         >;
-        /// Server streaming response type for the DownloadRom method.
-        type DownloadRomStream: tonic::codegen::tokio_stream::Stream<
-                Item = std::result::Result<super::DownloadRomStream, tonic::Status>,
-            >
-            + Send
-            + 'static;
-        async fn download_rom(
+        async fn update_release(
             &self,
-            request: tonic::Request<super::DownloadRomRequest>,
-        ) -> std::result::Result<
-            tonic::Response<Self::DownloadRomStream>,
-            tonic::Status,
-        >;
+            request: tonic::Request<super::UpdateReleaseRequest>,
+        ) -> std::result::Result<tonic::Response<super::ReleaseResponse>, tonic::Status>;
     }
     #[derive(Debug)]
-    pub struct RomServiceServer<T: RomService> {
+    pub struct ReleaseServiceServer<T: ReleaseService> {
         inner: _Inner<T>,
         accept_compression_encodings: EnabledCompressionEncodings,
         send_compression_encodings: EnabledCompressionEncodings,
@@ -190,7 +193,7 @@ pub mod rom_service_server {
         max_encoding_message_size: Option<usize>,
     }
     struct _Inner<T>(Arc<T>);
-    impl<T: RomService> RomServiceServer<T> {
+    impl<T: ReleaseService> ReleaseServiceServer<T> {
         pub fn new(inner: T) -> Self {
             Self::from_arc(Arc::new(inner))
         }
@@ -242,9 +245,9 @@ pub mod rom_service_server {
             self
         }
     }
-    impl<T, B> tonic::codegen::Service<http::Request<B>> for RomServiceServer<T>
+    impl<T, B> tonic::codegen::Service<http::Request<B>> for ReleaseServiceServer<T>
     where
-        T: RomService,
+        T: ReleaseService,
         B: Body + Send + 'static,
         B::Error: Into<StdError> + Send + 'static,
     {
@@ -260,27 +263,26 @@ pub mod rom_service_server {
         fn call(&mut self, req: http::Request<B>) -> Self::Future {
             let inner = self.inner.clone();
             match req.uri().path() {
-                "/rom.RomService/UploadRom" => {
+                "/release.ReleaseService/CreateNewRelease" => {
                     #[allow(non_camel_case_types)]
-                    struct UploadRomSvc<T: RomService>(pub Arc<T>);
+                    struct CreateNewReleaseSvc<T: ReleaseService>(pub Arc<T>);
                     impl<
-                        T: RomService,
-                    > tonic::server::ClientStreamingService<super::UploadRomStream>
-                    for UploadRomSvc<T> {
-                        type Response = super::UploadRomResponse;
+                        T: ReleaseService,
+                    > tonic::server::UnaryService<super::CreateReleaseRequest>
+                    for CreateNewReleaseSvc<T> {
+                        type Response = super::CreateReleaseResponse;
                         type Future = BoxFuture<
                             tonic::Response<Self::Response>,
                             tonic::Status,
                         >;
                         fn call(
                             &mut self,
-                            request: tonic::Request<
-                                tonic::Streaming<super::UploadRomStream>,
-                            >,
+                            request: tonic::Request<super::CreateReleaseRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as RomService>::upload_rom(&inner, request).await
+                                <T as ReleaseService>::create_new_release(&inner, request)
+                                    .await
                             };
                             Box::pin(fut)
                         }
@@ -292,7 +294,7 @@ pub mod rom_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let inner = inner.0;
-                        let method = UploadRomSvc(inner);
+                        let method = CreateNewReleaseSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
@@ -303,31 +305,30 @@ pub mod rom_service_server {
                                 max_decoding_message_size,
                                 max_encoding_message_size,
                             );
-                        let res = grpc.client_streaming(method, req).await;
+                        let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
                     Box::pin(fut)
                 }
-                "/rom.RomService/DownloadRom" => {
+                "/release.ReleaseService/UpdateRelease" => {
                     #[allow(non_camel_case_types)]
-                    struct DownloadRomSvc<T: RomService>(pub Arc<T>);
+                    struct UpdateReleaseSvc<T: ReleaseService>(pub Arc<T>);
                     impl<
-                        T: RomService,
-                    > tonic::server::ServerStreamingService<super::DownloadRomRequest>
-                    for DownloadRomSvc<T> {
-                        type Response = super::DownloadRomStream;
-                        type ResponseStream = T::DownloadRomStream;
+                        T: ReleaseService,
+                    > tonic::server::UnaryService<super::UpdateReleaseRequest>
+                    for UpdateReleaseSvc<T> {
+                        type Response = super::ReleaseResponse;
                         type Future = BoxFuture<
-                            tonic::Response<Self::ResponseStream>,
+                            tonic::Response<Self::Response>,
                             tonic::Status,
                         >;
                         fn call(
                             &mut self,
-                            request: tonic::Request<super::DownloadRomRequest>,
+                            request: tonic::Request<super::UpdateReleaseRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as RomService>::download_rom(&inner, request).await
+                                <T as ReleaseService>::update_release(&inner, request).await
                             };
                             Box::pin(fut)
                         }
@@ -339,7 +340,7 @@ pub mod rom_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let inner = inner.0;
-                        let method = DownloadRomSvc(inner);
+                        let method = UpdateReleaseSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
@@ -350,7 +351,7 @@ pub mod rom_service_server {
                                 max_decoding_message_size,
                                 max_encoding_message_size,
                             );
-                        let res = grpc.server_streaming(method, req).await;
+                        let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
                     Box::pin(fut)
@@ -370,7 +371,7 @@ pub mod rom_service_server {
             }
         }
     }
-    impl<T: RomService> Clone for RomServiceServer<T> {
+    impl<T: ReleaseService> Clone for ReleaseServiceServer<T> {
         fn clone(&self) -> Self {
             let inner = self.inner.clone();
             Self {
@@ -382,7 +383,7 @@ pub mod rom_service_server {
             }
         }
     }
-    impl<T: RomService> Clone for _Inner<T> {
+    impl<T: ReleaseService> Clone for _Inner<T> {
         fn clone(&self) -> Self {
             Self(Arc::clone(&self.0))
         }
@@ -392,7 +393,7 @@ pub mod rom_service_server {
             write!(f, "{:?}", self.0)
         }
     }
-    impl<T: RomService> tonic::server::NamedService for RomServiceServer<T> {
-        const NAME: &'static str = "rom.RomService";
+    impl<T: ReleaseService> tonic::server::NamedService for ReleaseServiceServer<T> {
+        const NAME: &'static str = "release.ReleaseService";
     }
 }

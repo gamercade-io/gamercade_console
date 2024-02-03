@@ -16,8 +16,8 @@ pub mod image {
 pub mod platform {
     include!("platform.rs");
 }
-pub mod rom {
-    include!("rom.rs");
+pub mod release {
+    include!("release.rs");
 }
 pub mod users {
     include!("users.rs");

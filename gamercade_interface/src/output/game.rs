@@ -1,5 +1,25 @@
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct UpdateGameRequest {
+    #[prost(fixed64, optional, tag = "1")]
+    pub game_id: ::core::option::Option<u64>,
+    #[prost(string, optional, tag = "2")]
+    pub title: ::core::option::Option<::prost::alloc::string::String>,
+    #[prost(string, optional, tag = "3")]
+    pub short_description: ::core::option::Option<::prost::alloc::string::String>,
+    #[prost(string, optional, tag = "4")]
+    pub long_description: ::core::option::Option<::prost::alloc::string::String>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct TagGameRequest {
+    #[prost(uint32, tag = "1")]
+    pub tag_id: u32,
+    #[prost(bool, tag = "2")]
+    pub set_to: bool,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GameInfoRequest {
     #[prost(fixed64, tag = "1")]
     pub game_id: u64,
@@ -217,6 +237,69 @@ pub mod game_service_client {
                 .insert(GrpcMethod::new("game.GameService", "GetGameDetailedInfo"));
             self.inner.unary(req, path, codec).await
         }
+        pub async fn create_game(
+            &mut self,
+            request: impl tonic::IntoRequest<super::UpdateGameRequest>,
+        ) -> std::result::Result<tonic::Response<super::GameInfoBasic>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/game.GameService/CreateGame",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("game.GameService", "CreateGame"));
+            self.inner.unary(req, path, codec).await
+        }
+        pub async fn update_game(
+            &mut self,
+            request: impl tonic::IntoRequest<super::UpdateGameRequest>,
+        ) -> std::result::Result<tonic::Response<super::GameInfoBasic>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/game.GameService/UpdateGame",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("game.GameService", "UpdateGame"));
+            self.inner.unary(req, path, codec).await
+        }
+        pub async fn tag_game(
+            &mut self,
+            request: impl tonic::IntoRequest<super::TagGameRequest>,
+        ) -> std::result::Result<tonic::Response<super::GameInfoBasic>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static("/game.GameService/TagGame");
+            let mut req = request.into_request();
+            req.extensions_mut().insert(GrpcMethod::new("game.GameService", "TagGame"));
+            self.inner.unary(req, path, codec).await
+        }
     }
 }
 /// Generated server implementations.
@@ -244,6 +327,18 @@ pub mod game_service_server {
             tonic::Response<super::GameInfoDetailed>,
             tonic::Status,
         >;
+        async fn create_game(
+            &self,
+            request: tonic::Request<super::UpdateGameRequest>,
+        ) -> std::result::Result<tonic::Response<super::GameInfoBasic>, tonic::Status>;
+        async fn update_game(
+            &self,
+            request: tonic::Request<super::UpdateGameRequest>,
+        ) -> std::result::Result<tonic::Response<super::GameInfoBasic>, tonic::Status>;
+        async fn tag_game(
+            &self,
+            request: tonic::Request<super::TagGameRequest>,
+        ) -> std::result::Result<tonic::Response<super::GameInfoBasic>, tonic::Status>;
     }
     #[derive(Debug)]
     pub struct GameServiceServer<T: GameService> {
@@ -450,6 +545,144 @@ pub mod game_service_server {
                     let fut = async move {
                         let inner = inner.0;
                         let method = GetGameDetailedInfoSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/game.GameService/CreateGame" => {
+                    #[allow(non_camel_case_types)]
+                    struct CreateGameSvc<T: GameService>(pub Arc<T>);
+                    impl<
+                        T: GameService,
+                    > tonic::server::UnaryService<super::UpdateGameRequest>
+                    for CreateGameSvc<T> {
+                        type Response = super::GameInfoBasic;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::UpdateGameRequest>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as GameService>::create_game(&inner, request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = CreateGameSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/game.GameService/UpdateGame" => {
+                    #[allow(non_camel_case_types)]
+                    struct UpdateGameSvc<T: GameService>(pub Arc<T>);
+                    impl<
+                        T: GameService,
+                    > tonic::server::UnaryService<super::UpdateGameRequest>
+                    for UpdateGameSvc<T> {
+                        type Response = super::GameInfoBasic;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::UpdateGameRequest>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as GameService>::update_game(&inner, request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = UpdateGameSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/game.GameService/TagGame" => {
+                    #[allow(non_camel_case_types)]
+                    struct TagGameSvc<T: GameService>(pub Arc<T>);
+                    impl<
+                        T: GameService,
+                    > tonic::server::UnaryService<super::TagGameRequest>
+                    for TagGameSvc<T> {
+                        type Response = super::GameInfoBasic;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::TagGameRequest>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as GameService>::tag_game(&inner, request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = TagGameSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(

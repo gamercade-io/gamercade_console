@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+import "common.proto";
+
+package release;
+
+service ReleaseService {
+    rpc CreateNewRelease(CreateReleaseRequest) returns (CreateReleaseResponse);
+    rpc UpdateRelease(UpdateReleaseRequest) returns (ReleaseResponse);
+}
+
+message CreateReleaseRequest {
+   fixed64 game_id = 1;
+   string release_name = 2;
+}
+
+message CreateReleaseResponse {
+    fixed64 release_id = 1;
+}
+
+message UpdateReleaseRequest {
+    fixed64 release_id = 1;
+}
+
+message ReleaseResponse {
+    fixed64 release_id = 1;
+    string release_name = 2;
+    bytes checksum = 3;
+}
