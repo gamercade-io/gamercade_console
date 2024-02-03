@@ -13,11 +13,11 @@ service GameService {
 }
 
 message GameInfoRequest {
-    uint32 game_id = 1;
+    fixed64 game_id = 1;
 }
 
 message MultipleGamesInfoRequest {
-    repeated uint32 game_ids = 1;
+    repeated fixed64 game_ids = 1;
 }
 
 message MultipleGamesInfoResponse {
@@ -25,16 +25,27 @@ message MultipleGamesInfoResponse {
 }
 
 message GameInfoBasic {
-    uint32 game_id = 1;
-    uint32 hash = 2;
+    fixed64 game_id = 1;
+    string title = 2;
     string short_description = 3;
-    repeated string tags = 4;
+    GameRelease latest_release = 4;
+    float average_rating = 5;
+    repeated uint32 tags = 6;
 }
 
 message GameInfoDetailed {
     GameInfoBasic basic_info = 1;
     string long_description = 2;
-    string game_version = 3;
-    string release_date = 4;
-    string last_updated = 5;
+    repeated GameRelease releases = 3;
+    repeated Author authors = 4;
+}
+
+message GameRelease {
+    fixed64 release_id = 1;
+    bytes checksum = 2;
+    string release_name = 3;
+}
+
+message Author {
+    fixed64 user_id = 1;
 }

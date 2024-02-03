@@ -1,14 +1,14 @@
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GameInfoRequest {
-    #[prost(uint32, tag = "1")]
-    pub game_id: u32,
+    #[prost(fixed64, tag = "1")]
+    pub game_id: u64,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct MultipleGamesInfoRequest {
-    #[prost(uint32, repeated, tag = "1")]
-    pub game_ids: ::prost::alloc::vec::Vec<u32>,
+    #[prost(fixed64, repeated, tag = "1")]
+    pub game_ids: ::prost::alloc::vec::Vec<u64>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -19,14 +19,18 @@ pub struct MultipleGamesInfoResponse {
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct GameInfoBasic {
-    #[prost(uint32, tag = "1")]
-    pub game_id: u32,
-    #[prost(uint32, tag = "2")]
-    pub hash: u32,
+    #[prost(fixed64, tag = "1")]
+    pub game_id: u64,
+    #[prost(string, tag = "2")]
+    pub title: ::prost::alloc::string::String,
     #[prost(string, tag = "3")]
     pub short_description: ::prost::alloc::string::String,
-    #[prost(string, repeated, tag = "4")]
-    pub tags: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+    #[prost(message, optional, tag = "4")]
+    pub latest_release: ::core::option::Option<GameRelease>,
+    #[prost(float, tag = "5")]
+    pub average_rating: f32,
+    #[prost(uint32, repeated, tag = "6")]
+    pub tags: ::prost::alloc::vec::Vec<u32>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -35,12 +39,26 @@ pub struct GameInfoDetailed {
     pub basic_info: ::core::option::Option<GameInfoBasic>,
     #[prost(string, tag = "2")]
     pub long_description: ::prost::alloc::string::String,
+    #[prost(message, repeated, tag = "3")]
+    pub releases: ::prost::alloc::vec::Vec<GameRelease>,
+    #[prost(message, repeated, tag = "4")]
+    pub authors: ::prost::alloc::vec::Vec<Author>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct GameRelease {
+    #[prost(fixed64, tag = "1")]
+    pub release_id: u64,
+    #[prost(bytes = "vec", tag = "2")]
+    pub checksum: ::prost::alloc::vec::Vec<u8>,
     #[prost(string, tag = "3")]
-    pub game_version: ::prost::alloc::string::String,
-    #[prost(string, tag = "4")]
-    pub release_date: ::prost::alloc::string::String,
-    #[prost(string, tag = "5")]
-    pub last_updated: ::prost::alloc::string::String,
+    pub release_name: ::prost::alloc::string::String,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct Author {
+    #[prost(fixed64, tag = "1")]
+    pub user_id: u64,
 }
 /// Generated client implementations.
 pub mod game_service_client {
