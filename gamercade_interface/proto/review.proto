@@ -1,0 +1,8 @@
+import "common.proto";
+
+package game;
+
+service ReviewService {
+    // TODO: Vote/Comment/Rate a game
+}
+

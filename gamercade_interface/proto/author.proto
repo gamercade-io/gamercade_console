@@ -5,5 +5,34 @@ import "common.proto";
 package author;
 
 service AuthorService {
-    
+    rpc AdjustGameAuthor(AdjustAuthorRequest) returns (AdjustAuthorResponse);
+    rpc GetGlobalPermissionLevels(common.Empty) returns (GlobalPermissionLevels);
+}
+
+message AdjustAuthorRequest {
+    fixed64 game_id = 1;
+    fixed64 user_id = 2;
+
+    optional string title = 3;
+    optional uint32 permission_level = 4;
+}
+
+message AdjustAuthorResponse {
+    fixed64 game_id = 1;
+    repeated Author authors = 2;
+}
+
+message Author {
+    fixed64 user_id = 1;
+    string title = 2;
+    uint32 permission_level_id = 3;
+}
+
+message GlobalPermissionLevels {
+    repeated PermissionLevel levels = 1;
+}
+
+message PermissionLevel {
+    string level_name = 1;
+    uint32 level_strength = 2;
 }
