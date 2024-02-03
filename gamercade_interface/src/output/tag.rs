@@ -1,33 +1,43 @@
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct GameImageRequest {
+pub struct AdjustGameTagRequest {
     #[prost(uint32, tag = "1")]
-    pub game_id: u32,
+    pub tag_id: u32,
+    #[prost(bool, tag = "2")]
+    pub set_to: bool,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct GameThumbnailResponse {
-    #[prost(bytes = "vec", tag = "1")]
-    pub data: ::prost::alloc::vec::Vec<u8>,
+pub struct AdjustGameTagResponse {
+    #[prost(fixed64, tag = "1")]
+    pub game_id: u64,
+    #[prost(message, repeated, tag = "2")]
+    pub tags: ::prost::alloc::vec::Vec<Tag>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct GameImagesResponse {
+pub struct Tag {
     #[prost(uint32, tag = "1")]
-    pub image_id: u32,
-    #[prost(bytes = "vec", tag = "2")]
-    pub data: ::prost::alloc::vec::Vec<u8>,
+    pub pid: u32,
+    #[prost(string, tag = "2")]
+    pub name: ::prost::alloc::string::String,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct GlobalTags {
+    #[prost(message, repeated, tag = "1")]
+    pub tags: ::prost::alloc::vec::Vec<Tag>,
 }
 /// Generated client implementations.
-pub mod images_service_client {
+pub mod tag_service_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
     use tonic::codegen::*;
     use tonic::codegen::http::Uri;
     #[derive(Debug, Clone)]
-    pub struct ImagesServiceClient<T> {
+    pub struct TagServiceClient<T> {
         inner: tonic::client::Grpc<T>,
     }
-    impl ImagesServiceClient<tonic::transport::Channel> {
+    impl TagServiceClient<tonic::transport::Channel> {
         /// Attempt to create a new client by connecting to a given endpoint.
         pub async fn connect<D>(dst: D) -> Result<Self, tonic::transport::Error>
         where
@@ -38,7 +48,7 @@ pub mod images_service_client {
             Ok(Self::new(conn))
         }
     }
-    impl<T> ImagesServiceClient<T>
+    impl<T> TagServiceClient<T>
     where
         T: tonic::client::GrpcService<tonic::body::BoxBody>,
         T::Error: Into<StdError>,
@@ -56,7 +66,7 @@ pub mod images_service_client {
         pub fn with_interceptor<F>(
             inner: T,
             interceptor: F,
-        ) -> ImagesServiceClient<InterceptedService<T, F>>
+        ) -> TagServiceClient<InterceptedService<T, F>>
         where
             F: tonic::service::Interceptor,
             T::ResponseBody: Default,
@@ -70,7 +80,7 @@ pub mod images_service_client {
                 http::Request<tonic::body::BoxBody>,
             >>::Error: Into<StdError> + Send + Sync,
         {
-            ImagesServiceClient::new(InterceptedService::new(inner, interceptor))
+            TagServiceClient::new(InterceptedService::new(inner, interceptor))
         }
         /// Compress requests with the given encoding.
         ///
@@ -103,11 +113,11 @@ pub mod images_service_client {
             self.inner = self.inner.max_encoding_message_size(limit);
             self
         }
-        pub async fn get_game_thumbnail(
+        pub async fn adjust_game_tag(
             &mut self,
-            request: impl tonic::IntoRequest<super::GameImageRequest>,
+            request: impl tonic::IntoRequest<super::AdjustGameTagRequest>,
         ) -> std::result::Result<
-            tonic::Response<tonic::codec::Streaming<super::GameThumbnailResponse>>,
+            tonic::Response<super::AdjustGameTagResponse>,
             tonic::Status,
         > {
             self.inner
@@ -121,20 +131,17 @@ pub mod images_service_client {
                 })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
-                "/image.ImagesService/GetGameThumbnail",
+                "/tag.TagService/AdjustGameTag",
             );
             let mut req = request.into_request();
             req.extensions_mut()
-                .insert(GrpcMethod::new("image.ImagesService", "GetGameThumbnail"));
-            self.inner.server_streaming(req, path, codec).await
+                .insert(GrpcMethod::new("tag.TagService", "AdjustGameTag"));
+            self.inner.unary(req, path, codec).await
         }
-        pub async fn get_game_images(
+        pub async fn get_global_tags(
             &mut self,
-            request: impl tonic::IntoRequest<super::GameImageRequest>,
-        ) -> std::result::Result<
-            tonic::Response<tonic::codec::Streaming<super::GameImagesResponse>>,
-            tonic::Status,
-        > {
+            request: impl tonic::IntoRequest<super::super::common::Empty>,
+        ) -> std::result::Result<tonic::Response<super::GlobalTags>, tonic::Status> {
             self.inner
                 .ready()
                 .await
@@ -146,51 +153,36 @@ pub mod images_service_client {
                 })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
-                "/image.ImagesService/GetGameImages",
+                "/tag.TagService/GetGlobalTags",
             );
             let mut req = request.into_request();
             req.extensions_mut()
-                .insert(GrpcMethod::new("image.ImagesService", "GetGameImages"));
-            self.inner.server_streaming(req, path, codec).await
+                .insert(GrpcMethod::new("tag.TagService", "GetGlobalTags"));
+            self.inner.unary(req, path, codec).await
         }
     }
 }
 /// Generated server implementations.
-pub mod images_service_server {
+pub mod tag_service_server {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
     use tonic::codegen::*;
-    /// Generated trait containing gRPC methods that should be implemented for use with ImagesServiceServer.
+    /// Generated trait containing gRPC methods that should be implemented for use with TagServiceServer.
     #[async_trait]
-    pub trait ImagesService: Send + Sync + 'static {
-        /// Server streaming response type for the GetGameThumbnail method.
-        type GetGameThumbnailStream: tonic::codegen::tokio_stream::Stream<
-                Item = std::result::Result<super::GameThumbnailResponse, tonic::Status>,
-            >
-            + Send
-            + 'static;
-        async fn get_game_thumbnail(
+    pub trait TagService: Send + Sync + 'static {
+        async fn adjust_game_tag(
             &self,
-            request: tonic::Request<super::GameImageRequest>,
+            request: tonic::Request<super::AdjustGameTagRequest>,
         ) -> std::result::Result<
-            tonic::Response<Self::GetGameThumbnailStream>,
+            tonic::Response<super::AdjustGameTagResponse>,
             tonic::Status,
         >;
-        /// Server streaming response type for the GetGameImages method.
-        type GetGameImagesStream: tonic::codegen::tokio_stream::Stream<
-                Item = std::result::Result<super::GameImagesResponse, tonic::Status>,
-            >
-            + Send
-            + 'static;
-        async fn get_game_images(
+        async fn get_global_tags(
             &self,
-            request: tonic::Request<super::GameImageRequest>,
-        ) -> std::result::Result<
-            tonic::Response<Self::GetGameImagesStream>,
-            tonic::Status,
-        >;
+            request: tonic::Request<super::super::common::Empty>,
+        ) -> std::result::Result<tonic::Response<super::GlobalTags>, tonic::Status>;
     }
     #[derive(Debug)]
-    pub struct ImagesServiceServer<T: ImagesService> {
+    pub struct TagServiceServer<T: TagService> {
         inner: _Inner<T>,
         accept_compression_encodings: EnabledCompressionEncodings,
         send_compression_encodings: EnabledCompressionEncodings,
@@ -198,7 +190,7 @@ pub mod images_service_server {
         max_encoding_message_size: Option<usize>,
     }
     struct _Inner<T>(Arc<T>);
-    impl<T: ImagesService> ImagesServiceServer<T> {
+    impl<T: TagService> TagServiceServer<T> {
         pub fn new(inner: T) -> Self {
             Self::from_arc(Arc::new(inner))
         }
@@ -250,9 +242,9 @@ pub mod images_service_server {
             self
         }
     }
-    impl<T, B> tonic::codegen::Service<http::Request<B>> for ImagesServiceServer<T>
+    impl<T, B> tonic::codegen::Service<http::Request<B>> for TagServiceServer<T>
     where
-        T: ImagesService,
+        T: TagService,
         B: Body + Send + 'static,
         B::Error: Into<StdError> + Send + 'static,
     {
@@ -268,27 +260,25 @@ pub mod images_service_server {
         fn call(&mut self, req: http::Request<B>) -> Self::Future {
             let inner = self.inner.clone();
             match req.uri().path() {
-                "/image.ImagesService/GetGameThumbnail" => {
+                "/tag.TagService/AdjustGameTag" => {
                     #[allow(non_camel_case_types)]
-                    struct GetGameThumbnailSvc<T: ImagesService>(pub Arc<T>);
+                    struct AdjustGameTagSvc<T: TagService>(pub Arc<T>);
                     impl<
-                        T: ImagesService,
-                    > tonic::server::ServerStreamingService<super::GameImageRequest>
-                    for GetGameThumbnailSvc<T> {
-                        type Response = super::GameThumbnailResponse;
-                        type ResponseStream = T::GetGameThumbnailStream;
+                        T: TagService,
+                    > tonic::server::UnaryService<super::AdjustGameTagRequest>
+                    for AdjustGameTagSvc<T> {
+                        type Response = super::AdjustGameTagResponse;
                         type Future = BoxFuture<
-                            tonic::Response<Self::ResponseStream>,
+                            tonic::Response<Self::Response>,
                             tonic::Status,
                         >;
                         fn call(
                             &mut self,
-                            request: tonic::Request<super::GameImageRequest>,
+                            request: tonic::Request<super::AdjustGameTagRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as ImagesService>::get_game_thumbnail(&inner, request)
-                                    .await
+                                <T as TagService>::adjust_game_tag(&inner, request).await
                             };
                             Box::pin(fut)
                         }
@@ -300,7 +290,7 @@ pub mod images_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let inner = inner.0;
-                        let method = GetGameThumbnailSvc(inner);
+                        let method = AdjustGameTagSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
@@ -311,31 +301,30 @@ pub mod images_service_server {
                                 max_decoding_message_size,
                                 max_encoding_message_size,
                             );
-                        let res = grpc.server_streaming(method, req).await;
+                        let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
                     Box::pin(fut)
                 }
-                "/image.ImagesService/GetGameImages" => {
+                "/tag.TagService/GetGlobalTags" => {
                     #[allow(non_camel_case_types)]
-                    struct GetGameImagesSvc<T: ImagesService>(pub Arc<T>);
+                    struct GetGlobalTagsSvc<T: TagService>(pub Arc<T>);
                     impl<
-                        T: ImagesService,
-                    > tonic::server::ServerStreamingService<super::GameImageRequest>
-                    for GetGameImagesSvc<T> {
-                        type Response = super::GameImagesResponse;
-                        type ResponseStream = T::GetGameImagesStream;
+                        T: TagService,
+                    > tonic::server::UnaryService<super::super::common::Empty>
+                    for GetGlobalTagsSvc<T> {
+                        type Response = super::GlobalTags;
                         type Future = BoxFuture<
-                            tonic::Response<Self::ResponseStream>,
+                            tonic::Response<Self::Response>,
                             tonic::Status,
                         >;
                         fn call(
                             &mut self,
-                            request: tonic::Request<super::GameImageRequest>,
+                            request: tonic::Request<super::super::common::Empty>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as ImagesService>::get_game_images(&inner, request).await
+                                <T as TagService>::get_global_tags(&inner, request).await
                             };
                             Box::pin(fut)
                         }
@@ -347,7 +336,7 @@ pub mod images_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let inner = inner.0;
-                        let method = GetGameImagesSvc(inner);
+                        let method = GetGlobalTagsSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
@@ -358,7 +347,7 @@ pub mod images_service_server {
                                 max_decoding_message_size,
                                 max_encoding_message_size,
                             );
-                        let res = grpc.server_streaming(method, req).await;
+                        let res = grpc.unary(method, req).await;
                         Ok(res)
                     };
                     Box::pin(fut)
@@ -378,7 +367,7 @@ pub mod images_service_server {
             }
         }
     }
-    impl<T: ImagesService> Clone for ImagesServiceServer<T> {
+    impl<T: TagService> Clone for TagServiceServer<T> {
         fn clone(&self) -> Self {
             let inner = self.inner.clone();
             Self {
@@ -390,7 +379,7 @@ pub mod images_service_server {
             }
         }
     }
-    impl<T: ImagesService> Clone for _Inner<T> {
+    impl<T: TagService> Clone for _Inner<T> {
         fn clone(&self) -> Self {
             Self(Arc::clone(&self.0))
         }
@@ -400,7 +389,7 @@ pub mod images_service_server {
             write!(f, "{:?}", self.0)
         }
     }
-    impl<T: ImagesService> tonic::server::NamedService for ImagesServiceServer<T> {
-        const NAME: &'static str = "image.ImagesService";
+    impl<T: TagService> tonic::server::NamedService for TagServiceServer<T> {
+        const NAME: &'static str = "tag.TagService";
     }
 }

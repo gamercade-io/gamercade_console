@@ -46,8 +46,8 @@ impl LoginView {
             //TODO: Show an animation thing
         }
 
-        if ui.button("Login as Guest").clicked() {
-            println!("TODO: Login as guest!")
+        if ui.button("Continue offline").clicked() {
+            return Some(ActiveView::browsing());
         }
 
         None

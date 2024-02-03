@@ -1,25 +1,57 @@
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct HomeView {
-    #[prost(message, repeated, tag = "1")]
-    pub game_entries: ::prost::alloc::vec::Vec<GameEntry>,
+pub struct AdjustAuthorRequest {
+    #[prost(fixed64, tag = "1")]
+    pub game_id: u64,
+    #[prost(fixed64, tag = "2")]
+    pub user_id: u64,
+    #[prost(string, optional, tag = "3")]
+    pub title: ::core::option::Option<::prost::alloc::string::String>,
+    #[prost(uint32, optional, tag = "4")]
+    pub permission_level: ::core::option::Option<u32>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct GameEntry {
-    #[prost(uint32, tag = "1")]
-    pub game_id: u32,
+pub struct AdjustAuthorResponse {
+    #[prost(fixed64, tag = "1")]
+    pub game_id: u64,
+    #[prost(message, repeated, tag = "2")]
+    pub authors: ::prost::alloc::vec::Vec<Author>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct Author {
+    #[prost(fixed64, tag = "1")]
+    pub user_id: u64,
+    #[prost(string, tag = "2")]
+    pub title: ::prost::alloc::string::String,
+    #[prost(uint32, tag = "3")]
+    pub permission_level_id: u32,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct GlobalPermissionLevels {
+    #[prost(message, repeated, tag = "1")]
+    pub levels: ::prost::alloc::vec::Vec<PermissionLevel>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct PermissionLevel {
+    #[prost(string, tag = "1")]
+    pub level_name: ::prost::alloc::string::String,
+    #[prost(uint32, tag = "2")]
+    pub level_strength: u32,
 }
 /// Generated client implementations.
-pub mod platform_service_client {
+pub mod author_service_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
     use tonic::codegen::*;
     use tonic::codegen::http::Uri;
     #[derive(Debug, Clone)]
-    pub struct PlatformServiceClient<T> {
+    pub struct AuthorServiceClient<T> {
         inner: tonic::client::Grpc<T>,
     }
-    impl PlatformServiceClient<tonic::transport::Channel> {
+    impl AuthorServiceClient<tonic::transport::Channel> {
         /// Attempt to create a new client by connecting to a given endpoint.
         pub async fn connect<D>(dst: D) -> Result<Self, tonic::transport::Error>
         where
@@ -30,7 +62,7 @@ pub mod platform_service_client {
             Ok(Self::new(conn))
         }
     }
-    impl<T> PlatformServiceClient<T>
+    impl<T> AuthorServiceClient<T>
     where
         T: tonic::client::GrpcService<tonic::body::BoxBody>,
         T::Error: Into<StdError>,
@@ -48,7 +80,7 @@ pub mod platform_service_client {
         pub fn with_interceptor<F>(
             inner: T,
             interceptor: F,
-        ) -> PlatformServiceClient<InterceptedService<T, F>>
+        ) -> AuthorServiceClient<InterceptedService<T, F>>
         where
             F: tonic::service::Interceptor,
             T::ResponseBody: Default,
@@ -62,7 +94,7 @@ pub mod platform_service_client {
                 http::Request<tonic::body::BoxBody>,
             >>::Error: Into<StdError> + Send + Sync,
         {
-            PlatformServiceClient::new(InterceptedService::new(inner, interceptor))
+            AuthorServiceClient::new(InterceptedService::new(inner, interceptor))
         }
         /// Compress requests with the given encoding.
         ///
@@ -95,10 +127,13 @@ pub mod platform_service_client {
             self.inner = self.inner.max_encoding_message_size(limit);
             self
         }
-        pub async fn get_home_view(
+        pub async fn adjust_game_author(
             &mut self,
-            request: impl tonic::IntoRequest<super::super::common::Empty>,
-        ) -> std::result::Result<tonic::Response<super::HomeView>, tonic::Status> {
+            request: impl tonic::IntoRequest<super::AdjustAuthorRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::AdjustAuthorResponse>,
+            tonic::Status,
+        > {
             self.inner
                 .ready()
                 .await
@@ -110,29 +145,66 @@ pub mod platform_service_client {
                 })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
-                "/platform.PlatformService/GetHomeView",
+                "/author.AuthorService/AdjustGameAuthor",
             );
             let mut req = request.into_request();
             req.extensions_mut()
-                .insert(GrpcMethod::new("platform.PlatformService", "GetHomeView"));
+                .insert(GrpcMethod::new("author.AuthorService", "AdjustGameAuthor"));
+            self.inner.unary(req, path, codec).await
+        }
+        pub async fn get_global_permission_levels(
+            &mut self,
+            request: impl tonic::IntoRequest<super::super::common::Empty>,
+        ) -> std::result::Result<
+            tonic::Response<super::GlobalPermissionLevels>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/author.AuthorService/GetGlobalPermissionLevels",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(
+                    GrpcMethod::new("author.AuthorService", "GetGlobalPermissionLevels"),
+                );
             self.inner.unary(req, path, codec).await
         }
     }
 }
 /// Generated server implementations.
-pub mod platform_service_server {
+pub mod author_service_server {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
     use tonic::codegen::*;
-    /// Generated trait containing gRPC methods that should be implemented for use with PlatformServiceServer.
+    /// Generated trait containing gRPC methods that should be implemented for use with AuthorServiceServer.
     #[async_trait]
-    pub trait PlatformService: Send + Sync + 'static {
-        async fn get_home_view(
+    pub trait AuthorService: Send + Sync + 'static {
+        async fn adjust_game_author(
+            &self,
+            request: tonic::Request<super::AdjustAuthorRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::AdjustAuthorResponse>,
+            tonic::Status,
+        >;
+        async fn get_global_permission_levels(
             &self,
             request: tonic::Request<super::super::common::Empty>,
-        ) -> std::result::Result<tonic::Response<super::HomeView>, tonic::Status>;
+        ) -> std::result::Result<
+            tonic::Response<super::GlobalPermissionLevels>,
+            tonic::Status,
+        >;
     }
     #[derive(Debug)]
-    pub struct PlatformServiceServer<T: PlatformService> {
+    pub struct AuthorServiceServer<T: AuthorService> {
         inner: _Inner<T>,
         accept_compression_encodings: EnabledCompressionEncodings,
         send_compression_encodings: EnabledCompressionEncodings,
@@ -140,7 +212,7 @@ pub mod platform_service_server {
         max_encoding_message_size: Option<usize>,
     }
     struct _Inner<T>(Arc<T>);
-    impl<T: PlatformService> PlatformServiceServer<T> {
+    impl<T: AuthorService> AuthorServiceServer<T> {
         pub fn new(inner: T) -> Self {
             Self::from_arc(Arc::new(inner))
         }
@@ -192,9 +264,9 @@ pub mod platform_service_server {
             self
         }
     }
-    impl<T, B> tonic::codegen::Service<http::Request<B>> for PlatformServiceServer<T>
+    impl<T, B> tonic::codegen::Service<http::Request<B>> for AuthorServiceServer<T>
     where
-        T: PlatformService,
+        T: AuthorService,
         B: Body + Send + 'static,
         B::Error: Into<StdError> + Send + 'static,
     {
@@ -210,25 +282,26 @@ pub mod platform_service_server {
         fn call(&mut self, req: http::Request<B>) -> Self::Future {
             let inner = self.inner.clone();
             match req.uri().path() {
-                "/platform.PlatformService/GetHomeView" => {
+                "/author.AuthorService/AdjustGameAuthor" => {
                     #[allow(non_camel_case_types)]
-                    struct GetHomeViewSvc<T: PlatformService>(pub Arc<T>);
+                    struct AdjustGameAuthorSvc<T: AuthorService>(pub Arc<T>);
                     impl<
-                        T: PlatformService,
-                    > tonic::server::UnaryService<super::super::common::Empty>
-                    for GetHomeViewSvc<T> {
-                        type Response = super::HomeView;
+                        T: AuthorService,
+                    > tonic::server::UnaryService<super::AdjustAuthorRequest>
+                    for AdjustGameAuthorSvc<T> {
+                        type Response = super::AdjustAuthorResponse;
                         type Future = BoxFuture<
                             tonic::Response<Self::Response>,
                             tonic::Status,
                         >;
                         fn call(
                             &mut self,
-                            request: tonic::Request<super::super::common::Empty>,
+                            request: tonic::Request<super::AdjustAuthorRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as PlatformService>::get_home_view(&inner, request).await
+                                <T as AuthorService>::adjust_game_author(&inner, request)
+                                    .await
                             };
                             Box::pin(fut)
                         }
@@ -240,7 +313,57 @@ pub mod platform_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let inner = inner.0;
-                        let method = GetHomeViewSvc(inner);
+                        let method = AdjustGameAuthorSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/author.AuthorService/GetGlobalPermissionLevels" => {
+                    #[allow(non_camel_case_types)]
+                    struct GetGlobalPermissionLevelsSvc<T: AuthorService>(pub Arc<T>);
+                    impl<
+                        T: AuthorService,
+                    > tonic::server::UnaryService<super::super::common::Empty>
+                    for GetGlobalPermissionLevelsSvc<T> {
+                        type Response = super::GlobalPermissionLevels;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::super::common::Empty>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as AuthorService>::get_global_permission_levels(
+                                        &inner,
+                                        request,
+                                    )
+                                    .await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = GetGlobalPermissionLevelsSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
@@ -271,7 +394,7 @@ pub mod platform_service_server {
             }
         }
     }
-    impl<T: PlatformService> Clone for PlatformServiceServer<T> {
+    impl<T: AuthorService> Clone for AuthorServiceServer<T> {
         fn clone(&self) -> Self {
             let inner = self.inner.clone();
             Self {
@@ -283,7 +406,7 @@ pub mod platform_service_server {
             }
         }
     }
-    impl<T: PlatformService> Clone for _Inner<T> {
+    impl<T: AuthorService> Clone for _Inner<T> {
         fn clone(&self) -> Self {
             Self(Arc::clone(&self.0))
         }
@@ -293,7 +416,7 @@ pub mod platform_service_server {
             write!(f, "{:?}", self.0)
         }
     }
-    impl<T: PlatformService> tonic::server::NamedService for PlatformServiceServer<T> {
-        const NAME: &'static str = "platform.PlatformService";
+    impl<T: AuthorService> tonic::server::NamedService for AuthorServiceServer<T> {
+        const NAME: &'static str = "author.AuthorService";
     }
 }
