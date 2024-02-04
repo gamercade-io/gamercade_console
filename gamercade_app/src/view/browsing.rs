@@ -1,34 +1,25 @@
 use eframe::egui::Ui;
 
+use crate::local_directory::LocalDirectory;
+
 use super::ActiveView;
 
-struct LocalGameEntry {
-    name: String,
-    releases: Vec<LocalGameRelease>,
-}
-
-struct LocalGameRelease {}
-
-pub struct BrowsingView {
-    local_game_list: Vec<LocalGameEntry>,
-}
-
-impl Default for BrowsingView {
-    fn default() -> Self {
-        //TODO: Populate these fields with local data
-        Self {
-            local_game_list: Vec::new(),
-        }
-    }
-}
+#[derive(Default)]
+pub struct BrowsingView {}
 
 impl BrowsingView {
-    pub fn draw(&mut self, ui: &mut Ui) -> Option<ActiveView> {
+    pub fn draw(&mut self, ui: &mut Ui, directory: &LocalDirectory) -> Option<ActiveView> {
         ui.label("Browsing");
 
         //TODO: Draw the browsing games list
+        directory.iter_games().for_each(|game| {});
 
         //TODO: Add a back button for signing in again
-        None
+
+        if ui.button("Back").clicked() {
+            Some(ActiveView::login())
+        } else {
+            None
+        }
     }
 }

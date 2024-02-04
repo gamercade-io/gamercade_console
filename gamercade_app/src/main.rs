@@ -3,6 +3,7 @@ use eframe::egui;
 mod app;
 mod auth;
 mod ips;
+mod local_directory;
 mod view;
 
 #[tokio::main]

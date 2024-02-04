@@ -18,7 +18,7 @@ gamercade_sound_engine = { path = "../gamercade_sound_engine" }
 gamercade_interface = { path = "../gamercade_interface" }
 
 # General Improvements
-hashbrown = { version = "0.13.2", features = ["serde"] }
+hashbrown = { version = "0.14.3", features = ["serde"] }
 parking_lot = "0.12.1"
 
 # Windowing & Graphics

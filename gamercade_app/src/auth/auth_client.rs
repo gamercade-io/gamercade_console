@@ -9,7 +9,7 @@ use gamercade_interface::{
 };
 use tokio::sync::{
     mpsc::{channel, Receiver, Sender},
-    RwLock,
+    Mutex,
 };
 use tonic::transport::Channel;
 
@@ -18,7 +18,7 @@ use crate::ips::AUTH_IP;
 use super::auth_state::AuthState;
 
 pub struct AuthClient {
-    pub state: Arc<RwLock<AuthState>>,
+    pub state: Arc<Mutex<AuthState>>,
     sender: Sender<AuthClientRequest>,
 }
 
@@ -29,7 +29,7 @@ pub enum AuthClientRequest {
 
 impl Default for AuthClient {
     fn default() -> Self {
-        let state = Arc::new(RwLock::new(AuthState::Unauthorized));
+        let state = Arc::new(Mutex::new(AuthState::Unauthorized));
         Self {
             sender: spawn_task(state.clone()),
             state,
@@ -62,7 +62,7 @@ impl AuthClient {
     }
 }
 
-fn spawn_task(auth_state: Arc<RwLock<AuthState>>) -> Sender<AuthClientRequest> {
+fn spawn_task(auth_state: Arc<Mutex<AuthState>>) -> Sender<AuthClientRequest> {
     let (auth_client_sender, rx) = channel(4);
 
     tokio::spawn(async move { AuthTask::new(rx, auth_state).run().await });
@@ -72,13 +72,13 @@ fn spawn_task(auth_state: Arc<RwLock<AuthState>>) -> Sender<AuthClientRequest> {
 
 struct AuthTask {
     main_thread_receiver: Receiver<AuthClientRequest>,
-    auth_state: Arc<RwLock<AuthState>>,
+    auth_state: Arc<Mutex<AuthState>>,
 }
 
 impl AuthTask {
     fn new(
         main_thread_receiver: Receiver<AuthClientRequest>,
-        auth_state: Arc<RwLock<AuthState>>,
+        auth_state: Arc<Mutex<AuthState>>,
     ) -> Self {
         Self {
             main_thread_receiver,
@@ -111,7 +111,7 @@ impl AuthTask {
                 let response = response.into_inner();
 
                 if let Ok(session) = Session::try_from(response.session.as_slice()) {
-                    let mut write = self.auth_state.write().await;
+                    let mut write = self.auth_state.lock().await;
                     *write = AuthState::SessionHeld(session);
                     println!("Logged in successfully: {:?}", write);
                     // TODO: Update the login page / move to browsing
