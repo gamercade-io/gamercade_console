@@ -11,7 +11,7 @@ pub struct LoginView {
     password: String,
 }
 
-#[derive(Default)]
+#[derive(Default, PartialEq, Eq)]
 enum Provider {
     #[default]
     Username,
@@ -27,6 +27,12 @@ impl LoginView {
             };
             ui.label(text);
             ui.text_edit_singleline(&mut self.provider);
+        });
+
+        ui.horizontal(|ui| {
+            ui.selectable_value(&mut self.provider_kind, Provider::Username, "Username");
+            ui.separator();
+            ui.selectable_value(&mut self.provider_kind, Provider::Email, "Email");
         });
 
         ui.horizontal(|ui| {

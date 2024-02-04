@@ -13,7 +13,7 @@ use tokio::sync::{
 };
 use tonic::transport::Channel;
 
-use crate::ips::AUTH_IP;
+use crate::ips::SERVICE_IP;
 
 use super::auth_state::AuthState;
 
@@ -87,7 +87,7 @@ impl AuthTask {
     }
 
     async fn run(mut self) {
-        let mut client = AuthServiceClient::connect(AUTH_IP).await.unwrap();
+        let mut client = AuthServiceClient::connect(SERVICE_IP).await.unwrap();
 
         // Handle Requests
         while let Some(request) = self.main_thread_receiver.recv().await {

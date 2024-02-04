@@ -30,9 +30,9 @@ impl Session {
     }
 }
 
-impl Into<Vec<u8>> for Session {
-    fn into(self) -> Vec<u8> {
-        Vec::from(self.0)
+impl From<Vec<u8>> for Session {
+    fn from(value: Vec<u8>) -> Self {
+        Self(value.try_into().unwrap())
     }
 }
 

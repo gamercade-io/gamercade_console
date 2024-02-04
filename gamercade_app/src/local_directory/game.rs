@@ -21,7 +21,7 @@ impl LocalDirectory {
         // TODO: Hit the DB to fetch the list of games and populate all of the fields
     }
 
-    pub fn iter_games<'a>(&'a self) -> GameIter<'a> {
+    pub fn iter_games(&self) -> GameIter<'_> {
         GameIter::new(&self.cached_games)
     }
 }

@@ -84,7 +84,7 @@ pub fn get_password_strength(password: &str) -> Result<PasswordStrength, Passwor
     let mut has_number = false;
     let mut has_special_character = false;
 
-    for char in password.chars().into_iter() {
+    for char in password.chars() {
         if !has_lower && char.is_ascii_lowercase() {
             has_lower = true
         }

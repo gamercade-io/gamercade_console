@@ -53,22 +53,18 @@ impl Resolution {
     }
 
     pub fn try_get_xcord<T: Into<i32>>(&self, value: T) -> Option<XCord> {
-        match value.try_into() {
-            Ok(v) => match 0 <= v && v < self.width() {
-                true => Some(XCord(v as usize)),
-                false => None,
-            },
-            _ => None,
+        let v = value.into();
+        match 0 <= v && v < self.width() {
+            true => Some(XCord(v as usize)),
+            false => None,
         }
     }
 
     pub fn try_get_ycord<T: Into<i32>>(&self, value: T) -> Option<YCord> {
-        match value.try_into() {
-            Ok(v) => match 0 <= v && v < self.height() {
-                true => Some(YCord(v as usize)),
-                false => None,
-            },
-            _ => None,
+        let v = value.into();
+        match 0 <= v && v < self.height() {
+            true => Some(YCord(v as usize)),
+            false => None,
         }
     }
 }

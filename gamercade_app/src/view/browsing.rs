@@ -12,7 +12,7 @@ impl BrowsingView {
         ui.label("Browsing");
 
         //TODO: Draw the browsing games list
-        directory.iter_games().for_each(|game| {});
+        directory.iter_games().for_each(|_game| {});
 
         //TODO: Add a back button for signing in again
 
