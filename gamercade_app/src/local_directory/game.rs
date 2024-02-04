@@ -1,3 +1,5 @@
+use rusqlite::Connection;
+
 use super::{tag::TagId, LocalDirectory};
 
 pub struct Game {
@@ -8,12 +10,53 @@ pub struct Game {
     pub releases: Vec<GameRelease>,
     pub tags: Vec<TagId>,
     pub rating: Option<f32>,
+    pub images: Vec<GameImage>,
 }
 
 pub struct GameRelease {
     pub id: u64,
     pub checksum: u128,
     pub name: String,
+}
+
+pub struct GameImage {
+    pub path: String,
+}
+
+const UPSERT_GAMES_QUERIES: &str = "
+BEGIN;
+CREATE TABLE IF NOT EXISTS games (
+    id INT PRIMARY KEY,
+    title TEXT NOT NULL,
+    short_description TEXT NOT NULL,
+    long_description TEXT NOT NULL,
+    rating REAL,
+    UNIQUE(title)
+) STRICT;
+
+CREATE TABLE IF NOT EXISTS releases(
+    id INT PRIMARY KEY,
+    file_checksum BLOB,
+    game_id INT NOT NULL,
+    release_name TEXT NOT NULL,
+    FOREIGN KEY (game_id) REFERENCES games (id),
+    UNIQUE(game_id, file_checksum),
+    UNIQUE(game_id, release_name)
+) STRICT;
+
+CREATE TABLE IF NOT EXISTS game_tags(
+    id INT PRIMARY KEY,
+    game_id INT NOT NULL,
+    tag_id INT NOT NULL,
+    FOREIGN KEY (game_id) REFERENCES games (id),
+    FOREIGN KEY (tag_id) REFERENCES tags (pid),
+    UNIQUE(game_id, tag_id)
+) STRICT;
+COMMIT;
+";
+
+pub(super) fn upsert_games_table(db: &Connection) {
+    db.execute_batch(UPSERT_GAMES_QUERIES).unwrap();
 }
 
 impl LocalDirectory {

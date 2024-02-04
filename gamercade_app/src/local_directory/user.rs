@@ -9,7 +9,7 @@ pub struct UserId(pub u64);
 pub struct User {
     pub id: u64,
     pub username: String,
-    // TODO: Add profile image? Could be in the DB itself, or a separate file
+    pub avatar_last_updated: Option<u64>,
 }
 
 impl From<&rusqlite::Row<'_>> for User {
@@ -17,6 +17,7 @@ impl From<&rusqlite::Row<'_>> for User {
         Self {
             id: value.get::<usize, i64>(0).unwrap() as u64,
             username: value.get(1).unwrap(),
+            avatar_last_updated: value.get(2).unwrap(),
         }
     }
 }
@@ -33,7 +34,7 @@ impl DictionaryTrait<UserId, User> for Dictionary<UserId, User> {
     }
 
     fn upsert_table_query() -> &'static str {
-        "CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY, username STRING NOT NULL);"
+        "CREATE TABLE IF NOT EXISTS users(id INT PRIMARY KEY, username STRING NOT NULL, avatar_last_updated INT) STRICT;"
     }
 
     fn drop_table_query() -> &'static str {

@@ -26,7 +26,7 @@ impl DictionaryTrait<TagId, Tag> for Dictionary<TagId, Tag> {
     }
 
     fn upsert_table_query() -> &'static str {
-        "CREATE TABLE IF NOT EXISTS tags(id INTEGER PRIMARY KEY, tag_name STRING NOT NULL);"
+        "CREATE TABLE IF NOT EXISTS tags(id INT PRIMARY KEY, tag_name STRING NOT NULL) STRICT;"
     }
 
     fn drop_table_query() -> &'static str {

@@ -11,6 +11,7 @@ mod user;
 use game::Game;
 
 use self::{
+    game::upsert_games_table,
     permission_level::{PermissionLevelId, PermissionLevelName},
     tag::{Tag, TagId},
     user::{User, UserId},
@@ -24,15 +25,15 @@ type PermissionLevelDictionary = Dictionary<PermissionLevelId, PermissionLevelNa
 
 pub struct LocalDirectory {
     db: Connection,
-    cached_games: Vec<Game>,
-    tags: TagDictionary,
-    users: UserDictionary,
-    permission_levels: PermissionLevelDictionary,
+    pub cached_games: Vec<Game>,
+    pub tags: TagDictionary,
+    pub users: UserDictionary,
+    pub permission_levels: PermissionLevelDictionary,
     // TODO: Add Images
 }
 
 #[derive(Default)]
-struct Dictionary<Key, Value> {
+pub struct Dictionary<Key, Value> {
     map: HashMap<Key, Value>,
 }
 
@@ -53,7 +54,7 @@ trait DictionaryTrait<K, V> {
         while let Ok(Some(row)) = results.next() {
             let key = row.get(0).unwrap();
             let value = V::from(row);
-            output.map_mut().insert(key, value);
+            output.get_map_mut().insert(key, value);
         }
 
         output
@@ -64,17 +65,17 @@ trait DictionaryTrait<K, V> {
     fn drop_table_query() -> &'static str;
 }
 
-trait IsDictionary<K, V> {
-    fn map(&self) -> &HashMap<K, V>;
-    fn map_mut(&mut self) -> &mut HashMap<K, V>;
+pub trait IsDictionary<K, V> {
+    fn get_map(&self) -> &HashMap<K, V>;
+    fn get_map_mut(&mut self) -> &mut HashMap<K, V>;
 }
 
 impl<K, V> IsDictionary<K, V> for Dictionary<K, V> {
-    fn map_mut(&mut self) -> &mut HashMap<K, V> {
+    fn get_map_mut(&mut self) -> &mut HashMap<K, V> {
         &mut self.map
     }
 
-    fn map(&self) -> &HashMap<K, V> {
+    fn get_map(&self) -> &HashMap<K, V> {
         &self.map
     }
 }
@@ -90,6 +91,8 @@ impl Default for LocalDirectory {
             db,
             cached_games: Vec::new(),
         };
+
+        upsert_games_table(&output.db);
 
         output.refresh_cached_games();
 
