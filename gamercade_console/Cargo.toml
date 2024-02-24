@@ -40,7 +40,7 @@ serde_json = "1.0.96"
 bytemuck = "1.13.1"
 
 # Scripting
-wasmtime = { version = "8.0.1", features = ["cranelift"] }
+wasmtime = "18.0.1"
 
 # Random
 fastrand = "1.9.0"
