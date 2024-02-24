@@ -14,3 +14,7 @@ members = [
     "gamercade_sound_engine",
     "gamercade_tools",
 ]
+
+[profile.release]
+opt-level = 3
+lto = true
