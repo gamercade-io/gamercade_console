@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use gamercade_sound_engine::{SoundEngine, SoundEngineData, SoundRomInstance};
-use ggrs::GGRSRequest;
+use ggrs::GgrsRequest;
 use wasmtime::{Engine, ExternType, Instance, Linker, Module, Mutability, Store, TypedFunc};
 use winit::{
     dpi::PhysicalPosition,
@@ -294,18 +294,18 @@ impl Console for WasmConsole {
         buffer.copy_from_slice(&self.store.data().draw_context.frame_buffer.pixel_buffer);
     }
 
-    fn handle_requests(&mut self, requests: Vec<GGRSRequest<Self>>) {
+    fn handle_requests(&mut self, requests: Vec<GgrsRequest<Self>>) {
         for request in requests {
             match request {
-                GGRSRequest::SaveGameState { cell, frame } => {
+                GgrsRequest::SaveGameState { cell, frame } => {
                     let state = self.generate_save_state();
                     cell.save(frame, Some(state), None);
                 }
-                GGRSRequest::LoadGameState { cell, .. } => {
+                GgrsRequest::LoadGameState { cell, .. } => {
                     let state = cell.load().expect("Failed to load game state");
                     self.load_save_state(state);
                 }
-                GGRSRequest::AdvanceFrame { inputs } => {
+                GgrsRequest::AdvanceFrame { inputs } => {
                     // Copy new inputs into the state
                     self.store
                         .data_mut()

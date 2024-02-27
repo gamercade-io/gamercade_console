@@ -49,7 +49,7 @@ fastrand = "1.9.0"
 cpal = "0.15.2"
 
 # Networking
-ggrs = "0.9.4"
+ggrs = "0.10.0"
 
 # File Picker Dialog
 rfd = "0.11.3"

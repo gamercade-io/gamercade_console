@@ -188,6 +188,7 @@ impl Gui {
                 session_descriptor.port,
                 &session_descriptor.player_types,
             );
+
             (new_session.max_prediction(), new_session)
         };
 
@@ -232,6 +233,7 @@ fn init_session(
     players: &[PlayerType<SocketAddr>],
 ) -> P2PSession<WasmConsole> {
     let mut sess_builder = SessionBuilder::new()
+        .with_sparse_saving_mode(true)
         .with_num_players(players.len())
         .with_fps(rom.frame_rate.frames_per_second())
         .unwrap();
