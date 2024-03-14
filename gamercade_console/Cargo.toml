@@ -40,7 +40,7 @@ serde_json = "1.0.96"
 bytemuck = "1.13.1"
 
 # Scripting
-wasmtime = "18.0.1"
+wasmtime = "18.0.2"
 
 # Random
 fastrand = "1.9.0"

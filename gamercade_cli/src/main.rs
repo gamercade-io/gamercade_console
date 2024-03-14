@@ -111,7 +111,16 @@ pub fn main() {
                 Err(e) => println!("{e}"),
             }
         }
-    } else if let Err(e) = cli.command.run() {
-        println!("{e}");
+    } else {
+        match cli.command.run() {
+            Ok(Some(mut child)) => {
+                match child.wait() {
+                    Ok(code) => println!("Process ended with exit status: {code} "),
+                    Err(e) => println!("Process terminated unsuccessfully {e}"),
+                }
+            },
+            Ok(None) => println!("Process successful."),
+            Err(e) => println!("Failed to run: {e}."),
+        }
     }
 }
