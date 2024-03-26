@@ -1,8 +1,32 @@
+syntax = "proto3";
+
 import "common.proto";
 
 package game;
 
 service ReviewService {
-    // TODO: Vote/Comment/Rate a game
+    rpc ReviewGame(ReviewGameRequest) returns (common.Empty);
+    rpc DeleteReview(SingleGameRequest) returns (common.Empty);
+    rpc GetGameReviews(SingleGameRequest) returns (GameReviews);
 }
 
+message ReviewGameRequest {
+    fixed64 game_id = 1;
+    uint32 rating = 2;
+    string comments = 3;
+}
+
+message SingleGameRequest {
+    fixed64 game_id = 1;
+}
+
+message GameReviews {
+    repeated GameReviewEntry reviews = 1;
+}
+
+message GameReviewEntry {
+    fixed64 user_id = 1;
+    uint32 rating = 2;
+    string comments = 3;
+    uint64 review_date_s = 4;
+}

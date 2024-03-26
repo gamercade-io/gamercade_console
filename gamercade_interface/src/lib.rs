@@ -9,7 +9,16 @@ pub mod security;
 pub mod filter;
 
 pub const USERNAME_LENGTH_MIN: usize = 1;
-pub const USERNAME_LENGTH_MAX: usize = 32;
+pub const USERNAME_LENGTH_MAX: usize = 31;
+pub const EMAIL_MAX_LENGTH: usize = 255;
+
+pub const GAME_TITLE_MAX_LENGTH: usize = 123;
+pub const GAME_SHORT_DESCRIPTION_MAX_LENGTH: usize = 255;
+pub const GAME_LONG_DESCRIPTION_MAX_LENGTH: usize = 2047;
+pub const RELEASE_NAME_MAX_LENGTH: usize = 123;
+
+pub const AUTHOR_TITLE_MAX_LENGTH: usize = 31;
+pub const REVIEW_COMMENTS_MAX_LENGTH: usize = 1027;
 
 pub const SESSION_METADATA_KEY: &str = "gc-session";
 
@@ -27,6 +36,10 @@ impl Session {
 
     pub fn bytes(&self) -> &[u8; 16] {
         &self.0
+    }
+
+    pub fn to_vec(&self) -> Vec<u8> {
+        Vec::from_iter(self.0)
     }
 }
 

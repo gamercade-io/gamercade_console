@@ -746,6 +746,40 @@ pub mod game_service_server {
         const NAME: &'static str = "game.GameService";
     }
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct ReviewGameRequest {
+    #[prost(fixed64, tag = "1")]
+    pub game_id: u64,
+    #[prost(uint32, tag = "2")]
+    pub rating: u32,
+    #[prost(string, tag = "3")]
+    pub comments: ::prost::alloc::string::String,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct SingleGameRequest {
+    #[prost(fixed64, tag = "1")]
+    pub game_id: u64,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct GameReviews {
+    #[prost(message, repeated, tag = "1")]
+    pub reviews: ::prost::alloc::vec::Vec<GameReviewEntry>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct GameReviewEntry {
+    #[prost(fixed64, tag = "1")]
+    pub user_id: u64,
+    #[prost(uint32, tag = "2")]
+    pub rating: u32,
+    #[prost(string, tag = "3")]
+    pub comments: ::prost::alloc::string::String,
+    #[prost(uint64, tag = "4")]
+    pub review_date_s: u64,
+}
 /// Generated client implementations.
 pub mod review_service_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
@@ -831,6 +865,78 @@ pub mod review_service_client {
             self.inner = self.inner.max_encoding_message_size(limit);
             self
         }
+        pub async fn review_game(
+            &mut self,
+            request: impl tonic::IntoRequest<super::ReviewGameRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::super::common::Empty>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/game.ReviewService/ReviewGame",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("game.ReviewService", "ReviewGame"));
+            self.inner.unary(req, path, codec).await
+        }
+        pub async fn delete_review(
+            &mut self,
+            request: impl tonic::IntoRequest<super::SingleGameRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::super::common::Empty>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/game.ReviewService/DeleteReview",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("game.ReviewService", "DeleteReview"));
+            self.inner.unary(req, path, codec).await
+        }
+        pub async fn get_game_reviews(
+            &mut self,
+            request: impl tonic::IntoRequest<super::SingleGameRequest>,
+        ) -> std::result::Result<tonic::Response<super::GameReviews>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/game.ReviewService/GetGameReviews",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("game.ReviewService", "GetGameReviews"));
+            self.inner.unary(req, path, codec).await
+        }
     }
 }
 /// Generated server implementations.
@@ -839,7 +945,26 @@ pub mod review_service_server {
     use tonic::codegen::*;
     /// Generated trait containing gRPC methods that should be implemented for use with ReviewServiceServer.
     #[async_trait]
-    pub trait ReviewService: Send + Sync + 'static {}
+    pub trait ReviewService: Send + Sync + 'static {
+        async fn review_game(
+            &self,
+            request: tonic::Request<super::ReviewGameRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::super::common::Empty>,
+            tonic::Status,
+        >;
+        async fn delete_review(
+            &self,
+            request: tonic::Request<super::SingleGameRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::super::common::Empty>,
+            tonic::Status,
+        >;
+        async fn get_game_reviews(
+            &self,
+            request: tonic::Request<super::SingleGameRequest>,
+        ) -> std::result::Result<tonic::Response<super::GameReviews>, tonic::Status>;
+    }
     #[derive(Debug)]
     pub struct ReviewServiceServer<T: ReviewService> {
         inner: _Inner<T>,
@@ -919,6 +1044,145 @@ pub mod review_service_server {
         fn call(&mut self, req: http::Request<B>) -> Self::Future {
             let inner = self.inner.clone();
             match req.uri().path() {
+                "/game.ReviewService/ReviewGame" => {
+                    #[allow(non_camel_case_types)]
+                    struct ReviewGameSvc<T: ReviewService>(pub Arc<T>);
+                    impl<
+                        T: ReviewService,
+                    > tonic::server::UnaryService<super::ReviewGameRequest>
+                    for ReviewGameSvc<T> {
+                        type Response = super::super::common::Empty;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::ReviewGameRequest>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as ReviewService>::review_game(&inner, request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = ReviewGameSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/game.ReviewService/DeleteReview" => {
+                    #[allow(non_camel_case_types)]
+                    struct DeleteReviewSvc<T: ReviewService>(pub Arc<T>);
+                    impl<
+                        T: ReviewService,
+                    > tonic::server::UnaryService<super::SingleGameRequest>
+                    for DeleteReviewSvc<T> {
+                        type Response = super::super::common::Empty;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::SingleGameRequest>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as ReviewService>::delete_review(&inner, request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = DeleteReviewSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/game.ReviewService/GetGameReviews" => {
+                    #[allow(non_camel_case_types)]
+                    struct GetGameReviewsSvc<T: ReviewService>(pub Arc<T>);
+                    impl<
+                        T: ReviewService,
+                    > tonic::server::UnaryService<super::SingleGameRequest>
+                    for GetGameReviewsSvc<T> {
+                        type Response = super::GameReviews;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::SingleGameRequest>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as ReviewService>::get_game_reviews(&inner, request)
+                                    .await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = GetGameReviewsSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
                 _ => {
                     Box::pin(async move {
                         Ok(

@@ -113,11 +113,9 @@ pub fn main() {
         }
     } else {
         match cli.command.run() {
-            Ok(Some(mut child)) => {
-                match child.wait() {
-                    Ok(code) => println!("Process ended with exit status: {code} "),
-                    Err(e) => println!("Process terminated unsuccessfully {e}"),
-                }
+            Ok(Some(mut child)) => match child.wait() {
+                Ok(code) => println!("Process ended with exit status: {code} "),
+                Err(e) => println!("Process terminated unsuccessfully {e}"),
             },
             Ok(None) => println!("Process successful."),
             Err(e) => println!("Failed to run: {e}."),
