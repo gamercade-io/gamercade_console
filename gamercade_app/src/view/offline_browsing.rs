@@ -5,11 +5,11 @@ use crate::local_directory::LocalDirectory;
 use super::ActiveView;
 
 #[derive(Default)]
-pub struct BrowsingView {}
+pub struct OfflineBrowsingView {}
 
-impl BrowsingView {
+impl OfflineBrowsingView {
     pub fn draw(&mut self, ui: &mut Ui, directory: &LocalDirectory) -> Option<ActiveView> {
-        ui.label("Browsing");
+        ui.label("Offline Browsing");
 
         //TODO: Draw the browsing games list
         directory.iter_games().for_each(|_game| {});

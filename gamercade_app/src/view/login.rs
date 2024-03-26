@@ -53,7 +53,7 @@ impl LoginView {
         }
 
         if ui.button("Continue offline").clicked() {
-            return Some(ActiveView::browsing());
+            return Some(ActiveView::offline_browsing());
         }
 
         None

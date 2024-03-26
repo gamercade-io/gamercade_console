@@ -28,7 +28,7 @@ impl DictionaryTrait<PermissionLevelId, PermissionLevelName>
     }
 
     fn upsert_table_query() -> &'static str {
-        "CREATE TABLE IF NOT EXISTS permission_levels(id INT PRIMARY KEY, level_name STRING NOT NULL) STRICT;"
+        "CREATE TABLE IF NOT EXISTS permission_levels(id INTEGER PRIMARY KEY, level_name TEXT NOT NULL) STRICT;"
     }
 
     fn drop_table_query() -> &'static str {

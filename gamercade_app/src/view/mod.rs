@@ -2,16 +2,16 @@ use eframe::egui::Ui;
 
 use crate::{auth::AuthClient, local_directory::LocalDirectory};
 
-use self::{browsing::BrowsingView, login::LoginView, sign_up::SignUpView};
+use self::{login::LoginView, offline_browsing::OfflineBrowsingView, sign_up::SignUpView};
 
-mod browsing;
 mod login;
+mod offline_browsing;
 mod sign_up;
 
 pub enum ActiveView {
     Login(LoginView),
     SignUp(SignUpView),
-    Browsing(BrowsingView),
+    OfflineBrowsing(OfflineBrowsingView),
 }
 
 impl Default for ActiveView {
@@ -29,15 +29,15 @@ impl ActiveView {
         Self::SignUp(SignUpView::default())
     }
 
-    fn browsing() -> Self {
-        Self::Browsing(BrowsingView::default())
+    fn offline_browsing() -> Self {
+        Self::OfflineBrowsing(OfflineBrowsingView::default())
     }
 
     pub fn draw(&mut self, ui: &mut Ui, auth_client: &mut AuthClient, directory: &LocalDirectory) {
         if let Some(next) = match self {
             ActiveView::Login(view) => view.draw(ui, auth_client),
             ActiveView::SignUp(view) => view.draw(ui, auth_client),
-            ActiveView::Browsing(view) => view.draw(ui, directory),
+            ActiveView::OfflineBrowsing(view) => view.draw(ui, directory),
         } {
             *self = next;
         }

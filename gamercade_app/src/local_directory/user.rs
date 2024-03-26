@@ -34,7 +34,7 @@ impl DictionaryTrait<UserId, User> for Dictionary<UserId, User> {
     }
 
     fn upsert_table_query() -> &'static str {
-        "CREATE TABLE IF NOT EXISTS users(id INT PRIMARY KEY, username STRING NOT NULL, avatar_last_updated INT) STRICT;"
+        "CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY, username TEXT NOT NULL, avatar_last_updated INTEGER) STRICT;"
     }
 
     fn drop_table_query() -> &'static str {

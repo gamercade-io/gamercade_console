@@ -26,7 +26,7 @@ pub struct GameImage {
 const UPSERT_GAMES_QUERIES: &str = "
 BEGIN;
 CREATE TABLE IF NOT EXISTS games (
-    id INT PRIMARY KEY,
+    id INTEGER PRIMARY KEY,
     title TEXT NOT NULL,
     short_description TEXT NOT NULL,
     long_description TEXT NOT NULL,
@@ -35,9 +35,9 @@ CREATE TABLE IF NOT EXISTS games (
 ) STRICT;
 
 CREATE TABLE IF NOT EXISTS releases(
-    id INT PRIMARY KEY,
+    id INTEGER PRIMARY KEY,
     file_checksum BLOB,
-    game_id INT NOT NULL,
+    game_id INTEGER NOT NULL,
     release_name TEXT NOT NULL,
     FOREIGN KEY (game_id) REFERENCES games (id),
     UNIQUE(game_id, file_checksum),
@@ -45,9 +45,9 @@ CREATE TABLE IF NOT EXISTS releases(
 ) STRICT;
 
 CREATE TABLE IF NOT EXISTS game_tags(
-    id INT PRIMARY KEY,
-    game_id INT NOT NULL,
-    tag_id INT NOT NULL,
+    id INTEGER PRIMARY KEY,
+    game_id INTEGER NOT NULL,
+    tag_id INTEGER NOT NULL,
     FOREIGN KEY (game_id) REFERENCES games (id),
     FOREIGN KEY (tag_id) REFERENCES tags (pid),
     UNIQUE(game_id, tag_id)
