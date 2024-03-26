@@ -37,9 +37,11 @@ pub struct GlobalPermissionLevels {
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PermissionLevel {
-    #[prost(string, tag = "1")]
+    #[prost(uint32, tag = "1")]
+    pub level_id: u32,
+    #[prost(string, tag = "2")]
     pub level_name: ::prost::alloc::string::String,
-    #[prost(uint32, tag = "2")]
+    #[prost(uint32, tag = "3")]
     pub level_strength: u32,
 }
 /// Generated client implementations.
