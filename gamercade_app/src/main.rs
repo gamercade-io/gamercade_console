@@ -2,6 +2,7 @@ use eframe::egui;
 
 mod app;
 mod auth;
+mod client_task;
 mod ips;
 mod local_directory;
 mod view;
