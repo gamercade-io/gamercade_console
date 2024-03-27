@@ -37,6 +37,7 @@ impl TaskRequest<TagManagerState> for TagRequest {
                     .get_global_tags(Request::new(Empty {}))
                     .await
                     .unwrap();
+
                 let mut response = response.into_inner();
                 let tags = response
                     .tags

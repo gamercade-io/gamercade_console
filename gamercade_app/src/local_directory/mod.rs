@@ -10,7 +10,7 @@ mod user;
 
 use game::Game;
 
-pub use permission_level::{PermissionLevelId, PermissionLevelName};
+pub use permission_level::{PermissionLevel, PermissionLevelId};
 pub use tag::{Tag, TagId};
 pub use user::{User, UserId};
 
@@ -20,7 +20,7 @@ const LOCAL_DB_PATH: &str = "./local.db";
 
 type TagDictionary = Dictionary<TagId, Tag>;
 type UserDictionary = Dictionary<UserId, User>;
-type PermissionLevelDictionary = Dictionary<PermissionLevelId, PermissionLevelName>;
+type PermissionLevelDictionary = Dictionary<PermissionLevelId, PermissionLevel>;
 
 pub struct LocalDirectory {
     db: Connection,
@@ -52,7 +52,7 @@ impl LocalDirectory {
 
     pub fn upsert_permission_levesl(
         &mut self,
-        permission_levels: &[(PermissionLevelId, PermissionLevelName)],
+        permission_levels: &[(PermissionLevelId, PermissionLevel)],
         clear_db: bool,
     ) {
         if clear_db {

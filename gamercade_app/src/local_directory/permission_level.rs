@@ -6,11 +6,17 @@ use super::{Dictionary, DictionaryTrait};
 pub struct PermissionLevelId(pub usize);
 
 #[derive(Default, Debug)]
-pub struct PermissionLevelName(pub String);
+pub struct PermissionLevel {
+    pub name: String,
+    pub strength: i32,
+}
 
-impl From<&rusqlite::Row<'_>> for PermissionLevelName {
+impl From<&rusqlite::Row<'_>> for PermissionLevel {
     fn from(value: &rusqlite::Row<'_>) -> Self {
-        Self(value.get_unwrap(1))
+        Self {
+            name: value.get_unwrap(1),
+            strength: value.get_unwrap(2),
+        }
     }
 }
 
@@ -20,15 +26,15 @@ impl FromSql for PermissionLevelId {
     }
 }
 
-impl DictionaryTrait<PermissionLevelId, PermissionLevelName>
-    for Dictionary<PermissionLevelId, PermissionLevelName>
+impl DictionaryTrait<PermissionLevelId, PermissionLevel>
+    for Dictionary<PermissionLevelId, PermissionLevel>
 {
     fn fetch_all_query() -> &'static str {
         "SELECT * FROM permission_levels;"
     }
 
     fn upsert_table_query() -> &'static str {
-        "CREATE TABLE IF NOT EXISTS permission_levels(id INTEGER PRIMARY KEY, level_name TEXT NOT NULL) STRICT;"
+        "CREATE TABLE IF NOT EXISTS permission_levels(id INTEGER PRIMARY KEY, level_name TEXT NOT NULL, strength INTEGER NOT NULL) STRICT;"
     }
 
     fn drop_table_query() -> &'static str {
@@ -36,13 +42,15 @@ impl DictionaryTrait<PermissionLevelId, PermissionLevelName>
     }
 
     fn insert_query() -> &'static str {
-        "INSERT INTO permission_levels(id, level_name) VALUES (?, ?)"
+        "INSERT INTO permission_levels(id, level_name, strength) VALUES (?, ?, ?)"
     }
 
     fn insert_statement(
         statement: &mut rusqlite::Statement,
-        (key, value): &(PermissionLevelId, PermissionLevelName),
+        (key, value): &(PermissionLevelId, PermissionLevel),
     ) {
-        statement.execute((key.0 as i32, value.0.clone())).unwrap();
+        statement
+            .execute((key.0 as i32, value.name.clone(), value.strength))
+            .unwrap();
     }
 }

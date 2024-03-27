@@ -8,6 +8,9 @@ use tokio::sync::{
 mod tags;
 pub use tags::*;
 
+mod authors;
+pub use authors::*;
+
 mod super_task_manager;
 pub use super_task_manager::*;
 

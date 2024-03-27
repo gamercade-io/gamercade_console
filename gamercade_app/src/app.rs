@@ -2,7 +2,7 @@ use eframe::egui::{self};
 
 use crate::{
     auth::AuthClient,
-    local_directory::{IsDictionary, LocalDirectory},
+    local_directory::LocalDirectory,
     task_manager::{SuperTaskManager, TagRequest, TaskNotification},
     view::ActiveView,
 };
@@ -23,6 +23,7 @@ impl eframe::App for App {
         self.handle_notifications();
 
         egui::CentralPanel::default().show(ctx, |ui| {
+            // TODO: Remove this and fetch tags / Author Levels automatically
             if ui.button("Fetch Tags").clicked() {
                 self.tasks.tags.send_request(TagRequest::Initialize)
             }
@@ -39,11 +40,9 @@ impl App {
             match notification {
                 TaskNotification::GlobalTags(tags) => {
                     self.directory.upsert_tags(&tags, true);
-
-                    println!("Tags Dictionary");
-                    self.directory.tags.get_map().iter().for_each(|kv| {
-                        println!("{kv:?}");
-                    })
+                }
+                TaskNotification::GlobalPermissionLevels(permissions) => {
+                    self.directory.upsert_permission_levesl(&permissions, true);
                 }
             }
         }
