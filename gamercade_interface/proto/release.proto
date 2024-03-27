@@ -7,6 +7,7 @@ package release;
 service ReleaseService {
     rpc CreateNewRelease(CreateReleaseRequest) returns (CreateReleaseResponse);
     rpc UpdateRelease(UpdateReleaseRequest) returns (ReleaseResponse);
+    rpc DeleteRelease(DeleteReleaseRequest) returns (common.Empty);
 }
 
 message CreateReleaseRequest {
@@ -20,10 +21,15 @@ message CreateReleaseResponse {
 
 message UpdateReleaseRequest {
     fixed64 release_id = 1;
+    optional string new_name = 2;
 }
 
 message ReleaseResponse {
     fixed64 release_id = 1;
     string release_name = 2;
     bytes checksum = 3;
+}
+
+message DeleteReleaseRequest {
+    fixed64 release_id = 1;
 }

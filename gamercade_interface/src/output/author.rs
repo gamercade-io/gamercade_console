@@ -8,7 +8,7 @@ pub struct AdjustAuthorRequest {
     #[prost(string, optional, tag = "3")]
     pub title: ::core::option::Option<::prost::alloc::string::String>,
     #[prost(uint32, optional, tag = "4")]
-    pub permission_level: ::core::option::Option<u32>,
+    pub permission_level_id: ::core::option::Option<u32>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]

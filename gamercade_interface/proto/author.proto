@@ -14,7 +14,7 @@ message AdjustAuthorRequest {
     fixed64 user_id = 2;
 
     optional string title = 3;
-    optional uint32 permission_level = 4;
+    optional uint32 permission_level_id = 4;
 }
 
 message AdjustAuthorResponse {

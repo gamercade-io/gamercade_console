@@ -17,6 +17,8 @@ pub struct CreateReleaseResponse {
 pub struct UpdateReleaseRequest {
     #[prost(fixed64, tag = "1")]
     pub release_id: u64,
+    #[prost(string, optional, tag = "2")]
+    pub new_name: ::core::option::Option<::prost::alloc::string::String>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -27,6 +29,12 @@ pub struct ReleaseResponse {
     pub release_name: ::prost::alloc::string::String,
     #[prost(bytes = "vec", tag = "3")]
     pub checksum: ::prost::alloc::vec::Vec<u8>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct DeleteReleaseRequest {
+    #[prost(fixed64, tag = "1")]
+    pub release_id: u64,
 }
 /// Generated client implementations.
 pub mod release_service_client {
@@ -163,6 +171,31 @@ pub mod release_service_client {
                 .insert(GrpcMethod::new("release.ReleaseService", "UpdateRelease"));
             self.inner.unary(req, path, codec).await
         }
+        pub async fn delete_release(
+            &mut self,
+            request: impl tonic::IntoRequest<super::DeleteReleaseRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::super::common::Empty>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/release.ReleaseService/DeleteRelease",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("release.ReleaseService", "DeleteRelease"));
+            self.inner.unary(req, path, codec).await
+        }
     }
 }
 /// Generated server implementations.
@@ -183,6 +216,13 @@ pub mod release_service_server {
             &self,
             request: tonic::Request<super::UpdateReleaseRequest>,
         ) -> std::result::Result<tonic::Response<super::ReleaseResponse>, tonic::Status>;
+        async fn delete_release(
+            &self,
+            request: tonic::Request<super::DeleteReleaseRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::super::common::Empty>,
+            tonic::Status,
+        >;
     }
     #[derive(Debug)]
     pub struct ReleaseServiceServer<T: ReleaseService> {
@@ -341,6 +381,52 @@ pub mod release_service_server {
                     let fut = async move {
                         let inner = inner.0;
                         let method = UpdateReleaseSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/release.ReleaseService/DeleteRelease" => {
+                    #[allow(non_camel_case_types)]
+                    struct DeleteReleaseSvc<T: ReleaseService>(pub Arc<T>);
+                    impl<
+                        T: ReleaseService,
+                    > tonic::server::UnaryService<super::DeleteReleaseRequest>
+                    for DeleteReleaseSvc<T> {
+                        type Response = super::super::common::Empty;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::DeleteReleaseRequest>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as ReleaseService>::delete_release(&inner, request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = DeleteReleaseSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
