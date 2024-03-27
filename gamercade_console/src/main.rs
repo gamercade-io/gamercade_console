@@ -10,7 +10,7 @@ use std::{
 
 use clap::Parser;
 use gamercade_core::Resolution;
-use ggrs::{GGRSError, P2PSession, SessionState};
+use ggrs::{GgrsError, P2PSession, SessionState};
 use gilrs::Gilrs;
 use pixels::{Pixels, SurfaceTexture};
 use winit::{
@@ -199,7 +199,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                             Ok(requests) => {
                                 console.handle_requests(requests);
                             }
-                            Err(GGRSError::PredictionThreshold) => (),
+                            Err(GgrsError::PredictionThreshold) => (),
                             Err(e) => panic!("{}", e),
                         }
                     }

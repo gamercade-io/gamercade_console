@@ -27,7 +27,7 @@ impl PhraseRow {
 
     pub(crate) fn new(
         row: usize,
-        entry: &Option<PhraseEntryType>,
+        entry: Option<&PhraseEntryType>,
         selected: SelectedEntry,
     ) -> Self {
         let bg_color = if selected.index == row {

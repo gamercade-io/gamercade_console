@@ -122,9 +122,9 @@ impl PhraseEditor {
 
             ui.input(|input| {
                 if input.modifiers.shift {
-                    self.handle_shift_input(&input, phrase, sync);
+                    self.handle_shift_input(input, phrase, sync);
                 } else {
-                    self.handle_input(&input)
+                    self.handle_input(input)
                 }
             });
         }
@@ -263,7 +263,8 @@ impl PhraseEditor {
                     .enumerate()
                     .for_each(|(row, entry)| {
                         ui.horizontal_centered(|ui| {
-                            let phrase_row = PhraseRow::new(row, entry, self.selected_entry);
+                            let phrase_row =
+                                PhraseRow::new(row, entry.as_ref(), self.selected_entry);
                             if let Some(selected) = phrase_row.draw(ui) {
                                 self.selected_entry.index = row;
                                 self.selected_entry.mode = selected;

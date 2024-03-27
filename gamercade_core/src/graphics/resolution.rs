@@ -1,15 +1,16 @@
 use serde::{Deserialize, Serialize};
 
 #[non_exhaustive]
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Default, Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Resolution {
-    UltraLow,  // 128 x 72
-    VeryLow,   // 160 x 90
-    Low,       // 320 x 180
-    Medium,    // 480 x 270
-    High,      // 640 x 360
-    VeryHigh,  // 1280 x 720
+    UltraLow, // 128 x 72
+    VeryLow,  // 160 x 90
+    #[default]
+    Low, // 320 x 180
+    Medium,   // 480 x 270
+    High,     // 640 x 360
+    VeryHigh, // 1280 x 720
     UltraHigh, // 1920 x 1080
 }
 
@@ -52,29 +53,19 @@ impl Resolution {
     }
 
     pub fn try_get_xcord<T: Into<i32>>(&self, value: T) -> Option<XCord> {
-        match value.try_into() {
-            Ok(v) => match 0 <= v && v < self.width() {
-                true => Some(XCord(v as usize)),
-                false => None,
-            },
-            _ => None,
+        let v = value.into();
+        match 0 <= v && v < self.width() {
+            true => Some(XCord(v as usize)),
+            false => None,
         }
     }
 
     pub fn try_get_ycord<T: Into<i32>>(&self, value: T) -> Option<YCord> {
-        match value.try_into() {
-            Ok(v) => match 0 <= v && v < self.height() {
-                true => Some(YCord(v as usize)),
-                false => None,
-            },
-            _ => None,
+        let v = value.into();
+        match 0 <= v && v < self.height() {
+            true => Some(YCord(v as usize)),
+            false => None,
         }
-    }
-}
-
-impl Default for Resolution {
-    fn default() -> Self {
-        Resolution::Low
     }
 }
 

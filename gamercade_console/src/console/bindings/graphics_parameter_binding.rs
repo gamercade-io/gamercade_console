@@ -13,7 +13,7 @@ macro_rules! derive_graphics_parameter_bindings {
                             "env",
                             stringify!($ident),
                             |caller: Caller<'_, Contexts>, $($name: $args,)*| {
-                                caller.data().graphics_parameter_context.$ident($($name as $args,)*)
+                                caller.data().graphics_parameter_context.$ident($($name,)*)
                         }).unwrap();
                     }
                 )*

@@ -15,9 +15,10 @@ gamercade_fs = { path = "../gamercade_fs" }
 gamercade_core = { path = "../gamercade_core" }
 gamercade_audio = { path = "../gamercade_audio" }
 gamercade_sound_engine = { path = "../gamercade_sound_engine" }
+gamercade_interface = { path = "../gamercade_interface" }
 
 # General Improvements
-hashbrown = { version = "0.13.2", features = ["serde"] }
+hashbrown = { version = "0.14.3", features = ["serde"] }
 parking_lot = "0.12.1"
 
 # Windowing & Graphics
@@ -39,7 +40,7 @@ serde_json = "1.0.96"
 bytemuck = "1.13.1"
 
 # Scripting
-wasmtime = { version = "8.0.1", features = ["cranelift"] }
+wasmtime = "18.0.2"
 
 # Random
 fastrand = "1.9.0"
@@ -48,7 +49,7 @@ fastrand = "1.9.0"
 cpal = "0.15.2"
 
 # Networking
-ggrs = "0.9.4"
+ggrs = "0.10.0"
 
 # File Picker Dialog
 rfd = "0.11.3"

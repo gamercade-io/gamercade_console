@@ -45,8 +45,8 @@ impl Contexts {
             input_context: InputContext::new(session.num_players),
             random_context: RandomContext::new(seed),
             data_context: DataContext::new(rom.clone()),
-            graphics_parameter_context: GraphicsParameterContext::default(),
-            text_context: TextContext::default(),
+            graphics_parameter_context: GraphicsParameterContext,
+            text_context: TextContext,
             multiplayer_context: MultiplayerContext::new(session),
             audio_context: AudioContext::new(sound_rom, output_sample_rate),
         }

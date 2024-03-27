@@ -14,7 +14,7 @@ macro_rules! derive_draw_api_binding {
                             "env",
                             stringify!($ident),
                             |mut caller: Caller<'_, Contexts>, $($name: $args,)*| {
-                                caller.data_mut().draw_context.$ident($($name as $args,)*)
+                                caller.data_mut().draw_context.$ident($($name,)*)
                         }).unwrap();
                     }
                 )*

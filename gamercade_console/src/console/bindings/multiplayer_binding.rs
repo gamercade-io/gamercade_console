@@ -14,7 +14,7 @@ macro_rules! derive_multiplayer_api_binding {
                             "env",
                             stringify!($ident),
                             |caller: Caller<'_, Contexts>, $($name: $args,)*| {
-                                caller.data().multiplayer_context.$ident($($name as $args,)*)
+                                caller.data().multiplayer_context.$ident($($name,)*)
                         }).unwrap();
                     }
                 )*

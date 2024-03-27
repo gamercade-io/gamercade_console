@@ -70,7 +70,7 @@ impl Oscilloscope {
             self.points = std::mem::take(&mut self.next_points);
 
             //Find the zero cross
-            while let (Some(prev), Some(next)) = (self.buffer.get(0), self.buffer.get(1)) {
+            while let (Some(prev), Some(next)) = (self.buffer.front(), self.buffer.get(1)) {
                 let prev = prev.get_sfx_output() + prev.get_bgm_output();
                 let next = next.get_sfx_output() + next.get_bgm_output();
                 if prev < 0.0 && next > 0.0 {
