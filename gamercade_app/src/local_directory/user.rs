@@ -1,4 +1,4 @@
-use rusqlite::types::FromSql;
+use rusqlite::{types::FromSql, ToSql};
 
 use super::{Dictionary, DictionaryTrait};
 
@@ -28,6 +28,12 @@ impl FromSql for UserId {
     }
 }
 
+impl ToSql for User {
+    fn to_sql(&self) -> rusqlite::Result<rusqlite::types::ToSqlOutput<'_>> {
+        todo!()
+    }
+}
+
 impl DictionaryTrait<UserId, User> for Dictionary<UserId, User> {
     fn fetch_all_query() -> &'static str {
         "SELECT * FROM users"
@@ -38,6 +44,20 @@ impl DictionaryTrait<UserId, User> for Dictionary<UserId, User> {
     }
 
     fn drop_table_query() -> &'static str {
-        "DROP TABLE users"
+        "DROP TABLE IF EXISTS users"
+    }
+
+    fn insert_query() -> &'static str {
+        "INSERT INTO permission_levels(id, username, avarar_last_updated) VALUES (?, ?)"
+    }
+
+    fn insert_statement(statement: &mut rusqlite::Statement, (key, user): &(UserId, User)) {
+        statement
+            .execute((
+                key.0 as i32,
+                user.username.clone(),
+                user.avatar_last_updated,
+            ))
+            .unwrap();
     }
 }

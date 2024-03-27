@@ -30,6 +30,14 @@ impl DictionaryTrait<TagId, Tag> for Dictionary<TagId, Tag> {
     }
 
     fn drop_table_query() -> &'static str {
-        "DROP TABLE tags"
+        "DROP TABLE IF EXISTS tags"
+    }
+
+    fn insert_query() -> &'static str {
+        "INSERT INTO tags(id, tag_name) VALUES (?, ?)"
+    }
+
+    fn insert_statement(statement: &mut rusqlite::Statement, (key, value): &(TagId, Tag)) {
+        statement.execute((key.0 as i32, value.0.clone())).unwrap();
     }
 }

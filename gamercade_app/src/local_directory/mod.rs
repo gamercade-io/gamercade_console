@@ -1,7 +1,7 @@
 use std::hash::Hash;
 
 use hashbrown::HashMap;
-use rusqlite::{types::FromSql, Connection, Row};
+use rusqlite::{types::FromSql, Connection, Row, Statement};
 
 mod game;
 mod permission_level;
@@ -10,12 +10,11 @@ mod user;
 
 use game::Game;
 
-use self::{
-    game::upsert_games_table,
-    permission_level::{PermissionLevelId, PermissionLevelName},
-    tag::{Tag, TagId},
-    user::{User, UserId},
-};
+pub use permission_level::{PermissionLevelId, PermissionLevelName};
+pub use tag::{Tag, TagId};
+pub use user::{User, UserId};
+
+use self::game::upsert_games_table;
 
 const LOCAL_DB_PATH: &str = "./local.db";
 
@@ -37,6 +36,53 @@ pub struct Dictionary<Key, Value> {
     map: HashMap<Key, Value>,
 }
 
+impl LocalDirectory {
+    pub fn upsert_tags(&mut self, tags: &[(TagId, Tag)], clear_db: bool) {
+        if clear_db {
+            self.db
+                .execute(TagDictionary::drop_table_query(), ())
+                .unwrap();
+            self.db
+                .execute(TagDictionary::upsert_table_query(), ())
+                .unwrap();
+        }
+        self.tags.bulk_insert(&mut self.db, tags);
+        self.tags.sync(&self.db);
+    }
+
+    pub fn upsert_permission_levesl(
+        &mut self,
+        permission_levels: &[(PermissionLevelId, PermissionLevelName)],
+        clear_db: bool,
+    ) {
+        if clear_db {
+            self.db
+                .execute(PermissionLevelDictionary::drop_table_query(), ())
+                .unwrap();
+            self.db
+                .execute(PermissionLevelDictionary::upsert_table_query(), ())
+                .unwrap();
+        }
+        self.permission_levels
+            .bulk_insert(&mut self.db, permission_levels);
+        self.permission_levels.sync(&self.db);
+    }
+
+    pub fn upsert_users(&mut self, users: &[(UserId, User)], clear_db: bool) {
+        if clear_db {
+            self.db
+                .execute(UserDictionary::drop_table_query(), ())
+                .unwrap();
+            self.db
+                .execute(UserDictionary::upsert_table_query(), ())
+                .unwrap();
+        }
+
+        self.users.bulk_insert(&mut self.db, users);
+        self.users.sync(&self.db);
+    }
+}
+
 trait DictionaryTrait<K, V> {
     fn new(db: &Connection) -> Self
     where
@@ -46,7 +92,20 @@ trait DictionaryTrait<K, V> {
     {
         let mut output = Self::default();
 
-        db.execute(Self::upsert_table_query(), []).unwrap();
+        output.sync(db);
+
+        output
+    }
+
+    fn sync(&mut self, db: &Connection)
+    where
+        Self: IsDictionary<K, V>,
+        K: Hash + Eq + FromSql,
+        V: for<'a> From<&'a Row<'a>>,
+    {
+        self.get_map_mut().clear();
+
+        db.execute(Self::upsert_table_query(), ()).unwrap();
 
         let mut query = db.prepare(Self::fetch_all_query()).unwrap();
         let mut results = query.query([]).unwrap();
@@ -54,15 +113,26 @@ trait DictionaryTrait<K, V> {
         while let Ok(Some(row)) = results.next() {
             let key = row.get(0).unwrap();
             let value = V::from(row);
-            output.get_map_mut().insert(key, value);
+            self.get_map_mut().insert(key, value);
         }
+    }
 
-        output
+    fn bulk_insert(&self, db: &mut rusqlite::Connection, values: &[(K, V)]) {
+        let mut tx = db.transaction().unwrap();
+        tx.set_drop_behavior(rusqlite::DropBehavior::Commit);
+
+        let mut statement = tx.prepare(Self::insert_query()).unwrap();
+
+        for kv in values.iter() {
+            Self::insert_statement(&mut statement, kv);
+        }
     }
 
     fn fetch_all_query() -> &'static str;
     fn upsert_table_query() -> &'static str;
     fn drop_table_query() -> &'static str;
+    fn insert_query() -> &'static str;
+    fn insert_statement(statement: &mut Statement, kv: &(K, V));
 }
 
 pub trait IsDictionary<K, V> {

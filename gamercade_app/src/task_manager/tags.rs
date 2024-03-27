@@ -1,10 +1,13 @@
 use gamercade_interface::{common::Empty, tag::tag_service_client::TagServiceClient};
-use tokio::sync::{Mutex, OnceCell};
+use tokio::sync::{mpsc::Sender, Mutex, OnceCell};
 use tonic::{transport::Channel, Request};
 
-use crate::ips::SERVICE_IP;
+use crate::{
+    ips::SERVICE_IP,
+    local_directory::{Tag, TagId},
+};
 
-use super::{TaskManager, TaskRequest};
+use super::{TaskManager, TaskNotification, TaskRequest};
 
 pub type TagManager = TaskManager<TagManagerState, TagRequest>;
 
@@ -18,7 +21,11 @@ async fn init_tag_client() -> TagServiceClient<Channel> {
 }
 
 impl TaskRequest<TagManagerState> for TagRequest {
-    async fn handle_request(self, state: &Mutex<TagManagerState>) {
+    async fn handle_request(
+        self,
+        notification_tx: &Sender<TaskNotification>,
+        state: &Mutex<TagManagerState>,
+    ) {
         match self {
             TagRequest::Initialize => {
                 let lock = state.lock().await;
@@ -30,11 +37,14 @@ impl TaskRequest<TagManagerState> for TagRequest {
                     .get_global_tags(Request::new(Empty {}))
                     .await
                     .unwrap();
-                let response = response.into_inner();
-                response
+                let mut response = response.into_inner();
+                let tags = response
                     .tags
-                    .iter()
-                    .for_each(|tag| println!("Got tag: {}: {}", tag.pid, tag.name))
+                    .drain(..)
+                    .map(|tag| (TagId(tag.pid as usize), Tag(tag.name)))
+                    .collect();
+                let message = TaskNotification::GlobalTags(tags);
+                notification_tx.send(message).await.unwrap();
             }
         }
     }

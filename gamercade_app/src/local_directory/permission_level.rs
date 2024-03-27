@@ -32,6 +32,17 @@ impl DictionaryTrait<PermissionLevelId, PermissionLevelName>
     }
 
     fn drop_table_query() -> &'static str {
-        "DROP TABLE permission_levels;"
+        "DROP TABLE IF EXISTS permission_levels;"
+    }
+
+    fn insert_query() -> &'static str {
+        "INSERT INTO permission_levels(id, level_name) VALUES (?, ?)"
+    }
+
+    fn insert_statement(
+        statement: &mut rusqlite::Statement,
+        (key, value): &(PermissionLevelId, PermissionLevelName),
+    ) {
+        statement.execute((key.0 as i32, value.0.clone())).unwrap();
     }
 }
