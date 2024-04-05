@@ -1,8 +1,8 @@
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpdateGameRequest {
-    #[prost(fixed64, tag = "1")]
-    pub game_id: u64,
+    #[prost(fixed64, optional, tag = "1")]
+    pub game_id: ::core::option::Option<u64>,
     #[prost(string, optional, tag = "2")]
     pub title: ::core::option::Option<::prost::alloc::string::String>,
     #[prost(string, optional, tag = "3")]

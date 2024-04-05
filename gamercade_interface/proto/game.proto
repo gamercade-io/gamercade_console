@@ -15,7 +15,7 @@ service GameService {
 }
 
 message UpdateGameRequest {
-    fixed64 game_id = 1;
+    optional fixed64 game_id = 1;
     optional string title = 2;
     optional string short_description = 3;
     optional string long_description = 4;
