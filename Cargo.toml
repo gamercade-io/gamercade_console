@@ -18,3 +18,7 @@ members = [
 [profile.release]
 opt-level = 3
 lto = true
+
+[profile.perf]
+inherits = "release"
+debug = true
