@@ -142,18 +142,16 @@ impl Gui {
 
                 ui.separator();
                 let averages = perf.calculate_frame_times();
-                ui.label(format!(
-                    "Update: avg {}ms, min {}ms, max {}ms",
-                    averages.average_update_time_ms,
-                    averages.min_update_time_ms,
-                    averages.max_update_time_ms
-                ));
-                ui.label(format!(
-                    "Render: avg {}ms, min {}ms, max {}ms",
-                    averages.average_render_time_ms,
-                    averages.min_render_time_ms,
-                    averages.max_render_time_ms
-                ));
+                ui.label("Update Stats:");
+                ui.label(format!("avg {}ms", averages.average_update_time_ms));
+                ui.label(format!("min {}ms", averages.min_update_time_ms));
+                ui.label(format!("max {}ms", averages.max_update_time_ms));
+
+                ui.separator();
+                ui.label("Render Stats:");
+                ui.label(format!("avg {}ms", averages.average_render_time_ms));
+                ui.label(format!("min {}ms", averages.min_render_time_ms));
+                ui.label(format!("max {}ms", averages.max_render_time_ms));
             });
     }
 

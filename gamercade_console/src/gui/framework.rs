@@ -64,8 +64,8 @@ impl PerformanceTracker {
     }
 
     fn calc_min_max_avg<'a>(data: &'a mut impl Iterator<Item = &'a f32>) -> (f32, f32, f32) {
-        let mut min = NEG_INFINITY;
-        let mut max = INFINITY;
+        let mut min = INFINITY;
+        let mut max = NEG_INFINITY;
         let mut sum = 0.0;
         let mut count = 0;
 
