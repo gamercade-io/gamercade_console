@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use gamercade_sound_engine::{SoundEngine, SoundEngineData, SoundRomInstance};
 use ggrs::GgrsRequest;
-use wasmtime::{Engine, ExternType, Instance, Linker, Module, Mutability, Store, TypedFunc};
+use wasmtime::{Config, Engine, ExternType, Instance, Linker, Module, Mutability, Store, TypedFunc};
 use winit::{
     dpi::PhysicalPosition,
     window::{CursorGrabMode, Window},
@@ -71,6 +71,22 @@ impl Functions {
     }
 }
 
+// TODO: Consider if "Host Memory" could
+// improve the state management of the VM
+fn wasmtime_config() -> Config {
+    use wasmtime::*;
+    let mut config = Config::new();
+
+    config.async_support(false);
+    config.async_stack_size(0);
+    config.wasm_threads(false);
+    config.wasm_tail_call(true);
+    config.strategy(Strategy::Cranelift);
+    config.cranelift_opt_level(OptLevel::SpeedAndSize);
+
+    config
+}
+
 impl WasmConsole {
     pub fn new(
         rom: Rom,
@@ -92,7 +108,7 @@ impl WasmConsole {
 
         // Initialize the contexts
         let contexts = Contexts::new(&rom, seed, session, &sound_rom, output_sample_rate);
-        let engine = Engine::default();
+        let engine = Engine::new(&wasmtime_config()).unwrap();
         let module = Module::new(&engine, &rom.code).unwrap();
         let mut linker = Linker::new(&engine);
 
