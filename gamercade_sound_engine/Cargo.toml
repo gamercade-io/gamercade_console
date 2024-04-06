@@ -16,9 +16,9 @@ path = "src/bin/audio_test.rs"
 [dependencies]
 gamercade_audio = { path = "../gamercade_audio/" }
 
-cpal = "0.15.2"
-arrayvec = { version = "0.7.2", features = ["serde"] }
-rtrb = "0.2.3"
+cpal = "0.15.3"
+arrayvec = { version = "0.7.4", features = ["serde"] }
+rtrb = "0.3.0"
 
 # for .wav
 hound = "3.5.0"

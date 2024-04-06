@@ -33,5 +33,5 @@ hashbrown = "0.14.3"
 tinystr = "0.7.1"
 
 # Audio Things
-rtrb = "0.2.3"
+rtrb = "0.3.0"
 hound = "3.5.0"
