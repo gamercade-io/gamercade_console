@@ -2,7 +2,6 @@ use std::{net::SocketAddr, path::PathBuf};
 
 use egui::{Button, Context};
 
-use gamercade_core::FrameRate;
 use gamercade_fs::Rom;
 use ggrs::{P2PSession, PlayerType, SessionBuilder, SessionState, UdpNonBlockingSocket};
 use gilrs::Gilrs;
@@ -143,8 +142,18 @@ impl Gui {
 
                 ui.separator();
                 let averages = perf.calculate_frame_times();
-                ui.label(format!("Update: {}ms", averages.average_update_time_ms));
-                ui.label(format!("Render: {}ms", averages.average_render_time_ms));
+                ui.label(format!(
+                    "Update: avg {}ms, min {}ms, max {}ms",
+                    averages.average_update_time_ms,
+                    averages.min_update_time_ms,
+                    averages.max_update_time_ms
+                ));
+                ui.label(format!(
+                    "Render: avg {}ms, min {}ms, max {}ms",
+                    averages.average_render_time_ms,
+                    averages.min_render_time_ms,
+                    averages.max_render_time_ms
+                ));
             });
     }
 

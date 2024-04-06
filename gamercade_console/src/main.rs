@@ -12,7 +12,7 @@ use clap::Parser;
 use gamercade_core::Resolution;
 use ggrs::{GgrsError, P2PSession, SessionState};
 use gilrs::Gilrs;
-use pixels::{Pixels, SurfaceTexture};
+use pixels::{wgpu::PresentMode, Pixels, PixelsBuilder, SurfaceTexture};
 use winit::{
     dpi::LogicalSize,
     event::{DeviceEvent, Event, MouseScrollDelta, VirtualKeyCode},
@@ -266,5 +266,8 @@ fn init_pixels(window: &Window) -> Pixels {
     let window_size = window.inner_size();
     let surface_texture = SurfaceTexture::new(window_size.width, window_size.height, &window);
 
-    Pixels::new(320, 180, surface_texture).unwrap()
+    PixelsBuilder::new(320, 180, surface_texture)
+        .present_mode(PresentMode::AutoVsync)
+        .build()
+        .unwrap()
 }

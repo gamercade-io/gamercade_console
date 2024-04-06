@@ -1,4 +1,7 @@
-use std::collections::VecDeque;
+use std::{
+    collections::VecDeque,
+    f32::{INFINITY, NEG_INFINITY},
+};
 
 use egui::{ClippedPrimitive, Context, TexturesDelta};
 use egui_wgpu::renderer::{Renderer, ScreenDescriptor};
@@ -36,6 +39,12 @@ pub struct PerformanceTracker {
 }
 
 pub struct PerformanceResult {
+    pub max_render_time_ms: f32,
+    pub min_render_time_ms: f32,
+
+    pub max_update_time_ms: f32,
+    pub min_update_time_ms: f32,
+
     pub average_render_time_ms: f32,
     pub average_update_time_ms: f32,
 }
@@ -54,13 +63,35 @@ impl PerformanceTracker {
         self.update_times_ms.push_front(update_time_ms);
     }
 
+    fn calc_min_max_avg<'a>(data: &'a mut impl Iterator<Item = &'a f32>) -> (f32, f32, f32) {
+        let mut min = NEG_INFINITY;
+        let mut max = INFINITY;
+        let mut sum = 0.0;
+        let mut count = 0;
+
+        while let Some(point) = data.next() {
+            sum += point;
+            max = max.max(*point);
+            min = min.min(*point);
+            count += 1;
+        }
+
+        let avg = sum / count as f32;
+
+        (min, max, avg)
+    }
+
     pub fn calculate_frame_times(&self) -> PerformanceResult {
-        let average_render_time_ms =
-            self.render_times_ms.iter().sum::<f32>() / self.frames_per_second as f32;
-        let average_update_time_ms =
-            self.update_times_ms.iter().sum::<f32>() / self.frames_per_second as f32;
+        let (min_render_time_ms, max_render_time_ms, average_render_time_ms) =
+            Self::calc_min_max_avg(&mut self.render_times_ms.iter());
+        let (min_update_time_ms, max_update_time_ms, average_update_time_ms) =
+            Self::calc_min_max_avg(&mut self.update_times_ms.iter());
 
         PerformanceResult {
+            max_render_time_ms,
+            min_render_time_ms,
+            max_update_time_ms,
+            min_update_time_ms,
             average_render_time_ms,
             average_update_time_ms,
         }
