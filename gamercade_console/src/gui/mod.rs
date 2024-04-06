@@ -241,16 +241,8 @@ fn init_session(
     port: u16,
     players: &[PlayerType<SocketAddr>],
 ) -> P2PSession<WasmConsole> {
-    let default_input_delay = match rom.frame_rate {
-        FrameRate::SuperSlow => 0,
-        FrameRate::Slow => 1,
-        FrameRate::Normal => 2,
-        FrameRate::Fast => 3,
-        FrameRate::SuperFast => 4,
-    };
-
     let mut sess_builder = SessionBuilder::new()
-        .with_input_delay(default_input_delay)
+        .with_input_delay(rom.frame_rate.default_input_delay())
         .with_sparse_saving_mode(true)
         .with_num_players(players.len())
         .with_fps(rom.frame_rate.frames_per_second())

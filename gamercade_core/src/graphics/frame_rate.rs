@@ -27,6 +27,16 @@ impl FrameRate {
         }
     }
 
+    pub const fn default_input_delay(self) -> usize {
+        match self {
+            FrameRate::SuperSlow => 0,
+            FrameRate::Slow => 0,
+            FrameRate::Normal => 1,
+            FrameRate::Fast => 2,
+            FrameRate::SuperFast => 3,
+        }
+    }
+
     pub fn frame_time(self) -> f32 {
         (self.frames_per_second() as f32).recip()
     }
