@@ -2,6 +2,7 @@ use std::{net::SocketAddr, path::PathBuf};
 
 use egui::{Button, Context};
 
+use gamercade_core::FrameRate;
 use gamercade_fs::Rom;
 use ggrs::{P2PSession, PlayerType, SessionBuilder, SessionState, UdpNonBlockingSocket};
 use gilrs::Gilrs;
@@ -14,7 +15,9 @@ use crate::{
     DEFAULT_WINDOW_RESOLUTION,
 };
 
-use self::{controller_gui::ControllerGui, play_mode_gui::PlayModeGui};
+use self::{
+    controller_gui::ControllerGui, framework::PerformanceTracker, play_mode_gui::PlayModeGui,
+};
 pub mod controller_gui;
 pub mod framework;
 pub mod play_mode_gui;
@@ -59,6 +62,7 @@ impl Gui {
         ctx: &Context,
         input: &mut LocalInputManager,
         gilrs: &mut Gilrs,
+        perf: &PerformanceTracker,
     ) {
         let mut is_open = self.window_open;
         egui::Window::new("Main Menu")
@@ -136,6 +140,11 @@ impl Gui {
                         *session = None;
                     }
                 });
+
+                ui.separator();
+                let averages = perf.calculate_frame_times();
+                ui.label(format!("Update: {}ms", averages.average_update_time_ms));
+                ui.label(format!("Render: {}ms", averages.average_render_time_ms));
             });
     }
 
@@ -232,7 +241,16 @@ fn init_session(
     port: u16,
     players: &[PlayerType<SocketAddr>],
 ) -> P2PSession<WasmConsole> {
+    let default_input_delay = match rom.frame_rate {
+        FrameRate::SuperSlow => 0,
+        FrameRate::Slow => 1,
+        FrameRate::Normal => 2,
+        FrameRate::Fast => 3,
+        FrameRate::SuperFast => 4,
+    };
+
     let mut sess_builder = SessionBuilder::new()
+        .with_input_delay(default_input_delay)
         .with_sparse_saving_mode(true)
         .with_num_players(players.len())
         .with_fps(rom.frame_rate.frames_per_second())

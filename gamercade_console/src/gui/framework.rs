@@ -1,3 +1,5 @@
+use std::collections::VecDeque;
+
 use egui::{ClippedPrimitive, Context, TexturesDelta};
 use egui_wgpu::renderer::{Renderer, ScreenDescriptor};
 use ggrs::P2PSession;
@@ -22,6 +24,47 @@ pub(crate) struct Framework {
 
     // Our stuff
     pub gui: Gui,
+
+    pub perf_tracker: PerformanceTracker,
+}
+
+#[derive(Default)]
+pub struct PerformanceTracker {
+    render_times_ms: VecDeque<f32>,
+    update_times_ms: VecDeque<f32>,
+    pub frames_per_second: usize,
+}
+
+pub struct PerformanceResult {
+    pub average_render_time_ms: f32,
+    pub average_update_time_ms: f32,
+}
+
+impl PerformanceTracker {
+    pub fn push_times(&mut self, render_time_ms: f32, update_time_ms: f32) {
+        if self.render_times_ms.len() >= self.frames_per_second {
+            self.render_times_ms.pop_back();
+        }
+
+        if self.update_times_ms.len() >= self.frames_per_second {
+            self.update_times_ms.pop_back();
+        }
+
+        self.render_times_ms.push_front(render_time_ms);
+        self.update_times_ms.push_front(update_time_ms);
+    }
+
+    pub fn calculate_frame_times(&self) -> PerformanceResult {
+        let average_render_time_ms =
+            self.render_times_ms.iter().sum::<f32>() / self.frames_per_second as f32;
+        let average_update_time_ms =
+            self.update_times_ms.iter().sum::<f32>() / self.frames_per_second as f32;
+
+        PerformanceResult {
+            average_render_time_ms,
+            average_update_time_ms,
+        }
+    }
 }
 
 impl Framework {
@@ -55,6 +98,7 @@ impl Framework {
             paint_jobs: Vec::new(),
             textures,
             gui,
+            perf_tracker: PerformanceTracker::default(),
         }
     }
 
@@ -88,7 +132,15 @@ impl Framework {
         let raw_input = self.egui_state.take_egui_input(window);
         let output = self.egui_ctx.run(raw_input, |egui_ctx| {
             // Draw the application.
-            self.gui.ui(pixels, window, session, egui_ctx, input, gilrs);
+            self.gui.ui(
+                pixels,
+                window,
+                session,
+                egui_ctx,
+                input,
+                gilrs,
+                &self.perf_tracker,
+            );
         });
 
         self.textures.append(output.textures_delta);

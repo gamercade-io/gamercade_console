@@ -150,6 +150,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
 
             if let Some(console) = &mut framework.gui.wasm_console {
+                framework.perf_tracker.frames_per_second =
+                    console.rom.frame_rate.frames_per_second();
+
                 // Handle GGRS packets
                 let session = session.as_mut().unwrap();
                 session.poll_remote_clients();
@@ -210,9 +213,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     // Sync the mouse lock state
                     console.sync_mouse(&window);
 
+                    let update_time_ms =
+                        Instant::now().duration_since(last_update).as_secs_f32() * 1000.0;
+                    let render_start_time = Instant::now();
                     // Render the game
                     console.call_draw();
                     console.blit(pixels.frame_mut());
+                    let render_time_ms = Instant::now()
+                        .duration_since(render_start_time)
+                        .as_secs_f32()
+                        * 1000.0;
+
+                    framework
+                        .perf_tracker
+                        .push_times(render_time_ms, update_time_ms);
                 };
             };
 
