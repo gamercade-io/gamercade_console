@@ -1,8 +1,10 @@
 mod bundler;
+mod data_pack;
 mod editor_data;
 mod rom;
 
 pub use bundler::*;
+pub use data_pack::*;
 pub use editor_data::*;
 pub use rom::*;
 

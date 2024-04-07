@@ -1,9 +1,11 @@
-use eframe::egui::{self, Ui};
+use std::fs;
+
+use eframe::egui::{self, Button, Ui};
 use gamercade_core::{
     FrameRate,
     Resolution::{High, Low, Medium, UltraHigh, UltraLow, VeryHigh, VeryLow},
 };
-use gamercade_fs::EditorRom;
+use gamercade_fs::{DataPack, EditorRom};
 
 #[derive(Debug, Clone, Default)]
 pub struct RomEditor {}
@@ -57,5 +59,45 @@ impl RomEditor {
                 );
             });
         });
+
+        ui.group(|ui| {
+            let exists = rom.data_pack.is_some();
+            let text = if exists { "Exists" } else { "None" };
+            ui.label(format!("Data Pack: {text}"));
+
+            ui.horizontal(|ui| {
+                if ui
+                    .add_enabled(!exists, Button::new("Load Data Pack"))
+                    .clicked()
+                {
+                    match try_load_data_pack() {
+                        Ok(data_pack) => rom.data_pack = Some(data_pack),
+                        Err(e) => println!("{e}"),
+                    }
+                }
+
+                if ui
+                    .add_enabled(exists, Button::new("Remove Data Pack"))
+                    .clicked()
+                {
+                    rom.data_pack = None
+                }
+            });
+        });
     }
+}
+
+fn try_load_data_pack() -> Result<DataPack, String> {
+    let path = match rfd::FileDialog::new()
+        .set_title("Load Data Pack...")
+        .set_directory("/")
+        .pick_file()
+    {
+        Some(path) => path,
+        None => return Err("No file selected".to_string()),
+    };
+
+    let data = fs::read(path).map_err(|e| e.to_string())?;
+
+    Ok(DataPack { data })
 }

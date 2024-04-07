@@ -4,7 +4,7 @@ use gamercade_audio::SoundRom;
 use gamercade_core::{FrameRate, GraphicsData, Resolution};
 use serde::{Deserialize, Serialize};
 
-use crate::GameAssetProvider;
+use crate::{DataPack, GameAssetProvider};
 
 use super::{EditorGraphicsData, EditorSoundData};
 
@@ -15,6 +15,7 @@ pub struct EditorRom {
     pub player_count: (usize, usize),
     pub graphics: EditorGraphicsData,
     pub sounds: EditorSoundData,
+    pub data_pack: Option<DataPack>,
 }
 
 impl EditorRom {
@@ -40,6 +41,7 @@ impl Default for EditorRom {
             frame_rate: FrameRate::default(),
             graphics: EditorGraphicsData::default(),
             sounds: EditorSoundData::default(),
+            data_pack: None,
         }
     }
 }
@@ -63,5 +65,9 @@ impl GameAssetProvider for EditorRom {
 
     fn sounds(&self) -> SoundRom {
         (&self.sounds).into()
+    }
+
+    fn data_pack(&self) -> Option<DataPack> {
+        self.data_pack.clone()
     }
 }

@@ -2,7 +2,10 @@ use std::sync::Arc;
 
 use gamercade_sound_engine::{SoundEngine, SoundEngineData, SoundRomInstance};
 use ggrs::GgrsRequest;
-use wasmtime::{Config, Engine, Instance, Linker, Module, Store, TypedFunc};
+use wasmtime::{
+     Config, Engine,    Instance, Linker, 
+     Module,   Store, TypedFunc,  
+};
 use winit::{
     dpi::PhysicalPosition,
     window::{CursorGrabMode, Window},
@@ -10,7 +13,9 @@ use winit::{
 
 type GameFunc = TypedFunc<(), ()>;
 
-const WASM_MEMORY: &str = "memory";
+pub const WASM_MEMORY: &str = "memory";
+pub const WASM_HEAP_BASE: &str = "__heap_base";
+pub const WASM_DATA_END: &str = "__data_end";
 
 use super::{bindings, network::WasmConsoleState, Contexts, SessionDescriptor};
 use crate::Console;
@@ -23,11 +28,19 @@ pub struct WasmConsole {
     pub(crate) instance: Instance,
     pub(crate) sound_engine: SoundEngine,
     pub(crate) audio_out: SoundEngineData,
+    memory_values: MemoryValues,
+}
+
+struct MemoryValues {
+    heap_base: usize,
+    data_end: usize,
+    data_length: usize,
 }
 
 #[derive(Clone)]
 pub(crate) struct Functions {
     init_fn: Option<GameFunc>,
+    datapack_fn: Option<TypedFunc<(i32, i32), ()>>,
     update_fn: Option<GameFunc>,
     draw_fn: Option<GameFunc>,
 }
@@ -41,6 +54,15 @@ impl Functions {
                 None
             }
         };
+
+        let datapack_fn = match instance.get_typed_func(&mut *store, "datapack") {
+            Ok(datapack_fn) => Some(datapack_fn),
+            Err(e) => {
+                println!("datapack function not found: {e}");
+                None
+            }
+        };
+
         let update_fn = match instance.get_typed_func(&mut *store, "update") {
             Ok(update_fn) => Some(update_fn),
             Err(e) => {
@@ -56,9 +78,10 @@ impl Functions {
             }
         };
 
-        if init_fn.is_some() || update_fn.is_some() || draw_fn.is_some() {
+        if init_fn.is_some() || datapack_fn.is_some() || update_fn.is_some() || draw_fn.is_some() {
             Self {
                 init_fn,
+                datapack_fn,
                 update_fn,
                 draw_fn,
             }
@@ -108,6 +131,7 @@ impl WasmConsole {
         let contexts = Contexts::new(&rom, seed, session, &sound_rom, output_sample_rate);
         let engine = Engine::new(&wasmtime_config()).unwrap();
         let module = Module::new(&engine, &rom.code).unwrap();
+
         let mut linker = Linker::new(&engine);
 
         // TODO: Make this static? Is there a way we can not have to call this
@@ -115,18 +139,57 @@ impl WasmConsole {
         bindings::bind_all_apis(&mut linker);
 
         let mut store = Store::new(&engine, contexts);
+
         let instance = linker.instantiate(&mut store, &module).unwrap();
+
         let functions = Functions::find_functions(&mut store, &instance);
 
         let audio_out = store.data().audio_context.sound_engine_data.clone();
 
+        let heap_base = instance
+            .get_global(&mut store, WASM_HEAP_BASE)
+            .unwrap()
+            .get(&mut store)
+            .i32()
+            .unwrap() as usize;
+
+        let data_end = instance
+            .get_global(&mut store, WASM_DATA_END)
+            .unwrap()
+            .get(&mut store)
+            .i32()
+            .unwrap() as usize;
+
+        let memory_values = MemoryValues {
+            heap_base,
+            data_end,
+            data_length: 0,
+        };
+
         let mut out = Self {
-            rom,
+            rom: rom.clone(),
             functions,
             instance,
             store,
             sound_engine,
             audio_out,
+            memory_values,
+        };
+
+        if let Some(data_pack) = &rom.data_pack {
+            let length = data_pack.data.len() as i32;
+
+            let memory = &mut instance
+                .get_memory(&mut out.store, WASM_MEMORY)
+                .unwrap()
+                .data_mut(&mut out.store)[heap_base..];
+
+            for (source, target) in data_pack.data.iter().zip(memory.iter_mut()) {
+                *target = *source;
+            }
+
+            out.memory_values.data_length = length as usize;
+            out.call_datapack(heap_base as i32, length);
         };
 
         out.call_init();
@@ -149,18 +212,22 @@ impl WasmConsole {
             .collect::<Vec<_>>()
             .into_boxed_slice();
 
-        let memory = self
+        let mem = self
             .instance
             .get_memory(&mut self.store, WASM_MEMORY)
-            .unwrap()
-            .data(&self.store)
+            .unwrap();
+
+        let data = mem.data(&mut self.store)[0..self.memory_values.data_end].to_vec();
+        let heap = mem.data(&mut self.store)
+            [self.memory_values.heap_base + self.memory_values.data_length..]
             .to_vec();
 
         let sound_engine_data = self.store.data().audio_context.sound_engine_data.clone();
 
         WasmConsoleState {
             previous_buttons,
-            memory,
+            data,
+            heap,
             sound_engine_data,
         }
     }
@@ -168,7 +235,8 @@ impl WasmConsole {
     pub fn load_save_state(&mut self, state: WasmConsoleState) {
         let WasmConsoleState {
             previous_buttons,
-            memory,
+            data,
+            heap,
             sound_engine_data,
         } = state;
 
@@ -183,12 +251,15 @@ impl WasmConsole {
                 self.store.data_mut().input_context.input_entries[index].previous = *prev;
             });
 
-        let destination = &mut self
+        let memory = &mut self
             .instance
             .get_memory(&mut self.store, WASM_MEMORY)
             .unwrap()
             .data_mut(&mut self.store);
-        destination.copy_from_slice(&memory);
+
+        memory[0..self.memory_values.data_end].copy_from_slice(&data);
+        memory[self.memory_values.heap_base + self.memory_values.data_length..]
+            .copy_from_slice(&heap);
     }
 
     pub(crate) fn sync_audio(&mut self) {
@@ -234,6 +305,12 @@ fn call<T>(func: Option<&GameFunc>, store: &mut Store<T>) {
 impl Console for WasmConsole {
     fn call_init(&mut self) {
         call(self.functions.init_fn.as_ref(), &mut self.store);
+    }
+
+    fn call_datapack(&mut self, ptr: i32, len: i32) {
+        if let Some(datapack) = &self.functions.datapack_fn {
+            datapack.call(&mut self.store, (ptr, len)).unwrap();
+        }
     }
 
     fn call_update(&mut self) {

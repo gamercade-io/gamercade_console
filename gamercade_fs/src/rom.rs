@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use gamercade_audio::SoundRom;
 use gamercade_core::{FrameRate, GraphicsData, Resolution};
 
-use crate::{bundle, EditorRom, GameAssetProvider, GameCodeProvider};
+use crate::{bundle, DataPack, EditorRom, GameAssetProvider, GameCodeProvider};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Rom {
@@ -19,6 +19,7 @@ pub struct Rom {
     pub graphics: GraphicsData,
     pub sounds: SoundRom,
     pub code: Box<[u8]>,
+    pub data_pack: Option<DataPack>,
 }
 
 impl Default for Rom {
@@ -30,6 +31,7 @@ impl Default for Rom {
             sounds: Default::default(),
             code: Default::default(),
             player_count: (1, 1),
+            data_pack: Default::default(),
         }
     }
 }
@@ -105,5 +107,9 @@ impl GameAssetProvider for Rom {
 
     fn sounds(&self) -> SoundRom {
         self.sounds.clone()
+    }
+
+    fn data_pack(&self) -> Option<DataPack> {
+        self.data_pack.clone()
     }
 }
