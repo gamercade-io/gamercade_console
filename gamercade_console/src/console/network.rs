@@ -11,7 +11,8 @@ use super::WasmConsole;
 #[derive(Clone)]
 pub struct WasmConsoleState {
     pub(crate) previous_buttons: Box<[Buttons]>,
-    pub(crate) memory: Vec<u8>,
+    pub(crate) data: Vec<u8>,
+    pub(crate) heap: Vec<u8>,
     pub(crate) sound_engine_data: SoundEngineData,
 }
 

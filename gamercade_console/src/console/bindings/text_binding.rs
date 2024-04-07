@@ -1,8 +1,9 @@
 use crate::api::{TextApi, TextApiBinding};
 use paste::paste;
 use std::str;
-use wasmtime::{Caller, Extern, Linker};
+use wasmtime::{Caller, Linker};
 
+use crate::console::wasm_console::WASM_MEMORY;
 use crate::console::Contexts;
 
 macro_rules! derive_text_api_binding {
@@ -15,10 +16,7 @@ macro_rules! derive_text_api_binding {
                             "env",
                             stringify!($ident),
                             |mut caller: Caller<'_, Contexts>, text_ptr: i32, len: i32, $($name: $args,)*| {
-                                let mem = match caller.get_export("memory") {
-                                    Some(Extern::Memory(mem)) => mem,
-                                    _ => return Err(wasmtime::Error::msg("failed to find host memory")),
-                                };
+                                let mem = caller.get_export(WASM_MEMORY).unwrap().into_memory().unwrap();
 
                                 let data = match mem
                                     .data(&caller)
@@ -43,10 +41,7 @@ macro_rules! derive_text_api_binding {
                             "env",
                             stringify!([<$ident _utf16>]),
                             |mut caller: Caller<'_, Contexts>, text_ptr: i32, len: i32, $($name: $args,)*| {
-                                let mem = match caller.get_export("memory") {
-                                    Some(Extern::Memory(mem)) => mem,
-                                    _ => return Err(wasmtime::Error::msg("failed to find host memory")),
-                                };
+                                let mem = caller.get_export(WASM_MEMORY).unwrap().into_memory().unwrap();
 
                                 let data = match mem
                                     .data(&caller)

@@ -1,10 +1,11 @@
 use std::{
+    fs,
     path::{Path, PathBuf},
     process::Child,
 };
 
 use clap::{Args, Subcommand};
-use gamercade_fs::EditorRom;
+use gamercade_fs::{DataPack, EditorRom};
 
 use crate::watch::Watchable;
 
@@ -36,6 +37,10 @@ enum ConsoleCommand {
         /// Optional path to the asset provider, .gce or .gcrom.
         #[clap(short, long, value_parser)]
         assets: Option<PathBuf>,
+
+        /// Optional path to provide a game data pack. Any file type.
+        #[clap(short, long, value_parser)]
+        data_pack: Option<PathBuf>,
     },
 }
 
@@ -51,10 +56,18 @@ impl Watchable for ConsoleArgs {
         let mut out = Vec::new();
 
         match &self.mode {
-            Some(ConsoleCommand::Bundle { code, assets }) => {
+            Some(ConsoleCommand::Bundle {
+                code,
+                assets,
+                data_pack,
+            }) => {
                 out.push(code.clone());
                 if let Some(assets) = assets {
                     out.push(assets.clone())
+                }
+
+                if let Some(data_pack) = data_pack {
+                    out.push(data_pack.clone())
                 }
             }
             Some(ConsoleCommand::Rom { rom }) => out.push(rom.clone()),
@@ -83,14 +96,23 @@ pub(crate) fn run(args: &ConsoleArgs) -> Result<Option<Child>, String> {
             ])
             .spawn()
             .map_err(|e| e.to_string())?,
-        Some(ConsoleCommand::Bundle { code, assets }) => {
+        Some(ConsoleCommand::Bundle {
+            code,
+            assets,
+            data_pack,
+        }) => {
             let code = read_path(code)?;
 
-            let assets = if let Some(assets) = assets {
+            let mut assets = if let Some(assets) = assets {
                 read_path(assets)?
             } else {
                 ReadFileResult::EditorRom(EditorRom::default())
             };
+
+            if let Some(data_pack) = &data_pack {
+                let data = fs::read(data_pack).unwrap();
+                assets.set_data_pack(DataPack { data });
+            }
 
             let rom = try_bundle_files(&code, &assets)?;
             let rom_path = PathBuf::new().with_file_name(BUNDLE_FILENAME);

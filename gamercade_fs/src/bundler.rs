@@ -1,7 +1,7 @@
 use gamercade_audio::SoundRom;
 use gamercade_core::{FrameRate, GraphicsData, Resolution};
 
-use crate::Rom;
+use crate::{DataPack, Rom};
 
 /// Provides .wasm game code to produce a game Rom
 pub trait GameCodeProvider {
@@ -24,6 +24,7 @@ pub trait GameAssetProvider {
     fn player_count(&self) -> (usize, usize);
     fn graphics(&self) -> GraphicsData;
     fn sounds(&self) -> SoundRom;
+    fn data_pack(&self) -> Option<DataPack>;
 }
 
 /// Generates a ready-to-use Rom.
@@ -39,5 +40,6 @@ where
         graphics: asset_provider.graphics(),
         sounds: asset_provider.sounds(),
         code: code_provider.code().into(),
+        data_pack: asset_provider.data_pack(),
     }
 }
