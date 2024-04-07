@@ -12,9 +12,7 @@ pub struct DataContext {
 
 impl DataContext {
     pub fn new(rom: Arc<Rom>) -> Self {
-        Self {
-            rom,
-        }
+        Self { rom }
     }
 }
 
