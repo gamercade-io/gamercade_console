@@ -5,21 +5,14 @@ use gamercade_core::{Buttons, InputState, MouseState};
 use gamercade_interface::{NetworkSession, NetworkedPlayerType};
 use gamercade_sound_engine::SoundEngineData;
 use ggrs::{Config, PlayerType};
-use wasmtime::Global;
 
 use super::WasmConsole;
 
 #[derive(Clone)]
 pub struct WasmConsoleState {
     pub(crate) previous_buttons: Box<[Buttons]>,
-    pub(crate) memories: Vec<Vec<u8>>,
-    pub(crate) mutable_globals: Vec<Global>,
+    pub(crate) memory: Vec<u8>,
     pub(crate) sound_engine_data: SoundEngineData,
-}
-
-pub struct SaveStateDefinition {
-    pub(crate) memories: Vec<String>,
-    pub(crate) mutable_globals: Vec<String>,
 }
 
 #[derive(Pod, Zeroable, Clone, Copy, PartialEq, Eq)]

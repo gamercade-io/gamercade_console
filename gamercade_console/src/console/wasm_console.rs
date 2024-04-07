@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use gamercade_sound_engine::{SoundEngine, SoundEngineData, SoundRomInstance};
 use ggrs::GgrsRequest;
-use wasmtime::{Config, Engine, ExternType, Instance, Linker, Module, Mutability, Store, TypedFunc};
+use wasmtime::{Config, Engine, Instance, Linker, Module, Store, TypedFunc};
 use winit::{
     dpi::PhysicalPosition,
     window::{CursorGrabMode, Window},
@@ -10,11 +10,9 @@ use winit::{
 
 type GameFunc = TypedFunc<(), ()>;
 
-use super::{
-    bindings,
-    network::{SaveStateDefinition, WasmConsoleState},
-    Contexts, SessionDescriptor,
-};
+const WASM_MEMORY: &str = "memory";
+
+use super::{bindings, network::WasmConsoleState, Contexts, SessionDescriptor};
 use crate::Console;
 use gamercade_fs::Rom;
 
@@ -23,7 +21,6 @@ pub struct WasmConsole {
     pub(crate) store: Store<Contexts>,
     pub(crate) functions: Functions,
     pub(crate) instance: Instance,
-    pub(crate) state_definition: SaveStateDefinition,
     pub(crate) sound_engine: SoundEngine,
     pub(crate) audio_out: SoundEngineData,
 }
@@ -82,7 +79,8 @@ fn wasmtime_config() -> Config {
     config.wasm_threads(false);
     config.wasm_tail_call(true);
     config.strategy(Strategy::Cranelift);
-    config.cranelift_opt_level(OptLevel::SpeedAndSize);
+    config.cranelift_opt_level(OptLevel::Speed);
+    config.static_memory_forced(true);
 
     config
 }
@@ -120,35 +118,12 @@ impl WasmConsole {
         let instance = linker.instantiate(&mut store, &module).unwrap();
         let functions = Functions::find_functions(&mut store, &instance);
 
-        let mut memories = Vec::new();
-        let mut mutable_globals = Vec::new();
-
-        module.exports().for_each(|export| {
-            let name = export.name();
-            match export.ty() {
-                ExternType::Global(global) => {
-                    if global.mutability() == Mutability::Var {
-                        mutable_globals.push(name.to_string())
-                    }
-                }
-                ExternType::Memory(_) => memories.push(name.to_string()),
-                ExternType::Func(_) => (),
-                ExternType::Table(_) => (),
-            }
-        });
-
-        let state_definition = SaveStateDefinition {
-            memories,
-            mutable_globals,
-        };
-
         let audio_out = store.data().audio_context.sound_engine_data.clone();
 
         let mut out = Self {
             rom,
             functions,
             instance,
-            state_definition,
             store,
             sound_engine,
             audio_out,
@@ -174,32 +149,18 @@ impl WasmConsole {
             .collect::<Vec<_>>()
             .into_boxed_slice();
 
-        let memories = self
-            .state_definition
-            .memories
-            .iter()
-            .map(|name| {
-                self.instance
-                    .get_memory(&mut self.store, name)
-                    .unwrap()
-                    .data(&self.store)
-                    .to_vec()
-            })
-            .collect();
-
-        let mutable_globals = self
-            .state_definition
-            .mutable_globals
-            .iter()
-            .map(|name| self.instance.get_global(&mut self.store, name).unwrap())
-            .collect();
+        let memory = self
+            .instance
+            .get_memory(&mut self.store, WASM_MEMORY)
+            .unwrap()
+            .data(&self.store)
+            .to_vec();
 
         let sound_engine_data = self.store.data().audio_context.sound_engine_data.clone();
 
         WasmConsoleState {
             previous_buttons,
-            memories,
-            mutable_globals,
+            memory,
             sound_engine_data,
         }
     }
@@ -207,8 +168,7 @@ impl WasmConsole {
     pub fn load_save_state(&mut self, state: WasmConsoleState) {
         let WasmConsoleState {
             previous_buttons,
-            memories,
-            mutable_globals,
+            memory,
             sound_engine_data,
         } = state;
 
@@ -223,30 +183,12 @@ impl WasmConsole {
                 self.store.data_mut().input_context.input_entries[index].previous = *prev;
             });
 
-        self.state_definition
-            .memories
-            .iter()
-            .enumerate()
-            .for_each(|(index, name)| {
-                let source = &memories[index];
-                let destination = self.instance.get_memory(&mut self.store, name).unwrap();
-                let destination = &mut destination.data_mut(&mut self.store)[..source.len()];
-                destination.copy_from_slice(source)
-            });
-
-        self.state_definition
-            .mutable_globals
-            .iter()
-            .enumerate()
-            .for_each(|(index, name)| {
-                let source = mutable_globals[index];
-                let val = source.get(&mut self.store);
-                self.instance
-                    .get_global(&mut self.store, name)
-                    .unwrap()
-                    .set(&mut self.store, val)
-                    .unwrap()
-            });
+        let destination = &mut self
+            .instance
+            .get_memory(&mut self.store, WASM_MEMORY)
+            .unwrap()
+            .data_mut(&mut self.store);
+        destination.copy_from_slice(&memory);
     }
 
     pub(crate) fn sync_audio(&mut self) {
