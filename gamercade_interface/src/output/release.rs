@@ -27,8 +27,8 @@ pub struct ReleaseResponse {
     pub release_id: u64,
     #[prost(string, tag = "2")]
     pub release_name: ::prost::alloc::string::String,
-    #[prost(bytes = "vec", tag = "3")]
-    pub checksum: ::prost::alloc::vec::Vec<u8>,
+    #[prost(fixed64, tag = "3")]
+    pub checksum: u64,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]

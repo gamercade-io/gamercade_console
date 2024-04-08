@@ -27,7 +27,7 @@ message UpdateReleaseRequest {
 message ReleaseResponse {
     fixed64 release_id = 1;
     string release_name = 2;
-    bytes checksum = 3;
+    fixed64 checksum = 3;
 }
 
 message DeleteReleaseRequest {
