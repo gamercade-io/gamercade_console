@@ -12,7 +12,7 @@ pub use network::{SessionDescriptor, WasmConsoleState};
 pub use wasm_console::WasmConsole;
 
 pub trait Console: Sized + Config {
-    fn call_datapack(&mut self, ptr: i32, len: i32);
+    fn call_datapack(&mut self, len: i32) -> i32;
     fn call_init(&mut self);
     fn call_update(&mut self);
     fn call_draw(&mut self);

@@ -11,8 +11,6 @@ use winit::{
 type GameFunc = TypedFunc<(), ()>;
 
 pub const WASM_MEMORY: &str = "memory";
-pub const WASM_HEAP_BASE: &str = "__heap_base";
-pub const WASM_DATA_END: &str = "__data_end";
 
 use super::{bindings, network::WasmConsoleState, Contexts, SessionDescriptor};
 use crate::Console;
@@ -28,16 +26,16 @@ pub struct WasmConsole {
     memory_values: MemoryValues,
 }
 
+#[derive(Default)]
 struct MemoryValues {
-    heap_base: usize,
-    data_end: usize,
-    data_length: usize,
+    datapack_start: usize,
+    datapack_end: usize,
 }
 
 #[derive(Clone)]
 pub(crate) struct Functions {
     init_fn: Option<GameFunc>,
-    datapack_fn: Option<TypedFunc<(i32, i32), ()>>,
+    datapack_fn: Option<TypedFunc<i32, i32>>,
     update_fn: Option<GameFunc>,
     draw_fn: Option<GameFunc>,
 }
@@ -143,25 +141,7 @@ impl WasmConsole {
 
         let audio_out = store.data().audio_context.sound_engine_data.clone();
 
-        let heap_base = instance
-            .get_global(&mut store, WASM_HEAP_BASE)
-            .unwrap()
-            .get(&mut store)
-            .i32()
-            .unwrap() as usize;
-
-        let data_end = instance
-            .get_global(&mut store, WASM_DATA_END)
-            .unwrap()
-            .get(&mut store)
-            .i32()
-            .unwrap() as usize;
-
-        let memory_values = MemoryValues {
-            heap_base,
-            data_end,
-            data_length: 0,
-        };
+        let memory_values = MemoryValues::default();
 
         let mut out = Self {
             rom: rom.clone(),
@@ -176,20 +156,30 @@ impl WasmConsole {
         if let Some(data_pack) = &rom.data_pack {
             let length = data_pack.data.len() as i32;
 
+            let datapack_start = out.call_datapack(length);
+            let mut datapack_end = 0;
+            if datapack_start > 0 {
+                datapack_end = datapack_start + length;
+            } 
+
             let memory = &mut instance
-                .get_memory(&mut out.store, WASM_MEMORY)
-                .unwrap()
-                .data_mut(&mut out.store)[heap_base..];
+            .get_memory(&mut out.store, WASM_MEMORY)
+            .unwrap()
+            .data_mut(&mut out.store)[datapack_start as usize..datapack_end as usize];
 
-            for (source, target) in data_pack.data.iter().zip(memory.iter_mut()) {
-                *target = *source;
-            }
+            memory.copy_from_slice(&data_pack.data);
 
-            out.memory_values.data_length = length as usize;
-            out.call_datapack(heap_base as i32, length);
+            out.memory_values.datapack_end = datapack_end as usize;
+            out.memory_values.datapack_start = datapack_start as usize;
         };
 
         out.call_init();
+
+        let memory = &mut instance
+        .get_memory(&mut out.store, WASM_MEMORY)
+        .unwrap();
+
+        println!("Memory size: {}pages", memory.size(&out.store));
 
         out.sync_audio();
 
@@ -214,17 +204,17 @@ impl WasmConsole {
             .get_memory(&mut self.store, WASM_MEMORY)
             .unwrap();
 
-        let data = mem.data(&mut self.store)[0..self.memory_values.data_end].to_vec();
-        let heap = mem.data(&mut self.store)
-            [self.memory_values.heap_base + self.memory_values.data_length..]
+        let before_dp = mem.data(&mut self.store)[0..self.memory_values.datapack_start].to_vec();
+        let after_dp = mem.data(&mut self.store)
+            [self.memory_values.datapack_end..]
             .to_vec();
 
         let sound_engine_data = self.store.data().audio_context.sound_engine_data.clone();
 
         WasmConsoleState {
             previous_buttons,
-            data,
-            heap,
+            before_dp,
+            after_dp,
             sound_engine_data,
         }
     }
@@ -232,8 +222,8 @@ impl WasmConsole {
     pub fn load_save_state(&mut self, state: WasmConsoleState) {
         let WasmConsoleState {
             previous_buttons,
-            data,
-            heap,
+            before_dp,
+            after_dp,
             sound_engine_data,
         } = state;
 
@@ -254,9 +244,9 @@ impl WasmConsole {
             .unwrap()
             .data_mut(&mut self.store);
 
-        memory[0..self.memory_values.data_end].copy_from_slice(&data);
-        memory[self.memory_values.heap_base + self.memory_values.data_length..]
-            .copy_from_slice(&heap);
+        memory[0..self.memory_values.datapack_start].copy_from_slice(&before_dp);
+        memory[self.memory_values.datapack_end..]
+            .copy_from_slice(&after_dp);
     }
 
     pub(crate) fn sync_audio(&mut self) {
@@ -304,9 +294,11 @@ impl Console for WasmConsole {
         call(self.functions.init_fn.as_ref(), &mut self.store);
     }
 
-    fn call_datapack(&mut self, ptr: i32, len: i32) {
+    fn call_datapack(&mut self, len: i32) -> i32 {
         if let Some(datapack) = &self.functions.datapack_fn {
-            datapack.call(&mut self.store, (ptr, len)).unwrap();
+            datapack.call(&mut self.store, len).unwrap()
+        } else {
+            0
         }
     }
 
