@@ -1,6 +1,6 @@
 use eframe::egui::{Button, TextEdit, Ui};
 
-use crate::auth::AuthClient;
+use crate::task_manager::SuperTaskManager;
 
 use super::ActiveView;
 
@@ -14,7 +14,7 @@ pub struct SignUpView {
 }
 
 impl SignUpView {
-    pub fn draw(&mut self, ui: &mut Ui, auth_client: &mut AuthClient) -> Option<ActiveView> {
+    pub fn draw(&mut self, ui: &mut Ui, task_manager: &mut SuperTaskManager) -> Option<ActiveView> {
         let mut email_equal = false;
         let mut password_equal = false;
 
@@ -63,7 +63,9 @@ impl SignUpView {
             .add_enabled(email_equal && password_equal, Button::new("Register"))
             .clicked()
         {
-            auth_client.try_register(&self.username, &self.email, &self.password);
+            task_manager
+                .auth
+                .try_register(&self.username, &self.email, &self.password);
             // TODO: Lock the entries while waiting...
             // TODO: Show an animation thing...
         }

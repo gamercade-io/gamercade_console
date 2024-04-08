@@ -1,21 +1,19 @@
 use eframe::egui::{self};
 
 use crate::{
-    auth::AuthClient,
     local_directory::LocalDirectory,
-    task_manager::{SuperTaskManager, TagRequest, TaskNotification},
+    task_manager::{AuthState, SuperTaskManager, TagRequest, TaskNotification},
     view::ActiveView,
 };
 
 #[derive(Default)]
 pub struct App {
-    auth_client: AuthClient,
-
     active_view: ActiveView,
 
     directory: LocalDirectory,
 
     tasks: SuperTaskManager,
+    auth_state: AuthState,
 }
 
 impl eframe::App for App {
@@ -29,7 +27,7 @@ impl eframe::App for App {
             }
 
             self.active_view
-                .draw(ui, &mut self.auth_client, &mut self.directory);
+                .draw(ui, &mut self.tasks, &mut self.directory);
         });
     }
 }
@@ -43,6 +41,10 @@ impl App {
                 }
                 TaskNotification::GlobalPermissionLevels(permissions) => {
                     self.directory.upsert_permission_levesl(&permissions, true);
+                }
+                TaskNotification::AuthStateChanged(new_state) => {
+                    println!("Auth State Changed: {new_state:?}");
+                    self.auth_state = new_state;
                 }
             }
         }

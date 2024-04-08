@@ -14,6 +14,9 @@ pub use authors::*;
 mod super_task_manager;
 pub use super_task_manager::*;
 
+mod auth;
+pub use auth::*;
+
 const SUPER_TASK_CHANNEL_SIZE: usize = 256;
 const TASK_CHANNEL_LENGTH: usize = 8;
 

@@ -69,7 +69,7 @@ impl PerformanceTracker {
         let mut sum = 0.0;
         let mut count = 0;
 
-        while let Some(point) = data.next() {
+        for point in data.by_ref() {
             sum += point;
             max = max.max(*point);
             min = min.min(*point);

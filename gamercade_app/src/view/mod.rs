@@ -1,6 +1,6 @@
 use eframe::egui::Ui;
 
-use crate::{auth::AuthClient, local_directory::LocalDirectory};
+use crate::{local_directory::LocalDirectory, task_manager::SuperTaskManager};
 
 use self::{
     login::LoginView, offline_browsing::OfflineBrowsingView, online_browsing::OnlineBrowsingView,
@@ -41,12 +41,12 @@ impl ActiveView {
     pub fn draw(
         &mut self,
         ui: &mut Ui,
-        auth_client: &mut AuthClient,
+        tasks: &mut SuperTaskManager,
         directory: &mut LocalDirectory,
     ) {
         if let Some(next) = match self {
-            ActiveView::Login(view) => view.draw(ui, auth_client),
-            ActiveView::SignUp(view) => view.draw(ui, auth_client),
+            ActiveView::Login(view) => view.draw(ui, tasks),
+            ActiveView::SignUp(view) => view.draw(ui, tasks),
             ActiveView::OfflineBrowsing(view) => view.draw(ui, directory),
             ActiveView::OnlineBrowsing(view) => view.draw(ui, directory),
         } {
