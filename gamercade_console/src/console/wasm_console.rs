@@ -26,10 +26,20 @@ pub struct WasmConsole {
     memory_values: MemoryValues,
 }
 
-#[derive(Default)]
 struct MemoryValues {
+    image_length: usize,
     datapack_start: usize,
     datapack_end: usize,
+}
+
+impl MemoryValues {
+    fn new(image_length: usize) -> Self {
+        Self {
+            image_length,
+            datapack_start: image_length,
+            datapack_end: image_length,
+        }
+    }
 }
 
 #[derive(Clone)]
@@ -141,7 +151,11 @@ impl WasmConsole {
 
         let audio_out = store.data().audio_context.sound_engine_data.clone();
 
-        let memory_values = MemoryValues::default();
+        let image_range = module.image_range();
+        let image_length = image_range.end as usize - image_range.start as usize;
+        let mut memory_values = MemoryValues::new(image_length);
+
+        memory_values.image_length = image_length;
 
         let mut out = Self {
             rom: rom.clone(),
@@ -175,10 +189,6 @@ impl WasmConsole {
 
         out.call_init();
 
-        let memory = &mut instance.get_memory(&mut out.store, WASM_MEMORY).unwrap();
-
-        println!("Memory size: {}pages", memory.size(&out.store));
-
         out.sync_audio();
 
         let initial_state = out.generate_save_state();
@@ -202,7 +212,9 @@ impl WasmConsole {
             .get_memory(&mut self.store, WASM_MEMORY)
             .unwrap();
 
-        let before_dp = mem.data(&mut self.store)[0..self.memory_values.datapack_start].to_vec();
+        let before_dp = mem.data(&mut self.store)
+            [self.memory_values.image_length..self.memory_values.datapack_start]
+            .to_vec();
         let after_dp = mem.data(&mut self.store)[self.memory_values.datapack_end..].to_vec();
 
         let sound_engine_data = self.store.data().audio_context.sound_engine_data.clone();
@@ -240,7 +252,8 @@ impl WasmConsole {
             .unwrap()
             .data_mut(&mut self.store);
 
-        memory[0..self.memory_values.datapack_start].copy_from_slice(&before_dp);
+        memory[self.memory_values.image_length..self.memory_values.datapack_start]
+            .copy_from_slice(&before_dp);
         memory[self.memory_values.datapack_end..].copy_from_slice(&after_dp);
     }
 
