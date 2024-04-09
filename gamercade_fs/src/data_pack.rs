@@ -4,6 +4,7 @@ use base64::{engine::GeneralPurpose, Engine};
 const BASE64ENGINE: GeneralPurpose = base64::engine::general_purpose::STANDARD;
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
+#[serde(transparent)]
 pub struct DataPack {
     #[serde(serialize_with = "ser_data_pack", deserialize_with = "de_data_pack")]
     pub data: Vec<u8>,
