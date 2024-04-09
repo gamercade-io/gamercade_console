@@ -22,9 +22,9 @@ impl eframe::App for App {
 
         egui::CentralPanel::default().show(ctx, |ui| {
             // TODO: Remove this and fetch tags / Author Levels automatically
-            if ui.button("Fetch Tags").clicked() {
-                self.tasks.tags.send_request(TagRequest::Initialize)
-            }
+            // if ui.button("Fetch Tags").clicked() {
+            //     self.tasks.tags.send_request(TagRequest::Initialize)
+            // }
 
             self.active_view
                 .draw(ui, &mut self.tasks, &mut self.directory);
@@ -45,6 +45,13 @@ impl App {
                 TaskNotification::AuthStateChanged(new_state) => {
                     println!("Auth State Changed: {new_state:?}");
                     self.auth_state = new_state;
+
+                    match self.auth_state {
+                        AuthState::Unauthorized => self.active_view = ActiveView::login(),
+                        AuthState::SessionHeld(_) => {
+                            self.active_view = ActiveView::online_browsing()
+                        }
+                    }
                 }
             }
         }

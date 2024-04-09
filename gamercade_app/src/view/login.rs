@@ -9,6 +9,7 @@ pub struct LoginView {
     provider: String,
     provider_kind: Provider,
     password: String,
+    waiting: bool,
 }
 
 #[derive(Default, PartialEq, Eq)]
@@ -20,6 +21,14 @@ enum Provider {
 
 impl LoginView {
     pub fn draw(&mut self, ui: &mut Ui, task_manager: &mut SuperTaskManager) -> Option<ActiveView> {
+        ui.set_enabled(!self.waiting);
+
+        ui.horizontal(|ui| {
+            ui.selectable_value(&mut self.provider_kind, Provider::Username, "Username");
+            ui.separator();
+            ui.selectable_value(&mut self.provider_kind, Provider::Email, "Email");
+        });
+
         ui.horizontal(|ui| {
             let text = match self.provider_kind {
                 Provider::Username => "Username: ",
@@ -30,28 +39,29 @@ impl LoginView {
         });
 
         ui.horizontal(|ui| {
-            ui.selectable_value(&mut self.provider_kind, Provider::Username, "Username");
-            ui.separator();
-            ui.selectable_value(&mut self.provider_kind, Provider::Email, "Email");
-        });
-
-        ui.horizontal(|ui| {
             ui.label("Password: ");
             let pw_entry = TextEdit::singleline(&mut self.password).password(true);
             ui.add(pw_entry);
         });
+        
+        if ui.button("Login").clicked() {
+            // TODO: Support email login too
+            task_manager.auth.try_login(&self.provider, &self.password);
+            self.waiting = true;
+            //TODO: Lock entries while waiting
+        }
+
+        ui.separator();
 
         if ui.button("Sign Up").clicked() {
             return Some(ActiveView::sign_up());
         }
 
-        if ui.button("Login").clicked() {
-            // TODO: Support email login too
-            task_manager.auth.try_login(&self.provider, &self.password);
-            //TODO: Lock entries while waiting
-            //TODO: Show an animation thing
+        if self.waiting {
+            ui.spinner();
         }
 
+        ui.set_enabled(true);
         if ui.button("Continue offline").clicked() {
             return Some(ActiveView::offline_browsing());
         }
