@@ -1,4 +1,4 @@
-use eframe::egui::{self};
+use eframe::egui::{self, Ui};
 
 use crate::{
     local_directory::LocalDirectory,
@@ -16,6 +16,12 @@ pub struct App {
     auth_state: AuthState,
 }
 
+pub struct AppDrawContext<'a> {
+    pub ui: &'a mut Ui,
+    pub task_manager: &'a mut SuperTaskManager,
+    pub directory: &'a mut LocalDirectory,
+}
+
 impl eframe::App for App {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         self.handle_notifications();
@@ -26,8 +32,13 @@ impl eframe::App for App {
             //     self.tasks.tags.send_request(TagRequest::Initialize)
             // }
 
-            self.active_view
-                .draw(ui, &mut self.tasks, &mut self.directory);
+            let context = AppDrawContext {
+                ui,
+                task_manager: &mut self.tasks,
+                directory: &mut self.directory,
+            };
+
+            self.active_view.draw(context);
         });
     }
 }

@@ -1,6 +1,6 @@
 use eframe::egui::Ui;
 
-use crate::{local_directory::LocalDirectory, task_manager::SuperTaskManager};
+use crate::{app::AppDrawContext, local_directory::LocalDirectory, task_manager::SuperTaskManager};
 
 use super::ActiveView;
 
@@ -10,16 +10,13 @@ pub struct OnlineBrowsingView {
 }
 
 impl OnlineBrowsingView {
-    pub fn draw(
-        &mut self,
-        ui: &mut Ui,
-        task_manager: &mut SuperTaskManager,
-        directory: &mut LocalDirectory,
-    ) -> Option<ActiveView> {
+    pub fn draw(&mut self, context: AppDrawContext) -> Option<ActiveView> {
+        let AppDrawContext { ui, directory, .. } = context;
+
         ui.label("Online Browsing");
 
         //TODO: Draw the browsing games list
-        directory.iter_games().for_each(|_game| {});
+        //TODO: Add search parameters etc
 
         ui.horizontal(|ui| {
             ui.label("Release Id: ");

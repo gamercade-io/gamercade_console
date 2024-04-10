@@ -1,6 +1,6 @@
 use eframe::egui::Ui;
 
-use crate::{local_directory::LocalDirectory, task_manager::SuperTaskManager};
+use crate::{app::AppDrawContext, local_directory::LocalDirectory, task_manager::SuperTaskManager};
 
 use self::{
     creator_dashboard::CreatorDashboard, login::LoginView, offline_browsing::OfflineBrowsingView,
@@ -10,6 +10,7 @@ use self::{
 mod creator_dashboard;
 mod edit_game;
 mod login;
+mod modes;
 mod offline_browsing;
 mod online_browsing;
 mod sign_up;
@@ -45,18 +46,13 @@ impl ActiveView {
         Self::OnlineBrowsing(OnlineBrowsingView::default())
     }
 
-    pub fn draw(
-        &mut self,
-        ui: &mut Ui,
-        tasks: &mut SuperTaskManager,
-        directory: &mut LocalDirectory,
-    ) {
+    pub fn draw(&mut self, context: AppDrawContext) {
         if let Some(next) = match self {
-            ActiveView::Login(view) => view.draw(ui, tasks),
-            ActiveView::SignUp(view) => view.draw(ui, tasks),
-            ActiveView::OfflineBrowsing(view) => view.draw(ui, directory),
-            ActiveView::OnlineBrowsing(view) => view.draw(ui, tasks, directory),
-            ActiveView::CreatorDashboard(view) => view.draw(ui, tasks),
+            ActiveView::Login(view) => view.draw(context),
+            ActiveView::SignUp(view) => view.draw(context),
+            ActiveView::OfflineBrowsing(view) => view.draw(context),
+            ActiveView::OnlineBrowsing(view) => view.draw(context),
+            ActiveView::CreatorDashboard(view) => view.draw(context),
         } {
             *self = next;
         }

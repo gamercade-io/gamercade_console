@@ -1,6 +1,6 @@
 use eframe::egui::{TextEdit, Ui};
 
-use crate::task_manager::SuperTaskManager;
+use crate::{app::AppDrawContext, task_manager::SuperTaskManager};
 
 use super::ActiveView;
 
@@ -20,7 +20,11 @@ enum Provider {
 }
 
 impl LoginView {
-    pub fn draw(&mut self, ui: &mut Ui, task_manager: &mut SuperTaskManager) -> Option<ActiveView> {
+    pub fn draw(&mut self, context: AppDrawContext) -> Option<ActiveView> {
+        let AppDrawContext {
+            ui, task_manager, ..
+        } = context;
+
         ui.set_enabled(!self.waiting);
 
         ui.horizontal(|ui| {
@@ -43,7 +47,7 @@ impl LoginView {
             let pw_entry = TextEdit::singleline(&mut self.password).password(true);
             ui.add(pw_entry);
         });
-        
+
         if ui.button("Login").clicked() {
             // TODO: Support email login too
             task_manager.auth.try_login(&self.provider, &self.password);

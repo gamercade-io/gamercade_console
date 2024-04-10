@@ -1,14 +1,18 @@
 use eframe::egui::Ui;
 
-use crate::local_directory::LocalDirectory;
+use crate::{app::AppDrawContext, local_directory::LocalDirectory};
 
 use super::ActiveView;
+
+// TODO: Consider adding a new tab like "Games Library"
+// Or something relevant
 
 #[derive(Default)]
 pub struct OfflineBrowsingView {}
 
 impl OfflineBrowsingView {
-    pub fn draw(&mut self, ui: &mut Ui, directory: &LocalDirectory) -> Option<ActiveView> {
+    pub fn draw(&mut self, context: AppDrawContext) -> Option<ActiveView> {
+        let AppDrawContext { ui, directory, .. } = context;
         ui.label("Offline Browsing");
 
         //TODO: Draw the browsing games list

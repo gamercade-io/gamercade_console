@@ -1,6 +1,6 @@
 use eframe::egui::{Button, TextEdit, Ui};
 
-use crate::task_manager::SuperTaskManager;
+use crate::{app::AppDrawContext, task_manager::SuperTaskManager};
 
 use super::ActiveView;
 
@@ -14,7 +14,13 @@ pub struct SignUpView {
 }
 
 impl SignUpView {
-    pub fn draw(&mut self, ui: &mut Ui, task_manager: &mut SuperTaskManager) -> Option<ActiveView> {
+    pub fn draw(&mut self, context: AppDrawContext) -> Option<ActiveView> {
+        let AppDrawContext {
+            ui,
+            directory,
+            task_manager,
+        } = context;
+
         let mut email_equal = false;
         let mut password_equal = false;
 
