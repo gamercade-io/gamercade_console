@@ -4,5 +4,8 @@ use crate::app::AppDrawContext;
 pub struct OnlineModeView {}
 
 impl OnlineModeView {
-    pub fn draw(&mut self, context: AppDrawContext) {}
+    pub fn draw(&mut self, context: AppDrawContext) {
+        let AppDrawContext { ui, .. } = context;
+        ui.label("Online Mode");
+    }
 }

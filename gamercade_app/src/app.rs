@@ -2,7 +2,7 @@ use eframe::egui::{self, Ui};
 
 use crate::{
     local_directory::LocalDirectory,
-    task_manager::{AuthState, SuperTaskManager, TagRequest, TaskNotification},
+    task_manager::{AuthState, SuperTaskManager, TaskNotification},
     view::ActiveView,
 };
 

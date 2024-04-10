@@ -1,6 +1,4 @@
-use eframe::egui::Ui;
-
-use crate::{app::AppDrawContext, task_manager::SuperTaskManager};
+use crate::app::AppDrawContext;
 
 use super::ActiveView;
 

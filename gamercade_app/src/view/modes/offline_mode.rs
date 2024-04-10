@@ -4,5 +4,8 @@ use crate::app::AppDrawContext;
 pub struct OfflineModeView {}
 
 impl OfflineModeView {
-    pub fn draw(&mut self, context: AppDrawContext) {}
+    pub fn draw(&mut self, context: AppDrawContext) {
+        let AppDrawContext { ui, .. } = context;
+        ui.label("Offline Mode");
+    }
 }

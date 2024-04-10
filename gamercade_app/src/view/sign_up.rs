@@ -1,6 +1,6 @@
-use eframe::egui::{Button, TextEdit, Ui};
+use eframe::egui::{Button, TextEdit};
 
-use crate::{app::AppDrawContext, task_manager::SuperTaskManager};
+use crate::app::AppDrawContext;
 
 use super::ActiveView;
 

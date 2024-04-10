@@ -1,6 +1,4 @@
-use eframe::egui::Ui;
-
-use crate::{app::AppDrawContext, local_directory::LocalDirectory};
+use crate::app::AppDrawContext;
 
 use super::ActiveView;
 

@@ -2,7 +2,6 @@ mod offline_mode;
 mod online_mode;
 mod settings_mode;
 
-use eframe::egui::Ui;
 pub use offline_mode::*;
 pub use online_mode::*;
 pub use settings_mode::*;
