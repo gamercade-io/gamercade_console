@@ -30,7 +30,7 @@ pub(crate) fn ser_data_pack<S>(data: &[u8], serializer: S) -> Result<S::Ok, S::E
 where
     S: serde::Serializer,
 {
-    let data: Vec<u8> = data.iter().flat_map(|x| x.to_be_bytes()).collect();
+    let data: Vec<u8> = data.to_vec();
     if serializer.is_human_readable() {
         let data = BASE64ENGINE.encode(data);
         serializer.serialize_str(&data)

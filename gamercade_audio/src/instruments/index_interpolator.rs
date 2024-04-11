@@ -6,17 +6,11 @@ use serde::{Deserialize, Serialize};
 /// kind of sample lookup. Since the output may require an index at point
 /// 1.5, we need to know how to convert this value into a non-fractional integer.
 pub enum IndexInterpolator {
-    /// Linearly interpolates between the values
-    /// A value of 1.2 will take the samples at 1 and 2,
-    /// and combine the result which is (20% of 1) plus (80% of 2).
-    /// A value of 10.5 will take 50% of the values, summed, at samples 10 and 11.
-    #[default]
-    Linear,
-
     /// Uses only the integral part of the number
     /// 1.2 will be truncated 1
     /// 1.5 will be truncated to 1
     /// 1.9 will be truncated to 1
+    #[default]
     Truncate,
 
     /// Rounds to the nearest neighbor.
@@ -24,6 +18,12 @@ pub enum IndexInterpolator {
     /// 1.5 will round to 2
     /// 1.7 will round to 2
     NearestNeighbor,
+
+    /// Linearly interpolates between the values
+    /// A value of 1.2 will take the samples at 1 and 2,
+    /// and combine the result which is (20% of 1) plus (80% of 2).
+    /// A value of 10.5 will take 50% of the values, summed, at samples 10 and 11.
+    Linear,
 }
 
 pub enum IndexInterpolatorResult {

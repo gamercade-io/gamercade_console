@@ -1858,6 +1858,7 @@ version = "0.1.0"
 dependencies = [
  "arrayvec",
  "base64 0.22.0",
+ "bytemuck",
  "fastrand 2.0.2",
  "rtrb",
  "serde",
@@ -1930,6 +1931,7 @@ version = "0.1.1"
 dependencies = [
  "base64 0.22.0",
  "bincode",
+ "bytemuck",
  "gamercade_audio",
  "gamercade_core",
  "gamercade_sound_engine",
