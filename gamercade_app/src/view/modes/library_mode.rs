@@ -1,11 +1,11 @@
 use crate::app::AppDrawContext;
 
 #[derive(Default)]
-pub struct OfflineModeView {}
+pub struct LibraryModeView {}
 
-impl OfflineModeView {
+impl LibraryModeView {
     pub fn draw(&mut self, context: AppDrawContext) {
         let AppDrawContext { ui, .. } = context;
-        ui.label("Offline Mode");
+        ui.label("Library Mode");
     }
 }

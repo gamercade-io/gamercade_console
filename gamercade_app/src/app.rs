@@ -3,7 +3,7 @@ use eframe::egui::{self, Ui};
 use crate::{
     local_directory::LocalDirectory,
     task_manager::{AuthState, SuperTaskManager, TaskNotification},
-    view::ActiveView,
+    view::{ActiveView, AppMode, ArcadeModeView, LibraryModeView, SettingsModeView},
 };
 
 #[derive(Default)]
@@ -14,6 +14,16 @@ pub struct App {
 
     tasks: SuperTaskManager,
     auth_state: AuthState,
+
+    active_mode: AppMode,
+    modes: Modes,
+}
+
+#[derive(Default)]
+pub struct Modes {
+    arcade: ArcadeModeView,
+    library: LibraryModeView,
+    settings: SettingsModeView,
 }
 
 pub struct AppDrawContext<'a> {
@@ -32,13 +42,31 @@ impl eframe::App for App {
             //     self.tasks.tags.send_request(TagRequest::Initialize)
             // }
 
+            ui.horizontal(|ui| {
+                ui.selectable_value(&mut self.active_mode, AppMode::Arcade, "Arcade");
+                ui.selectable_value(&mut self.active_mode, AppMode::Library, "Library");
+                ui.selectable_value(&mut self.active_mode, AppMode::Settings, "Settings");
+            });
+
+            ui.separator();
+
             let context = AppDrawContext {
                 ui,
                 task_manager: &mut self.tasks,
                 directory: &mut self.directory,
             };
 
-            self.active_view.draw(context);
+            match self.active_mode {
+                AppMode::Arcade => self.modes.arcade.draw(context),
+                AppMode::Library => self.modes.library.draw(context),
+                AppMode::Settings => self.modes.settings.draw(context),
+            }
+
+            self.active_view.draw(AppDrawContext {
+                ui,
+                task_manager: &mut self.tasks,
+                directory: &mut self.directory,
+            });
         });
     }
 }

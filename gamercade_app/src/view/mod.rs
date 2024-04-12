@@ -13,6 +13,8 @@ mod offline_browsing;
 mod online_browsing;
 mod sign_up;
 
+pub use modes::*;
+
 pub enum ActiveView {
     Login(LoginView),
     SignUp(SignUpView),

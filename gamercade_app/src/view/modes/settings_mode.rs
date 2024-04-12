@@ -1,9 +1,9 @@
 use crate::app::AppDrawContext;
 
 #[derive(Default)]
-pub struct SettingsView {}
+pub struct SettingsModeView {}
 
-impl SettingsView {
+impl SettingsModeView {
     pub fn draw(&mut self, context: AppDrawContext) {
         let AppDrawContext { ui, .. } = context;
         ui.label("Settings View");

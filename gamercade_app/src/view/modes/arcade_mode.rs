@@ -1,11 +1,11 @@
 use crate::app::AppDrawContext;
 
 #[derive(Default)]
-pub struct OnlineModeView {}
+pub struct ArcadeModeView {}
 
-impl OnlineModeView {
+impl ArcadeModeView {
     pub fn draw(&mut self, context: AppDrawContext) {
         let AppDrawContext { ui, .. } = context;
-        ui.label("Online Mode");
+        ui.label("Arcade Mode");
     }
 }
