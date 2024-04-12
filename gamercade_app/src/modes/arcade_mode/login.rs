@@ -2,7 +2,7 @@ use eframe::egui::TextEdit;
 
 use crate::app::AppDrawContext;
 
-use super::ActiveView;
+use super::ArcadeActiveView;
 
 #[derive(Default)]
 pub struct LoginView {
@@ -20,7 +20,7 @@ enum Provider {
 }
 
 impl LoginView {
-    pub fn draw(&mut self, context: AppDrawContext) -> Option<ActiveView> {
+    pub fn draw(&mut self, context: AppDrawContext) -> Option<ArcadeActiveView> {
         let AppDrawContext {
             ui, task_manager, ..
         } = context;
@@ -58,7 +58,7 @@ impl LoginView {
         ui.separator();
 
         if ui.button("Sign Up").clicked() {
-            return Some(ActiveView::sign_up());
+            return Some(ArcadeActiveView::sign_up());
         }
 
         if self.waiting {
@@ -66,9 +66,6 @@ impl LoginView {
         }
 
         ui.set_enabled(true);
-        if ui.button("Continue offline").clicked() {
-            return Some(ActiveView::offline_browsing());
-        }
 
         None
     }

@@ -2,14 +2,12 @@ use eframe::egui::{self, Ui};
 
 use crate::{
     local_directory::LocalDirectory,
+    modes::{AppMode, ArcadeActiveView, ArcadeModeView, LibraryModeView, SettingsModeView},
     task_manager::{AuthState, SuperTaskManager, TaskNotification},
-    view::{ActiveView, AppMode, ArcadeModeView, LibraryModeView, SettingsModeView},
 };
 
 #[derive(Default)]
 pub struct App {
-    active_view: ActiveView,
-
     directory: LocalDirectory,
 
     tasks: SuperTaskManager,
@@ -61,12 +59,6 @@ impl eframe::App for App {
                 AppMode::Library => self.modes.library.draw(context),
                 AppMode::Settings => self.modes.settings.draw(context),
             }
-
-            self.active_view.draw(AppDrawContext {
-                ui,
-                task_manager: &mut self.tasks,
-                directory: &mut self.directory,
-            });
         });
     }
 }
@@ -86,10 +78,8 @@ impl App {
                     self.auth_state = new_state;
 
                     match self.auth_state {
-                        AuthState::Unauthorized => self.active_view = ActiveView::login(),
-                        AuthState::SessionHeld(_) => {
-                            self.active_view = ActiveView::online_browsing()
-                        }
+                        AuthState::Unauthorized => self.modes.arcade.logged_in(),
+                        AuthState::SessionHeld(_) => self.modes.arcade.logged_out(),
                     }
                 }
             }

@@ -1,6 +1,6 @@
 use crate::app::AppDrawContext;
 
-use super::ActiveView;
+use super::ArcadeActiveView;
 
 #[derive(Default)]
 pub struct OnlineBrowsingView {
@@ -8,7 +8,7 @@ pub struct OnlineBrowsingView {
 }
 
 impl OnlineBrowsingView {
-    pub fn draw(&mut self, context: AppDrawContext) -> Option<ActiveView> {
+    pub fn draw(&mut self, context: AppDrawContext) -> Option<ArcadeActiveView> {
         let AppDrawContext { ui, directory, .. } = context;
 
         ui.label("Online Browsing");
@@ -25,7 +25,7 @@ impl OnlineBrowsingView {
         });
 
         if ui.button("Back").clicked() {
-            Some(ActiveView::login())
+            Some(ArcadeActiveView::login())
         } else {
             None
         }

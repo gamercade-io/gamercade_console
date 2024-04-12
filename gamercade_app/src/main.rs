@@ -3,8 +3,8 @@ use eframe::egui;
 mod app;
 mod ips;
 mod local_directory;
+mod modes;
 mod task_manager;
-mod view;
 
 #[tokio::main]
 async fn main() -> Result<(), eframe::Error> {

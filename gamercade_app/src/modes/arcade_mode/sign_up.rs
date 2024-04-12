@@ -2,7 +2,7 @@ use eframe::egui::{Button, TextEdit};
 
 use crate::app::AppDrawContext;
 
-use super::ActiveView;
+use super::ArcadeActiveView;
 
 #[derive(Default)]
 pub struct SignUpView {
@@ -14,7 +14,7 @@ pub struct SignUpView {
 }
 
 impl SignUpView {
-    pub fn draw(&mut self, context: AppDrawContext) -> Option<ActiveView> {
+    pub fn draw(&mut self, context: AppDrawContext) -> Option<ArcadeActiveView> {
         let AppDrawContext {
             ui,
             directory,
@@ -77,7 +77,7 @@ impl SignUpView {
         }
 
         if ui.button("Cancel").clicked() {
-            Some(ActiveView::login())
+            Some(ArcadeActiveView::login())
         } else {
             None
         }
