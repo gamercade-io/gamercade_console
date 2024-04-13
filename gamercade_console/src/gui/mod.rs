@@ -152,6 +152,13 @@ impl Gui {
                 ui.label(format!("avg {}ms", averages.average_render_time_ms));
                 ui.label(format!("min {}ms", averages.min_render_time_ms));
                 ui.label(format!("max {}ms", averages.max_render_time_ms));
+
+                ui.separator();
+                let mem_mb = perf.memory_usage as f32 / (1024 * 1024) as f32;
+                let mem_kb = perf.memory_usage as f32 / 1024 as f32;
+                let mem_b = perf.memory_usage;
+                ui.label("Memory Usage:");
+                ui.label(format!("{mem_mb}mb, {mem_kb}kb, {mem_b}b"));
             });
     }
 

@@ -36,6 +36,7 @@ pub struct PerformanceTracker {
     render_times_ms: VecDeque<f32>,
     update_times_ms: VecDeque<f32>,
     pub frames_per_second: usize,
+    pub memory_usage: usize,
 }
 
 pub struct PerformanceResult {

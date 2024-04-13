@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use gamercade_sound_engine::{SoundEngine, SoundEngineData, SoundRomInstance};
 use ggrs::GgrsRequest;
-use wasmtime::{Config, Engine, Instance, Linker, Module, Store, TypedFunc};
+use wasmtime::{Config, Engine, Instance, Linker, Memory, Module, Store, TypedFunc};
 use winit::{
     dpi::PhysicalPosition,
     window::{CursorGrabMode, Window},
@@ -373,5 +373,17 @@ impl Console for WasmConsole {
                 }
             }
         }
+    }
+
+    fn memory_usage(&mut self) -> usize {
+        // Used memory in bytes
+        let ignored_bytes = self.memory_values.image_length
+            + (self.memory_values.datapack_end - self.memory_values.datapack_start);
+        let memory = self
+            .instance
+            .get_memory(&mut self.store, WASM_MEMORY)
+            .unwrap();
+
+        memory.data_size(&self.store) - ignored_bytes
     }
 }

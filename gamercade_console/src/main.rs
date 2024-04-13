@@ -227,6 +227,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     framework
                         .perf_tracker
                         .push_times(render_time_ms, update_time_ms);
+
+                    framework.perf_tracker.memory_usage = console.memory_usage()
                 };
             };
 

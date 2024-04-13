@@ -22,4 +22,6 @@ pub trait Console: Sized + Config {
     fn blit(&self, buffer: &mut [u8]);
 
     fn handle_requests(&mut self, requests: Vec<GgrsRequest<Self>>);
+
+    fn memory_usage(&mut self) -> usize;
 }
