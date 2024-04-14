@@ -48,7 +48,7 @@ impl eframe::App for App {
 
             ui.separator();
 
-            let context = AppDrawContext {
+            let context = &mut AppDrawContext {
                 ui,
                 task_manager: &mut self.tasks,
                 directory: &mut self.directory,

@@ -3,13 +3,13 @@ use crate::app::AppDrawContext;
 mod creator_dashboard;
 mod edit_game;
 mod login;
-mod online_browsing;
+mod online;
 mod sign_up;
 
 use creator_dashboard::*;
 use edit_game::*;
 use login::*;
-use online_browsing::*;
+use online::*;
 use sign_up::*;
 
 #[derive(Default)]
@@ -18,7 +18,7 @@ pub struct ArcadeModeView {
 }
 
 impl ArcadeModeView {
-    pub fn draw(&mut self, context: AppDrawContext) {
+    pub fn draw(&mut self, context: &mut AppDrawContext) {
         context.ui.label("Arcade Mode View");
 
         self.active_view.draw(context);
@@ -36,8 +36,7 @@ impl ArcadeModeView {
 pub enum ArcadeActiveView {
     Login(LoginView),
     SignUp(SignUpView),
-    OnlineBrowsing(OnlineBrowsingView),
-    CreatorDashboard(CreatorDashboardView),
+    Online(OnlineView),
 }
 
 impl Default for ArcadeActiveView {
@@ -56,15 +55,14 @@ impl ArcadeActiveView {
     }
 
     fn online_browsing() -> Self {
-        Self::OnlineBrowsing(OnlineBrowsingView::default())
+        Self::Online(OnlineView::default())
     }
 
-    fn draw(&mut self, context: AppDrawContext) {
+    fn draw(&mut self, context: &mut AppDrawContext) {
         if let Some(next) = match self {
             ArcadeActiveView::Login(view) => view.draw(context),
             ArcadeActiveView::SignUp(view) => view.draw(context),
-            ArcadeActiveView::OnlineBrowsing(view) => view.draw(context),
-            ArcadeActiveView::CreatorDashboard(view) => view.draw(context),
+            ArcadeActiveView::Online(view) => view.draw(context),
         } {
             *self = next;
         }

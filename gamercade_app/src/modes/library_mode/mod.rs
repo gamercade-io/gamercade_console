@@ -4,7 +4,7 @@ use crate::app::AppDrawContext;
 pub struct LibraryModeView {}
 
 impl LibraryModeView {
-    pub fn draw(&mut self, context: AppDrawContext) {
+    pub fn draw(&mut self, context: &mut AppDrawContext) {
         let AppDrawContext { ui, .. } = context;
         ui.label("Library Mode");
     }

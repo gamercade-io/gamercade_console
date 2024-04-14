@@ -1,12 +1,11 @@
 use crate::app::AppDrawContext;
 
-use super::ArcadeActiveView;
-
+#[derive(Default)]
 pub struct CreatorDashboardView {}
 
 impl CreatorDashboardView {
-    pub fn draw(&mut self, context: AppDrawContext) -> Option<ArcadeActiveView> {
-        let ui = context.ui;
+    pub fn draw(&mut self, context: &mut AppDrawContext) {
+        let ui = &mut context.ui;
 
         ui.label("Creator Dashboard");
 
@@ -15,11 +14,5 @@ impl CreatorDashboardView {
         if ui.button("Manage Game").clicked() {}
 
         if ui.button("Create Release").clicked() {}
-
-        if ui.button("Back").clicked() {
-            return Some(ArcadeActiveView::online_browsing());
-        }
-
-        None
     }
 }

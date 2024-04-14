@@ -14,7 +14,7 @@ pub struct SignUpView {
 }
 
 impl SignUpView {
-    pub fn draw(&mut self, context: AppDrawContext) -> Option<ArcadeActiveView> {
+    pub fn draw(&mut self, context: &mut AppDrawContext) -> Option<ArcadeActiveView> {
         let AppDrawContext {
             ui,
             directory,
