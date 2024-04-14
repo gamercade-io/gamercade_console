@@ -78,10 +78,11 @@ impl App {
                     self.auth_state = new_state;
 
                     match self.auth_state {
-                        AuthState::Unauthorized => self.modes.arcade.logged_in(),
-                        AuthState::SessionHeld(_) => self.modes.arcade.logged_out(),
+                        AuthState::Unauthorized => self.modes.arcade.logged_out(),
+                        AuthState::SessionHeld(_) => self.modes.arcade.logged_in(),
                     }
                 }
+                TaskNotification::LoginFailed => self.modes.arcade.logged_out(),
             }
         }
     }

@@ -78,6 +78,7 @@ async fn handle_login(
             }
         }
         Err(e) => {
+            sender.send(TaskNotification::LoginFailed).await.unwrap();
             println!("{e}");
         }
     }

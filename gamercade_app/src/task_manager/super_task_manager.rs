@@ -9,6 +9,7 @@ pub enum TaskNotification {
     GlobalTags(Vec<(TagId, Tag)>),
     GlobalPermissionLevels(Vec<(PermissionLevelId, PermissionLevel)>),
     AuthStateChanged(AuthState),
+    LoginFailed,
 }
 
 pub struct SuperTaskManager {
