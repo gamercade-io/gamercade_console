@@ -28,6 +28,7 @@ pub struct AppDrawContext<'a> {
     pub ui: &'a mut Ui,
     pub task_manager: &'a mut SuperTaskManager,
     pub directory: &'a mut LocalDirectory,
+    pub auth_state: &'a AuthState,
 }
 
 impl eframe::App for App {
@@ -52,6 +53,7 @@ impl eframe::App for App {
                 ui,
                 task_manager: &mut self.tasks,
                 directory: &mut self.directory,
+                auth_state: &self.auth_state,
             };
 
             match self.active_mode {

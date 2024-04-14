@@ -20,7 +20,7 @@ pub const RELEASE_NAME_MAX_LENGTH: usize = 123;
 pub const AUTHOR_TITLE_MAX_LENGTH: usize = 31;
 pub const REVIEW_COMMENTS_MAX_LENGTH: usize = 1027;
 
-pub const SESSION_METADATA_KEY: &str = "gc-session";
+pub const SESSION_METADATA_KEY: &str = "gc-session-bin";
 
 #[derive(Debug, Clone)]
 pub struct Session([u8; 16]);

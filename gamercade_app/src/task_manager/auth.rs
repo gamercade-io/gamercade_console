@@ -22,6 +22,15 @@ pub enum AuthState {
     SessionHeld(Session),
 }
 
+impl AuthState {
+    pub fn get_session(&self) -> Option<Session> {
+        match self {
+            AuthState::Unauthorized => None,
+            AuthState::SessionHeld(session) => Some(session.clone()),
+        }
+    }
+}
+
 pub type AuthManager = TaskManager<AuthManagerState, AuthRequest>;
 
 #[derive(Default)]

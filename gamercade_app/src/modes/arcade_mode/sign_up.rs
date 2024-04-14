@@ -16,9 +16,7 @@ pub struct SignUpView {
 impl SignUpView {
     pub fn draw(&mut self, context: &mut AppDrawContext) -> Option<ArcadeActiveView> {
         let AppDrawContext {
-            ui,
-            directory,
-            task_manager,
+            ui, task_manager, ..
         } = context;
 
         let mut email_equal = false;

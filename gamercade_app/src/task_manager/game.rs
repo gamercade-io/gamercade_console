@@ -1,8 +1,11 @@
-use gamercade_interface::game::{game_service_client::GameServiceClient, UpdateGameRequest};
+use gamercade_interface::{
+    game::{game_service_client::GameServiceClient, UpdateGameRequest},
+    Session,
+};
 use tokio::sync::OnceCell;
 use tonic::{transport::Channel, Request};
 
-use crate::urls::SERVICE_IP_GRPC;
+use crate::urls::{WithSession, SERVICE_IP_GRPC};
 
 use super::{TaskManager, TaskRequest};
 
@@ -19,8 +22,8 @@ pub struct GameManagerState {
 
 #[derive(Debug)]
 pub enum GameRequest {
-    CreateGame(UpdateGameRequest),
-    UpdateGame(UpdateGameRequest),
+    CreateGame(WithSession<UpdateGameRequest>),
+    UpdateGame(WithSession<UpdateGameRequest>),
 }
 
 impl TaskRequest<GameManagerState> for GameRequest {
@@ -34,8 +37,12 @@ impl TaskRequest<GameManagerState> for GameRequest {
         let client = lock.client.get_mut().unwrap();
 
         let result = match self {
-            GameRequest::CreateGame(request) => client.create_game(request).await,
-            GameRequest::UpdateGame(request) => client.update_game(request).await,
+            GameRequest::CreateGame(request) => {
+                client.create_game(request.authorized_request()).await
+            }
+            GameRequest::UpdateGame(request) => {
+                client.update_game(request.authorized_request()).await
+            }
         };
 
         match result {
