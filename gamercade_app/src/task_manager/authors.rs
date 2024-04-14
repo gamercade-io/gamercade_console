@@ -3,8 +3,8 @@ use tokio::sync::{mpsc::Sender, Mutex, OnceCell};
 use tonic::{transport::Channel, Request};
 
 use crate::{
-    ips::SERVICE_IP,
     local_directory::{PermissionLevel, PermissionLevelId},
+    urls::SERVICE_IP_GRPC,
 };
 
 use super::{TaskManager, TaskNotification, TaskRequest};
@@ -17,7 +17,7 @@ pub struct AuthorManagerState {
 }
 
 async fn init_author_client() -> AuthorServiceClient<Channel> {
-    AuthorServiceClient::connect(SERVICE_IP).await.unwrap()
+    AuthorServiceClient::connect(SERVICE_IP_GRPC).await.unwrap()
 }
 
 impl TaskRequest<AuthorManagerState> for AuthorRequest {

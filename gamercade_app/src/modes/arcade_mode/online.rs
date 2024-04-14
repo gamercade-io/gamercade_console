@@ -15,6 +15,7 @@ pub struct OnlineView {
 
 #[derive(Default)]
 pub struct ArcadeView {
+    game_id: String,
     release_id: String,
 }
 
@@ -22,10 +23,24 @@ impl ArcadeView {
     fn draw(&mut self, context: &mut AppDrawContext) {
         let ui = &mut context.ui;
         ui.horizontal(|ui| {
+            ui.label("Game Id: ");
+            ui.text_edit_singleline(&mut self.game_id);
+
             ui.label("Release Id: ");
             ui.text_edit_singleline(&mut self.release_id);
             if ui.button("Download Release").clicked() {
-                println!("TODO: Download Release")
+                let game_id = self.game_id.parse();
+                let release_id = self.release_id.parse();
+
+                if let (Ok(game_id), Ok(release_id)) = (game_id, release_id) {
+                    context
+                        .task_manager
+                        .release
+                        .try_download(game_id, release_id);
+                } else {
+                    self.release_id = String::new();
+                    self.game_id = String::new();
+                }
             }
         });
     }

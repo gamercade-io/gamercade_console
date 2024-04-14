@@ -8,7 +8,7 @@ use gamercade_interface::{
 use tokio::sync::{mpsc::Sender, Mutex, OnceCell};
 use tonic::transport::Channel;
 
-use crate::ips::SERVICE_IP;
+use crate::urls::SERVICE_IP_GRPC;
 
 use super::{TaskManager, TaskNotification, TaskRequest};
 
@@ -30,7 +30,7 @@ pub struct AuthManagerState {
 }
 
 async fn init_auth_client() -> AuthServiceClient<Channel> {
-    AuthServiceClient::connect(SERVICE_IP).await.unwrap()
+    AuthServiceClient::connect(SERVICE_IP_GRPC).await.unwrap()
 }
 
 pub enum AuthRequest {

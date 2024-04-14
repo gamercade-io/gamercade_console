@@ -1,10 +1,10 @@
 use eframe::egui;
 
 mod app;
-mod ips;
 mod local_directory;
 mod modes;
 mod task_manager;
+mod urls;
 
 #[tokio::main]
 async fn main() -> Result<(), eframe::Error> {

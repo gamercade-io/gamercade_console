@@ -3,8 +3,8 @@ use tokio::sync::{mpsc::Sender, Mutex, OnceCell};
 use tonic::{transport::Channel, Request};
 
 use crate::{
-    ips::SERVICE_IP,
     local_directory::{Tag, TagId},
+    urls::SERVICE_IP_GRPC,
 };
 
 use super::{TaskManager, TaskNotification, TaskRequest};
@@ -17,7 +17,7 @@ pub struct TagManagerState {
 }
 
 async fn init_tag_client() -> TagServiceClient<Channel> {
-    TagServiceClient::connect(SERVICE_IP).await.unwrap()
+    TagServiceClient::connect(SERVICE_IP_GRPC).await.unwrap()
 }
 
 impl TaskRequest<TagManagerState> for TagRequest {

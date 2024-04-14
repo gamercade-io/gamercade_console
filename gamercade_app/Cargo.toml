@@ -20,6 +20,7 @@ gamercade_interface = { path = "../gamercade_interface" }
 tokio = { version = "1.28.1", features = ["full"] }
 tokio-stream = "0.1.14"
 tonic = "0.10.2"
+hyper = "1.2.0"
 
 eframe = "0.22.0"
 rusqlite = { version = "0.30.0", features = ["bundled"] }
