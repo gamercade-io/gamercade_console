@@ -25,6 +25,10 @@ impl DataApi for DataContext {
         self.rom.width()
     }
 
+    fn dimensions(&self) -> (i32, i32) {
+        (self.rom.width(), self.rom.height())
+    }
+
     fn fps(&self) -> i32 {
         self.rom.frame_rate.frames_per_second() as i32
     }
@@ -51,6 +55,12 @@ impl DataApi for DataContext {
         self.get_sprite_sheet(sheet_index)
             .map(|sheet| sheet.width as i32)
             .unwrap_or(-1)
+    }
+
+    fn sprite_dimensions(&self, sheet_index: i32) -> (i32, i32) {
+        self.get_sprite_sheet(sheet_index)
+            .map(|sheet| (sheet.width as i32, sheet.height as i32))
+            .unwrap_or((-1, -1))
     }
 
     fn sprite_count(&self, sheet_index: i32) -> i32 {
