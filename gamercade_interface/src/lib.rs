@@ -22,7 +22,7 @@ pub const REVIEW_COMMENTS_MAX_LENGTH: usize = 1027;
 
 pub const SESSION_METADATA_KEY: &str = "gc-session";
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Session([u8; 16]);
 
 impl Session {

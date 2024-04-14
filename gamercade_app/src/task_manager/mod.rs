@@ -20,6 +20,9 @@ pub use auth::*;
 mod release;
 pub use release::*;
 
+mod game;
+pub use game::*;
+
 const SUPER_TASK_CHANNEL_SIZE: usize = 256;
 const TASK_CHANNEL_LENGTH: usize = 8;
 
