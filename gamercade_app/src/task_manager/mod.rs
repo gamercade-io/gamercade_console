@@ -17,6 +17,9 @@ pub use super_task_manager::*;
 mod auth;
 pub use auth::*;
 
+mod release;
+pub use release::*;
+
 const SUPER_TASK_CHANNEL_SIZE: usize = 256;
 const TASK_CHANNEL_LENGTH: usize = 8;
 
@@ -35,12 +38,6 @@ where
         Self {
             sender: Self::spawn_task(notification_tx, state.clone()),
             state,
-        }
-    }
-
-    pub fn send_request(&self, request: REQUEST) {
-        if let Err(e) = self.sender.try_send(request) {
-            panic!("send_request failed {e}")
         }
     }
 

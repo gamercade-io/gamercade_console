@@ -2,7 +2,9 @@ use tokio::sync::mpsc::{channel, Receiver};
 
 use crate::local_directory::{PermissionLevel, PermissionLevelId, Tag, TagId};
 
-use super::{AuthManager, AuthState, AuthorManager, TagManager, SUPER_TASK_CHANNEL_SIZE};
+use super::{
+    AuthManager, AuthState, AuthorManager, ReleaseManager, TagManager, SUPER_TASK_CHANNEL_SIZE,
+};
 
 #[derive(Debug)]
 pub enum TaskNotification {
@@ -17,6 +19,7 @@ pub struct SuperTaskManager {
     pub tags: TagManager,
     pub author: AuthorManager,
     pub auth: AuthManager,
+    pub release: ReleaseManager,
 }
 
 impl Default for SuperTaskManager {
@@ -27,6 +30,7 @@ impl Default for SuperTaskManager {
             tags: TagManager::new(event_tx.clone()),
             author: AuthorManager::new(event_tx.clone()),
             auth: AuthManager::new(event_tx.clone()),
+            release: ReleaseManager::new(event_tx.clone()),
             events,
         }
     }
