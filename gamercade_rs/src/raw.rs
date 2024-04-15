@@ -1,5 +1,4 @@
 #![allow(missing_docs)]
-#![allow(improper_ctypes)]
 
 // Audio
 extern "C" {
@@ -13,14 +12,12 @@ extern "C" {
     // Data
     pub fn height() -> i32;
     pub fn width() -> i32;
-    pub fn dimensions() -> (i32, i32);
     pub fn fps() -> i32;
     pub fn frame_time() -> f32;
     pub fn sprite_sheet_count() -> i32;
     pub fn palette_count() -> i32;
     pub fn sprite_height(sprite_sheet: i32) -> i32;
     pub fn sprite_width(sprite_sheet: i32) -> i32;
-    pub fn sprite_dimensions(sprite_sheet: i32) -> (i32, i32);
     pub fn sprite_count(sprite_sheet: i32) -> i32;
     pub fn bgm_length_secs(bgm_index: i32) -> f32;
     pub fn bgm_length_frames(bgm_index: i32) -> i32;

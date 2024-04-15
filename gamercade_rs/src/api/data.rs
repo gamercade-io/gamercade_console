@@ -11,14 +11,6 @@ pub fn width() -> usize {
     unsafe { raw::width() as usize }
 }
 
-/// Returns the width and height of the screen, in pixels
-pub fn dimensions() -> (usize, usize) {
-    unsafe {
-        let (width, height) = raw::dimensions();
-        (width as usize, height as usize)
-    }
-}
-
 /// Returns the target frame rate, in frames per second.
 pub fn fps() -> usize {
     unsafe { raw::fps() as usize }
@@ -52,18 +44,6 @@ pub fn sprite_height(sprite_sheet: usize) -> Option<u32> {
 pub fn sprite_width(sprite_sheet: usize) -> Option<u32> {
     let val = unsafe { raw::sprite_width(sprite_sheet as i32) };
     i32_u32_to_option(val)
-}
-
-/// Returns the width and height of each image for the request sprite sheet.
-/// If the index is invalid, will return None.
-pub fn sprite_dimensions(sprite_sheet: usize) -> Option<(u32, u32)> {
-    let (width, height) = unsafe { raw::sprite_dimensions(sprite_sheet as i32) };
-
-    if width.is_negative() {
-        None
-    } else {
-        Some((width as u32, height as u32))
-    }
 }
 
 /// Returns the number of sprites for the requsted sprite sheet.
