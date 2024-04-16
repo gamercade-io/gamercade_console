@@ -10,22 +10,22 @@ service AuthorService {
 }
 
 message AdjustAuthorRequest {
-    fixed64 game_id = 1;
-    fixed64 user_id = 2;
+    sfixed64 game_id = 1;
+    sfixed64 user_id = 2;
 
     optional string title = 3;
-    optional uint32 permission_level_id = 4;
+    optional sint32 permission_level_id = 4;
 }
 
 message AdjustAuthorResponse {
-    fixed64 game_id = 1;
+    sfixed64 game_id = 1;
     repeated Author authors = 2;
 }
 
 message Author {
-    fixed64 user_id = 1;
+    sfixed64 user_id = 1;
     string title = 2;
-    uint32 permission_level_id = 3;
+    int32 permission_level_id = 3;
 }
 
 message GlobalPermissionLevels {
@@ -33,7 +33,7 @@ message GlobalPermissionLevels {
 }
 
 message PermissionLevel {
-    uint32 level_id = 1;
+    int32 level_id = 1;
     string level_name = 2;
-    uint32 level_strength = 3;
+    int32 level_strength = 3;
 }

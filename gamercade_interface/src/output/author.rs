@@ -1,32 +1,32 @@
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct AdjustAuthorRequest {
-    #[prost(fixed64, tag = "1")]
-    pub game_id: u64,
-    #[prost(fixed64, tag = "2")]
-    pub user_id: u64,
+    #[prost(sfixed64, tag = "1")]
+    pub game_id: i64,
+    #[prost(sfixed64, tag = "2")]
+    pub user_id: i64,
     #[prost(string, optional, tag = "3")]
     pub title: ::core::option::Option<::prost::alloc::string::String>,
-    #[prost(uint32, optional, tag = "4")]
-    pub permission_level_id: ::core::option::Option<u32>,
+    #[prost(sint32, optional, tag = "4")]
+    pub permission_level_id: ::core::option::Option<i32>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct AdjustAuthorResponse {
-    #[prost(fixed64, tag = "1")]
-    pub game_id: u64,
+    #[prost(sfixed64, tag = "1")]
+    pub game_id: i64,
     #[prost(message, repeated, tag = "2")]
     pub authors: ::prost::alloc::vec::Vec<Author>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Author {
-    #[prost(fixed64, tag = "1")]
-    pub user_id: u64,
+    #[prost(sfixed64, tag = "1")]
+    pub user_id: i64,
     #[prost(string, tag = "2")]
     pub title: ::prost::alloc::string::String,
-    #[prost(uint32, tag = "3")]
-    pub permission_level_id: u32,
+    #[prost(int32, tag = "3")]
+    pub permission_level_id: i32,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -37,12 +37,12 @@ pub struct GlobalPermissionLevels {
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PermissionLevel {
-    #[prost(uint32, tag = "1")]
-    pub level_id: u32,
+    #[prost(int32, tag = "1")]
+    pub level_id: i32,
     #[prost(string, tag = "2")]
     pub level_name: ::prost::alloc::string::String,
-    #[prost(uint32, tag = "3")]
-    pub level_strength: u32,
+    #[prost(int32, tag = "3")]
+    pub level_strength: i32,
 }
 /// Generated client implementations.
 pub mod author_service_client {

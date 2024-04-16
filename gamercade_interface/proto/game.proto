@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 import "common.proto";
+import "release.proto";
 
 package game;
 
@@ -15,18 +16,18 @@ service GameService {
 }
 
 message UpdateGameRequest {
-    optional fixed64 game_id = 1;
+    optional sfixed64 game_id = 1;
     optional string title = 2;
     optional string short_description = 3;
     optional string long_description = 4;
 }
 
 message GameInfoRequest {
-    fixed64 game_id = 1;
+    sfixed64 game_id = 1;
 }
 
 message MultipleGamesInfoRequest {
-    repeated fixed64 game_ids = 1;
+    repeated sfixed64 game_ids = 1;
 }
 
 message MultipleGamesInfoResponse {
@@ -34,31 +35,25 @@ message MultipleGamesInfoResponse {
 }
 
 message GameInfoBasic {
-    fixed64 game_id = 1;
+    sfixed64 game_id = 1;
     string title = 2;
     string short_description = 3;
-    GameRelease latest_release = 4;
+    release.ReleaseResponse latest_release = 4;
     float average_rating = 5;
-    repeated uint32 tags = 6;
+    repeated int32 tags = 6;
 }
 
 message GameInfoDetailed {
     GameInfoBasic basic_info = 1;
     string long_description = 2;
-    repeated GameRelease releases = 3;
+    repeated release.ReleaseResponse releases = 3;
     repeated Author authors = 4;
 }
 
-message GameRelease {
-    fixed64 release_id = 1;
-    bytes checksum = 2;
-    string release_name = 3;
-}
-
 message Author {
-    fixed64 user_id = 1;
+    sfixed64 user_id = 1;
 }
 
 message DeleteGameRequest {
-    fixed64 game_id = 1;
+    sfixed64 game_id = 1;
 }

@@ -1,40 +1,40 @@
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateReleaseRequest {
-    #[prost(fixed64, tag = "1")]
-    pub game_id: u64,
+    #[prost(sfixed64, tag = "1")]
+    pub game_id: i64,
     #[prost(string, tag = "2")]
     pub release_name: ::prost::alloc::string::String,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateReleaseResponse {
-    #[prost(fixed64, tag = "1")]
-    pub release_id: u64,
+    #[prost(sfixed64, tag = "1")]
+    pub release_id: i64,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UpdateReleaseRequest {
-    #[prost(fixed64, tag = "1")]
-    pub release_id: u64,
+    #[prost(sfixed64, tag = "1")]
+    pub release_id: i64,
     #[prost(string, optional, tag = "2")]
     pub new_name: ::core::option::Option<::prost::alloc::string::String>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ReleaseResponse {
-    #[prost(fixed64, tag = "1")]
-    pub release_id: u64,
+    #[prost(sfixed64, tag = "1")]
+    pub release_id: i64,
     #[prost(string, tag = "2")]
     pub release_name: ::prost::alloc::string::String,
-    #[prost(fixed64, tag = "3")]
-    pub checksum: u64,
+    #[prost(sfixed64, optional, tag = "3")]
+    pub checksum: ::core::option::Option<i64>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DeleteReleaseRequest {
-    #[prost(fixed64, tag = "1")]
-    pub release_id: u64,
+    #[prost(sfixed64, tag = "1")]
+    pub release_id: i64,
 }
 /// Generated client implementations.
 pub mod release_service_client {

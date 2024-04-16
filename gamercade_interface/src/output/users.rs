@@ -1,22 +1,22 @@
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UserRequest {
-    #[prost(fixed64, tag = "1")]
-    pub user_id: u64,
+    #[prost(sfixed64, tag = "1")]
+    pub user_id: i64,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UserInfo {
-    #[prost(fixed64, tag = "1")]
-    pub user_id: u64,
+    #[prost(sfixed64, tag = "1")]
+    pub user_id: i64,
     #[prost(string, tag = "2")]
     pub username: ::prost::alloc::string::String,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UsersRequest {
-    #[prost(fixed64, repeated, tag = "1")]
-    pub user_ids: ::prost::alloc::vec::Vec<u64>,
+    #[prost(sfixed64, repeated, tag = "1")]
+    pub user_ids: ::prost::alloc::vec::Vec<i64>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]

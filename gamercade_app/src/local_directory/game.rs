@@ -3,7 +3,7 @@ use rusqlite::Connection;
 use super::{tag::TagId, LocalDirectory};
 
 pub struct Game {
-    pub id: u64,
+    pub id: i64,
     pub title: String,
     pub short_description: String,
     pub long_description: Option<String>,
@@ -14,8 +14,8 @@ pub struct Game {
 }
 
 pub struct GameRelease {
-    pub id: u64,
-    pub checksum: u128,
+    pub id: i64,
+    pub checksum: i64,
     pub name: String,
 }
 

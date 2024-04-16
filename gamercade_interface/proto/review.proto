@@ -11,13 +11,13 @@ service ReviewService {
 }
 
 message ReviewGameRequest {
-    fixed64 game_id = 1;
-    uint32 rating = 2;
+    sfixed64 game_id = 1;
+    int32 rating = 2;
     string comments = 3;
 }
 
 message SingleGameRequest {
-    fixed64 game_id = 1;
+    sfixed64 game_id = 1;
 }
 
 message GameReviews {
@@ -25,8 +25,8 @@ message GameReviews {
 }
 
 message GameReviewEntry {
-    fixed64 user_id = 1;
-    uint32 rating = 2;
+    sfixed64 user_id = 1;
+    int32 rating = 2;
     string comments = 3;
-    uint64 review_date_s = 4;
+    int64 review_date_s = 4;
 }

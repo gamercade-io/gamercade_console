@@ -1,24 +1,24 @@
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct AdjustGameTagRequest {
-    #[prost(uint32, tag = "1")]
-    pub tag_id: u32,
+    #[prost(int32, tag = "1")]
+    pub tag_id: i32,
     #[prost(bool, tag = "2")]
     pub set_to: bool,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct AdjustGameTagResponse {
-    #[prost(fixed64, tag = "1")]
-    pub game_id: u64,
+    #[prost(sfixed64, tag = "1")]
+    pub game_id: i64,
     #[prost(message, repeated, tag = "2")]
     pub tags: ::prost::alloc::vec::Vec<Tag>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Tag {
-    #[prost(uint32, tag = "1")]
-    pub pid: u32,
+    #[prost(int32, tag = "1")]
+    pub pid: i32,
     #[prost(string, tag = "2")]
     pub name: ::prost::alloc::string::String,
 }

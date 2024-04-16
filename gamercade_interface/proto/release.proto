@@ -11,25 +11,25 @@ service ReleaseService {
 }
 
 message CreateReleaseRequest {
-   fixed64 game_id = 1;
+   sfixed64 game_id = 1;
    string release_name = 2;
 }
 
 message CreateReleaseResponse {
-    fixed64 release_id = 1;
+    sfixed64 release_id = 1;
 }
 
 message UpdateReleaseRequest {
-    fixed64 release_id = 1;
+    sfixed64 release_id = 1;
     optional string new_name = 2;
 }
 
 message ReleaseResponse {
-    fixed64 release_id = 1;
+    sfixed64 release_id = 1;
     string release_name = 2;
-    fixed64 checksum = 3;
+    optional sfixed64 checksum = 3;
 }
 
 message DeleteReleaseRequest {
-    fixed64 release_id = 1;
+    sfixed64 release_id = 1;
 }

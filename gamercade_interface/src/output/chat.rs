@@ -11,8 +11,8 @@ pub mod chat_channel {
     pub enum Channel {
         #[prost(message, tag = "1")]
         Global(super::super::common::Empty),
-        #[prost(uint32, tag = "2")]
-        GameId(u32),
+        #[prost(int32, tag = "2")]
+        GameId(i32),
         #[prost(message, tag = "3")]
         RoomUuid(super::super::common::Uuid),
     }
@@ -20,8 +20,8 @@ pub mod chat_channel {
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ServerChatMessage {
-    #[prost(uint32, tag = "1")]
-    pub user_id: u32,
+    #[prost(int32, tag = "1")]
+    pub user_id: i32,
     #[prost(string, tag = "2")]
     pub message_text: ::prost::alloc::string::String,
 }
