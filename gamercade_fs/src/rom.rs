@@ -1,8 +1,4 @@
-use std::{
-    fs,
-    io::{Read, Write},
-    path::PathBuf,
-};
+use std::{fs, io::Write, path::PathBuf};
 
 use serde::{Deserialize, Serialize};
 
@@ -45,19 +41,18 @@ impl Rom {
         self.resolution.width()
     }
 
+    pub fn try_load_bytes(bytes: &[u8]) -> Result<Self, String> {
+        let reader = zstd::Decoder::new(bytes).map_err(|e| e.to_string())?;
+        Ok(bincode::deserialize_from::<_, Self>(reader).map_err(|e| e.to_string())?)
+    }
+
     pub fn try_load(path: &PathBuf) -> Result<Self, String> {
         let file = fs::File::open(path).map_err(|e| e.to_string())?;
 
         match path.extension().and_then(|path| path.to_str()) {
             Some("gcrom") => {
-                let mut reader = zstd::Decoder::new(file).map_err(|e| e.to_string())?;
-
-                let mut buffer = Vec::new();
-
-                // We don't care about how many bytes are read
-                let _ = reader.read_to_end(&mut buffer).map_err(|e| e.to_string());
-
-                bincode::deserialize_from::<_, Rom>(&*buffer).map_err(|e| e.to_string())
+                let reader = zstd::Decoder::new(file).map_err(|e| e.to_string())?;
+                bincode::deserialize_from::<_, Self>(reader).map_err(|e| e.to_string())
             }
             Some("wasm") => {
                 println!("No assets provided. Using default Asset pack.");

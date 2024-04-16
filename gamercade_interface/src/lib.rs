@@ -58,3 +58,9 @@ impl TryFrom<&[u8]> for Session {
         ))
     }
 }
+
+impl From<u128> for Session {
+    fn from(value: u128) -> Self {
+        Self(value.to_le_bytes())
+    }
+}
