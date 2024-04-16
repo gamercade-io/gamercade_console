@@ -3,10 +3,16 @@ use gamercade_interface::{
     Session, SESSION_METADATA_KEY,
 };
 
-use tokio::sync::OnceCell;
+use tokio::{
+    io::AsyncWriteExt,
+    sync::{mpsc::Sender, OnceCell},
+};
 use tonic::transport::Channel;
 
-use crate::urls::{self, WithSession, SERVICE_IP_GRPC};
+use crate::{
+    task_manager::{DownloadReleaseComplete, TaskNotification},
+    urls::{self, WithSession, SERVICE_IP_GRPC},
+};
 
 use super::{TaskManager, TaskRequest};
 
@@ -14,7 +20,6 @@ pub type ReleaseManager = TaskManager<ReleaseManagerState, ReleaseRequest>;
 
 #[derive(Default)]
 pub struct ReleaseManagerState {
-    downloads: Vec<DownloadReleaseRequest>,
     client: OnceCell<ReleaseServiceClient<Channel>>,
 }
 
@@ -44,10 +49,18 @@ pub struct UploadReleaseRequest {
     pub bytes: Vec<u8>,
 }
 
+fn game_dir(game_id: i64) -> String {
+    format!("./roms/{game_id:x}")
+}
+
+fn game_release_name(game_id: i64, release_id: i64) -> String {
+    format!("./roms/{game_id:x}/{release_id:x}.gcrom")
+}
+
 impl TaskRequest<ReleaseManagerState> for ReleaseRequest {
     async fn handle_request(
         self,
-        _sender: &tokio::sync::mpsc::Sender<super::TaskNotification>,
+        sender: &Sender<super::TaskNotification>,
         state: &tokio::sync::Mutex<ReleaseManagerState>,
     ) {
         let mut lock = state.lock().await;
@@ -55,10 +68,7 @@ impl TaskRequest<ReleaseManagerState> for ReleaseRequest {
         let client = lock.client.get_mut().unwrap();
 
         match self {
-            ReleaseRequest::DownloadRelease(request) => {
-                // TODO: This
-                println!("TODO: Download a release");
-            }
+            ReleaseRequest::DownloadRelease(request) => download_file(sender.clone(), request),
             ReleaseRequest::CreateRelease(request) => {
                 match client
                     .create_new_release(request.authorized_request())
@@ -93,6 +103,76 @@ impl TaskRequest<ReleaseManagerState> for ReleaseRequest {
             }
         }
     }
+}
+
+// TODO: May want to keep the join handle around
+fn download_file(sender: Sender<TaskNotification>, request: DownloadReleaseRequest) {
+    tokio::spawn(async move {
+        match reqwest::Client::new()
+            .get(urls::game_release_url(request.game_id, request.release_id))
+            .send()
+            .await
+        {
+            Ok(mut response) => {
+                println!("download response: {response:?}");
+
+                if let Err(e) = response.error_for_status_ref() {
+                    println!("Error response: {e}");
+                    println!("{:?}", response.text().await);
+                    return;
+                }
+
+                let mut buffer = Vec::new();
+                loop {
+                    match response.chunk().await {
+                        Ok(Some(bytes)) => {
+                            buffer.extend_from_slice(&bytes);
+                        }
+                        Ok(None) => {
+                            // Create the directory
+                            let _ = tokio::fs::create_dir_all(game_dir(request.game_id)).await;
+
+                            // Create and write to the file
+                            match tokio::fs::OpenOptions::new()
+                                .create(true)
+                                .write(true)
+                                .truncate(true)
+                                .open(game_release_name(request.game_id, request.release_id))
+                                .await
+                            {
+                                Ok(mut file) => {
+                                    if let Err(e) = file.write_all(&buffer).await {
+                                        println!("Error writing file: {e}");
+                                        return;
+                                    }
+
+                                    // Notify the main thread that the download is done
+                                    sender
+                                        .send(TaskNotification::DownloadReleaseComplete(
+                                            DownloadReleaseComplete {
+                                                game_id: request.game_id,
+                                                release_id: request.release_id,
+                                                data: buffer,
+                                            },
+                                        ))
+                                        .await
+                                        .unwrap();
+                                }
+                                Err(e) => println!("Error writing file: {e}"), //TOOD: Could send an error that the download failed
+                            };
+
+                            break;
+                        }
+                        Err(e) => {
+                            println!("Download error: {e}");
+                            break;
+                        }
+                    }
+                }
+            }
+            Err(err) => println!("Download release Error: {err}"),
+        }
+    });
 }
 
 impl ReleaseManager {

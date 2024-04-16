@@ -13,6 +13,14 @@ pub enum TaskNotification {
     GlobalPermissionLevels(Vec<(PermissionLevelId, PermissionLevel)>),
     AuthStateChanged(AuthState),
     LoginFailed,
+    DownloadReleaseComplete(DownloadReleaseComplete),
+}
+
+#[derive(Debug)]
+pub struct DownloadReleaseComplete {
+    pub game_id: i64,
+    pub release_id: i64,
+    pub data: Vec<u8>,
 }
 
 pub struct SuperTaskManager {
