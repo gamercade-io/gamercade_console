@@ -42,12 +42,11 @@ impl TaskRequest<AuthorManagerState> for AuthorRequest {
                 let levels = response
                     .levels
                     .drain(..)
-                    .map(|tag| {
+                    .map(|level| {
                         (
-                            PermissionLevelId(tag.level_id as usize),
+                            PermissionLevelId(level.id as usize),
                             PermissionLevel {
-                                name: tag.level_name,
-                                strength: tag.level_strength as i32,
+                                name: level.level_name,
                             },
                         )
                     })

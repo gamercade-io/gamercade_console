@@ -8,14 +8,12 @@ pub struct PermissionLevelId(pub usize);
 #[derive(Default, Debug)]
 pub struct PermissionLevel {
     pub name: String,
-    pub strength: i32,
 }
 
 impl From<&rusqlite::Row<'_>> for PermissionLevel {
     fn from(value: &rusqlite::Row<'_>) -> Self {
         Self {
             name: value.get_unwrap(1),
-            strength: value.get_unwrap(2),
         }
     }
 }
@@ -34,7 +32,7 @@ impl DictionaryTrait<PermissionLevelId, PermissionLevel>
     }
 
     fn upsert_table_query() -> &'static str {
-        "CREATE TABLE IF NOT EXISTS permission_levels(id INTEGER PRIMARY KEY, level_name TEXT NOT NULL, strength INTEGER NOT NULL) STRICT;"
+        "CREATE TABLE IF NOT EXISTS permission_levels(id INTEGER PRIMARY KEY, level_name TEXT NOT NULL) STRICT;"
     }
 
     fn drop_table_query() -> &'static str {
@@ -42,7 +40,7 @@ impl DictionaryTrait<PermissionLevelId, PermissionLevel>
     }
 
     fn insert_query() -> &'static str {
-        "INSERT INTO permission_levels(id, level_name, strength) VALUES (?, ?, ?)"
+        "INSERT INTO permission_levels(id, level_name) VALUES (?, ?)"
     }
 
     fn insert_statement(
@@ -50,7 +48,7 @@ impl DictionaryTrait<PermissionLevelId, PermissionLevel>
         (key, value): &(PermissionLevelId, PermissionLevel),
     ) {
         statement
-            .execute((key.0 as i32, value.name.clone(), value.strength))
+            .execute((key.0 as i32, value.name.clone()))
             .unwrap();
     }
 }

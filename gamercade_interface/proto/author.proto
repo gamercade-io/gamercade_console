@@ -33,7 +33,6 @@ message GlobalPermissionLevels {
 }
 
 message PermissionLevel {
-    int32 level_id = 1;
+    int32 id = 1;
     string level_name = 2;
-    int32 level_strength = 3;
 }
