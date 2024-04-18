@@ -1,11 +1,14 @@
-use gamercade_interface::{Session, SESSION_METADATA_KEY};
+use gamercade_interface::{Session, SESSION_METADATA_KEY, URL_RADIX};
+use radix_fmt::radix;
 use tonic::{metadata::MetadataValue, Request};
 
 pub const SERVICE_IP_GRPC: &str = "http://127.0.0.1:50051";
 pub const SERVICE_IP_HTTP: &str = "http://127.0.0.1:3000";
 
 pub fn game_release_url(game_id: i64, release_id: i64) -> String {
-    format!("{SERVICE_IP_HTTP}/games/{game_id:x}/releases/{release_id:x}")
+    let game_id = radix(game_id, URL_RADIX as u8);
+    let release_id = radix(release_id, URL_RADIX as u8);
+    format!("{SERVICE_IP_HTTP}/games/{game_id}/releases/{release_id}")
 }
 
 #[derive(Debug)]
