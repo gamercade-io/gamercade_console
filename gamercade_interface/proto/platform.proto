@@ -6,8 +6,12 @@ import "game.proto";
 package platform;
 
 service PlatformService {
-    rpc FrontPage(common.Empty) returns (FrontPageResponse);
+    rpc FrontPage(FrontPageRequest) returns (FrontPageResponse);
     rpc GameSearch(GameSearchRequest) returns (game.MultipleGamesInfoResponse);
+}
+
+message FrontPageRequest {
+    
 }
 
 message GameSearchRequest {
