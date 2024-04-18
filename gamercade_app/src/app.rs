@@ -85,7 +85,7 @@ impl App {
                     }
                 }
                 TaskNotification::LoginFailed => self.modes.arcade.logged_out(),
-                TaskNotification::DownloadReleaseComplete(complete) => {
+                TaskNotification::DownloadRomComplete(complete) => {
                     println!("TODO: Release download complete")
                 }
             }

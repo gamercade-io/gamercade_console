@@ -1,5 +1,3 @@
-use std::default;
-
 use crate::app::AppDrawContext;
 
 use super::{ArcadeActiveView, CreatorDashboardView};
@@ -16,7 +14,6 @@ pub struct OnlineView {
 #[derive(Default)]
 pub struct ArcadeView {
     game_id: String,
-    release_id: String,
 }
 
 impl ArcadeView {
@@ -26,19 +23,16 @@ impl ArcadeView {
             ui.label("Game Id: ");
             ui.text_edit_singleline(&mut self.game_id);
 
-            ui.label("Release Id: ");
-            ui.text_edit_singleline(&mut self.release_id);
-            if ui.button("Download Release").clicked() {
+            if ui.button("Download Game").clicked() {
                 let game_id = self.game_id.parse();
-                let release_id = self.release_id.parse();
 
-                if let (Ok(game_id), Ok(release_id)) = (game_id, release_id) {
-                    context
-                        .task_manager
-                        .release
-                        .try_download(game_id, release_id);
+                if let Ok(game_id) = game_id {
+                    context.task_manager.rom.try_download_rom(
+                        game_id,
+                        "TODO:",
+                        &context.auth_state.get_session().unwrap(),
+                    );
                 } else {
-                    self.release_id = String::new();
                     self.game_id = String::new();
                 }
             }

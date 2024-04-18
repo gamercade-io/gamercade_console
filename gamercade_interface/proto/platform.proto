@@ -10,7 +10,6 @@ service PlatformService {
     rpc GameSearch(GameSearchRequest) returns (game.MultipleGamesInfoResponse);
 }
 
-
 message GameSearchRequest {
     optional string name = 1;
     repeated int32 tags = 2;

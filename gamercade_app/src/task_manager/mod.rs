@@ -17,8 +17,8 @@ pub use super_task_manager::*;
 mod auth;
 pub use auth::*;
 
-mod release;
-pub use release::*;
+mod rom;
+pub use rom::*;
 
 mod game;
 pub use game::*;

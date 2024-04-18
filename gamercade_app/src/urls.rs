@@ -5,10 +5,9 @@ use tonic::{metadata::MetadataValue, Request};
 pub const SERVICE_IP_GRPC: &str = "http://127.0.0.1:50051";
 pub const SERVICE_IP_HTTP: &str = "http://127.0.0.1:3000";
 
-pub fn game_release_url(game_id: i64, release_id: i64) -> String {
+pub fn game_rom_url(game_id: i64) -> String {
     let game_id = radix(game_id, URL_RADIX as u8);
-    let release_id = radix(release_id, URL_RADIX as u8);
-    format!("{SERVICE_IP_HTTP}/games/{game_id}/releases/{release_id}")
+    format!("{SERVICE_IP_HTTP}/games/{game_id}")
 }
 
 #[derive(Debug)]

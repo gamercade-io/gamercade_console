@@ -1,7 +1,6 @@
 syntax = "proto3";
 
 import "common.proto";
-import "release.proto";
 
 package game;
 
@@ -38,7 +37,7 @@ message GameInfoBasic {
     sfixed64 game_id = 1;
     string title = 2;
     string short_description = 3;
-    release.ReleaseResponse latest_release = 4;
+    optional sfixed64 checksum = 4;
     float average_rating = 5;
     repeated int32 tags = 6;
 }
@@ -46,8 +45,7 @@ message GameInfoBasic {
 message GameInfoDetailed {
     GameInfoBasic basic_info = 1;
     string long_description = 2;
-    repeated release.ReleaseResponse releases = 3;
-    repeated Author authors = 4;
+    repeated Author authors = 3;
 }
 
 message Author {

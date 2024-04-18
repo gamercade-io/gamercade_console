@@ -1,51 +1,34 @@
-use gamercade_interface::{
-    release::{release_service_client::ReleaseServiceClient, CreateReleaseRequest},
-    Session, SESSION_METADATA_KEY,
-};
+use gamercade_interface::{Session, SESSION_METADATA_KEY};
 
-use tokio::{
-    io::AsyncWriteExt,
-    sync::{mpsc::Sender, OnceCell},
-};
-use tonic::transport::Channel;
+use tokio::{io::AsyncWriteExt, sync::mpsc::Sender};
 
 use crate::{
-    task_manager::{DownloadReleaseComplete, TaskNotification},
-    urls::{self, WithSession, SERVICE_IP_GRPC},
+    task_manager::{DownloadRomComplete, TaskNotification},
+    urls::{self, WithSession},
 };
 
 use super::{TaskManager, TaskRequest};
 
-pub type ReleaseManager = TaskManager<ReleaseManagerState, ReleaseRequest>;
+pub type RomManager = TaskManager<RomManagerState, RomRequest>;
 
 #[derive(Default)]
-pub struct ReleaseManagerState {
-    client: OnceCell<ReleaseServiceClient<Channel>>,
-}
+pub struct RomManagerState;
 
-async fn init_release_client() -> ReleaseServiceClient<Channel> {
-    ReleaseServiceClient::connect(SERVICE_IP_GRPC)
-        .await
-        .unwrap()
+#[derive(Debug)]
+pub enum RomRequest {
+    DownloadRom(WithSession<DownloadRom>),
+    UploadRom(WithSession<UploadRom>),
 }
 
 #[derive(Debug)]
-pub enum ReleaseRequest {
-    CreateRelease(WithSession<CreateReleaseRequest>),
-    DownloadRelease(DownloadReleaseRequest),
-    UploadRelease(WithSession<UploadReleaseRequest>),
-}
-
-#[derive(Debug)]
-pub struct DownloadReleaseRequest {
+pub struct DownloadRom {
     pub game_id: i64,
-    pub release_id: i64,
+    pub name: String,
 }
 
 #[derive(Debug)]
-pub struct UploadReleaseRequest {
+pub struct UploadRom {
     pub game_id: i64,
-    pub release_id: i64,
     pub bytes: Vec<u8>,
 }
 
@@ -53,41 +36,26 @@ fn game_dir(game_id: i64) -> String {
     format!("./roms/{game_id:x}")
 }
 
-fn game_release_name(game_id: i64, release_id: i64) -> String {
-    format!("./roms/{game_id:x}/{release_id:x}.gcrom")
+fn game_rom_path(game_id: i64, name: &str) -> String {
+    format!("./roms/{game_id:x}/{name}.gcrom")
 }
 
-impl TaskRequest<ReleaseManagerState> for ReleaseRequest {
+impl TaskRequest<RomManagerState> for RomRequest {
     async fn handle_request(
         self,
         sender: &Sender<super::TaskNotification>,
-        state: &tokio::sync::Mutex<ReleaseManagerState>,
+        state: &tokio::sync::Mutex<RomManagerState>,
     ) {
-        let mut lock = state.lock().await;
-        lock.client.get_or_init(init_release_client).await;
-        let client = lock.client.get_mut().unwrap();
-
         match self {
-            ReleaseRequest::DownloadRelease(request) => download_file(sender.clone(), request),
-            ReleaseRequest::CreateRelease(request) => {
-                match client
-                    .create_new_release(request.authorized_request())
-                    .await
-                {
-                    Ok(response) => println!("Release created: {response:?}"),
-                    Err(e) => {
-                        println!("Error creating release: {e}")
-                    }
-                }
-            }
-            ReleaseRequest::UploadRelease(request) => {
+            RomRequest::DownloadRom(request) => download_file(sender.clone(), request),
+            RomRequest::UploadRom(request) => {
                 let WithSession {
                     data: request,
                     session,
                 } = request;
                 let session = u128::from_ne_bytes(*session.bytes());
                 match reqwest::Client::new()
-                    .post(urls::game_release_url(request.game_id, request.release_id))
+                    .post(urls::game_rom_url(request.game_id))
                     .header(SESSION_METADATA_KEY, format!("{session:x}"))
                     .body(request.bytes)
                     .send()
@@ -96,9 +64,9 @@ impl TaskRequest<ReleaseManagerState> for ReleaseRequest {
                     Ok(response) => {
                         let status = response.status();
                         let body = response.text().await;
-                        println!("Upload release response ({status}): {body:?}");
+                        println!("Upload rom response ({status}): {body:?}");
                     }
-                    Err(err) => println!("Upload release Error: {err}"),
+                    Err(err) => println!("Upload rom Error: {err}"),
                 }
             }
         }
@@ -106,10 +74,17 @@ impl TaskRequest<ReleaseManagerState> for ReleaseRequest {
 }
 
 // TODO: May want to keep the join handle around
-fn download_file(sender: Sender<TaskNotification>, request: DownloadReleaseRequest) {
+fn download_file(sender: Sender<TaskNotification>, request: WithSession<DownloadRom>) {
     tokio::spawn(async move {
+        let WithSession {
+            session,
+            data: request,
+        } = request;
+        let session = format!("{:x}", u128::from_ne_bytes(*session.bytes()));
+
         match reqwest::Client::new()
-            .get(urls::game_release_url(request.game_id, request.release_id))
+            .get(urls::game_rom_url(request.game_id))
+            .header(SESSION_METADATA_KEY, session)
             .send()
             .await
         {
@@ -137,7 +112,7 @@ fn download_file(sender: Sender<TaskNotification>, request: DownloadReleaseReque
                                 .create(true)
                                 .write(true)
                                 .truncate(true)
-                                .open(game_release_name(request.game_id, request.release_id))
+                                .open(game_rom_path(request.game_id, &request.name))
                                 .await
                             {
                                 Ok(mut file) => {
@@ -148,10 +123,9 @@ fn download_file(sender: Sender<TaskNotification>, request: DownloadReleaseReque
 
                                     // Notify the main thread that the download is done
                                     sender
-                                        .send(TaskNotification::DownloadReleaseComplete(
-                                            DownloadReleaseComplete {
+                                        .send(TaskNotification::DownloadRomComplete(
+                                            DownloadRomComplete {
                                                 game_id: request.game_id,
-                                                release_id: request.release_id,
                                                 data: buffer,
                                             },
                                         ))
@@ -175,28 +149,22 @@ fn download_file(sender: Sender<TaskNotification>, request: DownloadReleaseReque
     });
 }
 
-impl ReleaseManager {
-    pub fn try_download(&mut self, game_id: i64, release_id: i64) {
+impl RomManager {
+    pub fn try_download_rom(&mut self, game_id: i64, rom_name: &str, session: &Session) {
         self.sender
-            .try_send(ReleaseRequest::DownloadRelease(DownloadReleaseRequest {
-                game_id,
-                release_id,
+            .try_send(RomRequest::DownloadRom(WithSession {
+                session: session.clone(),
+                data: DownloadRom {
+                    game_id,
+                    name: rom_name.to_string(),
+                },
             }))
             .unwrap();
     }
 
-    pub fn try_create_release(&mut self, request: CreateReleaseRequest, session: &Session) {
+    pub fn try_upload_rom(&mut self, request: UploadRom, session: &Session) {
         self.sender
-            .try_send(ReleaseRequest::CreateRelease(WithSession {
-                session: session.clone(),
-                data: request,
-            }))
-            .unwrap()
-    }
-
-    pub fn try_upload_release(&mut self, request: UploadReleaseRequest, session: &Session) {
-        self.sender
-            .try_send(ReleaseRequest::UploadRelease(WithSession {
+            .try_send(RomRequest::UploadRom(WithSession {
                 session: session.clone(),
                 data: request,
             }))

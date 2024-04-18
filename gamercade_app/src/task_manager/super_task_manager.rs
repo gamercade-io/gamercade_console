@@ -3,7 +3,7 @@ use tokio::sync::mpsc::{channel, Receiver};
 use crate::local_directory::{PermissionLevel, PermissionLevelId, Tag, TagId};
 
 use super::{
-    AuthManager, AuthState, AuthorManager, GameManager, ReleaseManager, TagManager,
+    AuthManager, AuthState, AuthorManager, GameManager, RomManager, TagManager,
     SUPER_TASK_CHANNEL_SIZE,
 };
 
@@ -13,13 +13,12 @@ pub enum TaskNotification {
     GlobalPermissionLevels(Vec<(PermissionLevelId, PermissionLevel)>),
     AuthStateChanged(AuthState),
     LoginFailed,
-    DownloadReleaseComplete(DownloadReleaseComplete),
+    DownloadRomComplete(DownloadRomComplete),
 }
 
 #[derive(Debug)]
-pub struct DownloadReleaseComplete {
+pub struct DownloadRomComplete {
     pub game_id: i64,
-    pub release_id: i64,
     pub data: Vec<u8>,
 }
 
@@ -28,7 +27,7 @@ pub struct SuperTaskManager {
     pub tags: TagManager,
     pub author: AuthorManager,
     pub auth: AuthManager,
-    pub release: ReleaseManager,
+    pub rom: RomManager,
     pub game: GameManager,
 }
 
@@ -40,7 +39,7 @@ impl Default for SuperTaskManager {
             tags: TagManager::new(event_tx.clone()),
             author: AuthorManager::new(event_tx.clone()),
             auth: AuthManager::new(event_tx.clone()),
-            release: ReleaseManager::new(event_tx.clone()),
+            rom: RomManager::new(event_tx.clone()),
             game: GameManager::new(event_tx.clone()),
             events,
         }

@@ -38,8 +38,8 @@ pub struct GameInfoBasic {
     pub title: ::prost::alloc::string::String,
     #[prost(string, tag = "3")]
     pub short_description: ::prost::alloc::string::String,
-    #[prost(message, optional, tag = "4")]
-    pub latest_release: ::core::option::Option<super::release::ReleaseResponse>,
+    #[prost(sfixed64, optional, tag = "4")]
+    pub checksum: ::core::option::Option<i64>,
     #[prost(float, tag = "5")]
     pub average_rating: f32,
     #[prost(int32, repeated, tag = "6")]
@@ -53,8 +53,6 @@ pub struct GameInfoDetailed {
     #[prost(string, tag = "2")]
     pub long_description: ::prost::alloc::string::String,
     #[prost(message, repeated, tag = "3")]
-    pub releases: ::prost::alloc::vec::Vec<super::release::ReleaseResponse>,
-    #[prost(message, repeated, tag = "4")]
     pub authors: ::prost::alloc::vec::Vec<Author>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
