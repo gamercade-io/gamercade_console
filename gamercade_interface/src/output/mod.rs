@@ -14,6 +14,9 @@ pub mod common {
 pub mod game {
     include!("game.rs");
 }
+pub mod platform {
+    include!("platform.rs");
+}
 pub mod release {
     include!("release.rs");
 }

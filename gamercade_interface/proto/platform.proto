@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+import "common.proto";
+import "game.proto";
+
+package platform;
+
+service PlatformService {
+    rpc FrontPage(common.Empty) returns (FrontPageResponse);
+    rpc GameSearch(GameSearchRequest) returns (game.MultipleGamesInfoResponse);
+}
+
+
+message GameSearchRequest {
+    optional string name = 1;
+    repeated int32 tags = 2;
+}
+
+message FrontPageResponse {
+    map<sfixed64, game.GameInfoBasic> data = 1;
+
+    repeated sfixed64 popular_games = 2;
+    repeated sfixed64 top_rated_games = 3;
+    repeated sfixed64 new_games = 4;
+}
