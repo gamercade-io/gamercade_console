@@ -27,11 +27,10 @@ impl ArcadeView {
                 let game_id = self.game_id.parse();
 
                 if let Ok(game_id) = game_id {
-                    context.task_manager.rom.try_download_rom(
-                        game_id,
-                        "TODO:",
-                        &context.auth_state.get_session().unwrap(),
-                    );
+                    context
+                        .task_manager
+                        .rom
+                        .try_download_rom(game_id, &context.auth_state.get_session().unwrap());
                 } else {
                     self.game_id = String::new();
                 }

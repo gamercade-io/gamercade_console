@@ -54,12 +54,16 @@ impl LocalDirectory {
         self.cached_games = query
             .query_map((), |row| {
                 let tag_bytes: Vec<u8> = row.get(4)?;
+                let tags = tag_bytes
+                    .chunks_exact(4)
+                    .map(|num| *bytemuck::from_bytes(num))
+                    .collect::<Vec<i32>>();
                 Ok(Game {
                     id: row.get(0)?,
                     title: row.get(1)?,
                     short_description: row.get(2)?,
                     long_description: row.get(3)?,
-                    tags: bytemuck::cast_vec(tag_bytes),
+                    tags: tags,
                     rating: row.get(5)?,
                 })
             })
@@ -80,7 +84,9 @@ impl<'a> Iterator for GameIter<'a> {
     type Item = &'a Game;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.vec.get(self.index)
+        let out = self.vec.get(self.index);
+        self.index += 1;
+        out
     }
 }
 

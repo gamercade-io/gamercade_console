@@ -3,8 +3,10 @@ use gamercade_interface::{Session, SESSION_METADATA_KEY};
 use tokio::{io::AsyncWriteExt, sync::mpsc::Sender};
 
 use crate::{
+    game_rom_path,
     task_manager::{DownloadRomComplete, TaskNotification},
     urls::{self, WithSession},
+    GAME_DIR,
 };
 
 use super::{TaskManager, TaskRequest};
@@ -23,21 +25,12 @@ pub enum RomRequest {
 #[derive(Debug)]
 pub struct DownloadRom {
     pub game_id: i64,
-    pub name: String,
 }
 
 #[derive(Debug)]
 pub struct UploadRom {
     pub game_id: i64,
     pub bytes: Vec<u8>,
-}
-
-fn game_dir(game_id: i64) -> String {
-    format!("./roms/{game_id:x}")
-}
-
-fn game_rom_path(game_id: i64, name: &str) -> String {
-    format!("./roms/{game_id:x}/{name}.gcrom")
 }
 
 impl TaskRequest<RomManagerState> for RomRequest {
@@ -105,14 +98,14 @@ fn download_file(sender: Sender<TaskNotification>, request: WithSession<Download
                         }
                         Ok(None) => {
                             // Create the directory
-                            let _ = tokio::fs::create_dir_all(game_dir(request.game_id)).await;
+                            let _ = tokio::fs::create_dir_all(GAME_DIR).await;
 
                             // Create and write to the file
                             match tokio::fs::OpenOptions::new()
                                 .create(true)
                                 .write(true)
                                 .truncate(true)
-                                .open(game_rom_path(request.game_id, &request.name))
+                                .open(game_rom_path(request.game_id))
                                 .await
                             {
                                 Ok(mut file) => {
@@ -150,14 +143,11 @@ fn download_file(sender: Sender<TaskNotification>, request: WithSession<Download
 }
 
 impl RomManager {
-    pub fn try_download_rom(&mut self, game_id: i64, rom_name: &str, session: &Session) {
+    pub fn try_download_rom(&mut self, game_id: i64, session: &Session) {
         self.sender
             .try_send(RomRequest::DownloadRom(WithSession {
                 session: session.clone(),
-                data: DownloadRom {
-                    game_id,
-                    name: rom_name.to_string(),
-                },
+                data: DownloadRom { game_id },
             }))
             .unwrap();
     }
