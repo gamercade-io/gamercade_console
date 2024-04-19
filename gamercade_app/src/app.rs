@@ -97,9 +97,10 @@ impl App {
                 TaskNotification::DownloadRomComplete(complete) => {
                     println!("TODO: Release download complete")
                 }
-                TaskNotification::FrontPageResponse(front_page_response) => {
-                    println!("TODO: Got Response: {front_page_response:?}");
-                }
+                TaskNotification::FrontPageResponse(mut front_page_response) => front_page_response
+                    .games
+                    .drain(..)
+                    .for_each(|game| self.directory.update_game(game)),
             }
         }
     }

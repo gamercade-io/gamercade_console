@@ -30,20 +30,44 @@ pub(super) fn upsert_games_table(db: &Connection) {
 }
 
 impl LocalDirectory {
-    pub fn update_game(&self, game: GameInfoBasic) {
+    pub fn update_game(&mut self, game: GameInfoBasic) {
         let tag_bytes = game
             .tags
             .into_iter()
             .map(|tag| u8::try_from(tag).unwrap())
             .collect::<Vec<_>>();
-        
+
         self.db.execute("INSERT OR REPLACE INTO games (id, title, short_description, file_checksum, rating, tags)
-        VALUES (?, ?, ?, ?, ?, ?, ?)",
+        VALUES (?, ?, ?, ?, ?, ?);",
         (game.game_id, game.title, game.short_description, game.checksum, game.average_rating, tag_bytes)).unwrap();
+
+        self.cache_dirty = true;
     }
 
     pub fn iter_games(&self) -> GameIter<'_> {
         GameIter::new(&self.cached_games)
+    }
+
+    pub fn sync_games_cache(&mut self) {
+        let mut query = self.db.prepare("SELECT * FROM games;").unwrap();
+
+        self.cached_games = query
+            .query_map((), |row| {
+                let tag_bytes: Vec<u8> = row.get(4)?;
+                Ok(Game {
+                    id: row.get(0)?,
+                    title: row.get(1)?,
+                    short_description: row.get(2)?,
+                    long_description: row.get(3)?,
+                    tags: bytemuck::cast_vec(tag_bytes),
+                    rating: row.get(5)?,
+                })
+            })
+            .unwrap()
+            .flatten()
+            .collect();
+
+        self.cache_dirty = false;
     }
 }
 

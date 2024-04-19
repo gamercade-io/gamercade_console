@@ -25,6 +25,7 @@ type PermissionLevelDictionary = Dictionary<PermissionLevelId, PermissionLevel>;
 pub struct LocalDirectory {
     db: Connection,
     pub cached_games: Vec<Game>,
+    cache_dirty: bool,
     pub tags: TagDictionary,
     pub users: UserDictionary,
     pub permission_levels: PermissionLevelDictionary,
@@ -154,15 +155,18 @@ impl Default for LocalDirectory {
     fn default() -> Self {
         let db = Connection::open(LOCAL_DB_PATH).unwrap();
 
-        let output = Self {
+        let mut output = Self {
             tags: TagDictionary::new(&db),
             users: UserDictionary::new(&db),
             permission_levels: PermissionLevelDictionary::new(&db),
             db,
             cached_games: Vec::new(),
+            cache_dirty: true,
         };
 
         upsert_games_table(&output.db);
+
+        output.sync_games_cache();
 
         output
     }
