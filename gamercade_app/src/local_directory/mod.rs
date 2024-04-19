@@ -164,8 +164,6 @@ impl Default for LocalDirectory {
 
         upsert_games_table(&output.db);
 
-        output.refresh_cached_games();
-
         output
     }
 }
