@@ -20,9 +20,8 @@ message GameSearchRequest {
 }
 
 message FrontPageResponse {
-    map<sfixed64, game.GameInfoBasic> data = 1;
-
-    repeated sfixed64 popular_games = 2;
-    repeated sfixed64 top_rated_games = 3;
-    repeated sfixed64 new_games = 4;
+    repeated game.GameInfoBasic games = 1;
+    repeated sfixed64 popular_games_ids = 2;
+    repeated sfixed64 top_rated_games_ids = 3;
+    repeated sfixed64 new_games_ids = 4;
 }

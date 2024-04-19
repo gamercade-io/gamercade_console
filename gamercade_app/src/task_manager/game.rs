@@ -51,9 +51,3 @@ impl TaskRequest<GameManagerState> for GameRequest {
         }
     }
 }
-
-impl GameManager {
-    pub fn send(&mut self, request: GameRequest) {
-        self.sender.try_send(request).unwrap()
-    }
-}

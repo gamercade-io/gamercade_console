@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{fmt::Debug, sync::Arc};
 
 use tokio::sync::{
     mpsc::{channel, Sender},
@@ -23,6 +23,9 @@ pub use rom::*;
 mod game;
 pub use game::*;
 
+mod platform;
+pub use platform::*;
+
 const SUPER_TASK_CHANNEL_SIZE: usize = 256;
 const TASK_CHANNEL_LENGTH: usize = 8;
 
@@ -34,7 +37,7 @@ pub struct TaskManager<STATE, REQUEST> {
 impl<STATE, REQUEST> TaskManager<STATE, REQUEST>
 where
     STATE: Default + Send + 'static,
-    REQUEST: Send + 'static + TaskRequest<STATE>,
+    REQUEST: Send + 'static + TaskRequest<STATE> + Debug,
 {
     pub fn new(notification_tx: Sender<TaskNotification>) -> Self {
         let state = Arc::new(Mutex::new(STATE::default()));
@@ -58,6 +61,10 @@ where
         });
 
         client_sender
+    }
+
+    pub fn send(&self, message: REQUEST) {
+        self.sender.try_send(message).unwrap()
     }
 }
 

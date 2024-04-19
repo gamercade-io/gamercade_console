@@ -13,14 +13,14 @@ pub struct GameSearchRequest {
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct FrontPageResponse {
-    #[prost(map = "sfixed64, message", tag = "1")]
-    pub data: ::std::collections::HashMap<i64, super::game::GameInfoBasic>,
+    #[prost(message, repeated, tag = "1")]
+    pub games: ::prost::alloc::vec::Vec<super::game::GameInfoBasic>,
     #[prost(sfixed64, repeated, tag = "2")]
-    pub popular_games: ::prost::alloc::vec::Vec<i64>,
+    pub popular_games_ids: ::prost::alloc::vec::Vec<i64>,
     #[prost(sfixed64, repeated, tag = "3")]
-    pub top_rated_games: ::prost::alloc::vec::Vec<i64>,
+    pub top_rated_games_ids: ::prost::alloc::vec::Vec<i64>,
     #[prost(sfixed64, repeated, tag = "4")]
-    pub new_games: ::prost::alloc::vec::Vec<i64>,
+    pub new_games_ids: ::prost::alloc::vec::Vec<i64>,
 }
 /// Generated client implementations.
 pub mod platform_service_client {

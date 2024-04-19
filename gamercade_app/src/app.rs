@@ -1,4 +1,5 @@
 use eframe::egui::{self, Ui};
+use gamercade_interface::platform::FrontPageRequest;
 
 use crate::{
     local_directory::LocalDirectory,
@@ -40,6 +41,14 @@ impl eframe::App for App {
             // if ui.button("Fetch Tags").clicked() {
             //     self.tasks.tags.send_request(TagRequest::Initialize)
             // }
+
+            if ui.button("Front Page").clicked() {
+                self.tasks
+                    .platform
+                    .send(crate::task_manager::PlatformRequest::FrontPage(
+                        FrontPageRequest {},
+                    ))
+            }
 
             ui.horizontal(|ui| {
                 ui.selectable_value(&mut self.active_mode, AppMode::Arcade, "Arcade");
@@ -87,6 +96,9 @@ impl App {
                 TaskNotification::LoginFailed => self.modes.arcade.logged_out(),
                 TaskNotification::DownloadRomComplete(complete) => {
                     println!("TODO: Release download complete")
+                }
+                TaskNotification::FrontPageResponse(front_page_response) => {
+                    println!("TODO: Got Response: {front_page_response:?}");
                 }
             }
         }

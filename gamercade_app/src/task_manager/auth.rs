@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use gamercade_interface::{
     auth::{
         auth_service_client::AuthServiceClient, login_request::Provider, LoginRequest,
@@ -45,6 +47,15 @@ async fn init_auth_client() -> AuthServiceClient<Channel> {
 pub enum AuthRequest {
     Login(LoginRequest),
     SignUp(SignUpRequest),
+}
+
+impl Debug for AuthRequest {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Login(_) => f.write_str("Login(Fields Hidden)"),
+            Self::SignUp(_) => f.write_str("SignUp(Fields Hidden)"),
+        }
+    }
 }
 
 impl TaskRequest<AuthManagerState> for AuthRequest {

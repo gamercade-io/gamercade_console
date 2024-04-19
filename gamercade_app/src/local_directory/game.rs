@@ -6,21 +6,9 @@ pub struct Game {
     pub id: i64,
     pub title: String,
     pub short_description: String,
-    pub long_description: Option<String>,
-    pub releases: Vec<GameRelease>,
+    pub long_description: String,
     pub tags: Vec<TagId>,
-    pub rating: Option<f32>,
-    pub images: Vec<GameImage>,
-}
-
-pub struct GameRelease {
-    pub id: i64,
-    pub checksum: i64,
-    pub name: String,
-}
-
-pub struct GameImage {
-    pub path: String,
+    pub rating: f32,
 }
 
 const UPSERT_GAMES_QUERIES: &str = "
@@ -31,17 +19,8 @@ CREATE TABLE IF NOT EXISTS games (
     short_description TEXT NOT NULL,
     long_description TEXT NOT NULL,
     rating REAL,
+    file_checksum INTEGER,
     UNIQUE(title)
-) STRICT;
-
-CREATE TABLE IF NOT EXISTS releases(
-    id INTEGER PRIMARY KEY,
-    file_checksum BLOB,
-    game_id INTEGER NOT NULL,
-    release_name TEXT NOT NULL,
-    FOREIGN KEY (game_id) REFERENCES games (id),
-    UNIQUE(game_id, file_checksum),
-    UNIQUE(game_id, release_name)
 ) STRICT;
 
 CREATE TABLE IF NOT EXISTS game_tags(

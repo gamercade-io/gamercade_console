@@ -58,6 +58,7 @@ impl TaskRequest<AuthorManagerState> for AuthorRequest {
     }
 }
 
+#[derive(Debug)]
 pub enum AuthorRequest {
     Initialize,
 }

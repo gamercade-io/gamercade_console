@@ -1,9 +1,10 @@
+use gamercade_interface::platform::FrontPageResponse;
 use tokio::sync::mpsc::{channel, Receiver};
 
 use crate::local_directory::{PermissionLevel, PermissionLevelId, Tag, TagId};
 
 use super::{
-    AuthManager, AuthState, AuthorManager, GameManager, RomManager, TagManager,
+    AuthManager, AuthState, AuthorManager, GameManager, PlatformManager, RomManager, TagManager,
     SUPER_TASK_CHANNEL_SIZE,
 };
 
@@ -14,6 +15,9 @@ pub enum TaskNotification {
     AuthStateChanged(AuthState),
     LoginFailed,
     DownloadRomComplete(DownloadRomComplete),
+
+    // Platform
+    FrontPageResponse(FrontPageResponse),
 }
 
 #[derive(Debug)]
@@ -29,6 +33,7 @@ pub struct SuperTaskManager {
     pub auth: AuthManager,
     pub rom: RomManager,
     pub game: GameManager,
+    pub platform: PlatformManager,
 }
 
 impl Default for SuperTaskManager {
@@ -41,6 +46,7 @@ impl Default for SuperTaskManager {
             auth: AuthManager::new(event_tx.clone()),
             rom: RomManager::new(event_tx.clone()),
             game: GameManager::new(event_tx.clone()),
+            platform: PlatformManager::new(event_tx.clone()),
             events,
         }
     }

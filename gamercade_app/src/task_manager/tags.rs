@@ -51,6 +51,7 @@ impl TaskRequest<TagManagerState> for TagRequest {
     }
 }
 
+#[derive(Debug)]
 pub enum TagRequest {
     Initialize,
 }
