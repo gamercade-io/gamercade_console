@@ -9,7 +9,7 @@ use std::{
 };
 
 use clap::Parser;
-use gamercade_core::Resolution;
+use gamercade_core::{Resolution, ResolutionRatio, ResolutionSize};
 use ggrs::{GgrsError, P2PSession, SessionState};
 use gilrs::Gilrs;
 use pixels::{wgpu::PresentMode, Pixels, PixelsBuilder, SurfaceTexture};
@@ -249,7 +249,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     });
 }
 
-const DEFAULT_WINDOW_RESOLUTION: Resolution = Resolution::High;
+const DEFAULT_WINDOW_RESOLUTION: Resolution = Resolution {
+    size: ResolutionSize::Medium,
+    ratio: ResolutionRatio::Standard,
+};
 
 fn init_window(event_loop: &EventLoop<()>) -> Window {
     let size = LogicalSize::new(
