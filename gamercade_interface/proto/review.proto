@@ -1,32 +1,16 @@
 syntax = "proto3";
 
 import "common.proto";
+import "game.proto";
 
-package game;
+package review;
 
 service ReviewService {
     rpc ReviewGame(ReviewGameRequest) returns (common.Empty);
-    rpc DeleteReview(SingleGameRequest) returns (common.Empty);
-    rpc GetGameReviews(SingleGameRequest) returns (GameReviews);
+    rpc DeleteReview(game.SingleGameRequest) returns (common.Empty);
 }
 
 message ReviewGameRequest {
     sfixed64 game_id = 1;
-    int32 rating = 2;
-    string comments = 3;
-}
-
-message SingleGameRequest {
-    sfixed64 game_id = 1;
-}
-
-message GameReviews {
-    repeated GameReviewEntry reviews = 1;
-}
-
-message GameReviewEntry {
-    sfixed64 user_id = 1;
-    int32 rating = 2;
-    string comments = 3;
-    int64 review_date_s = 4;
+    bool rating = 2;
 }

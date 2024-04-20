@@ -5,13 +5,13 @@ import "common.proto";
 package game;
 
 service GameService {
-    rpc GetSingleGameInfo(GameInfoRequest) returns (GameInfoBasic);
-    rpc GetMultipleGamesInfo(MultipleGamesInfoRequest) returns (MultipleGamesInfoResponse);
-    rpc GetGameDetailedInfo(GameInfoRequest) returns (GameInfoDetailed);
+    rpc GetSingleGameInfo(SingleGameRequest) returns (GameInfoBasic);
+    rpc GetMultipleGamesInfo(MultipleGamesRequest) returns (MultipleGamesInfoResponse);
+    rpc GetGameDetailedInfo(SingleGameRequest) returns (GameInfoDetailed);
 
     rpc CreateGame(UpdateGameRequest) returns (GameInfoBasic);
     rpc UpdateGame(UpdateGameRequest) returns (GameInfoBasic);
-    rpc DeleteGame(DeleteGameRequest) returns (common.Empty);
+    rpc DeleteGame(SingleGameRequest) returns (common.Empty);
 }
 
 message UpdateGameRequest {
@@ -21,11 +21,11 @@ message UpdateGameRequest {
     optional string long_description = 4;
 }
 
-message GameInfoRequest {
+message SingleGameRequest {
     sfixed64 game_id = 1;
 }
 
-message MultipleGamesInfoRequest {
+message MultipleGamesRequest {
     repeated sfixed64 game_ids = 1;
 }
 
@@ -50,8 +50,4 @@ message GameInfoDetailed {
 
 message Author {
     sfixed64 user_id = 1;
-}
-
-message DeleteGameRequest {
-    sfixed64 game_id = 1;
 }

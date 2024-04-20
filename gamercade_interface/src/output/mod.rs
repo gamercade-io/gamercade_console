@@ -17,6 +17,9 @@ pub mod game {
 pub mod platform {
     include!("platform.rs");
 }
+pub mod review {
+    include!("review.rs");
+}
 pub mod tag {
     include!("tag.rs");
 }

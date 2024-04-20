@@ -10,8 +10,9 @@ service TagService {
 }
 
 message AdjustGameTagRequest {
-    int32 tag_id = 1;
-    bool set_to = 2;
+    sfixed64 game_id = 1;
+    int32 tag_id = 2;
+    bool set_to = 3;
 }
 
 message AdjustGameTagResponse {
