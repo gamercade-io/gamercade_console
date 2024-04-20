@@ -1,8 +1,10 @@
+use std::sync::Arc;
+
 use gamercade_interface::{
     game::{game_service_client::GameServiceClient, UpdateGameRequest},
     Session,
 };
-use tokio::sync::OnceCell;
+use tokio::sync::{mpsc::Sender, Mutex, OnceCell};
 use tonic::{transport::Channel, Request};
 
 use crate::urls::{WithSession, SERVICE_IP_GRPC};
@@ -29,8 +31,8 @@ pub enum GameRequest {
 impl TaskRequest<GameManagerState> for GameRequest {
     async fn handle_request(
         self,
-        sender: &tokio::sync::mpsc::Sender<super::TaskNotification>,
-        state: &tokio::sync::Mutex<GameManagerState>,
+        sender: &Sender<super::TaskNotification>,
+        state: &Arc<Mutex<GameManagerState>>,
     ) {
         let mut lock = state.lock().await;
         lock.client.get_or_init(init_game_client).await;

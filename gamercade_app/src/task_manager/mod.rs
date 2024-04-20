@@ -72,6 +72,6 @@ pub trait TaskRequest<STATE: Send> {
     fn handle_request(
         self,
         sender: &Sender<TaskNotification>,
-        state: &Mutex<STATE>,
+        state: &Arc<Mutex<STATE>>,
     ) -> impl std::future::Future<Output = ()> + Send;
 }

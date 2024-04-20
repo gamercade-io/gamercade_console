@@ -1,10 +1,12 @@
+use std::sync::Arc;
+
 use gamercade_interface::{
     platform::{
         platform_service_client::PlatformServiceClient, FrontPageRequest, GameSearchRequest,
     },
     Session,
 };
-use tokio::sync::OnceCell;
+use tokio::sync::{mpsc::Sender, Mutex, OnceCell};
 use tonic::{transport::Channel, Request};
 
 use crate::urls::{WithSession, SERVICE_IP_GRPC};
@@ -33,8 +35,8 @@ pub enum PlatformRequest {
 impl TaskRequest<PlatformManagerState> for PlatformRequest {
     async fn handle_request(
         self,
-        sender: &tokio::sync::mpsc::Sender<super::TaskNotification>,
-        state: &tokio::sync::Mutex<PlatformManagerState>,
+        sender: &Sender<super::TaskNotification>,
+        state: &Arc<Mutex<PlatformManagerState>>,
     ) {
         let mut lock = state.lock().await;
         lock.client.get_or_init(init_platform_client).await;

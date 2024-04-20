@@ -1,4 +1,4 @@
-use std::fmt::Debug;
+use std::{fmt::Debug, sync::Arc};
 
 use gamercade_interface::{
     auth::{
@@ -62,7 +62,7 @@ impl TaskRequest<AuthManagerState> for AuthRequest {
     async fn handle_request(
         self,
         sender: &Sender<TaskNotification>,
-        state: &Mutex<AuthManagerState>,
+        state: &Arc<Mutex<AuthManagerState>>,
     ) {
         let mut lock = state.lock().await;
         lock.client.get_or_init(init_auth_client).await;

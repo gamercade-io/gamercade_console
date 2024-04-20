@@ -1,7 +1,12 @@
+use std::sync::Arc;
+
 use gamercade_interface::{Session, SESSION_METADATA_KEY};
 
 use hashbrown::HashMap;
-use tokio::{io::AsyncWriteExt, sync::mpsc::Sender};
+use tokio::{
+    io::AsyncWriteExt,
+    sync::{mpsc::Sender, Mutex},
+};
 
 use crate::{
     game_rom_path,
@@ -16,7 +21,7 @@ pub type RomManager = TaskManager<RomManagerState, RomRequest>;
 
 #[derive(Default)]
 pub struct RomManagerState {
-    downloads: HashMap<i64, ActiveDownload>,
+    pub downloads: HashMap<i64, ActiveDownload>,
 }
 
 pub struct ActiveDownload {
@@ -53,7 +58,7 @@ impl TaskRequest<RomManagerState> for RomRequest {
     async fn handle_request(
         self,
         sender: &Sender<super::TaskNotification>,
-        state: &tokio::sync::Mutex<RomManagerState>,
+        state: &Arc<Mutex<RomManagerState>>,
     ) {
         match self {
             RomRequest::DownloadRom(request) => download_file(sender.clone(), request),

@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use gamercade_interface::{author::author_service_client::AuthorServiceClient, common::Empty};
 use tokio::sync::{mpsc::Sender, Mutex, OnceCell};
 use tonic::{transport::Channel, Request};
@@ -24,7 +26,7 @@ impl TaskRequest<AuthorManagerState> for AuthorRequest {
     async fn handle_request(
         self,
         notification_tx: &Sender<TaskNotification>,
-        state: &Mutex<AuthorManagerState>,
+        state: &Arc<Mutex<AuthorManagerState>>,
     ) {
         match self {
             AuthorRequest::Initialize => {

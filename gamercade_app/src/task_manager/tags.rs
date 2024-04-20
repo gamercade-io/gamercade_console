@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use gamercade_interface::{common::Empty, tag::tag_service_client::TagServiceClient};
 use tokio::sync::{mpsc::Sender, Mutex, OnceCell};
 use tonic::{transport::Channel, Request};
@@ -24,7 +26,7 @@ impl TaskRequest<TagManagerState> for TagRequest {
     async fn handle_request(
         self,
         notification_tx: &Sender<TaskNotification>,
-        state: &Mutex<TagManagerState>,
+        state: &Arc<Mutex<TagManagerState>>,
     ) {
         match self {
             TagRequest::Initialize => {
