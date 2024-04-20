@@ -5,9 +5,6 @@ pub mod auth {
 pub mod author {
     include!("author.rs");
 }
-pub mod chat {
-    include!("chat.rs");
-}
 pub mod common {
     include!("common.rs");
 }

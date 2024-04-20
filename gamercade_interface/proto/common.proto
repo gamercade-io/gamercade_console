@@ -3,7 +3,3 @@ syntax = "proto3";
 package common;
 
 message Empty {}
-
-message UUID {
-    string value = 1;
-}
