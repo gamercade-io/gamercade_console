@@ -1,5 +1,6 @@
 use gamercade_interface::{Session, SESSION_METADATA_KEY};
 
+use hashbrown::HashMap;
 use tokio::{io::AsyncWriteExt, sync::mpsc::Sender};
 
 use crate::{
@@ -14,7 +15,22 @@ use super::{TaskManager, TaskRequest};
 pub type RomManager = TaskManager<RomManagerState, RomRequest>;
 
 #[derive(Default)]
-pub struct RomManagerState;
+pub struct RomManagerState {
+    downloads: HashMap<i64, ActiveDownload>,
+}
+
+pub struct ActiveDownload {
+    id: i64,
+    download_status: DownloadStatus,
+}
+
+pub enum DownloadStatus {
+    InProgress {
+        bytes_downloaded: usize,
+        total_bytes: usize,
+    },
+    Done(Vec<u8>),
+}
 
 #[derive(Debug)]
 pub enum RomRequest {
