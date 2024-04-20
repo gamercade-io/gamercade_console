@@ -7,10 +7,9 @@ package review;
 
 service ReviewService {
     rpc ReviewGame(ReviewGameRequest) returns (common.Empty);
-    rpc DeleteReview(game.SingleGameRequest) returns (common.Empty);
 }
 
 message ReviewGameRequest {
     sfixed64 game_id = 1;
-    bool rating = 2;
+    optional bool rating = 2;
 }
