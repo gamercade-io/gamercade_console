@@ -37,9 +37,10 @@ message GameInfoBasic {
     sfixed64 game_id = 1;
     string title = 2;
     string short_description = 3;
-    optional sfixed64 checksum = 4;
-    float average_rating = 5;
-    repeated int32 tags = 6;
+    float average_rating = 4;
+    repeated int32 tags = 5;
+    optional sfixed64 checksum = 6;
+    optional int64 rom_size = 7;
 }
 
 message GameInfoDetailed {

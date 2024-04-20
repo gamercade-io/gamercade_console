@@ -38,12 +38,14 @@ pub struct GameInfoBasic {
     pub title: ::prost::alloc::string::String,
     #[prost(string, tag = "3")]
     pub short_description: ::prost::alloc::string::String,
-    #[prost(sfixed64, optional, tag = "4")]
-    pub checksum: ::core::option::Option<i64>,
-    #[prost(float, tag = "5")]
+    #[prost(float, tag = "4")]
     pub average_rating: f32,
-    #[prost(int32, repeated, tag = "6")]
+    #[prost(int32, repeated, tag = "5")]
     pub tags: ::prost::alloc::vec::Vec<i32>,
+    #[prost(sfixed64, optional, tag = "6")]
+    pub checksum: ::core::option::Option<i64>,
+    #[prost(int64, optional, tag = "7")]
+    pub rom_size: ::core::option::Option<i64>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
