@@ -45,10 +45,11 @@ message GameInfoBasic {
 
 message GameInfoDetailed {
     GameInfoBasic basic_info = 1;
-    string long_description = 2;
-    repeated Author authors = 3;
+    optional string long_description = 2;
+    repeated GameAuthor authors = 3;
 }
 
-message Author {
+message GameAuthor {
     sfixed64 user_id = 1;
+    string title = 2;
 }

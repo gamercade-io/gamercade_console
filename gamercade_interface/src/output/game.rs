@@ -52,16 +52,18 @@ pub struct GameInfoBasic {
 pub struct GameInfoDetailed {
     #[prost(message, optional, tag = "1")]
     pub basic_info: ::core::option::Option<GameInfoBasic>,
-    #[prost(string, tag = "2")]
-    pub long_description: ::prost::alloc::string::String,
+    #[prost(string, optional, tag = "2")]
+    pub long_description: ::core::option::Option<::prost::alloc::string::String>,
     #[prost(message, repeated, tag = "3")]
-    pub authors: ::prost::alloc::vec::Vec<Author>,
+    pub authors: ::prost::alloc::vec::Vec<GameAuthor>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct Author {
+pub struct GameAuthor {
     #[prost(sfixed64, tag = "1")]
     pub user_id: i64,
+    #[prost(string, tag = "2")]
+    pub title: ::prost::alloc::string::String,
 }
 /// Generated client implementations.
 pub mod game_service_client {
