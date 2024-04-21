@@ -4,7 +4,10 @@ use gamercade_interface::{platform::FrontPageRequest, CRC};
 use crate::{
     local_directory::LocalDirectory,
     modes::{AppMode, ArcadeModeView, LibraryModeView, SettingsModeView},
-    task_manager::{AuthState, GameResponse, PlatformResponse, SuperTaskManager, TaskNotification},
+    task_manager::{
+        AuthState, GameResponse, PlatformRequest, PlatformResponse, SuperTaskManager,
+        TaskNotification,
+    },
 };
 
 #[derive(Default)]
@@ -82,12 +85,15 @@ impl App {
                     self.directory.upsert_permission_levesl(&permissions, true);
                 }
                 TaskNotification::AuthStateChanged(new_state) => {
-                    println!("Auth State Changed: {new_state:?}");
                     self.auth_state = new_state;
 
                     match self.auth_state {
                         AuthState::Unauthorized => self.modes.arcade.logged_out(),
-                        AuthState::SessionHeld(_) => self.modes.arcade.logged_in(),
+                        AuthState::SessionHeld(_) => {
+                            self.modes.arcade.logged_in();
+                            self.tasks.platform.send(PlatformRequest::VotedGames);
+                            self.tasks.platform.send(PlatformRequest::EditableGames);
+                        }
                     }
                 }
                 TaskNotification::LoginFailed => self.modes.arcade.logged_out(),

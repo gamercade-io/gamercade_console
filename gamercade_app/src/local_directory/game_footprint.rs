@@ -5,8 +5,8 @@ use super::{game::GameId, Dictionary, DictionaryTrait, LocalDirectory};
 
 #[derive(Default)]
 pub struct GameFootprint {
-    permission_level: Option<i32>,
-    vote: Option<Vote>,
+    pub permission_level: Option<i32>,
+    pub vote: Option<Vote>,
 }
 
 pub enum Vote {

@@ -2,6 +2,7 @@ use crate::app::AppDrawContext;
 
 mod creator_dashboard;
 mod login;
+mod manage_game;
 mod new_game;
 mod online;
 mod sign_up;

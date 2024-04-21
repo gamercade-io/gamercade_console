@@ -9,16 +9,12 @@ mod permission_level;
 mod tag;
 mod user;
 
-use game::Game;
-
+pub use game::{Game, GameId};
 pub use permission_level::{PermissionLevel, PermissionLevelId};
 pub use tag::{Tag, TagId};
 pub use user::{User, UserId};
 
-use self::{
-    game::{upsert_games_table, GameId},
-    game_footprint::GameFootprint,
-};
+use self::{game::upsert_games_table, game_footprint::GameFootprint};
 
 const LOCAL_DB_PATH: &str = "./local.db";
 

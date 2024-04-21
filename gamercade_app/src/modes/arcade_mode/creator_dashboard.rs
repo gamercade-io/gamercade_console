@@ -1,18 +1,21 @@
-use gamercade_interface::game::UpdateGameRequest;
+use eframe::egui;
+use gamercade_interface::{game::UpdateGameRequest, PERMISSION_LEVEL_EDITOR};
 use rfd::FileDialog;
 
 use crate::{
     app::AppDrawContext,
+    local_directory::{GameId, IsDictionary},
     task_manager::{GameRequest, UploadRom},
     urls::WithSession,
 };
 
-use super::new_game::NewGameView;
+use super::{manage_game::ManageGameView, new_game::NewGameView};
 
 #[derive(Default)]
 pub struct CreatorDashboardView {
-    pub view: DashboardView,
+    view: DashboardView,
     pub new_game_view: NewGameView,
+    pub manage_game_view: ManageGameView,
 }
 
 #[derive(Default)]
@@ -20,6 +23,7 @@ enum DashboardView {
     #[default]
     Main,
     NewGameView,
+    ManageGameView,
 }
 
 impl CreatorDashboardView {
@@ -39,6 +43,11 @@ impl CreatorDashboardView {
                     self.view = DashboardView::Main
                 }
             }
+            DashboardView::ManageGameView => {
+                if self.manage_game_view.draw(context) {
+                    self.view = DashboardView::Main
+                }
+            }
         }
 
         // ui.separator();
@@ -51,26 +60,57 @@ impl CreatorDashboardView {
         // }
 
         // let game_id = self.game_id.parse();
-
-        // if ui.button("Upload Game").clicked() {
-        //     if let Ok(game_id) = game_id {
-        //         if let Some(file) = FileDialog::new()
-        //             .add_filter("gcrom (.gcrom)", &["gcrom"])
-        //             .pick_file()
-        //         {
-        //             let bytes = std::fs::read(file).unwrap();
-
-        //             context.task_manager.rom.try_upload_rom(
-        //                 UploadRom { game_id, bytes },
-        //                 &context.auth_state.get_session().unwrap(),
-        //             )
-        //         }
-        //     }
-        // }
     }
 
     fn draw_main_view(&mut self, context: &mut AppDrawContext) {
         let ui = &mut context.ui;
+
+        egui::Grid::new("editable_grid")
+            .num_columns(3)
+            .spacing([40.0, 4.0])
+            .striped(true)
+            .show(ui, |ui| {
+                ui.label("Editable Games:");
+                ui.end_row();
+
+                ui.label("Title");
+                ui.label("Rom Details");
+                ui.label("Manage");
+                ui.end_row();
+
+                // Only iterate games which we are able to edit
+                for game in context.directory.iter_games().filter(|game| {
+                    context
+                        .directory
+                        .game_footprint
+                        .get_map()
+                        .get(&GameId(game.id))
+                        .map(|game| {
+                            if let Some(level) = game.permission_level {
+                                level <= PERMISSION_LEVEL_EDITOR
+                            } else {
+                                false
+                            }
+                        })
+                        .unwrap_or_default()
+                }) {
+                    ui.label(&game.title);
+
+                    let rom_exists =
+                        if let (Some(_), Some(size)) = (game.file_checksum, game.rom_size) {
+                            let size = size as f32 / (1024.0 * 1024.0);
+                            format!("{size}mb")
+                        } else {
+                            format!("N/A")
+                        };
+                    ui.label(rom_exists);
+
+                    if ui.button("Manage Game").clicked() {
+                        self.manage_game_view = ManageGameView::new(game);
+                        self.view = DashboardView::ManageGameView;
+                    }
+                }
+            });
 
         ui.separator();
         if ui.button("Create New Game").clicked() {

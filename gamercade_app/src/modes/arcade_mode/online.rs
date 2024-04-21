@@ -4,7 +4,6 @@ use super::{ArcadeActiveView, CreatorDashboardView};
 
 #[derive(Default)]
 pub struct OnlineView {
-    release_id: String,
     active_mode: OnlineViewMode,
 
     pub arcade: ArcadeView,
