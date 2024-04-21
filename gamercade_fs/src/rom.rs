@@ -3,7 +3,7 @@ use std::{fs, io::Write, path::PathBuf};
 use serde::{Deserialize, Serialize};
 
 use gamercade_audio::SoundRom;
-use gamercade_core::{FrameRate, GraphicsData, Resolution};
+use gamercade_core::{FrameRate, GraphicsData, Resolution, MAX_ROM_SIZE};
 
 use crate::{bundle, DataPack, EditorRom, GameAssetProvider, GameCodeProvider};
 
@@ -51,6 +51,15 @@ impl Rom {
 
         match path.extension().and_then(|path| path.to_str()) {
             Some("gcrom") => {
+                match file.metadata() {
+                    Ok(metadata) => {
+                        if metadata.len() > MAX_ROM_SIZE as u64 {
+                            return Err(format!("File exceeds {MAX_ROM_SIZE} bytes."));
+                        }
+                    }
+                    Err(e) => return Err(e.to_string()),
+                }
+
                 let reader = zstd::Decoder::new(file).map_err(|e| e.to_string())?;
                 bincode::deserialize_from::<_, Self>(reader).map_err(|e| e.to_string())
             }
