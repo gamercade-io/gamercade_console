@@ -1,7 +1,7 @@
 use std::fs;
 
 use eframe::egui::{self, Button, Ui};
-use gamercade_core::{FrameRate, ResolutionRatio, ResolutionSize};
+use gamercade_core::{FrameRate, Ratio, Size};
 use gamercade_fs::{DataPack, EditorRom};
 
 #[derive(Debug, Clone, Default)]
@@ -19,55 +19,47 @@ impl RomEditor {
             ui.horizontal(|ui| {
                 ui.selectable_value(
                     &mut rom.resolution.ratio,
-                    ResolutionRatio::Standard,
-                    ResolutionRatio::Standard.as_str(),
+                    Ratio::Standard,
+                    Ratio::Standard.as_str(),
                 );
                 ui.selectable_value(
                     &mut rom.resolution.ratio,
-                    ResolutionRatio::Square,
-                    ResolutionRatio::Square.as_str(),
+                    Ratio::Square,
+                    Ratio::Square.as_str(),
                 );
                 ui.selectable_value(
                     &mut rom.resolution.ratio,
-                    ResolutionRatio::Classic,
-                    ResolutionRatio::Classic.as_str(),
+                    Ratio::Classic,
+                    Ratio::Classic.as_str(),
                 );
             });
             ui.horizontal(|ui| {
                 ui.selectable_value(
                     &mut rom.resolution.size,
-                    ResolutionSize::UltraLow,
-                    ResolutionSize::UltraLow.as_str(),
+                    Size::UltraLow,
+                    Size::UltraLow.as_str(),
                 );
                 ui.selectable_value(
                     &mut rom.resolution.size,
-                    ResolutionSize::VeryLow,
-                    ResolutionSize::VeryLow.as_str(),
+                    Size::VeryLow,
+                    Size::VeryLow.as_str(),
+                );
+                ui.selectable_value(&mut rom.resolution.size, Size::Low, Size::Low.as_str());
+                ui.selectable_value(
+                    &mut rom.resolution.size,
+                    Size::Medium,
+                    Size::Medium.as_str(),
+                );
+                ui.selectable_value(&mut rom.resolution.size, Size::High, Size::High.as_str());
+                ui.selectable_value(
+                    &mut rom.resolution.size,
+                    Size::VeryHigh,
+                    Size::VeryHigh.as_str(),
                 );
                 ui.selectable_value(
                     &mut rom.resolution.size,
-                    ResolutionSize::Low,
-                    ResolutionSize::Low.as_str(),
-                );
-                ui.selectable_value(
-                    &mut rom.resolution.size,
-                    ResolutionSize::Medium,
-                    ResolutionSize::Medium.as_str(),
-                );
-                ui.selectable_value(
-                    &mut rom.resolution.size,
-                    ResolutionSize::High,
-                    ResolutionSize::High.as_str(),
-                );
-                ui.selectable_value(
-                    &mut rom.resolution.size,
-                    ResolutionSize::VeryHigh,
-                    ResolutionSize::VeryHigh.as_str(),
-                );
-                ui.selectable_value(
-                    &mut rom.resolution.size,
-                    ResolutionSize::UltraHigh,
-                    ResolutionSize::UltraHigh.as_str(),
+                    Size::UltraHigh,
+                    Size::UltraHigh.as_str(),
                 );
             });
         });

@@ -53,23 +53,22 @@ impl LibraryModeView {
                         .join(",");
                     ui.label(tags);
 
-                    if game.file_checksum.is_some()
-                        && game.rom_size.is_some()
-                        && ui.button("Play").clicked()
-                    {
-                        println!("Play: {} ({})", game.title, game.id);
+                    if game.file_checksum.is_some() && game.rom_size.is_some() {
+                        if ui.button("Play").clicked() {
+                            println!("Play: {} ({})", game.title, game.id);
 
-                        let mut command = Command::new("gccl");
+                            let mut command = Command::new("gccl");
 
-                        command
-                            .arg("console")
-                            .arg("rom")
-                            .arg(game_rom_path(game.id));
+                            command
+                                .arg("console")
+                                .arg("rom")
+                                .arg(game_rom_path(game.id));
 
-                        println!("command: {command:?}");
+                            println!("command: {command:?}");
 
-                        if let Err(e) = command.spawn() {
-                            println!("Error launching game {e}");
+                            if let Err(e) = command.spawn() {
+                                println!("Error launching game {e}");
+                            }
                         }
                     } else {
                         ui.label("ROM Missing");

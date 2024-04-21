@@ -68,7 +68,7 @@ impl LocalDirectory {
     pub fn update_game_rom(&mut self, game_id: i64, checksum: i64, rom_size: i32) {
         self.db
             .execute(
-                "UPDATE games SET (file_checksum, rom_size) VALUES (?, ?) WHERE game_id = ?;",
+                "UPDATE games SET file_checksum = ?, rom_size = ? WHERE id = ?;",
                 (checksum, rom_size, game_id),
             )
             .unwrap();

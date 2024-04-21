@@ -58,7 +58,7 @@ impl ManageGameView {
                 {
                     let bytes = std::fs::read(file).unwrap();
 
-                    context.task_manager.rom.try_upload_rom(
+                    context.task_manager.http.try_upload_rom(
                         UploadRom {
                             game_id: self.game_id,
                             bytes,

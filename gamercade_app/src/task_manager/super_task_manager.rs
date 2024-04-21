@@ -35,7 +35,7 @@ pub struct SuperTaskManager {
     pub tags: TagManager,
     pub author: AuthorManager,
     pub auth: AuthManager,
-    pub rom: HttpManager,
+    pub http: HttpManager,
     pub game: GameManager,
     pub platform: PlatformManager,
 }
@@ -48,7 +48,7 @@ impl Default for SuperTaskManager {
             tags: TagManager::new(event_tx.clone()),
             author: AuthorManager::new(event_tx.clone()),
             auth: AuthManager::new(event_tx.clone()),
-            rom: HttpManager::new(event_tx.clone()),
+            http: HttpManager::new(event_tx.clone()),
             game: GameManager::new(event_tx.clone()),
             platform: PlatformManager::new(event_tx.clone()),
             events,

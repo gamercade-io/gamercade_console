@@ -1,44 +1,44 @@
 use serde::{Deserialize, Serialize};
 
-const fn standard_resolution(size: ResolutionSize) -> (i32, i32) {
+const fn standard_resolution(size: Size) -> (i32, i32) {
     match size {
-        ResolutionSize::UltraLow => (128, 72),
-        ResolutionSize::VeryLow => (160, 90),
-        ResolutionSize::Low => (320, 180),
-        ResolutionSize::Medium => (480, 270),
-        ResolutionSize::High => (640, 360),
-        ResolutionSize::VeryHigh => (1280, 720),
-        ResolutionSize::UltraHigh => (1920, 1080),
+        Size::UltraLow => (128, 72),
+        Size::VeryLow => (160, 90),
+        Size::Low => (320, 180),
+        Size::Medium => (480, 270),
+        Size::High => (640, 360),
+        Size::VeryHigh => (1280, 720),
+        Size::UltraHigh => (1920, 1080),
     }
 }
 
-const fn square_resolution(size: ResolutionSize) -> (i32, i32) {
+const fn square_resolution(size: Size) -> (i32, i32) {
     match size {
-        ResolutionSize::UltraLow => (64, 64),
-        ResolutionSize::VeryLow => (128, 128),
-        ResolutionSize::Low => (256, 256),
-        ResolutionSize::Medium => (384, 384),
-        ResolutionSize::High => (512, 512),
-        ResolutionSize::VeryHigh => (768, 768),
-        ResolutionSize::UltraHigh => (1024, 1024),
+        Size::UltraLow => (64, 64),
+        Size::VeryLow => (128, 128),
+        Size::Low => (256, 256),
+        Size::Medium => (384, 384),
+        Size::High => (512, 512),
+        Size::VeryHigh => (768, 768),
+        Size::UltraHigh => (1024, 1024),
     }
 }
 
-const fn classic_resolution(size: ResolutionSize) -> (i32, i32) {
+const fn classic_resolution(size: Size) -> (i32, i32) {
     match size {
-        ResolutionSize::UltraLow => (120, 90),
-        ResolutionSize::VeryLow => (160, 120),
-        ResolutionSize::Low => (240, 180),
-        ResolutionSize::Medium => (360, 270),
-        ResolutionSize::High => (480, 360),
-        ResolutionSize::VeryHigh => (960, 720),
-        ResolutionSize::UltraHigh => (1440, 1080),
+        Size::UltraLow => (120, 90),
+        Size::VeryLow => (160, 120),
+        Size::Low => (240, 180),
+        Size::Medium => (360, 270),
+        Size::High => (480, 360),
+        Size::VeryHigh => (960, 720),
+        Size::UltraHigh => (1440, 1080),
     }
 }
 
 #[derive(Default, Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
-pub enum ResolutionSize {
+pub enum Size {
     UltraLow,
     VeryLow,
     Low,
@@ -48,43 +48,43 @@ pub enum ResolutionSize {
     VeryHigh,
     UltraHigh,
 }
-impl ResolutionSize {
+impl Size {
     pub const fn as_str(&self) -> &str {
         match self {
-            ResolutionSize::UltraLow => "Ultra Low",
-            ResolutionSize::VeryLow => "Very Low",
-            ResolutionSize::Low => "Low",
-            ResolutionSize::Medium => "Medium",
-            ResolutionSize::High => "High",
-            ResolutionSize::VeryHigh => "Very High",
-            ResolutionSize::UltraHigh => "Ultra High",
+            Size::UltraLow => "Ultra Low",
+            Size::VeryLow => "Very Low",
+            Size::Low => "Low",
+            Size::Medium => "Medium",
+            Size::High => "High",
+            Size::VeryHigh => "Very High",
+            Size::UltraHigh => "Ultra High",
         }
     }
 }
 
 #[derive(Default, Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
-pub enum ResolutionRatio {
+pub enum Ratio {
     #[default]
     Standard,
     Square,
     Classic,
 }
 
-impl ResolutionRatio {
+impl Ratio {
     pub const fn as_str(&self) -> &str {
         match self {
-            ResolutionRatio::Standard => "Standard (16:9)",
-            ResolutionRatio::Square => "Square (1:1)",
-            ResolutionRatio::Classic => "Classic (4:3)",
+            Ratio::Standard => "Standard (16:9)",
+            Ratio::Square => "Square (1:1)",
+            Ratio::Classic => "Classic (4:3)",
         }
     }
 }
 
 #[derive(Default, Clone, Copy, Debug, Serialize, Deserialize)]
 pub struct Resolution {
-    pub size: ResolutionSize,
-    pub ratio: ResolutionRatio,
+    pub size: Size,
+    pub ratio: Ratio,
 }
 
 impl Resolution {
@@ -98,9 +98,9 @@ impl Resolution {
 
     const fn ratio_helper(&self) -> (i32, i32) {
         match self.ratio {
-            ResolutionRatio::Standard => standard_resolution(self.size),
-            ResolutionRatio::Square => square_resolution(self.size),
-            ResolutionRatio::Classic => classic_resolution(self.size),
+            Ratio::Standard => standard_resolution(self.size),
+            Ratio::Square => square_resolution(self.size),
+            Ratio::Classic => classic_resolution(self.size),
         }
     }
 

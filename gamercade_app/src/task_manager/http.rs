@@ -82,11 +82,20 @@ impl TaskRequest<HttpManagerState> for HttpRequest {
                     .send()
                     .await
                 {
-                    Ok(_) => {
-                        sender
-                            .send(TaskNotification::HttpResponse(HttpResponse::Upload(Ok(()))))
-                            .await
-                            .unwrap();
+                    Ok(response) => {
+                        if let Err(_) = response.error_for_status_ref() {
+                            sender
+                                .send(TaskNotification::HttpResponse(HttpResponse::Upload(Err(
+                                    response.text().await.unwrap_or_default(),
+                                ))))
+                                .await
+                                .unwrap()
+                        } else {
+                            sender
+                                .send(TaskNotification::HttpResponse(HttpResponse::Upload(Ok(()))))
+                                .await
+                                .unwrap()
+                        }
                     }
                     Err(err) => sender
                         .send(TaskNotification::HttpResponse(HttpResponse::Upload(Err(

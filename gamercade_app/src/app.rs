@@ -1,5 +1,5 @@
 use eframe::egui::{self, Ui};
-use gamercade_interface::CRC;
+use gamercade_interface::{platform::FrontPageRequest, CRC};
 
 use crate::{
     local_directory::LocalDirectory,
@@ -85,6 +85,9 @@ impl App {
                             self.modes.arcade.logged_in();
                             self.tasks
                                 .platform
+                                .send(PlatformRequest::FrontPage(FrontPageRequest {}));
+                            self.tasks
+                                .platform
                                 .send(PlatformRequest::VotedGames(session.clone()));
                             self.tasks
                                 .platform
@@ -147,10 +150,13 @@ impl App {
 
     fn handle_platform_response(&mut self, response: PlatformResponse) {
         match response {
-            PlatformResponse::FrontPage(mut front_page_response) => front_page_response
-                .games
-                .drain(..)
-                .for_each(|game| self.directory.update_game(game)),
+            PlatformResponse::FrontPage(mut front_page_response) => {
+                self.modes.arcade.online.arcade.front_page = Some(front_page_response.clone());
+                front_page_response
+                    .games
+                    .drain(..)
+                    .for_each(|game| self.directory.update_game(game))
+            }
 
             PlatformResponse::EditableGames(editable_games_response) => self
                 .directory
@@ -182,6 +188,8 @@ impl App {
                     .dashboard
                     .manage_game_view
                     .awaiting_upload = false;
+
+                self.modes.arcade.online.dashboard.main_view();
 
                 // TODO: Could add the game to the local directory
 
