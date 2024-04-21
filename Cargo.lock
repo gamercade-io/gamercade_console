@@ -2299,6 +2299,7 @@ dependencies = [
  "eframe 0.27.2",
  "gamercade_interface",
  "hashbrown 0.14.3",
+ "nohash-hasher",
  "radix_fmt",
  "reqwest",
  "rfd",

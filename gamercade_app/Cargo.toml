@@ -28,3 +28,4 @@ reqwest = "0.12.3"
 eframe = "0.27.2"
 rusqlite = { version = "0.30.0", features = ["bundled"] }
 hashbrown = "0.14.3"
+nohash-hasher = "0.2.0"

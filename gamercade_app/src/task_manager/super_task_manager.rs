@@ -4,7 +4,7 @@ use tokio::sync::mpsc::{channel, Receiver};
 use crate::local_directory::{PermissionLevel, PermissionLevelId, Tag, TagId};
 
 use super::{
-    AuthManager, AuthState, AuthorManager, GameManager, PlatformManager, RomManager, TagManager,
+    AuthManager, AuthState, AuthorManager, GameManager, HttpManager, PlatformManager, TagManager,
     SUPER_TASK_CHANNEL_SIZE,
 };
 
@@ -31,7 +31,7 @@ pub struct SuperTaskManager {
     pub tags: TagManager,
     pub author: AuthorManager,
     pub auth: AuthManager,
-    pub rom: RomManager,
+    pub rom: HttpManager,
     pub game: GameManager,
     pub platform: PlatformManager,
 }
@@ -44,7 +44,7 @@ impl Default for SuperTaskManager {
             tags: TagManager::new(event_tx.clone()),
             author: AuthorManager::new(event_tx.clone()),
             auth: AuthManager::new(event_tx.clone()),
-            rom: RomManager::new(event_tx.clone()),
+            rom: HttpManager::new(event_tx.clone()),
             game: GameManager::new(event_tx.clone()),
             platform: PlatformManager::new(event_tx.clone()),
             events,

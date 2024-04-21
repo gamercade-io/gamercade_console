@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use gamercade_interface::{Session, SESSION_METADATA_KEY};
 
-use hashbrown::HashMap;
+use nohash_hasher::IntMap;
 use tokio::{
     io::AsyncWriteExt,
     sync::{mpsc::Sender, Mutex},
@@ -17,11 +17,12 @@ use crate::{
 
 use super::{TaskManager, TaskRequest};
 
-pub type RomManager = TaskManager<RomManagerState, RomRequest>;
+pub type HttpManager = TaskManager<HttpManagerState, HttpRequest>;
 
 #[derive(Default)]
-pub struct RomManagerState {
-    pub downloads: HashMap<i64, ActiveDownload>,
+pub struct HttpManagerState {
+    pub rom_downloads: IntMap<i64, ActiveDownload>,
+    pub image_downloads: IntMap<i64, ActiveDownload>,
 }
 
 pub struct ActiveDownload {
@@ -38,7 +39,7 @@ pub enum DownloadStatus {
 }
 
 #[derive(Debug)]
-pub enum RomRequest {
+pub enum HttpRequest {
     DownloadRom(WithSession<DownloadRom>),
     UploadRom(WithSession<UploadRom>),
 }
@@ -54,15 +55,15 @@ pub struct UploadRom {
     pub bytes: Vec<u8>,
 }
 
-impl TaskRequest<RomManagerState> for RomRequest {
+impl TaskRequest<HttpManagerState> for HttpRequest {
     async fn handle_request(
         self,
         sender: &Sender<super::TaskNotification>,
-        state: &Arc<Mutex<RomManagerState>>,
+        state: &Arc<Mutex<HttpManagerState>>,
     ) {
         match self {
-            RomRequest::DownloadRom(request) => download_file(sender.clone(), request),
-            RomRequest::UploadRom(request) => {
+            HttpRequest::DownloadRom(request) => download_file(sender.clone(), request),
+            HttpRequest::UploadRom(request) => {
                 let WithSession {
                     data: request,
                     session,
@@ -163,10 +164,10 @@ fn download_file(sender: Sender<TaskNotification>, request: WithSession<Download
     });
 }
 
-impl RomManager {
+impl HttpManager {
     pub fn try_download_rom(&mut self, game_id: i64, session: &Session) {
         self.sender
-            .try_send(RomRequest::DownloadRom(WithSession {
+            .try_send(HttpRequest::DownloadRom(WithSession {
                 session: session.clone(),
                 data: DownloadRom { game_id },
             }))
@@ -175,7 +176,7 @@ impl RomManager {
 
     pub fn try_upload_rom(&mut self, request: UploadRom, session: &Session) {
         self.sender
-            .try_send(RomRequest::UploadRom(WithSession {
+            .try_send(HttpRequest::UploadRom(WithSession {
                 session: session.clone(),
                 data: request,
             }))
