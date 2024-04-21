@@ -11,8 +11,8 @@ use super::new_game::NewGameView;
 
 #[derive(Default)]
 pub struct CreatorDashboardView {
-    view: DashboardView,
-    new_game_view: NewGameView,
+    pub view: DashboardView,
+    pub new_game_view: NewGameView,
 }
 
 #[derive(Default)]

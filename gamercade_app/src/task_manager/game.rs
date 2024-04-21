@@ -1,15 +1,15 @@
 use std::sync::Arc;
 
 use gamercade_interface::{
-    game::{game_service_client::GameServiceClient, UpdateGameRequest},
+    game::{game_service_client::GameServiceClient, GameInfoBasic, UpdateGameRequest},
     Session,
 };
 use tokio::sync::{mpsc::Sender, Mutex, OnceCell};
-use tonic::{transport::Channel, Request};
+use tonic::{transport::Channel, Request, Response};
 
 use crate::urls::{WithSession, SERVICE_IP_GRPC};
 
-use super::{TaskManager, TaskRequest};
+use super::{TaskManager, TaskNotification, TaskRequest};
 
 pub type GameManager = TaskManager<GameManagerState, GameRequest>;
 
@@ -28,6 +28,12 @@ pub enum GameRequest {
     UpdateGame(WithSession<UpdateGameRequest>),
 }
 
+#[derive(Debug)]
+pub enum GameResponse {
+    CreateGame(Result<GameInfoBasic, String>),
+    UpdateGame(Result<GameInfoBasic, String>),
+}
+
 impl TaskRequest<GameManagerState> for GameRequest {
     async fn handle_request(
         self,
@@ -38,18 +44,29 @@ impl TaskRequest<GameManagerState> for GameRequest {
         lock.client.get_or_init(init_game_client).await;
         let client = lock.client.get_mut().unwrap();
 
-        let result = match self {
+        match self {
             GameRequest::CreateGame(request) => {
-                client.create_game(request.authorized_request()).await
+                let response = client.create_game(request.authorized_request()).await;
+                sender
+                    .send(TaskNotification::GameResponse(GameResponse::CreateGame(
+                        response
+                            .map(Response::into_inner)
+                            .map_err(|e| e.to_string()),
+                    )))
+                    .await
+                    .unwrap()
             }
             GameRequest::UpdateGame(request) => {
-                client.update_game(request.authorized_request()).await
+                let response = client.update_game(request.authorized_request()).await;
+                sender
+                    .send(TaskNotification::GameResponse(GameResponse::UpdateGame(
+                        response
+                            .map(Response::into_inner)
+                            .map_err(|e| e.to_string()),
+                    )))
+                    .await
+                    .unwrap()
             }
         };
-
-        match result {
-            Ok(game_info) => println!("Got game info: {game_info:?}"),
-            Err(e) => println!("{e}"),
-        }
     }
 }

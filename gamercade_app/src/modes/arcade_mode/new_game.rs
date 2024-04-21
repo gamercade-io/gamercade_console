@@ -4,7 +4,7 @@ use crate::{app::AppDrawContext, task_manager::GameRequest, urls::WithSession};
 
 #[derive(Default, Debug)]
 pub struct NewGameView {
-    awaiting_game: bool,
+    pub awaiting_game: bool,
     title: String,
     short_description: String,
     long_description: String,
@@ -32,10 +32,6 @@ impl NewGameView {
 
         ui.separator();
         ui.horizontal(|ui| {
-            if ui.button("Go Back").clicked() {
-                done = true
-            }
-
             if ui.button("Create Game").clicked() {
                 self.awaiting_game = true;
                 context
@@ -50,6 +46,12 @@ impl NewGameView {
                             long_description: Some(self.long_description.clone()),
                         },
                     }));
+            }
+
+            ui.set_enabled(true);
+
+            if ui.button("Go Back").clicked() {
+                done = true
             }
         });
 

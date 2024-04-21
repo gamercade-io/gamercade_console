@@ -3,8 +3,8 @@ use gamercade_interface::{platform::FrontPageRequest, CRC};
 
 use crate::{
     local_directory::LocalDirectory,
-    modes::{AppMode, ArcadeActiveView, ArcadeModeView, LibraryModeView, SettingsModeView},
-    task_manager::{AuthState, PlatformResponse, SuperTaskManager, TaskNotification},
+    modes::{AppMode, ArcadeModeView, LibraryModeView, SettingsModeView},
+    task_manager::{AuthState, GameResponse, PlatformResponse, SuperTaskManager, TaskNotification},
 };
 
 #[derive(Default)]
@@ -20,9 +20,9 @@ pub struct App {
 
 #[derive(Default)]
 pub struct Modes {
-    arcade: ArcadeModeView,
-    library: LibraryModeView,
-    settings: SettingsModeView,
+    pub arcade: ArcadeModeView,
+    pub library: LibraryModeView,
+    pub settings: SettingsModeView,
 }
 
 pub struct AppDrawContext<'a> {
@@ -100,7 +100,38 @@ impl App {
                 TaskNotification::PlatformResponse(response) => {
                     self.handle_platform_response(response)
                 }
+                TaskNotification::GameResponse(response) => self.handle_game_response(response),
             }
+        }
+    }
+
+    fn handle_game_response(&mut self, response: GameResponse) {
+        let mut update = None;
+        match response {
+            GameResponse::CreateGame(result) => {
+                self.modes
+                    .arcade
+                    .online
+                    .dashboard
+                    .new_game_view
+                    .awaiting_game = false;
+
+                match result {
+                    Ok(game_info) => update = Some(game_info),
+                    Err(e) => println!("Create Game Error: {e}"),
+                }
+            }
+            GameResponse::UpdateGame(result) => {
+                // TODO: Something here?
+                match result {
+                    Ok(game_info) => update = Some(game_info),
+                    Err(e) => println!("Update Game Error: {e}"),
+                }
+            }
+        }
+
+        if let Some(game_info) = update {
+            self.directory.update_game(game_info)
         }
     }
 

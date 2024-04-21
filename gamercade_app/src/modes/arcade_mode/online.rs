@@ -7,8 +7,8 @@ pub struct OnlineView {
     release_id: String,
     active_mode: OnlineViewMode,
 
-    arcade: ArcadeView,
-    dashboard: CreatorDashboardView,
+    pub arcade: ArcadeView,
+    pub dashboard: CreatorDashboardView,
 }
 
 #[derive(Default)]

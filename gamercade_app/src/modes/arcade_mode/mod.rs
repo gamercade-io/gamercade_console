@@ -13,14 +13,24 @@ use sign_up::*;
 
 #[derive(Default)]
 pub struct ArcadeModeView {
-    active_view: ArcadeActiveView,
+    pub active_view: ArcadeActiveView,
+
+    pub login: LoginView,
+    pub sign_up: SignUpView,
+    pub online: OnlineView,
 }
 
 impl ArcadeModeView {
     pub fn draw(&mut self, context: &mut AppDrawContext) {
         context.ui.label("Arcade Mode View");
 
-        self.active_view.draw(context);
+        if let Some(next) = match self.active_view {
+            ArcadeActiveView::Login => self.login.draw(context),
+            ArcadeActiveView::SignUp => self.sign_up.draw(context),
+            ArcadeActiveView::Online => self.online.draw(context),
+        } {
+            self.active_view = next;
+        }
     }
 
     pub fn logged_in(&mut self) {
@@ -33,9 +43,9 @@ impl ArcadeModeView {
 }
 
 pub enum ArcadeActiveView {
-    Login(LoginView),
-    SignUp(SignUpView),
-    Online(OnlineView),
+    Login,
+    SignUp,
+    Online,
 }
 
 impl Default for ArcadeActiveView {
@@ -46,24 +56,14 @@ impl Default for ArcadeActiveView {
 
 impl ArcadeActiveView {
     fn login() -> Self {
-        Self::Login(LoginView::default())
+        Self::Login
     }
 
     fn sign_up() -> Self {
-        Self::SignUp(SignUpView::default())
+        Self::SignUp
     }
 
     fn online_browsing() -> Self {
-        Self::Online(OnlineView::default())
-    }
-
-    fn draw(&mut self, context: &mut AppDrawContext) {
-        if let Some(next) = match self {
-            ArcadeActiveView::Login(view) => view.draw(context),
-            ArcadeActiveView::SignUp(view) => view.draw(context),
-            ArcadeActiveView::Online(view) => view.draw(context),
-        } {
-            *self = next;
-        }
+        Self::Online
     }
 }

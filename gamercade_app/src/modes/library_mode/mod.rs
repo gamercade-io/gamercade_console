@@ -20,7 +20,7 @@ impl LibraryModeView {
         ui.label("Library Mode");
 
         egui::Grid::new("game_grid")
-            .num_columns(4)
+            .num_columns(5)
             .spacing([40.0, 4.0])
             .striped(true)
             .show(ui, |ui| {
@@ -33,7 +33,6 @@ impl LibraryModeView {
 
                 for game in directory.iter_games() {
                     ui.label(&game.title);
-                    ui.label(&game.short_description);
 
                     let rom_size_text = if let Some(rom_size) = game.rom_size {
                         let rom_size = rom_size as f32 / (1024.0 * 1024.0);
@@ -44,6 +43,8 @@ impl LibraryModeView {
 
                     ui.label(rom_size_text);
 
+                    ui.label(&game.short_description);
+
                     let tags = game
                         .tags
                         .iter()
@@ -52,7 +53,10 @@ impl LibraryModeView {
                         .join(",");
                     ui.label(tags);
 
-                    if ui.button("Play").clicked() {
+                    if game.file_checksum.is_some()
+                        && game.rom_size.is_some()
+                        && ui.button("Play").clicked()
+                    {
                         println!("Play: {} ({})", game.title, game.id);
 
                         let mut command = Command::new("gccl");
@@ -67,6 +71,8 @@ impl LibraryModeView {
                         if let Err(e) = command.spawn() {
                             println!("Error launching game {e}");
                         }
+                    } else {
+                        ui.label("ROM Missing");
                     }
                     ui.end_row()
                 }

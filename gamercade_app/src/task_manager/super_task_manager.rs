@@ -4,7 +4,7 @@ use tokio::sync::mpsc::{channel, Receiver};
 use crate::local_directory::{PermissionLevel, PermissionLevelId, Tag, TagId};
 
 use super::{
-    AuthManager, AuthState, AuthorManager, GameManager, HttpManager, PlatformManager,
+    AuthManager, AuthState, AuthorManager, GameManager, GameResponse, HttpManager, PlatformManager,
     PlatformResponse, TagManager, SUPER_TASK_CHANNEL_SIZE,
 };
 
@@ -15,6 +15,9 @@ pub enum TaskNotification {
     AuthStateChanged(AuthState),
     LoginFailed,
     DownloadRomComplete(DownloadRomComplete),
+
+    // Game
+    GameResponse(GameResponse),
 
     // Platform
     PlatformResponse(PlatformResponse),
