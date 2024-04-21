@@ -92,6 +92,9 @@ impl App {
                 }
                 TaskNotification::LoginFailed => self.modes.arcade.logged_out(),
                 TaskNotification::DownloadRomComplete(complete) => {
+                    // TODO: Calculate Checksum
+                    // Calculate file size
+                    // Write data to DB
                     println!("TODO: Release download complete")
                 }
                 TaskNotification::PlatformResponse(response) => {
@@ -108,11 +111,20 @@ impl App {
                 .drain(..)
                 .for_each(|game| self.directory.update_game(game)),
 
-            PlatformResponse::EditableGames(editable_games_response) => {}
+            PlatformResponse::EditableGames(editable_games_response) => self
+                .directory
+                .game_footprint
+                .handle_editable_games_response(editable_games_response),
 
-            PlatformResponse::VotedGames(voted_games_response) => {}
+            PlatformResponse::VotedGames(voted_games_response) => self
+                .directory
+                .game_footprint
+                .handle_voted_games_response(voted_games_response),
 
-            PlatformResponse::Search(search_response) => {}
+            PlatformResponse::Search(mut search_response) => search_response
+                .games_info
+                .drain(..)
+                .for_each(|game| self.directory.update_game(game)),
         }
     }
 }

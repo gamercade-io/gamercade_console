@@ -1,6 +1,7 @@
+use gamercade_interface::platform::{EditableGamesResponse, VotedGamesResponse};
 use rusqlite::types::FromSql;
 
-use super::{game::GameId, Dictionary, DictionaryTrait};
+use super::{game::GameId, Dictionary, DictionaryTrait, LocalDirectory};
 
 #[derive(Default)]
 pub struct GameFootprint {
@@ -63,5 +64,32 @@ impl DictionaryTrait<GameId, GameFootprint> for Dictionary<GameId, GameFootprint
         statement
             .execute((key.0 as i32, value.permission_level, vote))
             .unwrap();
+    }
+}
+
+impl LocalDirectory {
+    pub fn handle_voted_games_response(&mut self, response: VotedGamesResponse) {
+        let query = "INSERT OR REPLACE INTO game_footprint(vote) VALUES ? WHERE game_id = ?;";
+
+        for game in response.voted_games {
+            self.db
+                .execute(query, (game.vote_value as i32, game.game_id))
+                .unwrap();
+        }
+
+        self.game_footprint.sync(&self.db);
+    }
+
+    pub fn handle_editable_games_response(&mut self, response: EditableGamesResponse) {
+        let query =
+            "INSERT OR REPLACE INTO game_footprint(permission_level) VALUES ? WHERE game_id = ?;";
+
+        for game in response.editable_games {
+            self.db
+                .execute(query, (game.permission_level as i32, game.game_id))
+                .unwrap();
+        }
+
+        self.game_footprint.sync(&self.db);
     }
 }
