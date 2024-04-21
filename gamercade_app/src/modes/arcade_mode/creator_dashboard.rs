@@ -24,6 +24,10 @@ enum DashboardView {
 }
 
 impl CreatorDashboardView {
+    pub fn main_view(&mut self) {
+        self.view = DashboardView::Main
+    }
+
     pub fn draw(&mut self, context: &mut AppDrawContext) {
         let enabled = context.auth_state.get_session().is_some();
 
@@ -50,6 +54,10 @@ impl CreatorDashboardView {
 
     fn draw_main_view(&mut self, context: &mut AppDrawContext) {
         let ui = &mut context.ui;
+
+        if ui.button("PRINT FOOTPRINT").clicked() {
+            println!("{:?}", context.directory.game_footprint.get_map());
+        }
 
         egui::Grid::new("editable_grid")
             .num_columns(3)
@@ -95,6 +103,8 @@ impl CreatorDashboardView {
                         self.manage_game_view = ManageGameView::new(game);
                         self.view = DashboardView::ManageGameView;
                     }
+
+                    ui.end_row();
                 }
             });
 

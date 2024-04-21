@@ -7,11 +7,12 @@ use gamercade_interface::{
         platform_service_client::PlatformServiceClient, EditableGamesResponse, FrontPageRequest,
         FrontPageResponse, GameSearchRequest, VotedGamesResponse,
     },
+    Session,
 };
 use tokio::sync::{mpsc::Sender, Mutex, OnceCell};
 use tonic::transport::Channel;
 
-use crate::urls::SERVICE_IP_GRPC;
+use crate::urls::{WithSession, SERVICE_IP_GRPC};
 
 use super::{TaskManager, TaskNotification, TaskRequest};
 
@@ -32,8 +33,8 @@ pub struct PlatformManagerState {
 pub enum PlatformRequest {
     FrontPage(FrontPageRequest),
     Search(GameSearchRequest),
-    EditableGames,
-    VotedGames,
+    EditableGames(Session),
+    VotedGames(Session),
 }
 
 #[derive(Debug)]
@@ -72,7 +73,10 @@ impl TaskRequest<PlatformManagerState> for PlatformRequest {
                     .unwrap(),
                 Err(err) => println!("search response err: {err}"),
             },
-            PlatformRequest::EditableGames => match client.get_editable_games(Empty {}).await {
+            PlatformRequest::EditableGames(session) => match client
+                .get_editable_games(WithSession::new(&session, Empty {}).authorized_request())
+                .await
+            {
                 Ok(response) => sender
                     .send(TaskNotification::PlatformResponse(
                         PlatformResponse::EditableGames(response.into_inner()),
@@ -81,7 +85,10 @@ impl TaskRequest<PlatformManagerState> for PlatformRequest {
                     .unwrap(),
                 Err(err) => println!("editable games response err: {err}"),
             },
-            PlatformRequest::VotedGames => match client.get_voted_games(Empty {}).await {
+            PlatformRequest::VotedGames(session) => match client
+                .get_voted_games(WithSession::new(&session, Empty {}).authorized_request())
+                .await
+            {
                 Ok(response) => sender
                     .send(TaskNotification::PlatformResponse(
                         PlatformResponse::VotedGames(response.into_inner()),

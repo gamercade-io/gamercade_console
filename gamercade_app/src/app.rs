@@ -87,12 +87,16 @@ impl App {
                 TaskNotification::AuthStateChanged(new_state) => {
                     self.auth_state = new_state;
 
-                    match self.auth_state {
+                    match &self.auth_state {
                         AuthState::Unauthorized => self.modes.arcade.logged_out(),
-                        AuthState::SessionHeld(_) => {
+                        AuthState::SessionHeld(session) => {
                             self.modes.arcade.logged_in();
-                            self.tasks.platform.send(PlatformRequest::VotedGames);
-                            self.tasks.platform.send(PlatformRequest::EditableGames);
+                            self.tasks
+                                .platform
+                                .send(PlatformRequest::VotedGames(session.clone()));
+                            self.tasks
+                                .platform
+                                .send(PlatformRequest::EditableGames(session.clone()));
                         }
                     }
                 }
@@ -117,6 +121,8 @@ impl App {
                     .new_game_view
                     .awaiting_game = false;
 
+                self.modes.arcade.online.dashboard.main_view();
+
                 match result {
                     Ok(game_info) => update = Some(game_info),
                     Err(e) => println!("Create Game Error: {e}"),
@@ -132,7 +138,10 @@ impl App {
         }
 
         if let Some(game_info) = update {
-            self.directory.update_game(game_info)
+            self.directory.update_game(game_info);
+            self.tasks.platform.send(PlatformRequest::EditableGames(
+                self.auth_state.get_session().unwrap(),
+            ))
         }
     }
 

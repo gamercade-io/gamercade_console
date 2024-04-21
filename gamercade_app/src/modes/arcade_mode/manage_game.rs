@@ -44,22 +44,30 @@ impl ManageGameView {
         ui.text_edit_singleline(&mut self.long_description);
         ui.separator();
 
-        if ui.button("Upload Game").clicked() {
-            if let Some(file) = FileDialog::new()
-                .add_filter("gcrom (.gcrom)", &["gcrom"])
-                .pick_file()
-            {
-                let bytes = std::fs::read(file).unwrap();
+        ui.horizontal(|ui| {
+            if ui.button("Upload ROM").clicked() {
+                if let Some(file) = FileDialog::new()
+                    .add_filter("gcrom (.gcrom)", &["gcrom"])
+                    .pick_file()
+                {
+                    let bytes = std::fs::read(file).unwrap();
 
-                context.task_manager.rom.try_upload_rom(
-                    UploadRom {
-                        game_id: self.game_id,
-                        bytes,
-                    },
-                    &context.auth_state.get_session().unwrap(),
-                )
+                    context.task_manager.rom.try_upload_rom(
+                        UploadRom {
+                            game_id: self.game_id,
+                            bytes,
+                        },
+                        &context.auth_state.get_session().unwrap(),
+                    )
+                }
             }
-        }
+
+            if ui.button("Update Game").clicked() {
+                // TODO: This
+            }
+        });
+
+        ui.separator();
 
         // TODO: Add delete game
         ui.set_enabled(true);

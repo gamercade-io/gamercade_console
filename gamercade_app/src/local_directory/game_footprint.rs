@@ -3,12 +3,13 @@ use rusqlite::types::FromSql;
 
 use super::{game::GameId, Dictionary, DictionaryTrait, LocalDirectory};
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct GameFootprint {
     pub permission_level: Option<i32>,
     pub vote: Option<Vote>,
 }
 
+#[derive(Debug)]
 pub enum Vote {
     Up,
     Down,
@@ -26,8 +27,8 @@ impl FromSql for Vote {
 
 impl From<&rusqlite::Row<'_>> for GameFootprint {
     fn from(value: &rusqlite::Row<'_>) -> Self {
-        let permission_level = value.get(0).unwrap();
-        let vote: Option<Vote> = value.get(1).unwrap();
+        let permission_level = value.get(1).unwrap();
+        let vote: Option<Vote> = value.get(2).unwrap();
 
         Self {
             permission_level,
@@ -69,11 +70,11 @@ impl DictionaryTrait<GameId, GameFootprint> for Dictionary<GameId, GameFootprint
 
 impl LocalDirectory {
     pub fn handle_voted_games_response(&mut self, response: VotedGamesResponse) {
-        let query = "INSERT OR REPLACE INTO game_footprint(vote) VALUES ? WHERE game_id = ?;";
+        let query = "INSERT OR REPLACE INTO game_footprint(game_id, vote) VALUES (?, ?);";
 
         for game in response.voted_games {
             self.db
-                .execute(query, (game.vote_value as i32, game.game_id))
+                .execute(query, (game.game_id, game.vote_value as i32))
                 .unwrap();
         }
 
@@ -82,11 +83,11 @@ impl LocalDirectory {
 
     pub fn handle_editable_games_response(&mut self, response: EditableGamesResponse) {
         let query =
-            "INSERT OR REPLACE INTO game_footprint(permission_level) VALUES ? WHERE game_id = ?;";
+            "INSERT OR REPLACE INTO game_footprint(game_id, permission_level) VALUES (?, ?)";
 
         for game in response.editable_games {
             self.db
-                .execute(query, (game.permission_level as i32, game.game_id))
+                .execute(query, (game.game_id, game.permission_level as i32))
                 .unwrap();
         }
 
