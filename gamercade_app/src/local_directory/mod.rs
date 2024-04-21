@@ -4,6 +4,7 @@ use nohash_hasher::{IntMap, NoHashHasher};
 use rusqlite::{types::FromSql, Connection, Row, Statement};
 
 mod game;
+mod game_footprint;
 mod permission_level;
 mod tag;
 mod user;
@@ -14,13 +15,17 @@ pub use permission_level::{PermissionLevel, PermissionLevelId};
 pub use tag::{Tag, TagId};
 pub use user::{User, UserId};
 
-use self::game::upsert_games_table;
+use self::{
+    game::{upsert_games_table, GameId},
+    game_footprint::GameFootprint,
+};
 
 const LOCAL_DB_PATH: &str = "./local.db";
 
 type TagDictionary = Dictionary<TagId, Tag>;
 type UserDictionary = Dictionary<UserId, User>;
 type PermissionLevelDictionary = Dictionary<PermissionLevelId, PermissionLevel>;
+type GameFootprintDictionary = Dictionary<GameId, GameFootprint>;
 
 pub struct LocalDirectory {
     db: Connection,
@@ -30,6 +35,7 @@ pub struct LocalDirectory {
     pub users: UserDictionary,
     pub permission_levels: PermissionLevelDictionary,
     // TODO: Add Images
+    pub game_footprint: GameFootprintDictionary,
 }
 
 #[derive(Default)]
@@ -161,6 +167,7 @@ impl Default for LocalDirectory {
             tags: TagDictionary::new(&db),
             users: UserDictionary::new(&db),
             permission_levels: PermissionLevelDictionary::new(&db),
+            game_footprint: GameFootprintDictionary::new(&db),
             db,
             cached_games: Vec::new(),
             cache_dirty: true,

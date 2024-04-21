@@ -9,6 +9,7 @@ service GameService {
     rpc GetMultipleGamesInfo(MultipleGamesRequest) returns (MultipleGamesInfoResponse);
     rpc GetGameDetailedInfo(SingleGameRequest) returns (GameInfoDetailed);
 
+    rpc GetEditableGames(common.Empty) returns (MultipleGamesInfoResponse);
     rpc CreateGame(UpdateGameRequest) returns (GameInfoBasic);
     rpc UpdateGame(UpdateGameRequest) returns (GameInfoBasic);
     rpc DeleteGame(SingleGameRequest) returns (common.Empty);

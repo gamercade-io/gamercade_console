@@ -1,7 +1,25 @@
 use gamercade_interface::game::GameInfoBasic;
-use rusqlite::Connection;
+use nohash_hasher::IsEnabled;
+use rusqlite::{types::FromSql, Connection};
 
 use super::LocalDirectory;
+
+#[derive(Eq, PartialEq, Debug, Default)]
+pub struct GameId(pub i64);
+
+impl std::hash::Hash for GameId {
+    fn hash<H: std::hash::Hasher>(&self, hasher: &mut H) {
+        hasher.write_i64(self.0)
+    }
+}
+
+impl IsEnabled for GameId {}
+
+impl FromSql for GameId {
+    fn column_result(value: rusqlite::types::ValueRef<'_>) -> rusqlite::types::FromSqlResult<Self> {
+        value.as_i64().map(|num| Self(num as i64))
+    }
+}
 
 pub struct Game {
     pub id: i64,
@@ -10,6 +28,8 @@ pub struct Game {
     pub long_description: Option<String>,
     pub tags: Vec<i32>,
     pub rating: f32,
+    pub file_checksum: Option<i64>,
+    pub rom_size: Option<i64>,
 }
 
 const UPSERT_GAMES_QUERIES: &str = "
@@ -21,6 +41,7 @@ CREATE TABLE IF NOT EXISTS games (
     tags BLOB,
     rating REAL,
     file_checksum INTEGER,
+    rom_size INTEGER,
     UNIQUE(title)
 ) STRICT;
 ";
@@ -37,9 +58,9 @@ impl LocalDirectory {
             .map(|tag| u8::try_from(tag).unwrap())
             .collect::<Vec<_>>();
 
-        self.db.execute("INSERT OR REPLACE INTO games (id, title, short_description, file_checksum, rating, tags)
-        VALUES (?, ?, ?, ?, ?, ?);",
-        (game.game_id, game.title, game.short_description, game.checksum, game.average_rating, tag_bytes)).unwrap();
+        self.db.execute("INSERT OR REPLACE INTO games (id, title, short_description, file_checksum, rom_size, rating, tags)
+        VALUES (?, ?, ?, ?, ?, ?, ?);",
+        (game.game_id, game.title, game.short_description, game.checksum, game.rom_size, game.average_rating, tag_bytes)).unwrap();
 
         self.cache_dirty = true;
     }
@@ -63,8 +84,10 @@ impl LocalDirectory {
                     title: row.get(1)?,
                     short_description: row.get(2)?,
                     long_description: row.get(3)?,
-                    tags: tags,
+                    tags,
                     rating: row.get(5)?,
+                    file_checksum: row.get(6)?,
+                    rom_size: row.get(7)?,
                 })
             })
             .unwrap()

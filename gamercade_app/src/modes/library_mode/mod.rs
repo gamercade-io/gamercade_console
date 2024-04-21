@@ -2,7 +2,11 @@ use std::process::Command;
 
 use eframe::egui;
 
-use crate::{app::AppDrawContext, game_rom_path};
+use crate::{
+    app::AppDrawContext,
+    game_rom_path,
+    local_directory::{IsDictionary, TagId},
+};
 
 #[derive(Default)]
 pub struct LibraryModeView {}
@@ -10,6 +14,9 @@ pub struct LibraryModeView {}
 impl LibraryModeView {
     pub fn draw(&mut self, context: &mut AppDrawContext) {
         let AppDrawContext { ui, directory, .. } = context;
+
+        let tag_directory = directory.tags.get_map();
+
         ui.label("Library Mode");
 
         egui::Grid::new("game_grid")
@@ -17,20 +24,38 @@ impl LibraryModeView {
             .spacing([40.0, 4.0])
             .striped(true)
             .show(ui, |ui| {
-                // Title, Short Description
+                // Title, Size, Short Description, Tags
                 ui.label("Title");
+                ui.label("Size (mb)");
                 ui.label("Short Description");
+                ui.label("Tags");
                 ui.end_row();
 
                 for game in directory.iter_games() {
                     ui.label(&game.title);
                     ui.label(&game.short_description);
+
+                    let rom_size_text = if let Some(rom_size) = game.rom_size {
+                        let rom_size = rom_size as f32 / (1024.0 * 1024.0);
+                        format!("{rom_size}")
+                    } else {
+                        String::new()
+                    };
+
+                    ui.label(rom_size_text);
+
+                    let tags = game
+                        .tags
+                        .iter()
+                        .flat_map(|tag| tag_directory.get(&TagId(*tag)).map(|tag| tag.0.clone()))
+                        .collect::<Vec<_>>()
+                        .join(",");
+                    ui.label(tags);
+
                     if ui.button("Play").clicked() {
                         println!("Play: {} ({})", game.title, game.id);
 
                         let mut command = Command::new("gccl");
-
-                        // TODO: Fix paths
 
                         command
                             .arg("console")
