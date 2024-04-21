@@ -23,6 +23,10 @@ pub const REVIEW_COMMENTS_MAX_LENGTH: usize = 1027;
 pub const SESSION_METADATA_KEY: &str = "gc-session-bin";
 pub const URL_RADIX: usize = 16;
 
+pub const IMAGE_MAX_SIZE_BYTES: usize = 1024 * 1024 * 3; // 3mb
+pub const IMAGE_MAX_WIDTH: usize = 300;
+pub const IMAGE_MAX_HEIGHT: usize = 300;
+
 #[derive(Debug, Clone)]
 pub struct Session([u8; 16]);
 
