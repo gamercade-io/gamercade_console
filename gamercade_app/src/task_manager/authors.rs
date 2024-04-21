@@ -46,7 +46,7 @@ impl TaskRequest<AuthorManagerState> for AuthorRequest {
                     .drain(..)
                     .map(|level| {
                         (
-                            PermissionLevelId(level.id as usize),
+                            PermissionLevelId(level.id),
                             PermissionLevel {
                                 name: level.level_name,
                             },

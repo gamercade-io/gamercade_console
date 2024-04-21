@@ -1,9 +1,18 @@
+use nohash_hasher::IsEnabled;
 use rusqlite::{types::FromSql, ToSql};
 
 use super::{Dictionary, DictionaryTrait};
 
-#[derive(Hash, Eq, PartialEq, Debug, Default)]
-pub struct UserId(pub u64);
+#[derive(Eq, PartialEq, Debug, Default)]
+pub struct UserId(pub i64);
+
+impl std::hash::Hash for UserId {
+    fn hash<H: std::hash::Hasher>(&self, hasher: &mut H) {
+        hasher.write_i64(self.0)
+    }
+}
+
+impl IsEnabled for UserId {}
 
 #[derive(Default, Debug)]
 pub struct User {
@@ -24,7 +33,7 @@ impl From<&rusqlite::Row<'_>> for User {
 
 impl FromSql for UserId {
     fn column_result(value: rusqlite::types::ValueRef<'_>) -> rusqlite::types::FromSqlResult<Self> {
-        value.as_i64().map(|num| Self(num as u64))
+        value.as_i64().map(|num| Self(num))
     }
 }
 

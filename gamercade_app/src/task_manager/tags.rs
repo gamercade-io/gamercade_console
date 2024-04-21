@@ -44,7 +44,7 @@ impl TaskRequest<TagManagerState> for TagRequest {
                 let tags = response
                     .tags
                     .drain(..)
-                    .map(|tag| (TagId(tag.pid as usize), Tag(tag.name)))
+                    .map(|tag| (TagId(tag.pid), Tag(tag.name)))
                     .collect();
                 let message = TaskNotification::GlobalTags(tags);
                 notification_tx.send(message).await.unwrap();

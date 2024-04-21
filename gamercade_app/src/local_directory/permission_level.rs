@@ -1,9 +1,18 @@
+use nohash_hasher::IsEnabled;
 use rusqlite::types::FromSql;
 
 use super::{Dictionary, DictionaryTrait};
 
-#[derive(Hash, Eq, PartialEq, Debug, Default)]
-pub struct PermissionLevelId(pub usize);
+#[derive(Eq, PartialEq, Debug, Default)]
+pub struct PermissionLevelId(pub i32);
+
+impl std::hash::Hash for PermissionLevelId {
+    fn hash<H: std::hash::Hasher>(&self, hasher: &mut H) {
+        hasher.write_i32(self.0)
+    }
+}
+
+impl IsEnabled for PermissionLevelId {}
 
 #[derive(Default, Debug)]
 pub struct PermissionLevel {
@@ -20,7 +29,7 @@ impl From<&rusqlite::Row<'_>> for PermissionLevel {
 
 impl FromSql for PermissionLevelId {
     fn column_result(value: rusqlite::types::ValueRef<'_>) -> rusqlite::types::FromSqlResult<Self> {
-        value.as_i64().map(|num| Self(num as usize))
+        value.as_i64().map(|num| Self(num as i32))
     }
 }
 

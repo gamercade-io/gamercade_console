@@ -1,6 +1,6 @@
-use std::hash::Hash;
+use std::hash::{BuildHasher, BuildHasherDefault, Hash};
 
-use hashbrown::HashMap;
+use nohash_hasher::{IntMap, NoHashHasher};
 use rusqlite::{types::FromSql, Connection, Row, Statement};
 
 mod game;
@@ -34,7 +34,7 @@ pub struct LocalDirectory {
 
 #[derive(Default)]
 pub struct Dictionary<Key, Value> {
-    map: HashMap<Key, Value>,
+    map: IntMap<Key, Value>,
 }
 
 impl LocalDirectory {
@@ -90,6 +90,7 @@ trait DictionaryTrait<K, V> {
         Self: Sized + Default + IsDictionary<K, V>,
         K: Hash + Eq + FromSql,
         V: for<'a> From<&'a Row<'a>>,
+        BuildHasherDefault<NoHashHasher<K>>: BuildHasher,
     {
         let mut output = Self::default();
 
@@ -103,6 +104,7 @@ trait DictionaryTrait<K, V> {
         Self: IsDictionary<K, V>,
         K: Hash + Eq + FromSql,
         V: for<'a> From<&'a Row<'a>>,
+        BuildHasherDefault<NoHashHasher<K>>: BuildHasher,
     {
         self.get_map_mut().clear();
 
@@ -137,16 +139,16 @@ trait DictionaryTrait<K, V> {
 }
 
 pub trait IsDictionary<K, V> {
-    fn get_map(&self) -> &HashMap<K, V>;
-    fn get_map_mut(&mut self) -> &mut HashMap<K, V>;
+    fn get_map(&self) -> &IntMap<K, V>;
+    fn get_map_mut(&mut self) -> &mut IntMap<K, V>;
 }
 
 impl<K, V> IsDictionary<K, V> for Dictionary<K, V> {
-    fn get_map_mut(&mut self) -> &mut HashMap<K, V> {
+    fn get_map_mut(&mut self) -> &mut IntMap<K, V> {
         &mut self.map
     }
 
-    fn get_map(&self) -> &HashMap<K, V> {
+    fn get_map(&self) -> &IntMap<K, V> {
         &self.map
     }
 }
