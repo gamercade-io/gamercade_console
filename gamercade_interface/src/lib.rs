@@ -27,6 +27,9 @@ pub const IMAGE_MAX_SIZE_BYTES: usize = 1024 * 1024 * 3; // 3mb
 pub const IMAGE_MAX_WIDTH: usize = 300;
 pub const IMAGE_MAX_HEIGHT: usize = 300;
 
+// Checksum Calculator
+pub const CRC: crc::Crc<u64> = crc::Crc::<u64>::new(&crc::CRC_64_XZ);
+
 #[derive(Debug, Clone)]
 pub struct Session([u8; 16]);
 

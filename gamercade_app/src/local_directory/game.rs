@@ -65,6 +65,17 @@ impl LocalDirectory {
         self.cache_dirty = true;
     }
 
+    pub fn update_game_rom(&mut self, game_id: i64, checksum: i64, rom_size: i32) {
+        self.db
+            .execute(
+                "UPDATE games SET (file_checksum, rom_size) VALUES (?, ?) WHERE game_id = ?;",
+                (checksum, rom_size, game_id),
+            )
+            .unwrap();
+
+        self.cache_dirty = true;
+    }
+
     pub fn iter_games(&self) -> GameIter<'_> {
         GameIter::new(&self.cached_games)
     }

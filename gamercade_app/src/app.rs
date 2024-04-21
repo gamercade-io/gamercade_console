@@ -1,5 +1,5 @@
 use eframe::egui::{self, Ui};
-use gamercade_interface::platform::FrontPageRequest;
+use gamercade_interface::{platform::FrontPageRequest, CRC};
 
 use crate::{
     local_directory::LocalDirectory,
@@ -92,10 +92,10 @@ impl App {
                 }
                 TaskNotification::LoginFailed => self.modes.arcade.logged_out(),
                 TaskNotification::DownloadRomComplete(complete) => {
-                    // TODO: Calculate Checksum
-                    // Calculate file size
-                    // Write data to DB
-                    println!("TODO: Release download complete")
+                    let checksum = CRC.checksum(&complete.data);
+                    let len = complete.data.len();
+                    self.directory
+                        .update_game_rom(complete.game_id, checksum as i64, len as i32);
                 }
                 TaskNotification::PlatformResponse(response) => {
                     self.handle_platform_response(response)
@@ -113,12 +113,10 @@ impl App {
 
             PlatformResponse::EditableGames(editable_games_response) => self
                 .directory
-                .game_footprint
                 .handle_editable_games_response(editable_games_response),
 
             PlatformResponse::VotedGames(voted_games_response) => self
                 .directory
-                .game_footprint
                 .handle_voted_games_response(voted_games_response),
 
             PlatformResponse::Search(mut search_response) => search_response
