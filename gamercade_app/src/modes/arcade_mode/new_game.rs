@@ -11,6 +11,10 @@ pub struct NewGameView {
 }
 
 impl NewGameView {
+    pub fn reset(&mut self) {
+        *self = Self::default()
+    }
+
     pub fn draw(&mut self, context: &mut AppDrawContext) -> bool {
         let mut done = false;
         let ui = &mut context.ui;

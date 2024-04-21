@@ -55,12 +55,10 @@ impl CreatorDashboardView {
     fn draw_main_view(&mut self, context: &mut AppDrawContext) {
         let ui = &mut context.ui;
 
-        if ui.button("PRINT FOOTPRINT").clicked() {
-            println!("{:?}", context.directory.game_footprint.get_map());
-        }
-
+        // TODO: Add Images
+        // TODO: Add Tags
         egui::Grid::new("editable_grid")
-            .num_columns(3)
+            .num_columns(5)
             .spacing([40.0, 4.0])
             .striped(true)
             .show(ui, |ui| {
@@ -69,6 +67,8 @@ impl CreatorDashboardView {
 
                 ui.label("Title");
                 ui.label("Rom Details");
+                ui.label("Short Description");
+                ui.label("Long Description");
                 ui.label("Manage");
                 ui.end_row();
 
@@ -99,6 +99,10 @@ impl CreatorDashboardView {
                         };
                     ui.label(rom_exists);
 
+                    ui.label(&game.short_description);
+
+                    ui.label(game.long_description.as_ref().unwrap_or(&String::default()));
+
                     if ui.button("Manage Game").clicked() {
                         self.manage_game_view = ManageGameView::new(game);
                         self.view = DashboardView::ManageGameView;
@@ -111,6 +115,7 @@ impl CreatorDashboardView {
         ui.separator();
         if ui.button("Create New Game").clicked() {
             self.view = DashboardView::NewGameView;
+            self.new_game_view.reset();
         }
     }
 }

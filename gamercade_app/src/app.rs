@@ -1,5 +1,5 @@
 use eframe::egui::{self, Ui};
-use gamercade_interface::{platform::FrontPageRequest, CRC};
+use gamercade_interface::CRC;
 
 use crate::{
     local_directory::LocalDirectory,
@@ -42,14 +42,6 @@ impl eframe::App for App {
         self.directory.sync_games_cache();
 
         egui::CentralPanel::default().show(ctx, |ui| {
-            if ui.button("Front Page").clicked() {
-                self.tasks
-                    .platform
-                    .send(crate::task_manager::PlatformRequest::FrontPage(
-                        FrontPageRequest {},
-                    ))
-            }
-
             ui.horizontal(|ui| {
                 ui.selectable_value(&mut self.active_mode, AppMode::Arcade, "Arcade");
                 ui.selectable_value(&mut self.active_mode, AppMode::Library, "Library");
@@ -129,7 +121,15 @@ impl App {
                 }
             }
             GameResponse::UpdateGame(result) => {
-                // TODO: Something here?
+                self.modes
+                    .arcade
+                    .online
+                    .dashboard
+                    .new_game_view
+                    .awaiting_game = false;
+
+                self.modes.arcade.online.dashboard.main_view();
+
                 match result {
                     Ok(game_info) => update = Some(game_info),
                     Err(e) => println!("Update Game Error: {e}"),
@@ -182,6 +182,9 @@ impl App {
                     .dashboard
                     .manage_game_view
                     .awaiting_upload = false;
+
+                // TODO: Could add the game to the local directory
+
                 if let Err(e) = result {
                     println!("Upload error {e}")
                 }

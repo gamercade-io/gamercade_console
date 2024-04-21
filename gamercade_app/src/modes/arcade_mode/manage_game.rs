@@ -1,6 +1,12 @@
+use gamercade_interface::game::UpdateGameRequest;
 use rfd::FileDialog;
 
-use crate::{app::AppDrawContext, local_directory::Game, task_manager::UploadRom};
+use crate::{
+    app::AppDrawContext,
+    local_directory::Game,
+    task_manager::{GameRequest, UploadRom},
+    urls::WithSession,
+};
 
 #[derive(Default)]
 pub struct ManageGameView {
@@ -58,12 +64,27 @@ impl ManageGameView {
                             bytes,
                         },
                         &context.auth_state.get_session().unwrap(),
-                    )
+                    );
+
+                    self.awaiting_upload = true;
                 }
             }
 
             if ui.button("Update Game").clicked() {
-                // TODO: This
+                context
+                    .task_manager
+                    .game
+                    .send(GameRequest::UpdateGame(WithSession::new(
+                        &context.auth_state.get_session().unwrap(),
+                        UpdateGameRequest {
+                            game_id: Some(self.game_id),
+                            title: Some(self.title.clone()),
+                            short_description: Some(self.short_description.clone()),
+                            long_description: Some(self.long_description.clone()),
+                        },
+                    )));
+
+                self.awaiting_upload = true;
             }
         });
 

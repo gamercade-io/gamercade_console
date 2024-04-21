@@ -11,30 +11,12 @@ pub struct OnlineView {
 }
 
 #[derive(Default)]
-pub struct ArcadeView {
-    game_id: String,
-}
+pub struct ArcadeView {}
 
 impl ArcadeView {
     fn draw(&mut self, context: &mut AppDrawContext) {
         let ui = &mut context.ui;
-        ui.horizontal(|ui| {
-            ui.label("Game Id: ");
-            ui.text_edit_singleline(&mut self.game_id);
-
-            if ui.button("Download Game").clicked() {
-                let game_id = self.game_id.parse();
-
-                if let Ok(game_id) = game_id {
-                    context
-                        .task_manager
-                        .rom
-                        .try_download_rom(game_id, &context.auth_state.get_session().unwrap());
-                } else {
-                    self.game_id = String::new();
-                }
-            }
-        });
+        ui.horizontal(|ui| {});
     }
 }
 
