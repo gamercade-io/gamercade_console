@@ -4,7 +4,7 @@ use crate::{app::AppDrawContext, local_directory::Game, task_manager::UploadRom}
 
 #[derive(Default)]
 pub struct ManageGameView {
-    awaiting_upload: bool,
+    pub awaiting_upload: bool,
     game_id: i64,
     title: String,
     short_description: String,
@@ -61,12 +61,15 @@ impl ManageGameView {
             }
         }
 
-        if self.awaiting_upload {
-            ui.spinner();
-        }
+        // TODO: Add delete game
+        ui.set_enabled(true);
 
         if ui.button("Go Back").clicked() {
             done = true;
+        }
+
+        if self.awaiting_upload {
+            ui.spinner();
         }
 
         done

@@ -5,7 +5,7 @@ use crate::{
     local_directory::LocalDirectory,
     modes::{AppMode, ArcadeModeView, LibraryModeView, SettingsModeView},
     task_manager::{
-        AuthState, GameResponse, PlatformRequest, PlatformResponse, SuperTaskManager,
+        AuthState, GameResponse, HttpResponse, PlatformRequest, PlatformResponse, SuperTaskManager,
         TaskNotification,
     },
 };
@@ -97,16 +97,11 @@ impl App {
                     }
                 }
                 TaskNotification::LoginFailed => self.modes.arcade.logged_out(),
-                TaskNotification::DownloadRomComplete(complete) => {
-                    let checksum = CRC.checksum(&complete.data);
-                    let len = complete.data.len();
-                    self.directory
-                        .update_game_rom(complete.game_id, checksum as i64, len as i32);
-                }
                 TaskNotification::PlatformResponse(response) => {
                     self.handle_platform_response(response)
                 }
                 TaskNotification::GameResponse(response) => self.handle_game_response(response),
+                TaskNotification::HttpResponse(response) => self.handle_http_response(response),
             }
         }
     }
@@ -160,6 +155,28 @@ impl App {
                 .games_info
                 .drain(..)
                 .for_each(|game| self.directory.update_game(game)),
+        }
+    }
+
+    fn handle_http_response(&mut self, response: HttpResponse) {
+        match response {
+            HttpResponse::DownloadComplete(complete) => {
+                let checksum = CRC.checksum(&complete.data);
+                let len = complete.data.len();
+                self.directory
+                    .update_game_rom(complete.game_id, checksum as i64, len as i32);
+            }
+            HttpResponse::Upload(result) => {
+                self.modes
+                    .arcade
+                    .online
+                    .dashboard
+                    .manage_game_view
+                    .awaiting_upload = false;
+                if let Err(e) = result {
+                    println!("Upload error {e}")
+                }
+            }
         }
     }
 }

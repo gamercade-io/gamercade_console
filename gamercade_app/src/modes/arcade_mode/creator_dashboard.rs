@@ -1,12 +1,9 @@
 use eframe::egui;
-use gamercade_interface::{game::UpdateGameRequest, PERMISSION_LEVEL_EDITOR};
-use rfd::FileDialog;
+use gamercade_interface::PERMISSION_LEVEL_EDITOR;
 
 use crate::{
     app::AppDrawContext,
     local_directory::{GameId, IsDictionary},
-    task_manager::{GameRequest, UploadRom},
-    urls::WithSession,
 };
 
 use super::{manage_game::ManageGameView, new_game::NewGameView};
@@ -49,17 +46,6 @@ impl CreatorDashboardView {
                 }
             }
         }
-
-        // ui.separator();
-
-        // ui.label("Game Id:");
-        // ui.text_edit_singleline(&mut self.game_id);
-
-        // if ui.button("Manage Game").clicked() {
-        //     println!("TODO!");
-        // }
-
-        // let game_id = self.game_id.parse();
     }
 
     fn draw_main_view(&mut self, context: &mut AppDrawContext) {

@@ -1,11 +1,10 @@
-use gamercade_interface::platform::FrontPageResponse;
 use tokio::sync::mpsc::{channel, Receiver};
 
 use crate::local_directory::{PermissionLevel, PermissionLevelId, Tag, TagId};
 
 use super::{
-    AuthManager, AuthState, AuthorManager, GameManager, GameResponse, HttpManager, PlatformManager,
-    PlatformResponse, TagManager, SUPER_TASK_CHANNEL_SIZE,
+    AuthManager, AuthState, AuthorManager, GameManager, GameResponse, HttpManager, HttpResponse,
+    PlatformManager, PlatformResponse, TagManager, SUPER_TASK_CHANNEL_SIZE,
 };
 
 #[derive(Debug)]
@@ -14,13 +13,15 @@ pub enum TaskNotification {
     GlobalPermissionLevels(Vec<(PermissionLevelId, PermissionLevel)>),
     AuthStateChanged(AuthState),
     LoginFailed,
-    DownloadRomComplete(DownloadRomComplete),
 
     // Game
     GameResponse(GameResponse),
 
     // Platform
     PlatformResponse(PlatformResponse),
+
+    // Http
+    HttpResponse(HttpResponse),
 }
 
 #[derive(Debug)]

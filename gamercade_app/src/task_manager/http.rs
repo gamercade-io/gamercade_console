@@ -45,6 +45,12 @@ pub enum HttpRequest {
 }
 
 #[derive(Debug)]
+pub enum HttpResponse {
+    DownloadComplete(DownloadRomComplete),
+    Upload(Result<(), String>),
+}
+
+#[derive(Debug)]
 pub struct DownloadRom {
     pub game_id: i64,
 }
@@ -76,12 +82,18 @@ impl TaskRequest<HttpManagerState> for HttpRequest {
                     .send()
                     .await
                 {
-                    Ok(response) => {
-                        let status = response.status();
-                        let body = response.text().await;
-                        println!("Upload rom response ({status}): {body:?}");
+                    Ok(_) => {
+                        sender
+                            .send(TaskNotification::HttpResponse(HttpResponse::Upload(Ok(()))))
+                            .await
+                            .unwrap();
                     }
-                    Err(err) => println!("Upload rom Error: {err}"),
+                    Err(err) => sender
+                        .send(TaskNotification::HttpResponse(HttpResponse::Upload(Err(
+                            err.to_string(),
+                        ))))
+                        .await
+                        .unwrap(),
                 }
             }
         }
@@ -138,11 +150,11 @@ fn download_file(sender: Sender<TaskNotification>, request: WithSession<Download
 
                                     // Notify the main thread that the download is done
                                     sender
-                                        .send(TaskNotification::DownloadRomComplete(
-                                            DownloadRomComplete {
+                                        .send(TaskNotification::HttpResponse(
+                                            HttpResponse::DownloadComplete(DownloadRomComplete {
                                                 game_id: request.game_id,
                                                 data: buffer,
-                                            },
+                                            }),
                                         ))
                                         .await
                                         .unwrap();
