@@ -70,6 +70,10 @@ impl LocalDirectory {
     }
 
     pub fn sync_games_cache(&mut self) {
+        if !self.cache_dirty {
+            return;
+        }
+
         let mut query = self.db.prepare("SELECT * FROM games;").unwrap();
 
         self.cached_games = query

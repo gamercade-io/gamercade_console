@@ -1,15 +1,17 @@
 use std::sync::Arc;
 
 use gamercade_interface::{
+    common::Empty,
+    game::MultipleGamesInfoResponse,
     platform::{
-        platform_service_client::PlatformServiceClient, FrontPageRequest, GameSearchRequest,
+        platform_service_client::PlatformServiceClient, EditableGamesResponse, FrontPageRequest,
+        FrontPageResponse, GameSearchRequest, VotedGamesResponse,
     },
-    Session,
 };
 use tokio::sync::{mpsc::Sender, Mutex, OnceCell};
-use tonic::{transport::Channel, Request};
+use tonic::transport::Channel;
 
-use crate::urls::{WithSession, SERVICE_IP_GRPC};
+use crate::urls::SERVICE_IP_GRPC;
 
 use super::{TaskManager, TaskNotification, TaskRequest};
 
@@ -30,6 +32,16 @@ pub struct PlatformManagerState {
 pub enum PlatformRequest {
     FrontPage(FrontPageRequest),
     Search(GameSearchRequest),
+    EditableGames,
+    VotedGames,
+}
+
+#[derive(Debug)]
+pub enum PlatformResponse {
+    FrontPage(FrontPageResponse),
+    EditableGames(EditableGamesResponse),
+    VotedGames(VotedGamesResponse),
+    Search(MultipleGamesInfoResponse),
 }
 
 impl TaskRequest<PlatformManagerState> for PlatformRequest {
@@ -45,11 +57,39 @@ impl TaskRequest<PlatformManagerState> for PlatformRequest {
         match self {
             PlatformRequest::FrontPage(request) => match client.front_page(request).await {
                 Ok(response) => sender
-                    .try_send(TaskNotification::FrontPageResponse(response.into_inner()))
+                    .try_send(TaskNotification::PlatformResponse(
+                        PlatformResponse::FrontPage(response.into_inner()),
+                    ))
                     .unwrap(),
                 Err(err) => println!("front page response err: {err}"),
             },
-            PlatformRequest::Search(request) => todo!(),
+            PlatformRequest::Search(request) => match client.game_search(request).await {
+                Ok(response) => sender
+                    .send(TaskNotification::PlatformResponse(
+                        PlatformResponse::Search(response.into_inner()),
+                    ))
+                    .await
+                    .unwrap(),
+                Err(err) => println!("search response err: {err}"),
+            },
+            PlatformRequest::EditableGames => match client.get_editable_games(Empty {}).await {
+                Ok(response) => sender
+                    .send(TaskNotification::PlatformResponse(
+                        PlatformResponse::EditableGames(response.into_inner()),
+                    ))
+                    .await
+                    .unwrap(),
+                Err(err) => println!("editable games response err: {err}"),
+            },
+            PlatformRequest::VotedGames => match client.get_voted_games(Empty {}).await {
+                Ok(response) => sender
+                    .send(TaskNotification::PlatformResponse(
+                        PlatformResponse::VotedGames(response.into_inner()),
+                    ))
+                    .await
+                    .unwrap(),
+                Err(err) => println!("voted games response err: {err}"),
+            },
         }
     }
 }

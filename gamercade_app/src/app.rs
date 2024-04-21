@@ -4,7 +4,7 @@ use gamercade_interface::platform::FrontPageRequest;
 use crate::{
     local_directory::LocalDirectory,
     modes::{AppMode, ArcadeActiveView, ArcadeModeView, LibraryModeView, SettingsModeView},
-    task_manager::{AuthState, SuperTaskManager, TaskNotification},
+    task_manager::{AuthState, PlatformResponse, SuperTaskManager, TaskNotification},
 };
 
 #[derive(Default)]
@@ -36,12 +36,9 @@ impl eframe::App for App {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         self.handle_notifications();
 
-        egui::CentralPanel::default().show(ctx, |ui| {
-            // TODO: Remove this and fetch tags / Author Levels automatically
-            // if ui.button("Fetch Tags").clicked() {
-            //     self.tasks.tags.send_request(TagRequest::Initialize)
-            // }
+        self.directory.sync_games_cache();
 
+        egui::CentralPanel::default().show(ctx, |ui| {
             if ui.button("Front Page").clicked() {
                 self.tasks
                     .platform
@@ -97,11 +94,25 @@ impl App {
                 TaskNotification::DownloadRomComplete(complete) => {
                     println!("TODO: Release download complete")
                 }
-                TaskNotification::FrontPageResponse(mut front_page_response) => front_page_response
-                    .games
-                    .drain(..)
-                    .for_each(|game| self.directory.update_game(game)),
+                TaskNotification::PlatformResponse(response) => {
+                    self.handle_platform_response(response)
+                }
             }
+        }
+    }
+
+    fn handle_platform_response(&mut self, response: PlatformResponse) {
+        match response {
+            PlatformResponse::FrontPage(mut front_page_response) => front_page_response
+                .games
+                .drain(..)
+                .for_each(|game| self.directory.update_game(game)),
+
+            PlatformResponse::EditableGames(editable_games_response) => {}
+
+            PlatformResponse::VotedGames(voted_games_response) => {}
+
+            PlatformResponse::Search(search_response) => {}
         }
     }
 }
