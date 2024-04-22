@@ -17,7 +17,7 @@ impl IsEnabled for GameId {}
 
 impl FromSql for GameId {
     fn column_result(value: rusqlite::types::ValueRef<'_>) -> rusqlite::types::FromSqlResult<Self> {
-        value.as_i64().map(|num| Self(num as i64))
+        value.as_i64().map(Self)
     }
 }
 

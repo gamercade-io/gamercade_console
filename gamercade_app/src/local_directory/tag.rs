@@ -47,6 +47,6 @@ impl DictionaryTrait<TagId, Tag> for Dictionary<TagId, Tag> {
     }
 
     fn insert_statement(statement: &mut rusqlite::Statement, (key, value): &(TagId, Tag)) {
-        statement.execute((key.0 as i32, value.0.clone())).unwrap();
+        statement.execute((key.0, value.0.clone())).unwrap();
     }
 }

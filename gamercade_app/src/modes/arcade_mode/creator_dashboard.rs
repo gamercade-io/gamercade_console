@@ -95,7 +95,7 @@ impl CreatorDashboardView {
                             let size = size as f32 / (1024.0 * 1024.0);
                             format!("{size}mb")
                         } else {
-                            format!("N/A")
+                            "N/A".to_string()
                         };
                     ui.label(rom_exists);
 

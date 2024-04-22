@@ -155,7 +155,7 @@ impl Gui {
 
                 ui.separator();
                 let mem_mb = perf.memory_usage as f32 / (1024 * 1024) as f32;
-                let mem_kb = perf.memory_usage as f32 / 1024 as f32;
+                let mem_kb = perf.memory_usage as f32 / 1024.0;
                 let mem_b = perf.memory_usage;
                 ui.label("Memory Usage:");
                 ui.label(format!("{mem_mb}mb, {mem_kb}kb, {mem_b}b"));

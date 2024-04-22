@@ -33,7 +33,7 @@ impl From<&rusqlite::Row<'_>> for User {
 
 impl FromSql for UserId {
     fn column_result(value: rusqlite::types::ValueRef<'_>) -> rusqlite::types::FromSqlResult<Self> {
-        value.as_i64().map(|num| Self(num))
+        value.as_i64().map(Self)
     }
 }
 

@@ -43,7 +43,7 @@ impl Rom {
 
     pub fn try_load_bytes(bytes: &[u8]) -> Result<Self, String> {
         let reader = zstd::Decoder::new(bytes).map_err(|e| e.to_string())?;
-        Ok(bincode::deserialize_from::<_, Self>(reader).map_err(|e| e.to_string())?)
+        bincode::deserialize_from::<_, Self>(reader).map_err(|e| e.to_string())
     }
 
     pub fn try_load(path: &PathBuf) -> Result<Self, String> {

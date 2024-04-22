@@ -87,7 +87,7 @@ impl LocalDirectory {
 
         for game in response.editable_games {
             self.db
-                .execute(query, (game.game_id, game.permission_level as i32))
+                .execute(query, (game.game_id, game.permission_level))
                 .unwrap();
         }
 

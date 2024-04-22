@@ -25,6 +25,9 @@ async fn main() -> Result<(), eframe::Error> {
     eframe::run_native(
         "Gamercade Platform",
         options,
-        Box::new(|_cc| Box::<app::App>::default()),
+        Box::new(|cc| {
+            egui_extras::install_image_loaders(&cc.egui_ctx);
+            Box::<app::App>::default()
+        }),
     )
 }

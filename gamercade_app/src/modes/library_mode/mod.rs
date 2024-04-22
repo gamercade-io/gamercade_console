@@ -1,6 +1,6 @@
 use std::process::Command;
 
-use eframe::egui;
+use eframe::egui::{self, ImageSource};
 
 use crate::{
     app::AppDrawContext,
@@ -19,62 +19,72 @@ impl LibraryModeView {
 
         ui.label("Library Mode");
 
-        egui::Grid::new("game_grid")
-            .num_columns(5)
-            .spacing([40.0, 4.0])
-            .striped(true)
-            .show(ui, |ui| {
-                // Title, Size, Short Description, Tags
-                ui.label("Title");
-                ui.label("Size (mb)");
-                ui.label("Short Description");
-                ui.label("Tags");
-                ui.end_row();
+        let image_source = egui::include_image!("./../../../default-logo.png");
+        let image = egui::Image::new(image_source).fit_to_exact_size((100.0, 100.0).into());
 
-                for game in directory.iter_games() {
-                    ui.label(&game.title);
+        egui::ScrollArea::vertical().show(ui, |ui| {
+            egui::Grid::new("game_grid")
+                .num_columns(6)
+                .spacing([40.0, 4.0])
+                .striped(true)
+                .show(ui, |ui| {
+                    // Image, Title, Size, Short Description, Tags
+                    ui.label("Game");
+                    ui.label("Title");
+                    ui.label("Size (mb)");
+                    ui.label("Short Description");
+                    ui.label("Tags");
+                    ui.end_row();
 
-                    let rom_size_text = if let Some(rom_size) = game.rom_size {
-                        let rom_size = rom_size as f32 / (1024.0 * 1024.0);
-                        format!("{rom_size}")
-                    } else {
-                        String::new()
-                    };
+                    for game in directory.iter_games() {
+                        ui.add(image.clone());
 
-                    ui.label(rom_size_text);
+                        ui.label(&game.title);
 
-                    ui.label(&game.short_description);
+                        let rom_size_text = if let Some(rom_size) = game.rom_size {
+                            let rom_size = rom_size as f32 / (1024.0 * 1024.0);
+                            format!("{rom_size}")
+                        } else {
+                            String::new()
+                        };
 
-                    let tags = game
-                        .tags
-                        .iter()
-                        .flat_map(|tag| tag_directory.get(&TagId(*tag)).map(|tag| tag.0.clone()))
-                        .collect::<Vec<_>>()
-                        .join(",");
-                    ui.label(tags);
+                        ui.label(rom_size_text);
 
-                    if game.file_checksum.is_some() && game.rom_size.is_some() {
-                        if ui.button("Play").clicked() {
-                            println!("Play: {} ({})", game.title, game.id);
+                        ui.label(&game.short_description);
 
-                            let mut command = Command::new("gccl");
+                        let tags = game
+                            .tags
+                            .iter()
+                            .flat_map(|tag| {
+                                tag_directory.get(&TagId(*tag)).map(|tag| tag.0.clone())
+                            })
+                            .collect::<Vec<_>>()
+                            .join(",");
+                        ui.label(tags);
 
-                            command
-                                .arg("console")
-                                .arg("rom")
-                                .arg(game_rom_path(game.id));
+                        if game.file_checksum.is_some() && game.rom_size.is_some() {
+                            if ui.button("Play").clicked() {
+                                println!("Play: {} ({})", game.title, game.id);
 
-                            println!("command: {command:?}");
+                                let mut command = Command::new("gccl");
 
-                            if let Err(e) = command.spawn() {
-                                println!("Error launching game {e}");
+                                command
+                                    .arg("console")
+                                    .arg("rom")
+                                    .arg(game_rom_path(game.id));
+
+                                println!("command: {command:?}");
+
+                                if let Err(e) = command.spawn() {
+                                    println!("Error launching game {e}");
+                                }
                             }
+                        } else {
+                            ui.label("ROM Missing");
                         }
-                    } else {
-                        ui.label("ROM Missing");
+                        ui.end_row()
                     }
-                    ui.end_row()
-                }
-            });
+                });
+        });
     }
 }

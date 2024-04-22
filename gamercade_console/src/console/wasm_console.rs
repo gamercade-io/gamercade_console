@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use gamercade_sound_engine::{SoundEngine, SoundEngineData, SoundRomInstance};
 use ggrs::GgrsRequest;
-use wasmtime::{Config, Engine, Instance, Linker, Memory, Module, Store, TypedFunc};
+use wasmtime::{Config, Engine, Instance, Linker, Module, Store, TypedFunc};
 use winit::{
     dpi::PhysicalPosition,
     window::{CursorGrabMode, Window},

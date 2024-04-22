@@ -56,8 +56,6 @@ impl DictionaryTrait<PermissionLevelId, PermissionLevel>
         statement: &mut rusqlite::Statement,
         (key, value): &(PermissionLevelId, PermissionLevel),
     ) {
-        statement
-            .execute((key.0 as i32, value.name.clone()))
-            .unwrap();
+        statement.execute((key.0, value.name.clone())).unwrap();
     }
 }
