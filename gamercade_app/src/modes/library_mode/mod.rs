@@ -1,6 +1,6 @@
 use std::process::Command;
 
-use eframe::egui::{self, ImageSource};
+use eframe::egui;
 
 use crate::{
     app::AppDrawContext,

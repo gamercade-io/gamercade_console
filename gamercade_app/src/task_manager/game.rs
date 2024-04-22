@@ -1,11 +1,10 @@
 use std::sync::Arc;
 
-use gamercade_interface::{
-    game::{game_service_client::GameServiceClient, GameInfoBasic, UpdateGameRequest},
-    Session,
+use gamercade_interface::game::{
+    game_service_client::GameServiceClient, GameInfoBasic, UpdateGameRequest,
 };
 use tokio::sync::{mpsc::Sender, Mutex, OnceCell};
-use tonic::{transport::Channel, Request, Response};
+use tonic::{transport::Channel, Response};
 
 use crate::urls::{WithSession, SERVICE_IP_GRPC};
 
