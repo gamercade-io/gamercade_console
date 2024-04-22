@@ -10,7 +10,7 @@ use crate::{
 
 #[derive(Default)]
 pub struct ManageGameView {
-    pub awaiting_upload: bool,
+    pub awaiting_request: bool,
     game_id: i64,
     title: String,
     short_description: String,
@@ -21,7 +21,7 @@ pub struct ManageGameView {
 impl ManageGameView {
     pub fn new(game: &Game) -> Self {
         Self {
-            awaiting_upload: false,
+            awaiting_request: false,
             game_id: game.id,
             title: game.title.clone(),
             short_description: game.short_description.clone(),
@@ -34,7 +34,7 @@ impl ManageGameView {
         let mut done = false;
         let ui = &mut context.ui;
 
-        ui.set_enabled(!self.awaiting_upload);
+        ui.set_enabled(!self.awaiting_request);
 
         ui.label("Manage Game View:");
         ui.separator();
@@ -66,7 +66,7 @@ impl ManageGameView {
                         &context.auth_state.get_session().unwrap(),
                     );
 
-                    self.awaiting_upload = true;
+                    self.awaiting_request = true;
                 }
             }
 
@@ -84,20 +84,20 @@ impl ManageGameView {
                         },
                     )));
 
-                self.awaiting_upload = true;
+                self.awaiting_request = true;
             }
         });
 
         ui.separator();
 
-        // TODO: Add delete game
+        // TODO: Add delete game (via a "are you sure?" confirmation box)
         ui.set_enabled(true);
 
         if ui.button("Go Back").clicked() {
             done = true;
         }
 
-        if self.awaiting_upload {
+        if self.awaiting_request {
             ui.spinner();
         }
 

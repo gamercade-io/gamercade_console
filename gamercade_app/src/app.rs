@@ -192,7 +192,7 @@ impl App {
                     .online
                     .dashboard
                     .manage_game_view
-                    .awaiting_upload = false;
+                    .awaiting_request = false;
 
                 self.modes.arcade.online.dashboard.main_view();
 
