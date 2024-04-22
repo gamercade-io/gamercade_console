@@ -79,6 +79,8 @@ impl App {
                 TaskNotification::AuthStateChanged(new_state) => {
                     self.auth_state = new_state;
 
+                    self.modes.arcade.login.waiting = false;
+
                     match &self.auth_state {
                         AuthState::Unauthorized => self.modes.arcade.logged_out(),
                         AuthState::SessionHeld(session) => {
@@ -95,7 +97,10 @@ impl App {
                         }
                     }
                 }
-                TaskNotification::LoginFailed => self.modes.arcade.logged_out(),
+                TaskNotification::LoginFailed => {
+                    self.modes.arcade.login.waiting = false;
+                    self.modes.arcade.logged_out();
+                }
                 TaskNotification::PlatformResponse(response) => {
                     self.handle_platform_response(response)
                 }

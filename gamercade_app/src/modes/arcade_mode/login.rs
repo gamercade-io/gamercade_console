@@ -9,7 +9,7 @@ pub struct LoginView {
     provider: String,
     provider_kind: Provider,
     password: String,
-    waiting: bool,
+    pub waiting: bool,
 }
 
 #[derive(Default, PartialEq, Eq)]
@@ -52,7 +52,6 @@ impl LoginView {
             // TODO: Support email login too
             task_manager.auth.try_login(&self.provider, &self.password);
             self.waiting = true;
-            //TODO: Lock entries while waiting
         }
 
         ui.separator();
