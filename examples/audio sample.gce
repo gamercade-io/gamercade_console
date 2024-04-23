@@ -1,5 +1,8 @@
 {
-  "resolution": "low",
+  "resolution": {
+    "size": "medium",
+    "ratio": "standard"
+  },
   "frame_rate": "normal",
   "player_count": [
     1,

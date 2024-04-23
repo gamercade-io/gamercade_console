@@ -1,5 +1,8 @@
 {
-  "resolution": "veryhigh",
+  "resolution": {
+    "size": "veryhigh",
+    "ratio": "standard"
+  },
   "frame_rate": "normal",
   "player_count": [
     1,
