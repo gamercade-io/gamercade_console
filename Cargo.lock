@@ -2365,7 +2365,7 @@ dependencies = [
  "egui 0.21.0",
  "egui-wgpu 0.21.0",
  "egui-winit 0.21.1",
- "fastrand 1.9.0",
+ "fastrand 2.0.2",
  "gamercade_audio",
  "gamercade_core",
  "gamercade_fs",

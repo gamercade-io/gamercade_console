@@ -16,19 +16,19 @@ impl RandomContext {
 }
 
 impl RandomApi for RandomContext {
-    fn set_seed(&self, seed: i32) {
+    fn set_seed(&mut self, seed: i32) {
         self.shared_rng.seed(seed as u64);
     }
 
-    fn random_int_range(&self, min: i32, max: i32) -> i32 {
+    fn random_int_range(&mut self, min: i32, max: i32) -> i32 {
         self.shared_rng.i32(min..max)
     }
 
-    fn random_float(&self) -> f32 {
+    fn random_float(&mut self) -> f32 {
         self.shared_rng.f32()
     }
 
-    fn random_float_range(&self, min: f32, max: f32) -> f32 {
+    fn random_float_range(&mut self, min: f32, max: f32) -> f32 {
         let range = max - min;
         let scale = self.shared_rng.f32() * max;
         (scale * range) + min

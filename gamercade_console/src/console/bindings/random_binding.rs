@@ -13,8 +13,8 @@ macro_rules! derive_random_api_binding {
                         self.func_wrap(
                             "env",
                             stringify!($ident),
-                            |caller: Caller<'_, Contexts>, $($name: $args,)*| {
-                                caller.data().random_context.$ident($($name,)*)
+                            |mut caller: Caller<'_, Contexts>, $($name: $args,)*| {
+                                caller.data_mut().random_context.$ident($($name,)*)
                         }).unwrap();
                     }
                 )*

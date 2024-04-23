@@ -42,8 +42,8 @@ bytemuck = "1.15.0"
 # Scripting
 wasmtime = "20.0.0"
 
-# Random TODO Update This
-fastrand = "1.9.0"
+# Random
+fastrand = "2.0.2"
 
 # Audio
 cpal = "0.15.3"
