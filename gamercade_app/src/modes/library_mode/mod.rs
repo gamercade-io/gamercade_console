@@ -87,4 +87,16 @@ impl LibraryModeView {
                 });
         });
     }
+
+    pub fn sync_against_fs(&mut self) -> Vec<FsGame> {
+        //TODO: This function
+        // Check against FS for existing .gcroms
+        // If they exist...
+        // 1. ROM is in localDB, do nothing
+        // 2. ROM is not in localDB, fetch the update by ID
+
+        Vec::default()
+    }
 }
+
+pub enum FsGame {}

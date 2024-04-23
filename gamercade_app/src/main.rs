@@ -13,6 +13,10 @@ pub fn game_rom_path(game_id: i64) -> String {
     format!("{GAME_DIR}/{game_id:x}.gcrom")
 }
 
+pub fn game_image_path(game_id: i64) -> String {
+    format!("{GAME_DIR}/{game_id:x}.png")
+}
+
 #[tokio::main]
 async fn main() -> Result<(), eframe::Error> {
     let viewport = ViewportBuilder::default().with_inner_size(egui::vec2(1280.0, 720.0));
