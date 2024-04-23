@@ -2,13 +2,23 @@
 resolver = "2"
 
 members = [
+    "gamercade_app",
     "gamercade_audio",
     "gamercade_cli",
     "gamercade_console",
     "gamercade_core",
     "gamercade_editor",
     "gamercade_fs",
+    "gamercade_interface",
     "gamercade_rs",
     "gamercade_sound_engine",
     "gamercade_tools",
 ]
+
+[profile.release]
+opt-level = 3
+lto = true
+
+[profile.perf]
+inherits = "release"
+debug = true

@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+import "common.proto";
+
+package game;
+
+service GameService {
+    rpc GetSingleGameInfo(SingleGameRequest) returns (GameInfoBasic);
+    rpc GetMultipleGamesInfo(MultipleGamesRequest) returns (MultipleGamesInfoResponse);
+    rpc GetGameDetailedInfo(SingleGameRequest) returns (GameInfoDetailed);
+
+    rpc CreateGame(UpdateGameRequest) returns (GameInfoBasic);
+    rpc UpdateGame(UpdateGameRequest) returns (GameInfoBasic);
+    rpc DeleteGame(SingleGameRequest) returns (common.Empty);
+}
+
+message UpdateGameRequest {
+    optional sfixed64 game_id = 1;
+    optional string title = 2;
+    optional string short_description = 3;
+    optional string long_description = 4;
+}
+
+message SingleGameRequest {
+    sfixed64 game_id = 1;
+}
+
+message MultipleGamesRequest {
+    repeated sfixed64 game_ids = 1;
+}
+
+message MultipleGamesInfoResponse {
+    repeated GameInfoBasic games_info = 1;
+}
+
+message GameInfoBasic {
+    sfixed64 game_id = 1;
+    string title = 2;
+    string short_description = 3;
+    float average_rating = 4;
+    repeated int32 tags = 5;
+    optional sfixed64 checksum = 6;
+    optional int64 rom_size = 7;
+}
+
+message GameInfoDetailed {
+    GameInfoBasic basic_info = 1;
+    optional string long_description = 2;
+    repeated GameAuthor authors = 3;
+}
+
+message GameAuthor {
+    sfixed64 user_id = 1;
+    string title = 2;
+}

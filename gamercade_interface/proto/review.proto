@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+import "common.proto";
+import "game.proto";
+
+package review;
+
+service ReviewService {
+    rpc ReviewGame(ReviewGameRequest) returns (common.Empty);
+}
+
+message ReviewGameRequest {
+    sfixed64 game_id = 1;
+    optional bool rating = 2;
+}

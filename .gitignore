@@ -1,2 +1,4 @@
 /target
 /keyboardInput.json
+*.db
+/roms

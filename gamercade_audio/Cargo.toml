@@ -12,8 +12,9 @@ repository = "https://github.com/gamercade-io/gamercade_audio"
 [dependencies]
 serde = { version = "1.0.163", features = ["derive"] }
 strum = { version = "0.24.1", features = ["derive"] }
-arrayvec = { version = "0.7.2", features = ["serde"] }
-tinystr = "0.7.1"
-rtrb = "0.2.3"
-fastrand = "1.9.0"
-base64 = "0.21.0"
+arrayvec = { version = "0.7.4", features = ["serde"] }
+tinystr = "0.7.5"
+rtrb = "0.3.0"
+fastrand = "2.0.2"
+base64 = "0.22.0"
+bytemuck = "1.15.0"

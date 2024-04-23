@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+import "common.proto";
+
+package tag;
+
+service TagService {
+    rpc AdjustGameTag(AdjustGameTagRequest) returns (AdjustGameTagResponse);
+    rpc GetGlobalTags(common.Empty) returns (GlobalTags);
+}
+
+message AdjustGameTagRequest {
+    sfixed64 game_id = 1;
+    int32 tag_id = 2;
+    bool set_to = 3;
+}
+
+message AdjustGameTagResponse {
+    sfixed64 game_id = 1;
+    repeated Tag tags = 2;
+}
+
+message Tag {
+    int32 pid = 1;
+    string name = 2;
+}
+
+message GlobalTags {
+    repeated Tag tags = 1;
+}

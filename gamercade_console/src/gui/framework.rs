@@ -1,3 +1,8 @@
+use std::{
+    collections::VecDeque,
+    f32::{INFINITY, NEG_INFINITY},
+};
+
 use egui::{ClippedPrimitive, Context, TexturesDelta};
 use egui_wgpu::renderer::{Renderer, ScreenDescriptor};
 use ggrs::P2PSession;
@@ -22,6 +27,76 @@ pub(crate) struct Framework {
 
     // Our stuff
     pub gui: Gui,
+
+    pub perf_tracker: PerformanceTracker,
+}
+
+#[derive(Default)]
+pub struct PerformanceTracker {
+    render_times_ms: VecDeque<f32>,
+    update_times_ms: VecDeque<f32>,
+    pub frames_per_second: usize,
+    pub memory_usage: usize,
+}
+
+pub struct PerformanceResult {
+    pub max_render_time_ms: f32,
+    pub min_render_time_ms: f32,
+
+    pub max_update_time_ms: f32,
+    pub min_update_time_ms: f32,
+
+    pub average_render_time_ms: f32,
+    pub average_update_time_ms: f32,
+}
+
+impl PerformanceTracker {
+    pub fn push_times(&mut self, render_time_ms: f32, update_time_ms: f32) {
+        if self.render_times_ms.len() >= self.frames_per_second {
+            self.render_times_ms.pop_back();
+        }
+
+        if self.update_times_ms.len() >= self.frames_per_second {
+            self.update_times_ms.pop_back();
+        }
+
+        self.render_times_ms.push_front(render_time_ms);
+        self.update_times_ms.push_front(update_time_ms);
+    }
+
+    fn calc_min_max_avg<'a>(data: &'a mut impl Iterator<Item = &'a f32>) -> (f32, f32, f32) {
+        let mut min = INFINITY;
+        let mut max = NEG_INFINITY;
+        let mut sum = 0.0;
+        let mut count = 0;
+
+        for point in data.by_ref() {
+            sum += point;
+            max = max.max(*point);
+            min = min.min(*point);
+            count += 1;
+        }
+
+        let avg = sum / count as f32;
+
+        (min, max, avg)
+    }
+
+    pub fn calculate_frame_times(&self) -> PerformanceResult {
+        let (min_render_time_ms, max_render_time_ms, average_render_time_ms) =
+            Self::calc_min_max_avg(&mut self.render_times_ms.iter());
+        let (min_update_time_ms, max_update_time_ms, average_update_time_ms) =
+            Self::calc_min_max_avg(&mut self.update_times_ms.iter());
+
+        PerformanceResult {
+            max_render_time_ms,
+            min_render_time_ms,
+            max_update_time_ms,
+            min_update_time_ms,
+            average_render_time_ms,
+            average_update_time_ms,
+        }
+    }
 }
 
 impl Framework {
@@ -55,6 +130,7 @@ impl Framework {
             paint_jobs: Vec::new(),
             textures,
             gui,
+            perf_tracker: PerformanceTracker::default(),
         }
     }
 
@@ -88,7 +164,15 @@ impl Framework {
         let raw_input = self.egui_state.take_egui_input(window);
         let output = self.egui_ctx.run(raw_input, |egui_ctx| {
             // Draw the application.
-            self.gui.ui(pixels, window, session, egui_ctx, input, gilrs);
+            self.gui.ui(
+                pixels,
+                window,
+                session,
+                egui_ctx,
+                input,
+                gilrs,
+                &self.perf_tracker,
+            );
         });
 
         self.textures.append(output.textures_delta);

@@ -1,0 +1,32 @@
+[package]
+name = "gamercade_app"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "Main gamercade application"
+homepage = "https://gamercade.io"
+repository = "https://github.com/gamercade-io/gamercade_app"
+
+[[bin]]
+name = "app"
+path = "src/main.rs"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+gamercade_interface = { path = "../gamercade_interface" }
+
+rfd = "0.11.3"
+radix_fmt = "1.0.0"
+bytemuck = "1.15.0"
+
+tokio = { version = "1.28.1", features = ["full"] }
+tokio-stream = "0.1.14"
+tonic = "0.10.2"
+reqwest = "0.12.3"
+
+eframe = "0.27.2"
+egui_extras = {version = "0.27.2", features = ["all_loaders"] }
+rusqlite = { version = "0.30.0", features = ["bundled"] }
+hashbrown = "0.14.3"
+nohash-hasher = "0.2.0"

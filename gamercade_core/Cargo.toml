@@ -13,5 +13,5 @@ repository = "https://github.com/gamercade-io/gamercade_rs"
 serde = { version = "1.0.163", features = ["derive"] }
 serde-big-array = "0.5.1"
 base64 = "0.21.0"
-bytemuck = { version = "1.13.1", features = ["derive"] }
+bytemuck = { version = "1.15.0", features = ["derive"] }
 strum = { version = "0.24.1", features = ["derive"] }

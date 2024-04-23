@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+import "common.proto";
+
+package users;
+
+service UsersService {
+    rpc GetUserInfo(UserRequest) returns (UserInfo);
+    rpc GetUsersInfo(UsersRequest) returns (UsersResponse);
+
+    rpc UpdateEmail(UpdateEmailRequest) returns (common.Empty);
+}
+
+message UserRequest {
+    sfixed64 user_id = 1;
+}
+
+message UserInfo {
+    sfixed64 user_id = 1;
+    string username = 2;
+}
+
+message UsersRequest {
+    repeated sfixed64 user_ids = 1;
+}
+
+message UsersResponse {
+    repeated UserInfo users = 1;
+}
+
+message UpdateEmailRequest {
+    string new_email = 1;
+}

@@ -21,11 +21,12 @@ impl InterpolatorWidget {
                 .selected_text(format!("{:?}", &interpolator))
                 .show_ui(ui, |ui| {
                     if ui
-                        .selectable_value(interpolator, IndexInterpolator::Linear, "Linear")
+                        .selectable_value(interpolator, IndexInterpolator::Truncate, "Truncate")
                         .clicked()
                     {
                         should_notify = true;
                     };
+
                     if ui
                         .selectable_value(
                             interpolator,
@@ -36,8 +37,9 @@ impl InterpolatorWidget {
                     {
                         should_notify = true;
                     };
+
                     if ui
-                        .selectable_value(interpolator, IndexInterpolator::Truncate, "Truncate")
+                        .selectable_value(interpolator, IndexInterpolator::Linear, "Linear")
                         .clicked()
                     {
                         should_notify = true;

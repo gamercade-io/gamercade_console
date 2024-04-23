@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+import "common.proto";
+import "game.proto";
+
+package platform;
+
+service PlatformService {
+    rpc FrontPage(FrontPageRequest) returns (FrontPageResponse);
+    rpc GameSearch(GameSearchRequest) returns (game.MultipleGamesInfoResponse);
+
+    rpc GetEditableGames(common.Empty) returns (EditableGamesResponse);
+    rpc GetVotedGames(common.Empty) returns (VotedGamesResponse);
+}
+
+message FrontPageRequest {
+
+}
+
+message GameSearchRequest {
+    optional string name = 1;
+    repeated int32 tags = 2;
+}
+
+message FrontPageResponse {
+    repeated game.GameInfoBasic games = 1;
+    repeated sfixed64 popular_games_ids = 2;
+    repeated sfixed64 top_rated_games_ids = 3;
+    repeated sfixed64 new_games_ids = 4;
+}
+
+message EditableGamesResponse {
+    repeated EditableGame editable_games = 1;
+}
+
+message EditableGame {
+    sfixed64 game_id = 1;
+    int32 permission_level = 2;
+}
+
+message VotedGamesResponse {
+    repeated VotedGame voted_games = 1;
+}
+
+message VotedGame {
+    sfixed64 game_id = 1;
+    bool vote_value = 2;
+}

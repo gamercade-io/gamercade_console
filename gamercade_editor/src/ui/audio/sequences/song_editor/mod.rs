@@ -89,10 +89,10 @@ impl SongEditor {
                     let song_channels = &mut song.tracks[self.selected_entry.selected_row];
                     if let Some(selected_channel) = self.selected_entry.selected_channel {
                         let chain = song_channels.get_mut(selected_channel).unwrap();
-                        self.handle_shift_input(&input, chain, sync);
+                        self.handle_shift_input(input, chain, sync);
                     }
                 } else {
-                    self.handle_input(&input, song);
+                    self.handle_input(input, song);
                 }
             });
         } else {

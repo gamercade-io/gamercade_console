@@ -3,12 +3,22 @@ pub(crate) mod console;
 
 use std::path::PathBuf;
 
-use gamercade_fs::{bundle, EditorRom, Rom};
+use gamercade_fs::{bundle, DataPack, EditorRom, Rom};
 
 enum ReadFileResult {
     Rom(Rom),
     EditorRom(EditorRom),
     Code(Box<[u8]>),
+}
+
+impl ReadFileResult {
+    pub(crate) fn set_data_pack(&mut self, data_pack: DataPack) {
+        match self {
+            ReadFileResult::Rom(rom) => rom.data_pack = Some(data_pack),
+            ReadFileResult::EditorRom(editor_rom) => editor_rom.data_pack = Some(data_pack),
+            ReadFileResult::Code(_) => println!("Can't set a datapack for a .wasm code fiel"),
+        }
+    }
 }
 
 fn read_path(path: &PathBuf) -> Result<ReadFileResult, String> {

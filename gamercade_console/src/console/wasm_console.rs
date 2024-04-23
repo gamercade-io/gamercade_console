@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
 use gamercade_sound_engine::{SoundEngine, SoundEngineData, SoundRomInstance};
-use ggrs::GGRSRequest;
-use wasmtime::{Engine, ExternType, Instance, Linker, Module, Mutability, Store, TypedFunc};
+use ggrs::GgrsRequest;
+use wasmtime::{Config, Engine, Instance, Linker, Module, Store, TypedFunc};
 use winit::{
     dpi::PhysicalPosition,
     window::{CursorGrabMode, Window},
@@ -10,11 +10,9 @@ use winit::{
 
 type GameFunc = TypedFunc<(), ()>;
 
-use super::{
-    bindings,
-    network::{SaveStateDefinition, WasmConsoleState},
-    Contexts, SessionDescriptor,
-};
+pub const WASM_MEMORY: &str = "memory";
+
+use super::{bindings, network::WasmConsoleState, Contexts, SessionDescriptor};
 use crate::Console;
 use gamercade_fs::Rom;
 
@@ -23,14 +21,31 @@ pub struct WasmConsole {
     pub(crate) store: Store<Contexts>,
     pub(crate) functions: Functions,
     pub(crate) instance: Instance,
-    pub(crate) state_definition: SaveStateDefinition,
     pub(crate) sound_engine: SoundEngine,
     pub(crate) audio_out: SoundEngineData,
+    memory_values: MemoryValues,
+}
+
+struct MemoryValues {
+    image_length: usize,
+    datapack_start: usize,
+    datapack_end: usize,
+}
+
+impl MemoryValues {
+    fn new(image_length: usize) -> Self {
+        Self {
+            image_length,
+            datapack_start: image_length,
+            datapack_end: image_length,
+        }
+    }
 }
 
 #[derive(Clone)]
 pub(crate) struct Functions {
     init_fn: Option<GameFunc>,
+    datapack_fn: Option<TypedFunc<i32, i32>>,
     update_fn: Option<GameFunc>,
     draw_fn: Option<GameFunc>,
 }
@@ -44,6 +59,15 @@ impl Functions {
                 None
             }
         };
+
+        let datapack_fn = match instance.get_typed_func(&mut *store, "datapack") {
+            Ok(datapack_fn) => Some(datapack_fn),
+            Err(e) => {
+                println!("datapack function not found: {e}");
+                None
+            }
+        };
+
         let update_fn = match instance.get_typed_func(&mut *store, "update") {
             Ok(update_fn) => Some(update_fn),
             Err(e) => {
@@ -59,9 +83,10 @@ impl Functions {
             }
         };
 
-        if init_fn.is_some() || update_fn.is_some() || draw_fn.is_some() {
+        if init_fn.is_some() || datapack_fn.is_some() || update_fn.is_some() || draw_fn.is_some() {
             Self {
                 init_fn,
+                datapack_fn,
                 update_fn,
                 draw_fn,
             }
@@ -69,6 +94,23 @@ impl Functions {
             panic!("Loaded rom doesn't contain any valid functions.")
         }
     }
+}
+
+// TODO: Consider if "Host Memory" could
+// improve the state management of the VM
+fn wasmtime_config() -> Config {
+    use wasmtime::*;
+    let mut config = Config::new();
+
+    config.async_support(false);
+    config.async_stack_size(0);
+    config.wasm_threads(false);
+    config.wasm_tail_call(true);
+    config.strategy(Strategy::Cranelift);
+    config.cranelift_opt_level(OptLevel::Speed);
+    config.static_memory_forced(true);
+
+    config
 }
 
 impl WasmConsole {
@@ -92,8 +134,9 @@ impl WasmConsole {
 
         // Initialize the contexts
         let contexts = Contexts::new(&rom, seed, session, &sound_rom, output_sample_rate);
-        let engine = Engine::default();
+        let engine = Engine::new(&wasmtime_config()).unwrap();
         let module = Module::new(&engine, &rom.code).unwrap();
+
         let mut linker = Linker::new(&engine);
 
         // TODO: Make this static? Is there a way we can not have to call this
@@ -101,41 +144,47 @@ impl WasmConsole {
         bindings::bind_all_apis(&mut linker);
 
         let mut store = Store::new(&engine, contexts);
+
         let instance = linker.instantiate(&mut store, &module).unwrap();
+
         let functions = Functions::find_functions(&mut store, &instance);
-
-        let mut memories = Vec::new();
-        let mut mutable_globals = Vec::new();
-
-        module.exports().for_each(|export| {
-            let name = export.name();
-            match export.ty() {
-                ExternType::Global(global) => {
-                    if global.mutability() == Mutability::Var {
-                        mutable_globals.push(name.to_string())
-                    }
-                }
-                ExternType::Memory(_) => memories.push(name.to_string()),
-                ExternType::Func(_) => (),
-                ExternType::Table(_) => (),
-            }
-        });
-
-        let state_definition = SaveStateDefinition {
-            memories,
-            mutable_globals,
-        };
 
         let audio_out = store.data().audio_context.sound_engine_data.clone();
 
+        let image_range = module.image_range();
+        let image_length = image_range.end as usize - image_range.start as usize;
+        let mut memory_values = MemoryValues::new(image_length);
+
+        memory_values.image_length = image_length;
+
         let mut out = Self {
-            rom,
+            rom: rom.clone(),
             functions,
             instance,
-            state_definition,
             store,
             sound_engine,
             audio_out,
+            memory_values,
+        };
+
+        if let Some(data_pack) = &rom.data_pack {
+            let length = data_pack.data.len() as i32;
+
+            let datapack_start = out.call_datapack(length);
+            let mut datapack_end = 0;
+            if datapack_start > 0 {
+                datapack_end = datapack_start + length;
+            }
+
+            let memory = &mut instance
+                .get_memory(&mut out.store, WASM_MEMORY)
+                .unwrap()
+                .data_mut(&mut out.store)[datapack_start as usize..datapack_end as usize];
+
+            memory.copy_from_slice(&data_pack.data);
+
+            out.memory_values.datapack_end = datapack_end as usize;
+            out.memory_values.datapack_start = datapack_start as usize;
         };
 
         out.call_init();
@@ -158,32 +207,22 @@ impl WasmConsole {
             .collect::<Vec<_>>()
             .into_boxed_slice();
 
-        let memories = self
-            .state_definition
-            .memories
-            .iter()
-            .map(|name| {
-                self.instance
-                    .get_memory(&mut self.store, name)
-                    .unwrap()
-                    .data(&self.store)
-                    .to_vec()
-            })
-            .collect();
+        let mem = self
+            .instance
+            .get_memory(&mut self.store, WASM_MEMORY)
+            .unwrap();
 
-        let mutable_globals = self
-            .state_definition
-            .mutable_globals
-            .iter()
-            .map(|name| self.instance.get_global(&mut self.store, name).unwrap())
-            .collect();
+        let before_dp = mem.data(&mut self.store)
+            [self.memory_values.image_length..self.memory_values.datapack_start]
+            .to_vec();
+        let after_dp = mem.data(&mut self.store)[self.memory_values.datapack_end..].to_vec();
 
         let sound_engine_data = self.store.data().audio_context.sound_engine_data.clone();
 
         WasmConsoleState {
             previous_buttons,
-            memories,
-            mutable_globals,
+            before_dp,
+            after_dp,
             sound_engine_data,
         }
     }
@@ -191,8 +230,8 @@ impl WasmConsole {
     pub fn load_save_state(&mut self, state: WasmConsoleState) {
         let WasmConsoleState {
             previous_buttons,
-            memories,
-            mutable_globals,
+            before_dp,
+            after_dp,
             sound_engine_data,
         } = state;
 
@@ -207,30 +246,15 @@ impl WasmConsole {
                 self.store.data_mut().input_context.input_entries[index].previous = *prev;
             });
 
-        self.state_definition
-            .memories
-            .iter()
-            .enumerate()
-            .for_each(|(index, name)| {
-                let source = &memories[index];
-                let destination = self.instance.get_memory(&mut self.store, name).unwrap();
-                let destination = &mut destination.data_mut(&mut self.store)[..source.len()];
-                destination.copy_from_slice(source)
-            });
+        let memory = &mut self
+            .instance
+            .get_memory(&mut self.store, WASM_MEMORY)
+            .unwrap()
+            .data_mut(&mut self.store);
 
-        self.state_definition
-            .mutable_globals
-            .iter()
-            .enumerate()
-            .for_each(|(index, name)| {
-                let source = mutable_globals[index];
-                let val = source.get(&mut self.store);
-                self.instance
-                    .get_global(&mut self.store, name)
-                    .unwrap()
-                    .set(&mut self.store, val)
-                    .unwrap()
-            });
+        memory[self.memory_values.image_length..self.memory_values.datapack_start]
+            .copy_from_slice(&before_dp);
+        memory[self.memory_values.datapack_end..].copy_from_slice(&after_dp);
     }
 
     pub(crate) fn sync_audio(&mut self) {
@@ -267,7 +291,7 @@ impl WasmConsole {
     }
 }
 
-fn call<T>(func: &Option<GameFunc>, store: &mut Store<T>) {
+fn call<T>(func: Option<&GameFunc>, store: &mut Store<T>) {
     if let Some(func) = func {
         func.call(store, ()).unwrap()
     }
@@ -275,15 +299,23 @@ fn call<T>(func: &Option<GameFunc>, store: &mut Store<T>) {
 
 impl Console for WasmConsole {
     fn call_init(&mut self) {
-        call(&self.functions.init_fn, &mut self.store);
+        call(self.functions.init_fn.as_ref(), &mut self.store);
+    }
+
+    fn call_datapack(&mut self, len: i32) -> i32 {
+        if let Some(datapack) = &self.functions.datapack_fn {
+            datapack.call(&mut self.store, len).unwrap()
+        } else {
+            0
+        }
     }
 
     fn call_update(&mut self) {
-        call(&self.functions.update_fn, &mut self.store);
+        call(self.functions.update_fn.as_ref(), &mut self.store);
     }
 
     fn call_draw(&mut self) {
-        call(&self.functions.draw_fn, &mut self.store);
+        call(self.functions.draw_fn.as_ref(), &mut self.store);
     }
 
     fn rom(&self) -> &Rom {
@@ -294,18 +326,18 @@ impl Console for WasmConsole {
         buffer.copy_from_slice(&self.store.data().draw_context.frame_buffer.pixel_buffer);
     }
 
-    fn handle_requests(&mut self, requests: Vec<GGRSRequest<Self>>) {
+    fn handle_requests(&mut self, requests: Vec<GgrsRequest<Self>>) {
         for request in requests {
             match request {
-                GGRSRequest::SaveGameState { cell, frame } => {
+                GgrsRequest::SaveGameState { cell, frame } => {
                     let state = self.generate_save_state();
                     cell.save(frame, Some(state), None);
                 }
-                GGRSRequest::LoadGameState { cell, .. } => {
+                GgrsRequest::LoadGameState { cell, .. } => {
                     let state = cell.load().expect("Failed to load game state");
                     self.load_save_state(state);
                 }
-                GGRSRequest::AdvanceFrame { inputs } => {
+                GgrsRequest::AdvanceFrame { inputs } => {
                     // Copy new inputs into the state
                     self.store
                         .data_mut()
@@ -341,5 +373,17 @@ impl Console for WasmConsole {
                 }
             }
         }
+    }
+
+    fn memory_usage(&mut self) -> usize {
+        // Used memory in bytes
+        let ignored_bytes = self.memory_values.image_length
+            + (self.memory_values.datapack_end - self.memory_values.datapack_start);
+        let memory = self
+            .instance
+            .get_memory(&mut self.store, WASM_MEMORY)
+            .unwrap();
+
+        memory.data_size(&self.store) - ignored_bytes
     }
 }

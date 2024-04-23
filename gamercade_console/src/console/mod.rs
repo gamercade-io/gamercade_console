@@ -6,12 +6,13 @@ mod wasm_console;
 
 pub use contexts::Contexts;
 use gamercade_fs::Rom;
-use ggrs::{Config, GGRSRequest};
+use ggrs::{Config, GgrsRequest};
 pub use input::*;
 pub use network::{SessionDescriptor, WasmConsoleState};
 pub use wasm_console::WasmConsole;
 
 pub trait Console: Sized + Config {
+    fn call_datapack(&mut self, len: i32) -> i32;
     fn call_init(&mut self);
     fn call_update(&mut self);
     fn call_draw(&mut self);
@@ -20,5 +21,7 @@ pub trait Console: Sized + Config {
 
     fn blit(&self, buffer: &mut [u8]);
 
-    fn handle_requests(&mut self, requests: Vec<GGRSRequest<Self>>);
+    fn handle_requests(&mut self, requests: Vec<GgrsRequest<Self>>);
+
+    fn memory_usage(&mut self) -> usize;
 }

@@ -246,8 +246,7 @@ impl DrawApi for DrawContext {
 
     fn write_pixel_buffer(&mut self, start_index: usize, data: &[u32]) {
         (start_index
-            ..data
-                .len()
+            ..(start_index + data.len())
                 .min(self.frame_buffer.pixel_buffer.len() / BYTES_PER_PIXEL))
             .zip(data.iter())
             .for_each(|(index, gp)| {

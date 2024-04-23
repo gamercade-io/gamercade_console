@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+import "common.proto";
+
+package auth;
+
+service AuthService {
+    rpc SignUp(SignUpRequest) returns (SessionResponse);
+    rpc Login(LoginRequest) returns (SessionResponse);
+    rpc UpdatePassword(UpdatePasswordRequest) returns (common.Empty);
+}
+
+message SignUpRequest {
+    string username = 1;
+    string email = 2;
+    string password = 3;
+}
+
+message LoginRequest {
+    string password = 1;
+    oneof provider {
+        string username = 2;
+        string email = 3;
+    };
+}
+
+message SessionResponse {
+    bytes session = 1;
+}
+
+message UpdatePasswordRequest {
+    string previous_password = 1;
+    string new_password = 2;
+}

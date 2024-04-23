@@ -1,7 +1,7 @@
-use std::{path::PathBuf, process::Child};
+use std::{fs, path::PathBuf, process::Child};
 
 use clap::Args;
-use gamercade_fs::EditorRom;
+use gamercade_fs::{DataPack, EditorRom};
 
 use crate::{commands::try_bundle_files, watch::Watchable};
 
@@ -16,6 +16,10 @@ pub(crate) struct BundleArgs {
     /// Path to provide game assets. A .gce or .gcrom file
     #[clap(short, long, value_parser)]
     assets: Option<PathBuf>,
+
+    /// Path to provide a game data pack. Any file type.
+    #[clap(short, long, value_parser)]
+    data_pack: Option<PathBuf>,
 
     /// Path of the output file.
     #[clap(short, long, value_parser)]
@@ -43,12 +47,17 @@ impl Watchable for BundleArgs {
 pub(crate) fn run(args: &BundleArgs) -> Result<Option<Child>, String> {
     let code = read_path(&args.code)?;
 
-    let assets = if let Some(assets) = &args.assets {
+    let mut assets = if let Some(assets) = &args.assets {
         read_path(assets)?
     } else {
         println!("No assets provided, using default data.");
         ReadFileResult::EditorRom(EditorRom::default())
     };
+
+    if let Some(data_pack) = &args.data_pack {
+        let data = fs::read(data_pack).unwrap();
+        assets.set_data_pack(DataPack { data });
+    }
 
     let path = match args
         .output

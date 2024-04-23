@@ -17,7 +17,7 @@ impl ChainRow {
         }
     }
 
-    pub(super) fn new(row: usize, entry: &Option<PhraseId>, selected_index: usize) -> Self {
+    pub(super) fn new(row: usize, entry: Option<PhraseId>, selected_index: usize) -> Self {
         let bg_color = if selected_index == row {
             Some(SELECTED_BG_COLOR)
         } else {

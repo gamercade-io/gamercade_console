@@ -8,10 +8,8 @@ extern "C" {
     pub fn stop_channel(channel: i32);
     pub fn play_note(note_id: i32, instrument_index: i32, channel: i32);
     pub fn play_frequency(frequency: f32, instrument_index: i32, channel: i32);
-}
 
-// Data
-extern "C" {
+    // Data
     pub fn height() -> i32;
     pub fn width() -> i32;
     pub fn fps() -> i32;
@@ -25,10 +23,8 @@ extern "C" {
     pub fn bgm_length_frames(bgm_index: i32) -> i32;
     pub fn sfx_length_secs(sfx_index: i32) -> f32;
     pub fn sfx_length_frames(sfx_index: i32) -> i32;
-}
 
-// Graphics Params
-extern "C" {
+    // Graphics Params
     pub fn palette_index(palette_index: i32) -> i32;
     pub fn sprite_sheet_index(sprite_sheet_index: i32) -> i32;
     pub fn sprite_index(sprite_index: i32) -> i32;
@@ -43,10 +39,8 @@ extern "C" {
         flip_x: i32,
         flip_y: i32,
     ) -> i32;
-}
 
-// Draw
-extern "C" {
+    // Draw
     pub fn clear_screen(graphics_parameters: i32);
     pub fn set_pixel(graphics_parameters: i32, x: i32, y: i32);
     pub fn circle(graphics_parameters: i32, x: i32, y: i32, radius: i32);
@@ -56,24 +50,18 @@ extern "C" {
     pub fn line(graphics_parameters: i32, x0: i32, y0: i32, x1: i32, y1: i32);
     pub fn sprite(graphics_parameters: i32, transparency_mask: i64, x: i32, y: i32);
     pub fn write_pixel_buffer(start_index: i32, parameters_ptr: i32, len: i32);
-}
 
-// Text
-extern "C" {
+    // Text
     pub fn console_log(text_ptr: i32, len: i32);
     pub fn console_log_utf16(text_ptr: i32, len: i32);
-}
 
-// Random
-extern "C" {
+    // Random
     pub fn set_seed(seed: i32);
     pub fn random_int_range(min: i32, max: i32) -> i32;
     pub fn random_float() -> f32;
     pub fn random_float_range(min: f32, max: f32) -> f32;
-}
 
-// Input
-extern "C" {
+    // Input
     pub fn button_a_pressed(player_id: i32) -> i32;
     pub fn button_a_released(player_id: i32) -> i32;
     pub fn button_a_held(player_id: i32) -> i32;
@@ -152,10 +140,8 @@ extern "C" {
 
     pub fn raw_input_state(player_id: i32) -> i64;
     pub fn raw_mouse_state(player_id: i32) -> i64;
-}
 
-// Multiplayer
-extern "C" {
+    // Multiplayer
     pub fn num_players() -> i32;
     pub fn is_local_player(player_id: i32) -> i32;
     pub fn is_remote_player(player_id: i32) -> i32;

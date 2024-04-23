@@ -34,7 +34,7 @@ where
     };
     let bytes: Vec<i16> = bytes
         .chunks_exact(2)
-        .map(|slice| i16::from_be_bytes([slice[0], slice[1]]))
+        .map(|slice| *bytemuck::from_bytes(slice))
         .collect();
     Ok(bytes.into_boxed_slice())
 }
@@ -43,7 +43,10 @@ pub(crate) fn ser_audio_data<S>(data: &[i16], serializer: S) -> Result<S::Ok, S:
 where
     S: serde::Serializer,
 {
-    let data: Vec<u8> = data.iter().flat_map(|x| x.to_be_bytes()).collect();
+    let data: Vec<u8> = data
+        .iter()
+        .flat_map(|x| bytemuck::cast::<_, [u8; 2]>(*x))
+        .collect();
     if serializer.is_human_readable() {
         let data = BASE64ENGINE.encode(data);
         serializer.serialize_str(&data)

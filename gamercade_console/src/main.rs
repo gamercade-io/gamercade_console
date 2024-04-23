@@ -9,10 +9,10 @@ use std::{
 };
 
 use clap::Parser;
-use gamercade_core::Resolution;
-use ggrs::{GGRSError, P2PSession, SessionState};
+use gamercade_core::{Ratio, Resolution, Size};
+use ggrs::{GgrsError, P2PSession, SessionState};
 use gilrs::Gilrs;
-use pixels::{Pixels, SurfaceTexture};
+use pixels::{wgpu::PresentMode, Pixels, PixelsBuilder, SurfaceTexture};
 use winit::{
     dpi::LogicalSize,
     event::{DeviceEvent, Event, MouseScrollDelta, VirtualKeyCode},
@@ -150,6 +150,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
 
             if let Some(console) = &mut framework.gui.wasm_console {
+                framework.perf_tracker.frames_per_second =
+                    console.rom.frame_rate.frames_per_second();
+
                 // Handle GGRS packets
                 let session = session.as_mut().unwrap();
                 session.poll_remote_clients();
@@ -199,7 +202,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                             Ok(requests) => {
                                 console.handle_requests(requests);
                             }
-                            Err(GGRSError::PredictionThreshold) => (),
+                            Err(GgrsError::PredictionThreshold) => (),
                             Err(e) => panic!("{}", e),
                         }
                     }
@@ -210,9 +213,22 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     // Sync the mouse lock state
                     console.sync_mouse(&window);
 
+                    let update_time_ms =
+                        Instant::now().duration_since(last_update).as_secs_f32() * 1000.0;
+                    let render_start_time = Instant::now();
                     // Render the game
                     console.call_draw();
                     console.blit(pixels.frame_mut());
+                    let render_time_ms = Instant::now()
+                        .duration_since(render_start_time)
+                        .as_secs_f32()
+                        * 1000.0;
+
+                    framework
+                        .perf_tracker
+                        .push_times(render_time_ms, update_time_ms);
+
+                    framework.perf_tracker.memory_usage = console.memory_usage()
                 };
             };
 
@@ -233,7 +249,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     });
 }
 
-const DEFAULT_WINDOW_RESOLUTION: Resolution = Resolution::High;
+const DEFAULT_WINDOW_RESOLUTION: Resolution = Resolution {
+    size: Size::Medium,
+    ratio: Ratio::Standard,
+};
 
 fn init_window(event_loop: &EventLoop<()>) -> Window {
     let size = LogicalSize::new(
@@ -252,5 +271,8 @@ fn init_pixels(window: &Window) -> Pixels {
     let window_size = window.inner_size();
     let surface_texture = SurfaceTexture::new(window_size.width, window_size.height, &window);
 
-    Pixels::new(320, 180, surface_texture).unwrap()
+    PixelsBuilder::new(320, 180, surface_texture)
+        .present_mode(PresentMode::AutoVsync)
+        .build()
+        .unwrap()
 }

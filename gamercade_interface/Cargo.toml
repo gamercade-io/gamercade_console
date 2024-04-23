@@ -1,0 +1,19 @@
+[package]
+name = "gamercade_interface"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "Interface definitions for Gamercade"
+homepage = "https://gamercade.io"
+repository = "https://github.com/gamercade-io/gamercade_interface"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+tonic = "0.10.2"
+prost = "0.12.3"
+serde = { version = "1.0.163", features = ["derive"] }
+crc = "3.2.0"
+
+[build-dependencies]
+tonic-build = "0.10.2"

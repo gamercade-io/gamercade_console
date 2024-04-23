@@ -62,9 +62,9 @@ impl ChainEditor {
 
             ui.input(|input| {
                 if input.modifiers.shift {
-                    self.handle_shift_input(&input, chain, sync);
+                    self.handle_shift_input(input, chain, sync);
                 } else {
-                    self.handle_input(&input)
+                    self.handle_input(input)
                 }
             });
         };
@@ -172,7 +172,8 @@ impl ChainEditor {
                     .enumerate()
                     .for_each(|(row, entry)| {
                         ui.horizontal_centered(|ui| {
-                            let phrase_row = ChainRow::new(row, entry, self.selected_index);
+                            let phrase_row =
+                                ChainRow::new(row, entry.to_owned(), self.selected_index);
                             if phrase_row.draw(ui) {
                                 self.selected_index = row;
                             }

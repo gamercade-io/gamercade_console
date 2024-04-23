@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+import "common.proto";
+
+package author;
+
+service AuthorService {
+    rpc AdjustGameAuthor(AdjustAuthorRequest) returns (AdjustAuthorResponse);
+    rpc GetGlobalPermissionLevels(common.Empty) returns (GlobalPermissionLevels);
+}
+
+message AdjustAuthorRequest {
+    sfixed64 game_id = 1;
+    sfixed64 user_id = 2;
+
+    optional string title = 3;
+    optional sint32 permission_level_id = 4;
+}
+
+message AdjustAuthorResponse {
+    sfixed64 game_id = 1;
+    repeated Author authors = 2;
+}
+
+message Author {
+    sfixed64 user_id = 1;
+    string title = 2;
+    int32 permission_level_id = 3;
+}
+
+message GlobalPermissionLevels {
+    repeated PermissionLevel levels = 1;
+}
+
+message PermissionLevel {
+    int32 id = 1;
+    string level_name = 2;
+}

@@ -14,7 +14,9 @@ use crate::{
     DEFAULT_WINDOW_RESOLUTION,
 };
 
-use self::{controller_gui::ControllerGui, play_mode_gui::PlayModeGui};
+use self::{
+    controller_gui::ControllerGui, framework::PerformanceTracker, play_mode_gui::PlayModeGui,
+};
 pub mod controller_gui;
 pub mod framework;
 pub mod play_mode_gui;
@@ -59,6 +61,7 @@ impl Gui {
         ctx: &Context,
         input: &mut LocalInputManager,
         gilrs: &mut Gilrs,
+        perf: &PerformanceTracker,
     ) {
         let mut is_open = self.window_open;
         egui::Window::new("Main Menu")
@@ -136,6 +139,26 @@ impl Gui {
                         *session = None;
                     }
                 });
+
+                ui.separator();
+                let averages = perf.calculate_frame_times();
+                ui.label("Update Stats:");
+                ui.label(format!("avg {}ms", averages.average_update_time_ms));
+                ui.label(format!("min {}ms", averages.min_update_time_ms));
+                ui.label(format!("max {}ms", averages.max_update_time_ms));
+
+                ui.separator();
+                ui.label("Render Stats:");
+                ui.label(format!("avg {}ms", averages.average_render_time_ms));
+                ui.label(format!("min {}ms", averages.min_render_time_ms));
+                ui.label(format!("max {}ms", averages.max_render_time_ms));
+
+                ui.separator();
+                let mem_mb = perf.memory_usage as f32 / (1024 * 1024) as f32;
+                let mem_kb = perf.memory_usage as f32 / 1024.0;
+                let mem_b = perf.memory_usage;
+                ui.label("Memory Usage:");
+                ui.label(format!("{mem_mb}mb, {mem_kb}kb, {mem_b}b"));
             });
     }
 
@@ -149,7 +172,7 @@ impl Gui {
     ) -> Option<P2PSession<WasmConsole>> {
         let rom = match Rom::try_load(&game_path) {
             Err(e) => {
-                println!("{e}");
+                println!("fast_launch_game: {e}");
                 return None;
             }
             Ok(rom) => rom,
@@ -188,6 +211,7 @@ impl Gui {
                 session_descriptor.port,
                 &session_descriptor.player_types,
             );
+
             (new_session.max_prediction(), new_session)
         };
 
@@ -214,7 +238,7 @@ impl Gui {
 
         let rom = match Rom::try_load(path) {
             Err(e) => {
-                println!("{e}");
+                println!("try_launch_game: {e}");
                 return None;
             }
             Ok(rom) => rom,
@@ -232,6 +256,8 @@ fn init_session(
     players: &[PlayerType<SocketAddr>],
 ) -> P2PSession<WasmConsole> {
     let mut sess_builder = SessionBuilder::new()
+        .with_input_delay(rom.frame_rate.default_input_delay())
+        .with_sparse_saving_mode(true)
         .with_num_players(players.len())
         .with_fps(rom.frame_rate.frames_per_second())
         .unwrap();
