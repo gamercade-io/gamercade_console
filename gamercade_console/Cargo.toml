@@ -55,7 +55,7 @@ ggrs = "0.10.2"
 rfd = "0.14.1"
 
 # Input
-gilrs = "0.10.2"
+gilrs = "0.10.6"
 
 # Cli
 clap = { version = "4.5.4", features = ["derive"] }
