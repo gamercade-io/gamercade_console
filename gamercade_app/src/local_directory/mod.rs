@@ -1,5 +1,6 @@
 use std::hash::{BuildHasher, BuildHasherDefault, Hash};
 
+use eframe::egui::Context;
 use nohash_hasher::{IntMap, NoHashHasher};
 use rusqlite::{types::FromSql, Connection, Row, Statement};
 
@@ -42,6 +43,27 @@ pub struct Dictionary<Key, Value> {
 }
 
 impl LocalDirectory {
+    pub fn new(ctx: &Context) -> Self {
+        let db = Connection::open(LOCAL_DB_PATH).unwrap();
+
+        let mut output = Self {
+            tags: TagDictionary::new(&db),
+            users: UserDictionary::new(&db),
+            permission_levels: PermissionLevelDictionary::new(&db),
+            game_footprint: GameFootprintDictionary::new(&db),
+            db,
+            cached_games: Vec::new(),
+            cache_dirty: true,
+            images: ImageCache::new(ctx),
+        };
+
+        upsert_games_table(&output.db);
+
+        output.sync_games_cache();
+
+        output
+    }
+
     pub fn upsert_tags(&mut self, tags: &[(TagId, Tag)], clear_db: bool) {
         if clear_db {
             self.db
@@ -154,28 +176,5 @@ impl<K, V> IsDictionary<K, V> for Dictionary<K, V> {
 
     fn get_map(&self) -> &IntMap<K, V> {
         &self.map
-    }
-}
-
-impl Default for LocalDirectory {
-    fn default() -> Self {
-        let db = Connection::open(LOCAL_DB_PATH).unwrap();
-
-        let mut output = Self {
-            tags: TagDictionary::new(&db),
-            users: UserDictionary::new(&db),
-            permission_levels: PermissionLevelDictionary::new(&db),
-            game_footprint: GameFootprintDictionary::new(&db),
-            db,
-            cached_games: Vec::new(),
-            cache_dirty: true,
-            images: ImageCache::new(),
-        };
-
-        upsert_games_table(&output.db);
-
-        output.sync_games_cache();
-
-        output
     }
 }

@@ -1,16 +1,15 @@
-use eframe::egui::{self, Ui};
+use eframe::egui::{self, Context, Ui};
 use gamercade_interface::{platform::FrontPageRequest, CRC};
 
 use crate::{
     local_directory::LocalDirectory,
     modes::{AppMode, ArcadeModeView, LibraryModeView, SettingsModeView},
     task_manager::{
-        AuthState, GameResponse, HttpResponse, PlatformRequest, PlatformResponse, SuperTaskManager,
-        TaskNotification,
+        AuthState, AuthorRequest, GameResponse, HttpResponse, PlatformRequest, PlatformResponse,
+        SuperTaskManager, TagRequest, TaskNotification,
     },
 };
 
-#[derive(Default)]
 pub struct App {
     directory: LocalDirectory,
 
@@ -67,6 +66,16 @@ impl eframe::App for App {
 }
 
 impl App {
+    pub fn new(ctx: &Context) -> Self {
+        Self {
+            directory: LocalDirectory::new(ctx),
+            tasks: Default::default(),
+            auth_state: Default::default(),
+            active_mode: Default::default(),
+            modes: Default::default(),
+        }
+    }
+
     fn handle_notifications(&mut self) {
         while let Ok(notification) = self.tasks.events.try_recv() {
             match notification {
@@ -94,6 +103,8 @@ impl App {
                             self.tasks
                                 .platform
                                 .send(PlatformRequest::EditableGames(session.clone()));
+                            self.tasks.tags.send(TagRequest::Initialize);
+                            self.tasks.author.send(AuthorRequest::Initialize);
                         }
                     }
                 }

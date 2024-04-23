@@ -31,7 +31,8 @@ async fn main() -> Result<(), eframe::Error> {
         options,
         Box::new(|cc| {
             egui_extras::install_image_loaders(&cc.egui_ctx);
-            Box::<app::App>::default()
+
+            Box::new(app::App::new(&cc.egui_ctx))
         }),
     )
 }
