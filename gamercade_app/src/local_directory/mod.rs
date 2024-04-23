@@ -15,7 +15,8 @@ pub use permission_level::{PermissionLevel, PermissionLevelId};
 pub use tag::{Tag, TagId};
 pub use user::{User, UserId};
 
-use self::{game::upsert_games_table, game_footprint::GameFootprint, image_cache::ImageCache};
+use self::{game::upsert_games_table, game_footprint::GameFootprint};
+pub use image_cache::ImageCache;
 
 const LOCAL_DB_PATH: &str = "./local.db";
 

@@ -1,15 +1,15 @@
-use eframe::egui::{self, ImageData, ImageSource};
+use eframe::egui::{self, ImageSource, TextureHandle};
 use nohash_hasher::IntMap;
 
 use crate::GAME_DIR;
 
 pub struct ImageCache {
-    pub games: IntMap<i64, ImageData>,
+    pub games: IntMap<i64, TextureHandle>,
 }
 
 impl ImageCache {
     pub const fn default_game_image() -> &'static ImageSource<'static> {
-        &egui::include_image!("./../../default-logo.png")
+        &egui::include_image!("../../default-logo.png")
     }
 
     pub fn new() -> Self {

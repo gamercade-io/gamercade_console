@@ -1,11 +1,11 @@
 use std::process::Command;
 
-use eframe::egui;
+use eframe::egui::{self, Image};
 
 use crate::{
     app::AppDrawContext,
     game_rom_path,
-    local_directory::{IsDictionary, TagId},
+    local_directory::{ImageCache, IsDictionary, TagId},
 };
 
 #[derive(Default)]
@@ -13,16 +13,11 @@ pub struct LibraryModeView {}
 
 impl LibraryModeView {
     pub fn draw(&mut self, context: &mut AppDrawContext) {
-        let AppDrawContext { ui, directory, .. } = context;
+        let tag_directory = context.directory.tags.get_map();
 
-        let tag_directory = directory.tags.get_map();
+        context.ui.label("Library Mode");
 
-        ui.label("Library Mode");
-
-        let image_source = egui::include_image!("./../../../default-logo.png");
-        let image = egui::Image::new(image_source).fit_to_exact_size((100.0, 100.0).into());
-
-        egui::ScrollArea::vertical().show(ui, |ui| {
+        egui::ScrollArea::vertical().show(context.ui, |ui| {
             egui::Grid::new("game_grid")
                 .num_columns(6)
                 .spacing([40.0, 4.0])
@@ -36,8 +31,14 @@ impl LibraryModeView {
                     ui.label("Tags");
                     ui.end_row();
 
-                    for game in directory.iter_games() {
-                        ui.add(image.clone());
+                    for game in context.directory.iter_games() {
+                        let image =
+                            if let Some(image) = context.directory.images.games.get(&game.id) {
+                                Image::new(image)
+                            } else {
+                                Image::new(ImageCache::default_game_image().clone())
+                            };
+                        ui.add(image.fit_to_exact_size((100.0, 100.0).into()));
 
                         ui.label(&game.title);
 
