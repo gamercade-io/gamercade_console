@@ -97,13 +97,10 @@ fn add_image(
 
         ui.push_id(entry.label, |ui| {
             ScrollArea::both().show(ui, |ui| {
-                ui.add(Image::new(
-                    image,
-                    Vec2 {
-                        x: sheet.width as f32 * scale,
-                        y: sheet.height as f32 * scale,
-                    },
-                ));
+                ui.add(Image::new(image).fit_to_exact_size(Vec2 {
+                    x: sheet.width as f32 * scale,
+                    y: sheet.height as f32 * scale,
+                }));
             });
         });
     });

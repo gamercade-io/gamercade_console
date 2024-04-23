@@ -10,7 +10,7 @@ use palette_viewer::PaletteViewer;
 use sprite_preview::SpritePreview;
 
 // Externals
-use eframe::egui::{SidePanel, TextureId, TopBottomPanel, Ui};
+use eframe::egui::{SidePanel, TextureHandle, TopBottomPanel, Ui};
 
 use super::SpriteSheetEditor;
 use gamercade_fs::{EditorGraphicsData, EditorPalette};
@@ -30,7 +30,7 @@ impl PaletteEditor {
         data: &mut EditorGraphicsData,
         sprite_sheet_editor: &SpriteSheetEditor,
         scale: f32,
-        texture_id: TextureId,
+        texture_handle: &TextureHandle,
     ) {
         // Draw Palette List
         SidePanel::left("palette_list_left_panel")
@@ -38,7 +38,7 @@ impl PaletteEditor {
             .show_inside(ui, |ui| {
                 TopBottomPanel::bottom("palette_list_bottom_panel")
                     .show_inside(ui, |ui| self.palette_list.draw_buttons(ui, data));
-                self.palette_list.draw(ui, texture_id, data);
+                self.palette_list.draw(ui, texture_handle, data);
             });
 
         // Draw Sprite Preview
@@ -65,7 +65,7 @@ impl PaletteEditor {
                 );
             });
 
-        self.draw_color_editor(ui, texture_id, palette)
+        self.draw_color_editor(ui, texture_handle, palette)
     }
 
     // Draws the right side panel which includes palette viewer, color
@@ -73,16 +73,20 @@ impl PaletteEditor {
     fn draw_color_editor(
         &mut self,
         ui: &mut Ui,
-        texture_id: TextureId,
+        texture_handle: &TextureHandle,
         palette: &mut EditorPalette,
     ) {
         ui.vertical(|ui| {
-            self.palette_viewer.draw(ui, palette, texture_id);
+            self.palette_viewer.draw(ui, palette, texture_handle);
 
             ui.horizontal(|ui| {
                 let color = self.palette_viewer.get_color_mut(&mut palette.palette);
-                self.color_editor
-                    .draw(ui, color, texture_id, self.palette_viewer.selected_color);
+                self.color_editor.draw(
+                    ui,
+                    color,
+                    texture_handle,
+                    self.palette_viewer.selected_color,
+                );
             });
         });
     }

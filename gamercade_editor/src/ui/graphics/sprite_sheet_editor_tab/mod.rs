@@ -15,7 +15,7 @@ use sheet_list::SheetList;
 use sheet_settings::SheetSettings;
 
 // Externals
-use eframe::egui::{TextEdit, TextureId, Ui};
+use eframe::egui::{TextEdit, TextureHandle, Ui};
 
 use super::PaletteEditor;
 use gamercade_fs::EditorGraphicsData;
@@ -35,7 +35,7 @@ impl SpriteSheetEditor {
         data: &mut EditorGraphicsData,
         palette_editor: &mut PaletteEditor,
         scale: f32,
-        texture_id: TextureId,
+        texture_handle: &TextureHandle,
     ) {
         ui.horizontal(|ui| {
             let selected_palette = palette_editor.selected_palette_mut();
@@ -49,7 +49,7 @@ impl SpriteSheetEditor {
                 self.editor
                     .draw(ui, &mut sheet.sprite_sheet, scale, palette);
                 self.palette_preview
-                    .draw(ui, &data.palettes, selected_palette, texture_id);
+                    .draw(ui, &data.palettes, selected_palette, texture_handle);
             });
         });
     }

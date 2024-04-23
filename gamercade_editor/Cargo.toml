@@ -20,7 +20,8 @@ gamercade_sound_engine = { path = "../gamercade_sound_engine" }
 serde = { version = "1.0.198", features = ["derive"] }
 
 # Window and Rendering
-eframe = "0.22.0"
+eframe = "0.27.2"
+egui_plot = "0.27.2"
 
 # File Dialogs
 rfd = "0.14.1"

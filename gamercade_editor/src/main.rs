@@ -1,12 +1,14 @@
-use eframe::epaint::Vec2;
+use eframe::{egui::ViewportBuilder, epaint::Vec2};
 use ui::Editor;
 
 mod ui;
 
 fn main() {
+    let viewport = ViewportBuilder::default().with_inner_size(Vec2::new(1366.0, 768.0));
+
     let options = eframe::NativeOptions {
         vsync: true,
-        initial_window_size: Some(Vec2::new(1366.0, 768.0)),
+        viewport,
         ..Default::default()
     };
 

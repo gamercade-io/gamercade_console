@@ -1,5 +1,5 @@
 use eframe::{
-    egui::{ImageButton, Key, TextureFilter, TextureOptions, Ui},
+    egui::{Image, ImageButton, Key, TextureFilter, TextureOptions, TextureWrapMode, Ui},
     epaint::{Color32, ColorImage, TextureHandle, Vec2},
 };
 use gamercade_audio::{NoteColor, NoteName, NotesIter, TOTAL_NOTES_COUNT};
@@ -145,7 +145,7 @@ impl PianoRoll {
         sync: &mut AudioSyncHelper,
         selected_instrument: usize,
     ) {
-        let texture_id = self
+        let texture_handle = self
             .default_piano_texture
             .get_or_insert_with(|| {
                 ui.ctx().load_texture(
@@ -154,10 +154,12 @@ impl PianoRoll {
                     TextureOptions {
                         magnification: TextureFilter::Nearest,
                         minification: TextureFilter::Nearest,
+                        wrap_mode: TextureWrapMode::ClampToEdge,
                     },
                 )
             })
-            .id();
+            .clone();
+
         // Draw the actual piano keys for clicking
         ui.vertical(|ui| {
             ui.spacing_mut().item_spacing = Vec2 {
@@ -172,17 +174,19 @@ impl PianoRoll {
                 all_notes_iter.for_each(|(index, (note, _octave))| {
                     let color = self.get_key_texture_tint(note, index);
 
-                    let button_top = ImageButton::new(texture_id, TOP_KEY_SIZE).tint(color);
+                    let button_top = ImageButton::new(
+                        Image::new(&texture_handle)
+                            .fit_to_exact_size(TOP_KEY_SIZE)
+                            .maintain_aspect_ratio(false),
+                    )
+                    .tint(color);
+
                     if ui.add(button_top).clicked() {
                         sync.trigger_note(index, selected_instrument);
                     };
                 });
             });
 
-            ui.spacing_mut().item_spacing = Vec2 {
-                x: NOTE_SPACING,
-                y: 0.0,
-            };
             ui.horizontal(|ui| {
                 let mut white_notes_iter = NotesIter::default().enumerate();
 
@@ -190,8 +194,10 @@ impl PianoRoll {
                     if note.get_key_color() == NoteColor::White {
                         let tint = self.get_key_texture_tint(note, index);
 
-                        let button_bottom =
-                            ImageButton::new(texture_id, BOTTOM_KEY_SIZE).tint(tint);
+                        let button_bottom = ImageButton::new(
+                            Image::new(&texture_handle).fit_to_exact_size(BOTTOM_KEY_SIZE),
+                        )
+                        .tint(tint);
 
                         if ui.add(button_bottom).clicked() {
                             sync.trigger_note(index, selected_instrument);

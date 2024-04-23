@@ -3,7 +3,7 @@ mod palette_editor_tab;
 mod sprite_editor_tab;
 mod sprite_sheet_editor_tab;
 
-use eframe::egui::{TextureFilter, TextureOptions};
+use eframe::egui::{TextureFilter, TextureOptions, TextureWrapMode};
 pub use graphics_editor::*;
 pub use palette_editor_tab::*;
 pub use sprite_editor_tab::*;
@@ -76,6 +76,7 @@ pub(crate) fn load_buffered_image<'a>(
                 TextureOptions {
                     magnification: TextureFilter::Nearest,
                     minification: TextureFilter::Nearest,
+                    wrap_mode: TextureWrapMode::ClampToEdge,
                 },
             );
             handle
@@ -87,6 +88,7 @@ pub(crate) fn load_buffered_image<'a>(
                 TextureOptions {
                     magnification: TextureFilter::Nearest,
                     minification: TextureFilter::Nearest,
+                    wrap_mode: TextureWrapMode::ClampToEdge,
                 },
             ));
             handle.as_ref().unwrap()

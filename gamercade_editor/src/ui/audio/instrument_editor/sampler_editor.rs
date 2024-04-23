@@ -1,10 +1,9 @@
 use eframe::{
-    egui::{
-        plot::{HLine, Line, Plot, PlotPoint, PlotPoints, VLine},
-        Slider, Ui,
-    },
+    egui::{Slider, Ui},
     epaint::{Color32, Vec2},
 };
+use egui_plot::{HLine, Line, Plot, PlotPoint, PlotPoints, VLine};
+
 use hound::WavReader;
 use rfd::FileDialog;
 

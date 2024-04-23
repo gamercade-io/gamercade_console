@@ -1,5 +1,5 @@
 use crate::ui::{draw_palette_preview, import_image_dialog};
-use eframe::egui::{ScrollArea, TextureId, Ui};
+use eframe::egui::{ScrollArea, TextureHandle, Ui};
 use gamercade_core::{Color, Palette, PALETTE_COLORS};
 use gamercade_fs::{EditorGraphicsData, EditorPalette};
 use hashbrown::HashSet;
@@ -15,7 +15,7 @@ impl PaletteList {
     pub(crate) fn draw(
         &mut self,
         ui: &mut Ui,
-        texture_id: TextureId,
+        texture_handle: &TextureHandle,
         data: &mut EditorGraphicsData,
     ) {
         ui.vertical(|ui| {
@@ -37,7 +37,7 @@ impl PaletteList {
                                 };
 
                                 // Draws the palette preview
-                                draw_palette_preview(ui, &palette.palette, texture_id);
+                                draw_palette_preview(ui, &palette.palette, texture_handle);
                             });
                         });
                 })

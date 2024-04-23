@@ -1,6 +1,6 @@
 use eframe::egui::{
-    self, ColorImage, ImageButton, ScrollArea, TextureFilter, TextureHandle, TextureOptions, Ui,
-    Vec2,
+    self, ColorImage, Image, ImageButton, ScrollArea, TextureFilter, TextureHandle, TextureOptions,
+    TextureWrapMode, Ui, Vec2,
 };
 
 use super::palette_to_map;
@@ -58,6 +58,7 @@ impl SheetEditor {
                                             TextureOptions {
                                                 magnification: TextureFilter::Nearest,
                                                 minification: TextureFilter::Nearest,
+                                                wrap_mode: TextureWrapMode::ClampToEdge,
                                             },
                                         );
                                         handle
@@ -69,20 +70,19 @@ impl SheetEditor {
                                             TextureOptions {
                                                 magnification: TextureFilter::Nearest,
                                                 minification: TextureFilter::Nearest,
+                                                wrap_mode: TextureWrapMode::ClampToEdge,
                                             },
                                         ));
                                         &mut self.texture_handles[index.0 as usize]
                                     }
                                 };
 
-                                let button = ImageButton::new(
-                                    image,
-                                    Vec2 {
+                                let button =
+                                    ImageButton::new(Image::new(&*image).fit_to_exact_size(Vec2 {
                                         x: sheet.width as f32 * scale,
                                         y: sheet.height as f32 * scale,
-                                    },
-                                )
-                                .selected(self.selected_sprite == index);
+                                    }))
+                                    .selected(self.selected_sprite == index);
 
                                 if ui.add(button).clicked() {
                                     self.selected_sprite = index;

@@ -1,5 +1,5 @@
 use eframe::{
-    egui::{ComboBox, Image, Slider, TextureFilter, TextureOptions, Ui, Window},
+    egui::{ComboBox, Image, Slider, TextureFilter, TextureOptions, TextureWrapMode, Ui, Window},
     epaint::{ColorImage, TextureHandle, Vec2},
 };
 use gamercade_audio::{
@@ -54,12 +54,13 @@ impl FMHelp {
                         TextureOptions {
                             magnification: TextureFilter::Nearest,
                             minification: TextureFilter::Nearest,
+                            wrap_mode: TextureWrapMode::ClampToEdge,
                         },
                     )
                 });
 
                 ui.label("Algorithm Chart:");
-                ui.add(Image::new(texture_id, self.diagram_size.unwrap()));
+                ui.add(Image::new(&*texture_id));
             });
     }
 }

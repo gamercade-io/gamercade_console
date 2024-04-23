@@ -1,10 +1,9 @@
 use eframe::{
-    egui::{
-        plot::{HLine, Line, Plot, PlotPoint, PlotPoints, VLine},
-        ComboBox, Slider, Ui, Window,
-    },
+    egui::{ComboBox, Slider, Ui, Window},
     epaint::{Color32, Vec2},
 };
+use egui_plot::{HLine, Line, Plot, PlotPoint, PlotPoints, VLine};
+
 use gamercade_audio::{
     WavetableBitDepth, WavetableDefinition, WavetableGenerator, WavetableWaveform,
     WAVETABLE_MAX_LENGTH,
@@ -82,7 +81,7 @@ impl WavetableEditor {
                 plot_ui.vline(VLine::new(0.0).color(Color32::RED));
                 plot_ui.vline(VLine::new(last_index as f64).color(Color32::RED));
 
-                if plot_ui.plot_hovered() && primary_pointer_down {
+                if plot_ui.response().hovered() && primary_pointer_down {
                     let point = plot_ui.pointer_coordinate().unwrap();
                     let (x, y) = plot_point_to_x_y(&point, last_index);
 

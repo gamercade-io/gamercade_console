@@ -1,12 +1,11 @@
 use std::collections::VecDeque;
 
 use eframe::{
-    egui::{
-        plot::{Line, Plot, PlotPoints},
-        Ui, Window,
-    },
+    egui::{Ui, Window},
     epaint::{Color32, Vec2},
 };
+use egui_plot::{Line, Plot, PlotPoints};
+
 use gamercade_audio::SFX_CHANNELS;
 use gamercade_sound_engine::SoundOutputChannels;
 use rtrb::Consumer;

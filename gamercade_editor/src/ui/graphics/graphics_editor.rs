@@ -1,6 +1,6 @@
 use eframe::egui::{
-    Color32, ColorImage, Image, Slider, TextureFilter, TextureHandle, TextureId, TextureOptions,
-    Ui, Vec2,
+    Color32, ColorImage, Image, Slider, TextureFilter, TextureHandle, TextureOptions,
+    TextureWrapMode, Ui, Vec2,
 };
 
 use super::{PaletteEditor, SpriteEditor, SpriteSheetEditor};
@@ -54,19 +54,17 @@ impl GraphicsEditor {
     }
 
     pub fn draw_contents(&mut self, ui: &mut Ui, data: &mut EditorGraphicsData) {
-        let texture_id = self
-            .default_palette_texture
-            .get_or_insert_with(|| {
-                ui.ctx().load_texture(
-                    "default palette texture",
-                    ColorImage::from_rgba_unmultiplied([1, 1], &[255, 255, 255, 255]),
-                    TextureOptions {
-                        magnification: TextureFilter::Nearest,
-                        minification: TextureFilter::Nearest,
-                    },
-                )
-            })
-            .id();
+        let texture_handle = self.default_palette_texture.get_or_insert_with(|| {
+            ui.ctx().load_texture(
+                "default palette texture",
+                ColorImage::from_rgba_unmultiplied([1, 1], &[255, 255, 255, 255]),
+                TextureOptions {
+                    magnification: TextureFilter::Nearest,
+                    minification: TextureFilter::Nearest,
+                    wrap_mode: TextureWrapMode::ClampToEdge,
+                },
+            )
+        });
 
         match self.mode {
             GraphicsEditorMode::Palette => self.palette_editor.draw(
@@ -74,14 +72,14 @@ impl GraphicsEditor {
                 data,
                 &self.sprite_sheet_editor,
                 self.scale,
-                texture_id,
+                &texture_handle,
             ),
             GraphicsEditorMode::SpriteSheet => self.sprite_sheet_editor.draw(
                 ui,
                 data,
                 &mut self.palette_editor,
                 self.scale,
-                texture_id,
+                &texture_handle,
             ),
             GraphicsEditorMode::Sprite => self.sprite_editor.draw(ui),
         };
@@ -95,16 +93,18 @@ impl GraphicsEditor {
     }
 }
 
-pub(crate) fn draw_palette_preview(ui: &mut Ui, palette: &Palette, texture_id: TextureId) {
+pub(crate) fn draw_palette_preview(ui: &mut Ui, palette: &Palette, texture_handle: &TextureHandle) {
     ui.spacing_mut().item_spacing = Vec2 { x: 0.0, y: 0.0 };
     ui.horizontal(|ui| {
         (0..PALETTE_COLORS / ROWS_PER_PALETTE_PREVIEW).for_each(|x| {
             ui.vertical(|ui| {
                 (0..ROWS_PER_PALETTE_PREVIEW).for_each(|y| {
                     let color = palette.colors[x + (y * ROWS_PER_PALETTE_PREVIEW)];
-                    let image = Image::new(texture_id, Vec2 { x: 10.0, y: 10.0 }).tint(
-                        Color32::from_rgba_unmultiplied(color.r, color.g, color.b, color.a),
-                    );
+                    let image = Image::new(texture_handle)
+                        .tint(Color32::from_rgba_unmultiplied(
+                            color.r, color.g, color.b, color.a,
+                        ))
+                        .fit_to_exact_size(Vec2::new(10.0, 10.0));
                     ui.add(image);
                 });
             });

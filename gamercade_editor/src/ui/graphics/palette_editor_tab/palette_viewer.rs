@@ -1,4 +1,4 @@
-use eframe::egui::{Color32, ImageButton, TextureId, Ui, Vec2};
+use eframe::egui::{Color32, Image, ImageButton, TextureHandle, Ui, Vec2};
 use gamercade_core::{Color, Palette, PALETTE_COLORS};
 
 use gamercade_fs::EditorPalette;
@@ -13,7 +13,7 @@ impl PaletteViewer {
         &mut self,
         ui: &mut Ui,
         palette: &mut EditorPalette,
-        palette_texture: TextureId,
+        palette_texture: &TextureHandle,
     ) {
         ui.group(|ui| {
             ui.label("Palette Viewer");
@@ -33,12 +33,16 @@ impl PaletteViewer {
                                 let index = x + (y * 8);
                                 let selected = index == self.selected_color;
                                 let color = palette.colors[index];
-                                let image_button =
-                                    ImageButton::new(palette_texture, Vec2 { x: 24.0, y: 24.0 })
-                                        .selected(selected)
-                                        .tint(Color32::from_rgba_unmultiplied(
-                                            color.r, color.g, color.b, color.a,
-                                        ));
+                                let image_button = ImageButton::new(
+                                    Image::new(palette_texture)
+                                        .fit_to_exact_size(Vec2::new(24.0, 24.0)),
+                                )
+                                .selected(selected)
+                                .tint(
+                                    Color32::from_rgba_unmultiplied(
+                                        color.r, color.g, color.b, color.a,
+                                    ),
+                                );
                                 if ui.add(image_button).clicked() {
                                     self.selected_color = index
                                 };

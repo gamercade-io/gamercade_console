@@ -1,4 +1,4 @@
-use eframe::egui::{Checkbox, Color32, Image, Slider, TextureId, Ui, Vec2};
+use eframe::egui::{Checkbox, Color32, Image, Slider, TextureHandle, Ui, Vec2};
 use gamercade_core::Color;
 
 #[derive(Clone, Debug, Default)]
@@ -12,7 +12,7 @@ impl ColorEditor {
         &mut self,
         ui: &mut Ui,
         current_color: &mut Color,
-        texture_id: TextureId,
+        texture_handle: &TextureHandle,
         index: usize,
     ) {
         if self.prev_color != *current_color {
@@ -26,8 +26,8 @@ impl ColorEditor {
 
                 ui.label(format!("Color index: {index}"));
 
-                draw_picker(ui, texture_id, "Current", false, current_color);
-                draw_picker(ui, texture_id, "Preview", true, &mut self.preview);
+                draw_picker(ui, texture_handle, "Current", false, current_color);
+                draw_picker(ui, texture_handle, "Preview", true, &mut self.preview);
 
                 ui.horizontal(|ui| {
                     if ui.button("Revert").clicked() {
@@ -46,7 +46,7 @@ impl ColorEditor {
 
 fn draw_picker(
     ui: &mut Ui,
-    texture_id: TextureId,
+    texture_handle: &TextureHandle,
     text: &'static str,
     editable: bool,
     color: &mut Color,
@@ -86,9 +86,13 @@ fn draw_picker(
                 });
             });
 
-            ui.add(Image::new(texture_id, Vec2 { x: 64.0, y: 64.0 }).tint(
-                Color32::from_rgba_unmultiplied(color.r, color.g, color.b, color.a),
-            ));
+            ui.add(
+                Image::new(texture_handle)
+                    .fit_to_exact_size(Vec2::new(64.0, 64.0))
+                    .tint(Color32::from_rgba_unmultiplied(
+                        color.r, color.g, color.b, color.a,
+                    )),
+            );
         });
     });
 }
