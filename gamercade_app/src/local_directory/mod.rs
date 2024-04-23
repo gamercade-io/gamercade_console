@@ -5,6 +5,7 @@ use rusqlite::{types::FromSql, Connection, Row, Statement};
 
 mod game;
 mod game_footprint;
+mod image_cache;
 mod permission_level;
 mod tag;
 mod user;
@@ -14,7 +15,7 @@ pub use permission_level::{PermissionLevel, PermissionLevelId};
 pub use tag::{Tag, TagId};
 pub use user::{User, UserId};
 
-use self::{game::upsert_games_table, game_footprint::GameFootprint};
+use self::{game::upsert_games_table, game_footprint::GameFootprint, image_cache::ImageCache};
 
 const LOCAL_DB_PATH: &str = "./local.db";
 
@@ -30,7 +31,7 @@ pub struct LocalDirectory {
     pub tags: TagDictionary,
     pub users: UserDictionary,
     pub permission_levels: PermissionLevelDictionary,
-    // TODO: Add Images
+    pub images: ImageCache,
     pub game_footprint: GameFootprintDictionary,
 }
 
@@ -167,6 +168,7 @@ impl Default for LocalDirectory {
             db,
             cached_games: Vec::new(),
             cache_dirty: true,
+            images: ImageCache::new(),
         };
 
         upsert_games_table(&output.db);
