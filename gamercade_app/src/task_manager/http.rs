@@ -68,7 +68,9 @@ impl TaskRequest<HttpManagerState> for HttpRequest {
         state: &Arc<Mutex<HttpManagerState>>,
     ) {
         match self {
-            HttpRequest::DownloadRom(request) => download_file(sender.clone(), state.clone(), request),
+            HttpRequest::DownloadRom(request) => {
+                download_file(sender.clone(), state.clone(), request)
+            }
             HttpRequest::UploadRom(request) => {
                 let WithSession {
                     data: request,
@@ -110,12 +112,17 @@ impl TaskRequest<HttpManagerState> for HttpRequest {
 }
 
 // TODO: May want to keep the join handle around
-fn download_file(sender: Sender<TaskNotification>, state: Arc<Mutex<HttpManagerState>>, request: WithSession<DownloadRom>) {
+fn download_file(
+    sender: Sender<TaskNotification>,
+    state: Arc<Mutex<HttpManagerState>>,
+    request: WithSession<DownloadRom>,
+) {
     tokio::spawn(async move {
         let WithSession {
             session,
             data: request,
         } = request;
+        println!("Downloading file!");
         let session = format!("{:x}", u128::from_ne_bytes(*session.bytes()));
 
         match reqwest::Client::new()
@@ -133,12 +140,31 @@ fn download_file(sender: Sender<TaskNotification>, state: Arc<Mutex<HttpManagerS
                     return;
                 }
 
+                let total_bytes = response.content_length().unwrap_or_default() as usize;
+
                 let mut buffer = Vec::new();
                 loop {
                     match response.chunk().await {
                         Ok(Some(bytes)) => {
-                            // TODO: Notify state of downloaded chunks
                             buffer.extend_from_slice(&bytes);
+
+                            // Notify download progress
+                            let mut lock = state.lock().await;
+                            let download = lock.rom_downloads.entry(request.game_id).or_insert(
+                                ActiveDownload {
+                                    id: request.game_id,
+                                    download_status: DownloadStatus::InProgress {
+                                        bytes_downloaded: 0,
+                                        total_bytes,
+                                    },
+                                },
+                            );
+                            if let DownloadStatus::InProgress {
+                                bytes_downloaded, ..
+                            } = &mut download.download_status
+                            {
+                                *bytes_downloaded += bytes.len();
+                            }
                         }
                         Ok(None) => {
                             // Create the directory
