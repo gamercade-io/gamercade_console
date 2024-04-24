@@ -68,7 +68,7 @@ impl TaskRequest<HttpManagerState> for HttpRequest {
         state: &Arc<Mutex<HttpManagerState>>,
     ) {
         match self {
-            HttpRequest::DownloadRom(request) => download_file(sender.clone(), request),
+            HttpRequest::DownloadRom(request) => download_file(sender.clone(), state.clone(), request),
             HttpRequest::UploadRom(request) => {
                 let WithSession {
                     data: request,
@@ -110,7 +110,7 @@ impl TaskRequest<HttpManagerState> for HttpRequest {
 }
 
 // TODO: May want to keep the join handle around
-fn download_file(sender: Sender<TaskNotification>, request: WithSession<DownloadRom>) {
+fn download_file(sender: Sender<TaskNotification>, state: Arc<Mutex<HttpManagerState>>, request: WithSession<DownloadRom>) {
     tokio::spawn(async move {
         let WithSession {
             session,
@@ -137,6 +137,7 @@ fn download_file(sender: Sender<TaskNotification>, request: WithSession<Download
                 loop {
                     match response.chunk().await {
                         Ok(Some(bytes)) => {
+                            // TODO: Notify state of downloaded chunks
                             buffer.extend_from_slice(&bytes);
                         }
                         Ok(None) => {
@@ -158,6 +159,8 @@ fn download_file(sender: Sender<TaskNotification>, request: WithSession<Download
                                     }
 
                                     // Notify the main thread that the download is done
+                                    // TODO: Include checksum in output
+
                                     sender
                                         .send(TaskNotification::HttpResponse(
                                             HttpResponse::DownloadComplete(DownloadRomComplete {
