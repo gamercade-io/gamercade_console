@@ -3,7 +3,7 @@ use gamercade_interface::platform::FrontPageResponse;
 
 use crate::app::AppDrawContext;
 
-use super::{ArcadeActiveView, CreatorDashboardView};
+use super::{download_window::DownloadWindow, ArcadeActiveView, CreatorDashboardView};
 
 #[derive(Default)]
 pub struct OnlineView {
@@ -11,6 +11,7 @@ pub struct OnlineView {
 
     pub arcade: ArcadeView,
     pub dashboard: CreatorDashboardView,
+    pub download_window: DownloadWindow,
 }
 
 #[derive(Default)]
@@ -30,6 +31,7 @@ enum ArcadeTab {
 impl ArcadeView {
     fn draw(&mut self, context: &mut AppDrawContext) {
         let ui = &mut context.ui;
+
         if let Some(front_page) = &self.front_page {
             ui.horizontal(|ui| {
                 ui.selectable_value(&mut self.tab, ArcadeTab::Popular, "Popular Games");
@@ -102,6 +104,8 @@ impl OnlineView {
     pub fn draw(&mut self, ctx: &mut AppDrawContext) -> Option<ArcadeActiveView> {
         ctx.ui.label("Online View");
 
+        self.download_window.draw(ctx);
+
         ctx.ui.horizontal(|ui| {
             ui.selectable_value(&mut self.active_mode, OnlineViewMode::Arcade, "Arcade");
             ui.selectable_value(
@@ -109,6 +113,15 @@ impl OnlineView {
                 OnlineViewMode::CreatorDashboard,
                 "Creator Dashboard",
             );
+
+            ui.separator();
+
+            if ui
+                .selectable_label(self.download_window.open, "Downloads")
+                .clicked()
+            {
+                self.download_window.open = !self.download_window.open;
+            };
         });
 
         match self.active_mode {

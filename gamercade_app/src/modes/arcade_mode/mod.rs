@@ -1,6 +1,7 @@
 use crate::app::AppDrawContext;
 
 mod creator_dashboard;
+mod download_window;
 mod login;
 mod manage_game;
 mod new_game;

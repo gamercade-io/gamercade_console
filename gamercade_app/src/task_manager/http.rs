@@ -26,11 +26,12 @@ pub struct HttpManagerState {
 }
 
 pub struct ActiveDownload {
-    id: i64,
-    download_status: DownloadStatus,
+    pub id: i64,
+    pub download_status: DownloadStatus,
 }
 
 pub enum DownloadStatus {
+    Starting,
     InProgress {
         bytes_downloaded: usize,
         total_bytes: usize,
@@ -69,7 +70,19 @@ impl TaskRequest<HttpManagerState> for HttpRequest {
     ) {
         match self {
             HttpRequest::DownloadRom(request) => {
-                download_file(sender.clone(), state.clone(), request)
+                let mut lock = state.lock().await;
+                if !lock.rom_downloads.contains_key(&request.data.game_id) {
+                    lock.rom_downloads.insert(
+                        request.data.game_id,
+                        ActiveDownload {
+                            id: request.data.game_id,
+                            download_status: DownloadStatus::Starting,
+                        },
+                    );
+
+                    drop(lock);
+                    download_file(sender.clone(), state.clone(), request);
+                }
             }
             HttpRequest::UploadRom(request) => {
                 let WithSession {
