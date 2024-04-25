@@ -180,6 +180,12 @@ fn download_file(
                             }
                         }
                         Ok(None) => {
+                            // Download is done
+
+                            // Remove it from the active download list.
+                            let mut lock = state.lock().await;
+                            lock.rom_downloads.remove(&request.game_id);
+
                             // Create the directory
                             let _ = tokio::fs::create_dir_all(GAME_DIR).await;
 

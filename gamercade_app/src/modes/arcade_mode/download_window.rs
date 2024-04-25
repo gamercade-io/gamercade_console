@@ -20,21 +20,29 @@ impl DownloadWindow {
                     let lock = context.task_manager.http.state.blocking_lock();
 
                     lock.rom_downloads.iter().for_each(|(key, value)| {
+                        let game_name = context
+                            .directory
+                            .cached_games
+                            .iter()
+                            .find(|game| game.id == *key)
+                            .map(|game| game.title.as_str())
+                            .unwrap_or("Unknown Game");
+
                         match value.download_status {
                             DownloadStatus::Starting => {
-                                ui.label(format!("{key}: Starting..."));
+                                ui.label(format!("{game_name}: Starting..."));
                             }
                             DownloadStatus::InProgress {
                                 bytes_downloaded,
                                 total_bytes,
                             } => {
                                 ui.label(format!(
-                                    "{key}: {}",
+                                    "{game_name}: {}",
                                     bytes_downloaded as f32 / total_bytes as f32
                                 ));
                             }
                             DownloadStatus::Done(_) => {
-                                ui.label(format!("{key}: Done"));
+                                ui.label(format!("{game_name}: Done"));
                             }
                         }
                     });
