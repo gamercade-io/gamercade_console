@@ -30,6 +30,8 @@ impl ManageGameView {
         }
     }
 
+    // TODO: Add game icon visible here
+    // TODO: Add ability to upload game icons
     pub fn draw(&mut self, context: &mut AppDrawContext) -> bool {
         let mut done = false;
         let ui = &mut context.ui;
