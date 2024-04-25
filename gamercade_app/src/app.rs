@@ -5,8 +5,8 @@ use crate::{
     local_directory::LocalDirectory,
     modes::{AppMode, ArcadeModeView, LibraryModeView, SettingsModeView},
     task_manager::{
-        AuthState, AuthorRequest, GameResponse, HttpResponse, PlatformRequest, PlatformResponse,
-        SuperTaskManager, TagRequest, TaskNotification,
+        AuthResponse, AuthState, AuthorRequest, GameResponse, HttpResponse, PlatformRequest,
+        PlatformResponse, SuperTaskManager, TagRequest, TaskNotification,
     },
 };
 
@@ -85,38 +85,47 @@ impl App {
                 TaskNotification::GlobalPermissionLevels(permissions) => {
                     self.directory.upsert_permission_levesl(&permissions, true);
                 }
-                TaskNotification::AuthStateChanged(new_state) => {
-                    self.auth_state = new_state;
 
-                    self.modes.arcade.login.waiting = false;
+                TaskNotification::AuthResponse(response) => self.handle_auth_response(response),
 
-                    match &self.auth_state {
-                        AuthState::Unauthorized => self.modes.arcade.logged_out(),
-                        AuthState::SessionHeld(session) => {
-                            self.modes.arcade.logged_in();
-                            self.tasks
-                                .platform
-                                .send(PlatformRequest::FrontPage(FrontPageRequest {}));
-                            self.tasks
-                                .platform
-                                .send(PlatformRequest::VotedGames(session.clone()));
-                            self.tasks
-                                .platform
-                                .send(PlatformRequest::EditableGames(session.clone()));
-                            self.tasks.tags.send(TagRequest::Initialize);
-                            self.tasks.author.send(AuthorRequest::Initialize);
-                        }
-                    }
-                }
-                TaskNotification::LoginFailed => {
-                    self.modes.arcade.login.waiting = false;
-                    self.modes.arcade.logged_out();
-                }
                 TaskNotification::PlatformResponse(response) => {
                     self.handle_platform_response(response)
                 }
                 TaskNotification::GameResponse(response) => self.handle_game_response(response),
                 TaskNotification::HttpResponse(response) => self.handle_http_response(response),
+            }
+        }
+    }
+
+    fn handle_auth_response(&mut self, response: AuthResponse) {
+        match response {
+            AuthResponse::LoggedIn(new_state) => {
+                self.auth_state = new_state;
+
+                self.modes.arcade.login.waiting = false;
+
+                match &self.auth_state {
+                    AuthState::Unauthorized => self.modes.arcade.logged_out(),
+                    AuthState::SessionHeld(session) => {
+                        self.modes.arcade.logged_in();
+                        self.tasks
+                            .platform
+                            .send(PlatformRequest::FrontPage(FrontPageRequest {}));
+                        self.tasks
+                            .platform
+                            .send(PlatformRequest::VotedGames(session.clone()));
+                        self.tasks
+                            .platform
+                            .send(PlatformRequest::EditableGames(session.clone()));
+                        self.tasks.tags.send(TagRequest::Initialize);
+                        self.tasks.author.send(AuthorRequest::Initialize);
+                    }
+                }
+            }
+            AuthResponse::Error(e) => {
+                self.modes.arcade.login.waiting = false;
+                self.modes.arcade.logged_out();
+                println!("Auth error: {e}");
             }
         }
     }

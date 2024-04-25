@@ -49,6 +49,12 @@ pub enum AuthRequest {
     SignUp(SignUpRequest),
 }
 
+#[derive(Debug)]
+pub enum AuthResponse {
+    LoggedIn(AuthState),
+    Error(String),
+}
+
 impl Debug for AuthRequest {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -87,8 +93,8 @@ async fn handle_login(
 
             if let Ok(session) = Session::try_from(response.session.as_slice()) {
                 sender
-                    .send(TaskNotification::AuthStateChanged(AuthState::SessionHeld(
-                        session,
+                    .send(TaskNotification::AuthResponse(AuthResponse::LoggedIn(
+                        AuthState::SessionHeld(session),
                     )))
                     .await
                     .unwrap();
@@ -98,8 +104,12 @@ async fn handle_login(
             }
         }
         Err(e) => {
-            sender.send(TaskNotification::LoginFailed).await.unwrap();
-            println!("{e}");
+            sender
+                .send(TaskNotification::AuthResponse(AuthResponse::Error(
+                    e.to_string(),
+                )))
+                .await
+                .unwrap();
         }
     }
 }
@@ -116,8 +126,8 @@ async fn handle_sign_up(
 
             if let Ok(session) = Session::try_from(response.session.as_slice()) {
                 sender
-                    .send(TaskNotification::AuthStateChanged(AuthState::SessionHeld(
-                        session,
+                    .send(TaskNotification::AuthResponse(AuthResponse::LoggedIn(
+                        AuthState::SessionHeld(session),
                     )))
                     .await
                     .unwrap();

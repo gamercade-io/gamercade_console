@@ -3,7 +3,7 @@ use tokio::sync::mpsc::{channel, Receiver};
 use crate::local_directory::{PermissionLevel, PermissionLevelId, Tag, TagId};
 
 use super::{
-    AuthManager, AuthState, AuthorManager, GameManager, GameResponse, HttpManager, HttpResponse,
+    AuthManager, AuthResponse, AuthorManager, GameManager, GameResponse, HttpManager, HttpResponse,
     PlatformManager, PlatformResponse, TagManager, SUPER_TASK_CHANNEL_SIZE,
 };
 
@@ -11,8 +11,11 @@ use super::{
 pub enum TaskNotification {
     GlobalTags(Vec<(TagId, Tag)>),
     GlobalPermissionLevels(Vec<(PermissionLevelId, PermissionLevel)>),
-    AuthStateChanged(AuthState),
-    LoginFailed,
+    //AuthStateChanged(AuthState),
+    //LoginFailed,
+
+    // Auth
+    AuthResponse(AuthResponse),
 
     // Game
     GameResponse(GameResponse),
