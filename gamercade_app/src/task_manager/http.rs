@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{collections::hash_map::Entry, sync::Arc};
 
 use gamercade_interface::{Session, SESSION_METADATA_KEY};
 
@@ -71,15 +71,12 @@ impl TaskRequest<HttpManagerState> for HttpRequest {
         match self {
             HttpRequest::DownloadRom(request) => {
                 let mut lock = state.lock().await;
-                if !lock.rom_downloads.contains_key(&request.data.game_id) {
-                    lock.rom_downloads.insert(
-                        request.data.game_id,
-                        ActiveDownload {
-                            id: request.data.game_id,
-                            download_status: DownloadStatus::Starting,
-                        },
-                    );
 
+                if let Entry::Vacant(e) = lock.rom_downloads.entry(request.data.game_id) {
+                    e.insert(ActiveDownload {
+                        id: request.data.game_id,
+                        download_status: DownloadStatus::Starting,
+                    });
                     drop(lock);
                     download_file(sender.clone(), state.clone(), request);
                 }

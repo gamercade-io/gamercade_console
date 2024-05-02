@@ -1,7 +1,7 @@
-use eframe::egui;
+use eframe::egui::{self, Image};
 use gamercade_interface::platform::FrontPageResponse;
 
-use crate::app::AppDrawContext;
+use crate::{app::AppDrawContext, local_directory::ImageCache};
 
 use super::{download_window::DownloadWindow, ArcadeActiveView, CreatorDashboardView};
 
@@ -45,48 +45,57 @@ impl ArcadeView {
                 ArcadeTab::New => &front_page.new_games_ids,
             };
 
-            // TODO: Add space for image
-            egui::Grid::new("arcade_grid")
-                .num_columns(7)
-                .spacing([40.0, 4.0])
-                .striped(true)
-                .show(ui, |ui| {
-                    let mut num = 1;
-                    ui.label("#");
-                    ui.label("Title");
-                    ui.label("Short Description");
-                    ui.label("Rating");
-                    ui.label("Tags");
-                    ui.label("Size");
-                    ui.label("Download");
-                    ui.end_row();
+            egui::ScrollArea::vertical().show(context.ui, |ui| {
+                egui::Grid::new("arcade_grid")
+                    .num_columns(7)
+                    .spacing([40.0, 4.0])
+                    .striped(true)
+                    .show(ui, |ui| {
+                        ui.label("#");
+                        ui.label("Title");
+                        ui.label("Short Description");
+                        ui.label("Rating");
+                        ui.label("Tags");
+                        ui.label("Size");
+                        ui.label("Download");
+                        ui.end_row();
 
-                    for id in slice.iter() {
-                        // TOOD: Optimize this
-                        if let Some(game) = front_page.games.iter().find(|game| game.game_id == *id)
-                        {
-                            ui.label(format!("{num}"));
-                            num += 1;
+                        for id in slice.iter() {
+                            // TOOD: Optimize this
+                            if let Some(game) =
+                                front_page.games.iter().find(|game| game.game_id == *id)
+                            {
+                                let image = if let Some(image) =
+                                    context.directory.images.games.get(&game.game_id)
+                                {
+                                    Image::new(image)
+                                } else {
+                                    Image::new(ImageCache::default_game_image().clone())
+                                };
+                                ui.add(image.fit_to_exact_size((100.0, 100.0).into()));
 
-                            ui.label(&game.title);
-                            ui.label(&game.short_description);
-                            ui.label(format!("{}", game.average_rating));
-                            ui.label("TODO: Tags");
-                            ui.label(format!(
-                                "{}.mb",
-                                game.rom_size.unwrap_or_default() as f32 / (1024.0 * 1024.0)
-                            ));
+                                ui.label(&game.title);
+                                ui.label(&game.short_description);
+                                ui.label(format!("{}", game.average_rating));
+                                ui.label("TODO: Tags");
+                                ui.label(format!(
+                                    "{}.mb",
+                                    game.rom_size.unwrap_or_default() as f32 / (1024.0 * 1024.0)
+                                ));
 
-                            // TODO: Add a list of pending downloads so we dont spam the server
-                            if ui.button("Download").clicked() {
-                                context.task_manager.http.try_download_rom(
-                                    game.game_id,
-                                    &context.auth_state.get_session().unwrap(),
-                                )
+                                // TODO: Replace button with download progress if download in progress
+                                // TODO: Disable button if game already downloaded & checksum is accurate
+                                // TODO: Make button update if checksum isn't accurate
+                                if ui.button("Download").clicked() {
+                                    context.task_manager.http.try_download_rom(
+                                        game.game_id,
+                                        &context.auth_state.get_session().unwrap(),
+                                    )
+                                }
                             }
                         }
-                    }
-                });
+                    });
+            });
         } else {
             ui.spinner();
         };
