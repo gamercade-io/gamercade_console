@@ -43,8 +43,10 @@ pub enum DownloadStatus {
 pub enum HttpRequest {
     DownloadRom(WithSession<DownloadRom>),
     UploadRom(WithSession<UploadRom>),
-    DownloadImage(u64),
+    DeleteRom(WithSession<i64>),
+    DownloadImage(i64),
     UploadImage(WithSession<UploadImage>),
+    DeleteImage(WithSession<i64>),
 }
 
 #[derive(Debug)]
@@ -125,8 +127,22 @@ impl TaskRequest<HttpManagerState> for HttpRequest {
                         .unwrap(),
                 }
             }
-            HttpRequest::DownloadImage(request) => todo!(),
-            HttpRequest::UploadImage(request) => todo!(),
+            HttpRequest::DeleteRom(request) => {
+                // TODO: Hit the platform service to delete the rom
+                todo!()
+            }
+            HttpRequest::DownloadImage(request) => {
+                // TODO: Hit the platform service and download the image file
+                todo!()
+            }
+            HttpRequest::UploadImage(request) => {
+                // TODO: Upload the image to the service
+                todo!()
+            }
+            HttpRequest::DeleteImage(request) => {
+                // TODO: Hit the platform service to delete the image
+                todo!()
+            }
         }
     }
 }
