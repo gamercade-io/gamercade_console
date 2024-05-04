@@ -43,6 +43,8 @@ pub enum DownloadStatus {
 pub enum HttpRequest {
     DownloadRom(WithSession<DownloadRom>),
     UploadRom(WithSession<UploadRom>),
+    DownloadImage(u64),
+    UploadImage(WithSession<UploadImage>),
 }
 
 #[derive(Debug)]
@@ -60,6 +62,12 @@ pub struct DownloadRom {
 pub struct UploadRom {
     pub game_id: i64,
     pub bytes: Vec<u8>,
+}
+
+#[derive(Debug)]
+pub struct UploadImage {
+    pub game_id: i64,
+    pub image: Vec<u8>,
 }
 
 impl TaskRequest<HttpManagerState> for HttpRequest {
@@ -117,6 +125,8 @@ impl TaskRequest<HttpManagerState> for HttpRequest {
                         .unwrap(),
                 }
             }
+            HttpRequest::DownloadImage(request) => todo!(),
+            HttpRequest::UploadImage(request) => todo!(),
         }
     }
 }

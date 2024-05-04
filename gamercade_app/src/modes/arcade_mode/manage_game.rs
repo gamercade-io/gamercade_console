@@ -30,8 +30,6 @@ impl ManageGameView {
         }
     }
 
-    // TODO: Add game icon visible here
-    // TODO: Add ability to upload game icons
     pub fn draw(&mut self, context: &mut AppDrawContext) -> bool {
         let mut done = false;
         let ui = &mut context.ui;
@@ -47,6 +45,20 @@ impl ManageGameView {
 
         ui.label("Short Description: ");
         ui.text_edit_singleline(&mut self.short_description);
+
+        // TODO: Add game icon visible here
+        ui.horizontal(|ui| {
+            if ui.button("Upload Image").clicked() {
+                // TODO: Add the upload image logic
+            };
+
+            if ui.button("Delete Image").clicked() {
+                // TODO: Add delete image "are you sure?" check
+                // TODO: If sure, delete it
+            };
+        });
+
+        ui.separator();
 
         ui.label("Long Description: ");
         ui.text_edit_singleline(&mut self.long_description);
