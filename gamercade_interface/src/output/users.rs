@@ -32,15 +32,15 @@ pub struct UpdateEmailRequest {
     pub new_email: ::prost::alloc::string::String,
 }
 /// Generated client implementations.
-pub mod users_service_client {
+pub mod user_service_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
     use tonic::codegen::*;
     use tonic::codegen::http::Uri;
     #[derive(Debug, Clone)]
-    pub struct UsersServiceClient<T> {
+    pub struct UserServiceClient<T> {
         inner: tonic::client::Grpc<T>,
     }
-    impl UsersServiceClient<tonic::transport::Channel> {
+    impl UserServiceClient<tonic::transport::Channel> {
         /// Attempt to create a new client by connecting to a given endpoint.
         pub async fn connect<D>(dst: D) -> Result<Self, tonic::transport::Error>
         where
@@ -51,7 +51,7 @@ pub mod users_service_client {
             Ok(Self::new(conn))
         }
     }
-    impl<T> UsersServiceClient<T>
+    impl<T> UserServiceClient<T>
     where
         T: tonic::client::GrpcService<tonic::body::BoxBody>,
         T::Error: Into<StdError>,
@@ -69,7 +69,7 @@ pub mod users_service_client {
         pub fn with_interceptor<F>(
             inner: T,
             interceptor: F,
-        ) -> UsersServiceClient<InterceptedService<T, F>>
+        ) -> UserServiceClient<InterceptedService<T, F>>
         where
             F: tonic::service::Interceptor,
             T::ResponseBody: Default,
@@ -83,7 +83,7 @@ pub mod users_service_client {
                 http::Request<tonic::body::BoxBody>,
             >>::Error: Into<StdError> + Send + Sync,
         {
-            UsersServiceClient::new(InterceptedService::new(inner, interceptor))
+            UserServiceClient::new(InterceptedService::new(inner, interceptor))
         }
         /// Compress requests with the given encoding.
         ///
@@ -131,11 +131,11 @@ pub mod users_service_client {
                 })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
-                "/users.UsersService/GetUserInfo",
+                "/users.UserService/GetUserInfo",
             );
             let mut req = request.into_request();
             req.extensions_mut()
-                .insert(GrpcMethod::new("users.UsersService", "GetUserInfo"));
+                .insert(GrpcMethod::new("users.UserService", "GetUserInfo"));
             self.inner.unary(req, path, codec).await
         }
         pub async fn get_users_info(
@@ -153,11 +153,11 @@ pub mod users_service_client {
                 })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
-                "/users.UsersService/GetUsersInfo",
+                "/users.UserService/GetUsersInfo",
             );
             let mut req = request.into_request();
             req.extensions_mut()
-                .insert(GrpcMethod::new("users.UsersService", "GetUsersInfo"));
+                .insert(GrpcMethod::new("users.UserService", "GetUsersInfo"));
             self.inner.unary(req, path, codec).await
         }
         pub async fn update_email(
@@ -178,22 +178,22 @@ pub mod users_service_client {
                 })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
-                "/users.UsersService/UpdateEmail",
+                "/users.UserService/UpdateEmail",
             );
             let mut req = request.into_request();
             req.extensions_mut()
-                .insert(GrpcMethod::new("users.UsersService", "UpdateEmail"));
+                .insert(GrpcMethod::new("users.UserService", "UpdateEmail"));
             self.inner.unary(req, path, codec).await
         }
     }
 }
 /// Generated server implementations.
-pub mod users_service_server {
+pub mod user_service_server {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
     use tonic::codegen::*;
-    /// Generated trait containing gRPC methods that should be implemented for use with UsersServiceServer.
+    /// Generated trait containing gRPC methods that should be implemented for use with UserServiceServer.
     #[async_trait]
-    pub trait UsersService: Send + Sync + 'static {
+    pub trait UserService: Send + Sync + 'static {
         async fn get_user_info(
             &self,
             request: tonic::Request<super::UserRequest>,
@@ -211,7 +211,7 @@ pub mod users_service_server {
         >;
     }
     #[derive(Debug)]
-    pub struct UsersServiceServer<T: UsersService> {
+    pub struct UserServiceServer<T: UserService> {
         inner: _Inner<T>,
         accept_compression_encodings: EnabledCompressionEncodings,
         send_compression_encodings: EnabledCompressionEncodings,
@@ -219,7 +219,7 @@ pub mod users_service_server {
         max_encoding_message_size: Option<usize>,
     }
     struct _Inner<T>(Arc<T>);
-    impl<T: UsersService> UsersServiceServer<T> {
+    impl<T: UserService> UserServiceServer<T> {
         pub fn new(inner: T) -> Self {
             Self::from_arc(Arc::new(inner))
         }
@@ -271,9 +271,9 @@ pub mod users_service_server {
             self
         }
     }
-    impl<T, B> tonic::codegen::Service<http::Request<B>> for UsersServiceServer<T>
+    impl<T, B> tonic::codegen::Service<http::Request<B>> for UserServiceServer<T>
     where
-        T: UsersService,
+        T: UserService,
         B: Body + Send + 'static,
         B::Error: Into<StdError> + Send + 'static,
     {
@@ -289,10 +289,10 @@ pub mod users_service_server {
         fn call(&mut self, req: http::Request<B>) -> Self::Future {
             let inner = self.inner.clone();
             match req.uri().path() {
-                "/users.UsersService/GetUserInfo" => {
+                "/users.UserService/GetUserInfo" => {
                     #[allow(non_camel_case_types)]
-                    struct GetUserInfoSvc<T: UsersService>(pub Arc<T>);
-                    impl<T: UsersService> tonic::server::UnaryService<super::UserRequest>
+                    struct GetUserInfoSvc<T: UserService>(pub Arc<T>);
+                    impl<T: UserService> tonic::server::UnaryService<super::UserRequest>
                     for GetUserInfoSvc<T> {
                         type Response = super::UserInfo;
                         type Future = BoxFuture<
@@ -305,7 +305,7 @@ pub mod users_service_server {
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as UsersService>::get_user_info(&inner, request).await
+                                <T as UserService>::get_user_info(&inner, request).await
                             };
                             Box::pin(fut)
                         }
@@ -333,12 +333,10 @@ pub mod users_service_server {
                     };
                     Box::pin(fut)
                 }
-                "/users.UsersService/GetUsersInfo" => {
+                "/users.UserService/GetUsersInfo" => {
                     #[allow(non_camel_case_types)]
-                    struct GetUsersInfoSvc<T: UsersService>(pub Arc<T>);
-                    impl<
-                        T: UsersService,
-                    > tonic::server::UnaryService<super::UsersRequest>
+                    struct GetUsersInfoSvc<T: UserService>(pub Arc<T>);
+                    impl<T: UserService> tonic::server::UnaryService<super::UsersRequest>
                     for GetUsersInfoSvc<T> {
                         type Response = super::UsersResponse;
                         type Future = BoxFuture<
@@ -351,7 +349,7 @@ pub mod users_service_server {
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as UsersService>::get_users_info(&inner, request).await
+                                <T as UserService>::get_users_info(&inner, request).await
                             };
                             Box::pin(fut)
                         }
@@ -379,11 +377,11 @@ pub mod users_service_server {
                     };
                     Box::pin(fut)
                 }
-                "/users.UsersService/UpdateEmail" => {
+                "/users.UserService/UpdateEmail" => {
                     #[allow(non_camel_case_types)]
-                    struct UpdateEmailSvc<T: UsersService>(pub Arc<T>);
+                    struct UpdateEmailSvc<T: UserService>(pub Arc<T>);
                     impl<
-                        T: UsersService,
+                        T: UserService,
                     > tonic::server::UnaryService<super::UpdateEmailRequest>
                     for UpdateEmailSvc<T> {
                         type Response = super::super::common::Empty;
@@ -397,7 +395,7 @@ pub mod users_service_server {
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as UsersService>::update_email(&inner, request).await
+                                <T as UserService>::update_email(&inner, request).await
                             };
                             Box::pin(fut)
                         }
@@ -440,7 +438,7 @@ pub mod users_service_server {
             }
         }
     }
-    impl<T: UsersService> Clone for UsersServiceServer<T> {
+    impl<T: UserService> Clone for UserServiceServer<T> {
         fn clone(&self) -> Self {
             let inner = self.inner.clone();
             Self {
@@ -452,7 +450,7 @@ pub mod users_service_server {
             }
         }
     }
-    impl<T: UsersService> Clone for _Inner<T> {
+    impl<T: UserService> Clone for _Inner<T> {
         fn clone(&self) -> Self {
             Self(Arc::clone(&self.0))
         }
@@ -462,7 +460,7 @@ pub mod users_service_server {
             write!(f, "{:?}", self.0)
         }
     }
-    impl<T: UsersService> tonic::server::NamedService for UsersServiceServer<T> {
-        const NAME: &'static str = "users.UsersService";
+    impl<T: UserService> tonic::server::NamedService for UserServiceServer<T> {
+        const NAME: &'static str = "users.UserService";
     }
 }

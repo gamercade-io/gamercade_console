@@ -4,7 +4,7 @@ import "common.proto";
 
 package users;
 
-service UsersService {
+service UserService {
     rpc GetUserInfo(UserRequest) returns (UserInfo);
     rpc GetUsersInfo(UsersRequest) returns (UsersResponse);
 
