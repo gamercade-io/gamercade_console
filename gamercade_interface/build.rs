@@ -26,6 +26,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Compile and output the proto files
     tonic_build::configure()
+        .type_attribute(".", "#[derive(serde::Serialize, serde::Deserialize)]")
         .out_dir(OUTPUT_DIR)
         .protoc_arg("--experimental_allow_proto3_optional")
         .include_file("mod.rs")
