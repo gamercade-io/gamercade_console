@@ -14,7 +14,7 @@ message AdjustAuthorRequest {
     sfixed64 user_id = 2;
 
     optional string title = 3;
-    optional sint32 permission_level_id = 4;
+    optional int32 permission_level_id = 4;
 }
 
 message AdjustAuthorResponse {

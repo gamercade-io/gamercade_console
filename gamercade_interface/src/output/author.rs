@@ -9,7 +9,7 @@ pub struct AdjustAuthorRequest {
     pub user_id: i64,
     #[prost(string, optional, tag = "3")]
     pub title: ::core::option::Option<::prost::alloc::string::String>,
-    #[prost(sint32, optional, tag = "4")]
+    #[prost(int32, optional, tag = "4")]
     pub permission_level_id: ::core::option::Option<i32>,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
