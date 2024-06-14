@@ -76,6 +76,41 @@ impl Color {
         r | g | b | a
     }
 
+    pub fn to_hex_string(&self) -> String {
+        let r = self.r as u32;
+        let g = self.g as u32;
+        let b = self.b as u32;
+        format!("#{:02X}{:02X}{:02X}", r, g, b)
+    }
+
+    pub fn from_hex_string(hex: &str) -> Result<Self, &'static str> {
+        match (hex.starts_with('#'), hex.len()) {
+            (true, 7) => {
+                let hex_value =
+                    u32::from_str_radix(&hex[1..], 16).map_err(|_| "Invalid hex string")?;
+                let r = ((hex_value >> 16) & 0xff) as u8;
+                let g = ((hex_value >> 8) & 0xff) as u8;
+                let b = (hex_value & 0xff) as u8;
+                return Ok(Self { r, g, b, a: 255 });
+            }
+            (false, 6) => {
+                let hex_value = u32::from_str_radix(&hex, 16).map_err(|_| "Invalid hex string")?;
+                let r = ((hex_value >> 16) & 0xff) as u8;
+                let g = ((hex_value >> 8) & 0xff) as u8;
+                let b = (hex_value & 0xff) as u8;
+                return Ok(Self { r, g, b, a: 255 });
+            }
+            _ => {
+                return Err("Invalid hex string");
+            }
+        }
+    }
+
+    pub fn update_from_hex_string(&mut self, hex: &str) -> Result<(), &'static str> {
+        *self = Self::from_hex_string(hex)?;
+        Ok(())
+    }
+
     pub fn into_pixel_data(&self) -> [u8; BYTES_PER_PIXEL] {
         [self.r, self.g, self.b, self.a]
     }
@@ -89,5 +124,34 @@ impl From<[u8; 4]> for Color {
             b: color[2],
             a: color[3],
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_color_from_hex_string() {
+        let color = Color::from_hex_string("#FF0000").unwrap();
+        assert_eq!(color, Color::new(255, 0, 0, 255));
+
+        let color = Color::from_hex_string("#000000").unwrap();
+        assert_eq!(color, Color::new(0, 0, 0, 255));
+
+        let color = Color::from_hex_string("FF0000").unwrap();
+        assert_eq!(color, Color::new(255, 0, 0, 255));
+
+        let color = Color::from_hex_string("ffffff").unwrap();
+        assert_eq!(color, Color::new(255, 255, 255, 255));
+
+        assert!(Color::from_hex_string("#FF000").is_err());
+        assert!(Color::from_hex_string("#FF00000").is_err());
+        assert!(Color::from_hex_string("#FF00000FF").is_err());
+        assert!(Color::from_hex_string("FF00000FF").is_err());
+        assert!(Color::from_hex_string("asd").is_err());
+        assert!(Color::from_hex_string("pppppppp").is_err());
+        assert!(Color::from_hex_string("#pppppp").is_err());
+        assert!(Color::from_hex_string("#FFFFFFFF").is_err());
     }
 }
